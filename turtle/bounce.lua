@@ -17,7 +17,7 @@ local function square(side, color)
 end
 
 -- draw a large square around the entire field
-goto(-side, -side)
+posn(-side, -side)
 square(side*2)
 
 updt(false) -- don't refresh screen after each drawing operation
@@ -34,7 +34,7 @@ while true do
     start = time()
   end
 
-  goto(x, y)
+  posn(x, y)
   square(width, color)
 
   updt() -- force update of the screen

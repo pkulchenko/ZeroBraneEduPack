@@ -34,16 +34,16 @@ end
 turn(-90) -- point turtle up as trees grow up
 
 -- grow a large tree
-goto(0, 120)
+posn(0, 120)
 tree(160, 7)
 
 -- grow a small bush
-goto(-80, 120)
+posn(-80, 120)
 tree(80, 6)
 
 -- grow grass
 for grass = -180,180 do
-  goto(grass+rand(5),120+rand(25))
+  posn(grass+rand(5),120+rand(25))
   tree(8,3)
 end
 

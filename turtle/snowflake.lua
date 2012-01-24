@@ -1,4 +1,4 @@
-turtle = require "turtle"
+require "turtle"
 
 pncl(colr(127,127,180))
 

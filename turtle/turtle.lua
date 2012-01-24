@@ -18,29 +18,40 @@ frame:Show(true)
 local bitmap
 local mdc = wx.wxMemoryDC()
 
+local pendn
+local penup
+local angle
+local x, y
+local sounds
+local bitmaps
+local key
+local click
+local exit
+
 local function reset ()
   local size = frame:GetClientSize()
   local w,h = size:GetWidth(),size:GetHeight()
   bitmap = wx.wxBitmap(w,h)
 
+  pendn = wx.wxPen(wx.wxBLACK_PEN)
+  penup = wx.wxTRANSPARENT_PEN
+  angle = 0
+  x, y = 0, 0
+  sounds = {}
+  bitmaps = {}
+  key = nil
+  click = {}
+  exit = true
+
   mdc:SetDeviceOrigin(w/2, h/2)
   mdc:SelectObject(bitmap)
   mdc:Clear()
-  mdc:SetPen(wx.wxBLACK_PEN)
+  mdc:SetPen(pendn)
   mdc:SetFont(wx.wxSWISS_FONT) -- thin TrueType font
   mdc:SelectObject(wx.wxNullBitmap)
 end
 
 reset()
-
-local pendn = wx.wxBLACK_PEN
-local penup = wx.wxTRANSPARENT_PEN
-local angle = 0
-local x, y = 0, 0
-local sounds = {}
-local bitmaps = {}
-local key
-local click = {}
 
 -- paint event handler for the frame that's called by wxEVT_PAINT
 function OnPaint(event)
@@ -50,7 +61,6 @@ function OnPaint(event)
   dc:delete() -- ALWAYS delete() any wxDCs created when done
 end
 
-local exit = true
 -- connect the paint event handler function with the paint event
 frame:Connect(wx.wxEVT_PAINT, OnPaint)
 frame:Connect(wx.wxEVT_ERASE_BACKGROUND, function () end) -- do nothing
@@ -78,18 +88,20 @@ local function updt (update)
   return curr
 end
 
+local function line (x1, y1, x2, y2)
+  mdc:SelectObject(bitmap)
+  mdc:DrawLine(x1, y1, x2, y2)
+  mdc:SelectObject(wx.wxNullBitmap)
+  if autoUpdate then updt() end
+end
+
 local function move (dist) 
   if not dist then return end
 
-  mdc:SelectObject(bitmap)
-
   local dx = math.floor(dist * math.cos(angle * math.pi/180)+0.5)
   local dy = math.floor(dist * math.sin(angle * math.pi/180)+0.5)
-  mdc:DrawLine(x, y, x+dx, y+dy)
+  line(x, y, x+dx, y+dy)
   x, y = x+dx, y+dy
-
-  mdc:SelectObject(wx.wxNullBitmap)
-  if autoUpdate then updt() end
 end
 
 local function fill (color, dx, dy)
@@ -191,12 +203,11 @@ local drawing = {
     click[type] = nil
     return curr.x, curr.y
   end,
-  goto = function (nx,ny)
+  posn = function (nx,ny)
     if not nx and not ny then return x, y end
     if nx then x = nx end
     if ny then y = ny end
   end,
-  goby = function (nx,ny) if nx and ny then x, y = x+nx, y+ny end end,
   turn = function (turn)
     if not turn then return angle end
     angle = (angle + turn) % 360
@@ -205,10 +216,10 @@ local drawing = {
   ptch = function () end,
   fill = fill,
   move = move,
+  line = line,
   wipe = wipe,
   wait = wait,
   updt = updt,
-  auto = auto,
   jump = function (dist) pnup() move(dist) pndn() end,
   back = function (dist) move(-dist) end,
   rand = rand,

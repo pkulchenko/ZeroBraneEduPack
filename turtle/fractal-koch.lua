@@ -2,7 +2,7 @@ require "turtle"
 
 size(500, 250)
 local x, y = size()
-goto(-x/2+5,y/2-5)
+posn(-x/2+5,y/2-5)
 pncl(colr(127,127,127))
 pnsz(2)
 
