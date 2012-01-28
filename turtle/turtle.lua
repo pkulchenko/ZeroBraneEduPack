@@ -3,18 +3,9 @@
 
 require("wx")
 
-local frame = wx.wxFrame(
-  wx.NULL, -- no parent for toplevel windows
-  wx.wxID_ANY, -- don't need a wxWindow ID
-  "Turtle Graph Window",
-  wx.wxDefaultPosition,
-  wx.wxSize(450, 450),
-  wx.wxDEFAULT_FRAME_STYLE + wx.wxSTAY_ON_TOP 
-  - wx.wxRESIZE_BORDER - wx.wxMAXIMIZE_BOX)
+local inloop = wx.wxGetApp():IsMainLoopRunning()
 
-frame:Connect(wx.wxEVT_CLOSE_WINDOW, function() os.exit() end)
-frame:Show(true)
-
+local frame
 local bitmap
 local mdc = wx.wxMemoryDC()
 
@@ -27,6 +18,7 @@ local bitmaps
 local key
 local click
 local exit
+local autoUpdate
 
 local function reset ()
   local size = frame:GetClientSize()
@@ -42,6 +34,7 @@ local function reset ()
   key = nil
   click = {}
   exit = true
+  autoUpdate = true
 
   mdc:SetDeviceOrigin(w/2, h/2)
   mdc:SelectObject(bitmap)
@@ -51,8 +44,6 @@ local function reset ()
   mdc:SelectObject(wx.wxNullBitmap)
 end
 
-reset()
-
 -- paint event handler for the frame that's called by wxEVT_PAINT
 function OnPaint(event)
   -- must always create a wxPaintDC in a wxEVT_PAINT handler
@@ -61,22 +52,44 @@ function OnPaint(event)
   dc:delete() -- ALWAYS delete() any wxDCs created when done
 end
 
--- connect the paint event handler function with the paint event
-frame:Connect(wx.wxEVT_PAINT, OnPaint)
-frame:Connect(wx.wxEVT_ERASE_BACKGROUND, function () end) -- do nothing
+local function open()
+  if frame then return end
+  frame = wx.wxFrame(
+    wx.NULL, -- no parent for toplevel windows
+    wx.wxID_ANY, -- don't need a wxWindow ID
+    "Turtle Graph Window",
+    wx.wxDefaultPosition,
+    wx.wxSize(450, 450),
+    wx.wxDEFAULT_FRAME_STYLE + wx.wxSTAY_ON_TOP
+    - wx.wxRESIZE_BORDER - wx.wxMAXIMIZE_BOX)
 
-frame:Connect(wx.wxEVT_KEY_DOWN, function (event) key = event:GetKeyCode() end)
-frame:Connect(wx.wxEVT_LEFT_DCLICK, function (event) click['l2'] = event:GetLogicalPosition(mdc) end)
-frame:Connect(wx.wxEVT_RIGHT_DCLICK, function (event) click['r2'] = event:GetLogicalPosition(mdc) end)
-frame:Connect(wx.wxEVT_LEFT_UP, function (event) click['lu'] = event:GetLogicalPosition(mdc) end)
-frame:Connect(wx.wxEVT_RIGHT_UP, function (event) click['ru'] = event:GetLogicalPosition(mdc) end)
-frame:Connect(wx.wxEVT_LEFT_DOWN, function (event) click['ld'] = event:GetLogicalPosition(mdc) end)
-frame:Connect(wx.wxEVT_RIGHT_DOWN, function (event) click['rd'] = event:GetLogicalPosition(mdc) end)
+  frame:Connect(wx.wxEVT_CLOSE_WINDOW,
+    function(event)
+      if inloop then event:Skip() frame = nil else os.exit() end
+    end)
 
-frame:Connect(wx.wxEVT_IDLE, 
-  function () if exit then wx.wxGetApp():ExitMainLoop() end end)
+  -- connect the paint event handler function with the paint event
+  frame:Connect(wx.wxEVT_PAINT, OnPaint)
+  frame:Connect(wx.wxEVT_ERASE_BACKGROUND, function () end) -- do nothing
 
-local autoUpdate = true
+  frame:Connect(wx.wxEVT_KEY_DOWN, function (event) key = event:GetKeyCode() end)
+  frame:Connect(wx.wxEVT_LEFT_DCLICK, function (event) click['l2'] = event:GetLogicalPosition(mdc) end)
+  frame:Connect(wx.wxEVT_RIGHT_DCLICK, function (event) click['r2'] = event:GetLogicalPosition(mdc) end)
+  frame:Connect(wx.wxEVT_LEFT_UP, function (event) click['lu'] = event:GetLogicalPosition(mdc) end)
+  frame:Connect(wx.wxEVT_RIGHT_UP, function (event) click['ru'] = event:GetLogicalPosition(mdc) end)
+  frame:Connect(wx.wxEVT_LEFT_DOWN, function (event) click['ld'] = event:GetLogicalPosition(mdc) end)
+  frame:Connect(wx.wxEVT_RIGHT_DOWN, function (event) click['rd'] = event:GetLogicalPosition(mdc) end)
+
+  frame:Connect(wx.wxEVT_IDLE,
+    function ()
+      if exit and not inloop then wx.wxGetApp():ExitMainLoop() end
+    end)
+
+  frame:Show(true)
+
+  reset()
+end
+
 local function updt (update)
   local curr = autoUpdate
   if update ~= nil then autoUpdate = update end
@@ -242,6 +255,8 @@ local drawing = {
   end,
   text = text,
   time = function () return os.clock() end,
+  open = open,
+  done = function () frame:Close() end,
 
   hide = function () end,
   show = function () end,
@@ -250,6 +265,8 @@ local drawing = {
   copy = function () end, -- copy a turtle
   pick = function () end, -- pick a turtle (or a group) to work with
 }
+
+open()
 
 for name, func in pairs(drawing) do
   _G[name] = func
