@@ -4,11 +4,14 @@ local demos = [[
   tree45.lua
   tree60.lua
   flower.lua
-  spiral.lua
+  wheel.lua
+  shell.lua
+  circle.lua
+  spiral-two.lua
+  squared-spiral.lua
   snowflake.lua
   rays.lua
   tree30.lua
-  squared-spiral.lua
   bounce.lua
 ]]
 
@@ -21,10 +24,11 @@ for file in demos:gmatch("([%w%p]+)") do
     if seconds then return waitorg(seconds) end
     local x, y = size()
     posn(-x/2+10, -y/2+10)
+    hide() -- hide the turtles (if any are shown)
     text("Done with '"..file.."'; pause for 2s...")
-    updt()
+    updt() -- refresh the screen
     waitorg(2)
   end
-  dofile(file)
+  dofile('turtle/'..file)
   size(x,y)
 end

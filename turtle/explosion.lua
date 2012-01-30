@@ -10,7 +10,7 @@ while true do
     posn(x-64,y-64) -- move turtle to the left to make the explosion centered
     for i=1,17 do
       undo(shot)
-      local file = "explosion/explosion1-" .. i
+      local file = "turtle/explosion/explosion1-" .. i
       load(file, 128, 128)
       wait(0.02)
     end

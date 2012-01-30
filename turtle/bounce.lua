@@ -13,7 +13,7 @@ local function square(side, color)
     move(side)
     turn(90)
   end
-  if color then fill(color, 1, 1) end
+  if color then fill(color, 2, 2) end
 end
 
 -- draw a large square around the entire field
