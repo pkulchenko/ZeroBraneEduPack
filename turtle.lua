@@ -44,75 +44,6 @@ local function trtl(num)
   return trtl
 end
 
-local function reset()
-  local size = frame:GetClientSize()
-  local w,h = size:GetWidth(),size:GetHeight()
-  bitmap = wx.wxBitmap(w,h)
-
-  sounds = {}
-  bitmaps = {}
-  key = nil
-  click = {}
-  exit = true
-  autoUpdate = true
-  showTurtles = false
-
-  turtles = {}
-  trtl() -- add one turtle
-
-  mdc:SetDeviceOrigin(w/2, h/2)
-  mdc:SelectObject(bitmap)
-  mdc:Clear()
-  mdc:SetFont(wx.wxSWISS_FONT) -- thin TrueType font
-  mdc:SelectObject(wx.wxNullBitmap)
-end
-
--- paint event handler for the frame that's called by wxEVT_PAINT
-function OnPaint(event)
-  -- must always create a wxPaintDC in a wxEVT_PAINT handler
-  local dc = wx.wxPaintDC(frame)
-  dc:DrawBitmap(bitmap, 0, 0, true)
-  dc:delete() -- ALWAYS delete() any wxDCs created when done
-end
-
-local function open()
-  if frame then return end
-  frame = wx.wxFrame(
-    wx.NULL, -- no parent for toplevel windows
-    wx.wxID_ANY, -- don't need a wxWindow ID
-    "Turtle Graph Window",
-    wx.wxDefaultPosition,
-    wx.wxSize(450, 450),
-    wx.wxDEFAULT_FRAME_STYLE + wx.wxSTAY_ON_TOP
-    - wx.wxRESIZE_BORDER - wx.wxMAXIMIZE_BOX)
-
-  frame:Connect(wx.wxEVT_CLOSE_WINDOW,
-    function(event)
-      if inloop then event:Skip() frame = nil else os.exit() end
-    end)
-
-  -- connect the paint event handler function with the paint event
-  frame:Connect(wx.wxEVT_PAINT, OnPaint)
-  frame:Connect(wx.wxEVT_ERASE_BACKGROUND, function () end) -- do nothing
-
-  frame:Connect(wx.wxEVT_KEY_DOWN, function (event) key = event:GetKeyCode() end)
-  frame:Connect(wx.wxEVT_LEFT_DCLICK, function (event) click['l2'] = event:GetLogicalPosition(mdc) end)
-  frame:Connect(wx.wxEVT_RIGHT_DCLICK, function (event) click['r2'] = event:GetLogicalPosition(mdc) end)
-  frame:Connect(wx.wxEVT_LEFT_UP, function (event) click['lu'] = event:GetLogicalPosition(mdc) end)
-  frame:Connect(wx.wxEVT_RIGHT_UP, function (event) click['ru'] = event:GetLogicalPosition(mdc) end)
-  frame:Connect(wx.wxEVT_LEFT_DOWN, function (event) click['ld'] = event:GetLogicalPosition(mdc) end)
-  frame:Connect(wx.wxEVT_RIGHT_DOWN, function (event) click['rd'] = event:GetLogicalPosition(mdc) end)
-
-  frame:Connect(wx.wxEVT_IDLE,
-    function ()
-      if exit and not inloop then wx.wxGetApp():ExitMainLoop() end
-    end)
-
-  frame:Show(true)
-
-  reset()
-end
-
 local function each(callback, ...)
   local r1, r2, r3 -- expect to return no more than three values
   for num,turtle in ipairs(turtles) do
@@ -168,6 +99,78 @@ local function updt(update)
   if showTurtles then undo(save) end
 
   return curr
+end
+
+local function reset()
+  local size = frame:GetClientSize()
+  local w,h = size:GetWidth(),size:GetHeight()
+  bitmap = wx.wxBitmap(w,h)
+
+  sounds = {}
+  bitmaps = {}
+  key = nil
+  click = {}
+  exit = true
+  autoUpdate = true
+  showTurtles = false
+
+  turtles = {}
+  trtl() -- add one turtle
+
+  mdc:SetDeviceOrigin(w/2, h/2)
+  mdc:SelectObject(bitmap)
+  mdc:Clear()
+  mdc:SetFont(wx.wxSWISS_FONT) -- thin TrueType font
+  mdc:SelectObject(wx.wxNullBitmap)
+
+  updt()
+end
+
+-- paint event handler for the frame that's called by wxEVT_PAINT
+function OnPaint(event)
+  -- must always create a wxPaintDC in a wxEVT_PAINT handler
+  local dc = wx.wxPaintDC(frame)
+  dc:DrawBitmap(bitmap, 0, 0, true)
+  dc:delete() -- ALWAYS delete() any wxDCs created when done
+end
+
+local function open()
+  -- if the window is open, then only reset it
+  if frame then return reset() end
+  frame = wx.wxFrame(
+    wx.NULL, -- no parent for toplevel windows
+    wx.wxID_ANY, -- don't need a wxWindow ID
+    "Turtle Graph Window",
+    wx.wxDefaultPosition,
+    wx.wxSize(450, 450),
+    wx.wxDEFAULT_FRAME_STYLE + wx.wxSTAY_ON_TOP
+    - wx.wxRESIZE_BORDER - wx.wxMAXIMIZE_BOX)
+
+  frame:Connect(wx.wxEVT_CLOSE_WINDOW,
+    function(event)
+      if inloop then event:Skip() frame = nil else os.exit() end
+    end)
+
+  -- connect the paint event handler function with the paint event
+  frame:Connect(wx.wxEVT_PAINT, OnPaint)
+  frame:Connect(wx.wxEVT_ERASE_BACKGROUND, function () end) -- do nothing
+
+  frame:Connect(wx.wxEVT_KEY_DOWN, function (event) key = event:GetKeyCode() end)
+  frame:Connect(wx.wxEVT_LEFT_DCLICK, function (event) click['l2'] = event:GetLogicalPosition(mdc) end)
+  frame:Connect(wx.wxEVT_RIGHT_DCLICK, function (event) click['r2'] = event:GetLogicalPosition(mdc) end)
+  frame:Connect(wx.wxEVT_LEFT_UP, function (event) click['lu'] = event:GetLogicalPosition(mdc) end)
+  frame:Connect(wx.wxEVT_RIGHT_UP, function (event) click['ru'] = event:GetLogicalPosition(mdc) end)
+  frame:Connect(wx.wxEVT_LEFT_DOWN, function (event) click['ld'] = event:GetLogicalPosition(mdc) end)
+  frame:Connect(wx.wxEVT_RIGHT_DOWN, function (event) click['rd'] = event:GetLogicalPosition(mdc) end)
+
+  frame:Connect(wx.wxEVT_IDLE,
+    function ()
+      if exit and not inloop then wx.wxGetApp():ExitMainLoop() end
+    end)
+
+  frame:Show(true)
+
+  reset()
 end
 
 local function line(x1, y1, x2, y2)
@@ -309,8 +312,9 @@ local drawing = {
       return math.sqrt(x*x + y*y)
     end)
   end,
-  turn = function (turn)
-    each(function(turtle) turtle.angle = (turtle.angle + turn) % 360 end)
+  turn = function (angle)
+    if not angle then return end
+    each(function(turtle) turtle.angle = (turtle.angle + angle) % 360 end)
     if showTurtles then updt() end
   end,
   bank = function () end,
