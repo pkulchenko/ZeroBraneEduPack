@@ -29,6 +29,6 @@ for file in demos:gmatch("([%w%p]+)") do
     updt() -- refresh the screen
     waitorg(2)
   end
-  dofile('turtle/'..file)
+  dofile('turtle-samples/'..file)
   size(x,y)
 end
