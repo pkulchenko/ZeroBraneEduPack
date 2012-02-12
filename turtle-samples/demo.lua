@@ -1,5 +1,5 @@
 local demos = [[
-  paint.lua
+  star.lua
   text.lua
   tree45.lua
   tree60.lua
