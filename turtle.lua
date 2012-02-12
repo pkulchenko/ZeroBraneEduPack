@@ -379,6 +379,7 @@ local drawing = {
   end,
 }
 
+math.randomseed(os.clock()*1000)
 open()
 
 for name, func in pairs(drawing) do
