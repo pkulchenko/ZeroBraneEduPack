@@ -10,6 +10,7 @@ local demos = [[
   spiral-two.lua
   squared-spiral.lua
   snowflake.lua
+  rainbow.lua
   rays.lua
   tree30.lua
   bounce.lua
