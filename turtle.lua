@@ -175,7 +175,13 @@ end
 
 local function line(x1, y1, x2, y2)
   mdc:SelectObject(bitmap)
-  mdc:DrawLine(x1, y1, x2, y2)
+
+  each(function(turtle)
+    mdc:SetPen(turtle.down and turtle.pendn or turtle.penup)
+    mdc:DrawLine(x1, y1, x2, y2)
+    mdc:SetPen(wx.wxNullPen)
+  end)
+
   mdc:SelectObject(wx.wxNullBitmap)
   if autoUpdate then updt() end
 end
@@ -183,16 +189,20 @@ end
 local function move(dist)
   if not dist then return end
 
+  mdc:SelectObject(bitmap)
+
   each(function(turtle)
     mdc:SetPen(turtle.down and turtle.pendn or turtle.penup)
 
     local dx = dist * math.cos(turtle.angle * math.pi/180)
     local dy = dist * math.sin(turtle.angle * math.pi/180)
     turtle.x, turtle.y = turtle.x+dx, turtle.y+dy
-    line(round(turtle.x-dx), round(turtle.y-dy), round(turtle.x), round(turtle.y))
-
+    mdc:DrawLine(round(turtle.x-dx), round(turtle.y-dy), round(turtle.x), round(turtle.y))
     mdc:SetPen(wx.wxNullPen)
   end)
+
+  mdc:SelectObject(wx.wxNullBitmap)
+  if autoUpdate then updt() end
 end
 
 local function fill(color, dx, dy)
