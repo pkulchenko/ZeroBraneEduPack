@@ -5,11 +5,11 @@ local demos = [[
   tree60.lua
   flower.lua
   wheel.lua
+  snowflake.lua
   shell.lua
   circle.lua
   spiral-two.lua
   squared-spiral.lua
-  snowflake.lua
   rainbow.lua
   rays.lua
   tree30.lua
