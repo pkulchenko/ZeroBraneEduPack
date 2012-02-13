@@ -186,6 +186,40 @@ local function line(x1, y1, x2, y2)
   if autoUpdate then updt() end
 end
 
+local function rect(x, y, w, h, r)
+  mdc:SelectObject(bitmap)
+
+  each(function(turtle)
+    mdc:SetPen(turtle.down and turtle.pendn or turtle.penup)
+    if r then mdc:DrawRoundedRectangle(x, y, w, h, r)
+    else mdc:DrawRectangle(x, y, w, h) end
+    mdc:SetPen(wx.wxNullPen)
+  end)
+
+  mdc:SelectObject(wx.wxNullBitmap)
+  if autoUpdate then updt() end
+end
+
+local function oval(x, y, w, h, color, start, finish)
+  h = h or w
+  start = start or 0
+  finish = finish or 0
+
+  mdc:SelectObject(bitmap)
+
+  each(function(turtle)
+    mdc:SetPen(turtle.down and turtle.pendn or turtle.penup)
+    mdc:SetBrush(
+      color and wx.wxBrush(color, wx.wxSOLID) or wx.wxTRANSPARENT_BRUSH)
+    mdc:DrawEllipticArc(x-w, y-h, w*2, h*2, start, finish)
+    mdc:SetBrush(wx.wxNullBrush)
+    mdc:SetPen(wx.wxNullPen)
+  end)
+
+  mdc:SelectObject(wx.wxNullBitmap)
+  if autoUpdate then updt() end
+end
+
 local function move(dist)
   if not dist then return end
 
@@ -268,6 +302,12 @@ local function wipe()
   if autoUpdate then updt() end
 end
 
+local function logf(value)
+  local curr = mdc:GetLogicalFunction()
+  if value then mdc:SetLogicalFunction(value) end
+  return curr
+end
+
 local function wait(seconds)
   if seconds then
     wx.wxMilliSleep(seconds*1000)
@@ -334,9 +374,14 @@ local drawing = {
   jump = function (dist) pnup() move(dist) pndn() end,
   back = function (dist) move(-dist) end,
 
+  line = line,
+  rect = rect,
+  crcl = function (x, y, r, c, s, f) oval(x, y, r, r, c, s, f) end,
+  oval = oval,
+
   colr = function (r, g, b)
     if not g or not b then return r end
-    return wx.wxColour(r, g, b):GetAsString(wx.wxC2S_CSS_SYNTAX)
+    return wx.wxColour(r, g, b):GetAsString(wx.wxC2S_HTML_SYNTAX)
   end,
   char = function (char)
     if char then return type(char) == 'string' and char:byte() or char end
@@ -350,12 +395,12 @@ local drawing = {
     click[type] = nil
     return curr.x, curr.y
   end,
-  line = line,
   wipe = wipe,
   wait = wait,
   updt = updt,
   rand = rand,
   ranc = function () return colr(rand(256),rand(256),rand(256)) end,
+  logf = logf,
   load = load,
   save = function (file) bitmap:SaveFile(file .. '.png', wx.wxBITMAP_TYPE_PNG) end,
   snap = function () return bitmap:GetSubBitmap(

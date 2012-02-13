@@ -11,6 +11,7 @@ local demos = [[
   spiral-two.lua
   squared-spiral.lua
   rainbow.lua
+  circles.lua
   rays.lua
   tree30.lua
   bounce.lua
