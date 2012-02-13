@@ -1,6 +1,6 @@
 require "spirograph"
 
-pncl("#F0A0A0")
+pncl("#A0A0A0")
 --    +-------------------------- radius of equator circle
 --    |    +--------------------- radius of the bicycle wheel circle
 --    |    |    +---------------- (optional) position of the drawing point
@@ -8,8 +8,8 @@ pncl("#F0A0A0")
 --    |    |    |   |    +------- (optional) delay in seconds
 --    |    |    |   |    |     +- (optional) show spirograph circles
 --    v    v    v   v    v     v
-spiro(60,  15,  45, 360, 0.01)
+spiro(101, 47,  60,  8, 0.01)
 wait()
 
--- Try varying one of the radiuses to get 3, 5, or 6 leaves
--- Try changing the bicycle wheel radius sign to get different leaf shapes
+-- Try varying the resolution to change the number of pearls
+-- Try changing the bicycle wheel radius to get more or less dense pearls

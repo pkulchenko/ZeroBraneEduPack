@@ -1,16 +1,17 @@
 local demos = [[
-  astroid.lua   
-  bud.lua       
-  cardioid.lua  
-  donut.lua     
-  double.lua    
-  flower.lua    
-  peanut.lua    
+  astroid.lua
+  bud.lua
+  cardioid.lua
+  circles.lua
+  donut.lua
+  double.lua
+  flower.lua
+  pearls.lua
   resolution.lua
-  rose.lua      
-  spiral.lua    
-  sunflower.lua 
-  triangle.lua  
+  rose.lua
+  spiral.lua
+  square.lua
+  sunflower.lua
 ]]
 
 require "spirograph"
