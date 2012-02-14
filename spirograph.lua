@@ -16,7 +16,7 @@ function spiro(R, r, p, n, w, show)
   local sign = r >= 0 and 1 or -1;
   local old = {}
   n = n or 360 -- default resolution
-  updt(false)
+  local auto = updt(false) -- disable auto update
   for count = 0, n * revs do
     local theta = (count == n * revs) and 0 or (2 * math.pi * count / n)
     local phi = theta * (1 + R / math.abs(r))
@@ -33,7 +33,7 @@ function spiro(R, r, p, n, w, show)
     if w then wait(w) end
   end
   if show then circles(unpack(old)) end -- erase circles
-  updt(true)
+  updt(auto)
 end
 
 function circles(x, y, R, r, p, theta, phi)
