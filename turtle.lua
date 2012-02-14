@@ -134,13 +134,16 @@ function OnPaint(event)
   dc:delete() -- ALWAYS delete() any wxDCs created when done
 end
 
-local function open()
+local function open(name)
   -- if the window is open, then only reset it
-  if frame then return reset() end
+  if frame then
+    if name then frame:SetTitle(name) end
+    return reset()
+  end
   frame = wx.wxFrame(
     wx.NULL, -- no parent for toplevel windows
     wx.wxID_ANY, -- don't need a wxWindow ID
-    "Turtle Graph Window",
+    (name or "Turtle Graphics Window"),
     wx.wxDefaultPosition,
     wx.wxSize(450, 450),
     wx.wxDEFAULT_FRAME_STYLE + wx.wxSTAY_ON_TOP

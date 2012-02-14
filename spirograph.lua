@@ -6,12 +6,14 @@
 
 require "turtle"
 
+open("Spirograph Window")
+
 local function gcd(x, y) return x % y == 0 and y or gcd(y, x % y) end
 
 function spiro(R, r, p, n, w, show)
   local xp, yp
   local revs = r / gcd(R, r)
-  local sign = r/math.abs(r);
+  local sign = r >= 0 and 1 or -1;
   local old = {}
   n = n or 360 -- default resolution
   updt(false)
@@ -35,19 +37,20 @@ function spiro(R, r, p, n, w, show)
 end
 
 function circles(x, y, R, r, p, theta, phi)
-  local sign = r/math.abs(r);
   local func = logf(wx.wxXOR)
   local width = pnsz(2)
-  local color = pncl("#FF00FF")
+  local sign = r >= 0 and 1 or -1;
   local cx = (R + r) * math.cos(theta)
   local cy = sign * (R + r) * math.sin(theta)
 
-  oval(0, 0, R)
+  local color = pncl("#FF00FF")
+  crcl(0, 0, R)
   pncl("#FFFF00")
   crcl(cx, cy, r)
   pncl("#00FFFF")
   crcl(x, y, 4)
   line(cx, cy, x, y)
+
   pncl(color)
   pnsz(width)
   logf(func)
