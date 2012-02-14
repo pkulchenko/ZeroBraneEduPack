@@ -1,3 +1,6 @@
+--[[ This program runs scripts that demonstrate what you can do with spirograph graphics. To execute this program ~click here;macro:run~, press @F6@ on the keyboard, or click on @Project | Run@ menu at the top of this window. After you explore the demos you can open each of the files to study and tweak them. ]]
+
+require "spirograph"
 local demos = [[
   astroid.lua
   bud.lua
@@ -14,7 +17,6 @@ local demos = [[
   sunflower.lua
 ]]
 
-require "spirograph"
 local x,y = size()
 local waitorg = wait
 wait(1)
