@@ -258,16 +258,16 @@ local function fill(color, dx, dy)
   if autoUpdate then updt() end
 end
 
-local function text(text, angle)
+local function text(text, angle, dx, dy)
   if not text then return end
 
   mdc:SelectObject(bitmap)
 
   each(function(turtle)
     if angle then
-      mdc:DrawRotatedText(text, turtle.x, turtle.y, angle)
+      mdc:DrawRotatedText(text, turtle.x+(dx or 0), turtle.y+(dy or 0), angle)
     else
-      mdc:DrawText(text, turtle.x, turtle.y)
+      mdc:DrawText(text, turtle.x+(dx or 0), turtle.y+(dy or 0))
     end
   end)
 
