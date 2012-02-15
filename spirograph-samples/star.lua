@@ -1,7 +1,6 @@
 require "spirograph"
 
-pncl(ranc())
-pnsz(2)
+pncl("#F0A0A0")
 --    +-------------------------- radius of equator circle
 --    |    +--------------------- radius of the bicycle wheel circle
 --    |    |    +---------------- (optional) position of the drawing point
@@ -9,8 +8,8 @@ pnsz(2)
 --    |    |    |   |    +------- (optional) delay in seconds
 --    |    |    |   |    |     +- (optional) show spirograph circles
 --    v    v    v   v    v     v
-spiro(60, -45, -80, 360, 0.01, true)
+spiro(87,  2,  100, 360, 0.01, true)
 wait()
 
--- What would you change to draw a triangle?
--- How do you turn the square by 45 degrees?
+-- Try changing slightly the radius of the equator circle
+-- Try varying the value of the resolution

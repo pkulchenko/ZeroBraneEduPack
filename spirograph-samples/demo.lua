@@ -14,6 +14,7 @@ local demos = [[
   rose.lua
   spiral.lua
   square.lua
+  star.lua
   sunflower.lua
 ]]
 
