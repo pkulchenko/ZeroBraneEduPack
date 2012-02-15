@@ -9,6 +9,7 @@ local demos = [[
   donut.lua
   double.lua
   earth.lua
+  galaxy.lua
   flower.lua
   pearls.lua
   resolution.lua

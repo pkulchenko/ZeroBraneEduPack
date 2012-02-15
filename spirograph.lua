@@ -23,28 +23,29 @@ function spiro(R, r, p, n, w, show)
     local x = (R + r) * math.cos(theta) + p * math.cos(phi)
     local y = (R + r) * math.sin(theta) + p * math.sin(phi)
     if xp and yp then
-      if show and #old > 0 then circles(show, unpack(old)) end
+      if show and #old > 0 then circles(show, false, unpack(old)) end
       line(xp, yp, x, y)
       old = {x, y, R, r, p, theta, phi}
-      if show then circles(show, unpack(old)) end
+      if show then circles(show, true, unpack(old)) end
     end
     xp,yp = x,y
-    updt()
+    if not show then updt() end
     if w then wait(w) end
   end
-  if show then circles(show, unpack(old)) end -- erase circles
+  if show then circles(show, false, unpack(old)) end -- erase circles
   updt(auto)
 end
 
-function circles(show, x, y, R, r, p, theta, phi)
+function circles(show, new, x, y, R, r, p, theta, phi)
   local func = logf(wx.wxXOR)
   local width = pnsz(2)
   local color = pncl("#FF00FF")
   local cx = (R + r) * math.cos(theta)
   local cy = (R + r) * math.sin(theta)
 
+  local skipUpdate = false
   if type(show) == 'function' then
-    show(cx, cy, x, y)
+    skipUpdate = show(cx, cy, x, y)
   else
     crcl(0, 0, R)
     pncl("#FFFF00")
@@ -53,6 +54,7 @@ function circles(show, x, y, R, r, p, theta, phi)
     crcl(x, y, 4)
     line(cx, cy, x, y)
   end
+  if new and not skipUpdate then updt() end
 
   pncl(color)
   pnsz(width)
