@@ -8,6 +8,7 @@ local demos = [[
   circles.lua
   donut.lua
   double.lua
+  earth.lua
   flower.lua
   pearls.lua
   resolution.lua
