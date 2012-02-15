@@ -38,7 +38,7 @@ end
 
 function circles(show, new, x, y, R, r, p, theta, phi)
   local func = logf(wx.wxXOR)
-  local width = pnsz(2)
+  local width = pnsz(1)
   local color = pncl("#FF00FF")
   local cx = (R + r) * math.cos(theta)
   local cy = (R + r) * math.sin(theta)
@@ -47,6 +47,7 @@ function circles(show, new, x, y, R, r, p, theta, phi)
   if type(show) == 'function' then
     skipUpdate = show(cx, cy, x, y)
   else
+    pnsz(2)
     crcl(0, 0, R)
     pncl("#FFFF00")
     crcl(cx, cy, r)
