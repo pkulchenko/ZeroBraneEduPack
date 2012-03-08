@@ -265,9 +265,9 @@ local function text(text, angle, dx, dy)
 
   each(function(turtle)
     if angle then
-      mdc:DrawRotatedText(text, turtle.x+(dx or 0), turtle.y+(dy or 0), angle)
+      mdc:DrawRotatedText(tostring(text), turtle.x+(dx or 0), turtle.y+(dy or 0), angle)
     else
-      mdc:DrawText(text, turtle.x+(dx or 0), turtle.y+(dy or 0))
+      mdc:DrawText(tostring(text), turtle.x+(dx or 0), turtle.y+(dy or 0))
     end
   end)
 
@@ -382,9 +382,9 @@ local drawing = {
   crcl = function (x, y, r, c, s, f) oval(x, y, r, r, c, s, f) end,
   oval = oval,
 
-  colr = function (r, g, b)
+  colr = function (r, g, b, a)
     if not g or not b then return r end
-    return wx.wxColour(r, g, b):GetAsString(wx.wxC2S_HTML_SYNTAX)
+    return wx.wxColour(r, g, b, (a or wx.wxALPHA_OPAQUE))
   end,
   char = function (char)
     if char then return type(char) == 'string' and char:byte() or char end
