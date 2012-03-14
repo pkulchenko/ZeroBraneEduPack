@@ -337,6 +337,15 @@ local drawing = {
   name = function () end, -- name the turtle
   trtl = trtl,
   pick = pick,
+  rant = function (num) -- get a turtle and initialize randomly
+    local turtle = turtles[num]
+    if turtle then pick(num) else turtle = trtl() end
+    turn(rand(360))
+    pncl(ranc())
+    local x, y = size()
+    posn(rand(x)-x/2, rand(y)-y/2)
+    return turtle
+  end,
 
   pndn = pndn,
   pnup = pnup,
