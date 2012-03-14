@@ -34,6 +34,7 @@ local function trtl(num)
     picked = false,
     pendn = wx.wxPen(wx.wxBLACK_PEN),
     penup = wx.wxTRANSPARENT_PEN,
+    font = wx.wxSWISS_FONT, -- thin TrueType font
     down = true,
     angle = 0.0,
     x = 0.0,
@@ -120,7 +121,6 @@ local function reset()
   mdc:SetDeviceOrigin(w/2, h/2)
   mdc:SelectObject(bitmap)
   mdc:Clear()
-  mdc:SetFont(wx.wxSWISS_FONT) -- thin TrueType font
   mdc:SelectObject(wx.wxNullBitmap)
 
   updt()
@@ -260,19 +260,23 @@ end
 
 local function text(text, angle, dx, dy)
   if not text then return end
+  text = tostring(text)
 
   mdc:SelectObject(bitmap)
 
-  each(function(turtle)
+  local r1, r2 = each(function(turtle)
+    mdc:SetFont(turtle.font)
     if angle then
-      mdc:DrawRotatedText(tostring(text), turtle.x+(dx or 0), turtle.y+(dy or 0), angle)
+      mdc:DrawRotatedText(text, turtle.x+(dx or 0), turtle.y+(dy or 0), angle)
     else
-      mdc:DrawText(tostring(text), turtle.x+(dx or 0), turtle.y+(dy or 0))
+      mdc:DrawText(text, turtle.x+(dx or 0), turtle.y+(dy or 0))
     end
+    return mdc:GetTextExtent(text)
   end)
 
   mdc:SelectObject(wx.wxNullBitmap)
   if autoUpdate then updt() end
+  return r1, r2
 end
 
 local function load(file)
@@ -382,6 +386,23 @@ local drawing = {
   crcl = function (x, y, r, c, s, f) oval(x, y, r, r, c, s, f) end,
   oval = oval,
 
+  font = function (...)
+    return each(function(turtle, font)
+      local curr = turtle.font:GetNativeFontInfoDesc()
+      if font then
+        if tonumber(font) == font then turtle.font:SetPointSize(font)
+        elseif font == "bold"    then turtle.font:SetWeight(wx.wxFONTWEIGHT_BOLD)
+        elseif font == "italic"  then turtle.font:SetStyle(wxFONTSTYLE_ITALIC)
+        elseif font == "normal"  then
+          turtle.font:SetStyle(wxFONTSTYLE_NORMAL)
+          turtle.font:SetWeight(wxFONTWEIGHT_NORMAL)
+        else
+          turtle.font:SetNativeFontInfo(font)
+        end
+      end
+      return curr
+    end, ...)
+  end,
   colr = function (r, g, b, a)
     if not g or not b then return r end
     return wx.wxColour(r, g, b, (a or wx.wxALPHA_OPAQUE))
