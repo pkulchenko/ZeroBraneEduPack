@@ -16,14 +16,16 @@ local click
 local exit
 local autoUpdate
 local showTurtles
+local turtles
 
 local function pick(...)
   local topick = {}
   for _,value in ipairs({...}) do
     topick[value] = true
   end
+  local all = #{...} == 0 -- pick all if nothing speficied
   for num,turtle in ipairs(turtles) do
-    turtle.picked = topick[num] or false
+    turtle.picked = all or topick[num] or false
   end
 end
 
