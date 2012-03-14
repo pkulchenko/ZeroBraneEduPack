@@ -16,6 +16,7 @@ local demos = [[
   rainbow.lua
   circles.lua
   rays.lua
+  many-turtles.lua
   tree30.lua
   bounce.lua
 ]]
