@@ -328,7 +328,7 @@ end
 
 local function pndn() each(function(turtle) turtle.down = true end) end
 local function pnup() each(function(turtle) turtle.down = false end) end
-local function rand(limit) return limit and (math.random(limit)-1) or (0) end
+local function rand(limit) return limit and (math.random(limit)-1) or math.random() end
 
 local drawing = {
   show = function () showTurtles = true updt() end,
