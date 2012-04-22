@@ -16,7 +16,7 @@ local click
 local exit
 local autoUpdate
 local showTurtles
-local turtles
+local turtles = {}
 
 local function pick(...)
   local topick = {}
@@ -137,15 +137,20 @@ function OnPaint(event)
 end
 
 local function open(name)
+  name = name or "Turtle Graphics Window"
   -- if the window is open, then only reset it
   if frame then
     if name then frame:SetTitle(name) end
     return reset()
   end
-  frame = wx.wxFrame(
+  -- try to find a window by name
+  local top = wx.wxGetApp():GetTopWindow()
+  frame = top and top.FindWindowByLabel(name)
+  -- OR create a new one now
+    or wx.wxFrame(
     wx.NULL, -- no parent for toplevel windows
     wx.wxID_ANY, -- don't need a wxWindow ID
-    (name or "Turtle Graphics Window"),
+    name,
     wx.wxDefaultPosition,
     wx.wxSize(450, 450),
     wx.wxDEFAULT_FRAME_STYLE + wx.wxSTAY_ON_TOP
@@ -460,8 +465,17 @@ local drawing = {
 }
 
 math.randomseed(os.clock()*1000)
-open()
 
 for name, func in pairs(drawing) do
-  _G[name] = func
+  -- install a proxy function that will run open() if needed
+  -- and then install a proper function so that there is no
+  -- performance penalty (other than the first call)
+  -- this is needed to delay calling open() as much as possible
+  -- to allow libraries derived from "turtle" to call open
+  -- and provide their own window name
+  _G[name] = function(...)
+    if not frame and name ~= "open" then open() end
+    for name, func in pairs(drawing) do _G[name] = func end
+    return func(...)
+  end
 end
