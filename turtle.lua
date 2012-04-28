@@ -13,7 +13,6 @@ local sounds
 local bitmaps
 local key
 local click
-local exit
 local autoUpdate
 local showTurtles
 local turtles = {}
@@ -113,7 +112,6 @@ local function reset()
   bitmaps = {}
   key = nil
   click = {}
-  exit = true
   autoUpdate = true
   showTurtles = false
 
@@ -175,7 +173,7 @@ local function open(name)
 
   frame:Connect(wx.wxEVT_IDLE,
     function ()
-      if exit and not inloop then wx.wxGetApp():ExitMainLoop() end
+      if not inloop then wx.wxGetApp():ExitMainLoop() end
     end)
 
   frame:Show(true)
@@ -322,12 +320,17 @@ local function logf(value)
   return curr
 end
 
+local minwait = 50 -- ms
 local function wait(seconds)
-  if seconds then
-    wx.wxMilliSleep(seconds*1000)
-  else
-    exit = false
-    wx.wxGetApp():MainLoop()
+  local stopat = os.clock() + (seconds or 0)
+  while true do
+    wx.wxGetApp():MainLoop() -- this will abort as soon as it hits IDLE event
+    local stillneed = (stopat - os.clock()) * 1000 -- milliseconds
+    if not seconds then wx.wxMilliSleep(minwait)
+    elseif stillneed <= 0 then return
+    elseif stillneed > minwait then wx.wxMilliSleep(minwait)
+    else wx.wxMilliSleep(stillneed); return
+    end
   end
 end
 
