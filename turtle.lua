@@ -3,6 +3,10 @@
 
 require("wx")
 
+local defaultSize = 450
+local screenSizeX, screenSizeY = wx.wxDisplaySize()
+screenSizeX = screenSizeX - 40 -- adjust position for default offset
+screenSizeY = screenSizeY - 80
 local inloop = wx.wxGetApp():IsMainLoopRunning()
 
 local frame
@@ -141,6 +145,7 @@ local function open(name)
     if name then frame:SetTitle(name) end
     return reset()
   end
+
   -- try to find a window by name
   local top = wx.wxGetApp():GetTopWindow()
   frame = top and top.FindWindowByLabel(name)
@@ -149,8 +154,8 @@ local function open(name)
     wx.NULL, -- no parent for toplevel windows
     wx.wxID_ANY, -- don't need a wxWindow ID
     name,
-    wx.wxDefaultPosition,
-    wx.wxSize(450, 450),
+    wx.wxPoint(screenSizeX - defaultSize, screenSizeY - defaultSize),
+    wx.wxSize(defaultSize, defaultSize),
     wx.wxDEFAULT_FRAME_STYLE + wx.wxSTAY_ON_TOP
     - wx.wxRESIZE_BORDER - wx.wxMAXIMIZE_BOX)
 
@@ -462,7 +467,9 @@ local drawing = {
   size = function (x, y)
     local size = frame:GetClientSize()
     if not x and not y then return size:GetWidth(), size:GetHeight() end
-    frame:SetClientSize(x or size:GetWidth(), y or size:GetHeight())
+    local newx, newy = x or size:GetWidth(), y or size:GetHeight()
+    frame:SetClientSize(newx, newy)
+    frame:Move(screenSizeX - newx, screenSizeY - newy)
     reset()
   end,
 }
