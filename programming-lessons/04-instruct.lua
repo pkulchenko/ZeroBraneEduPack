@@ -1,6 +1,6 @@
---[[ ~previous;03-helloworld.lua~ | ~contents;00-contents.lua~ | ~next;05-explain.lua~
+--[[ [previous](03-helloworld.lua) | [contents](00-contents.lua) | [next](05-explain.lua)
 
-! Program is a list of instructions
+# Program is a list of instructions
 
 Every program is a list of instructions. These instructions "tell" the computer what to do. You will learn how to write these instructions in a way that computers can follow and other people can understand.
 

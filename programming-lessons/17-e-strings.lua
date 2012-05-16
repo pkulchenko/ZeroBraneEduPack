@@ -1,9 +1,10 @@
---[[ ~previous;16-e-numbers.lua~ | ~contents;00-contents.lua~ | next
+--[[ [previous](16-e-numbers.lua) | [contents](00-contents.lua) | next
 
-! Exercise: strings, concatenation, and formatting
+# Exercise: strings, concatenation, and formatting
 
 Replace underscores (__) in the tests below with values to make tests correct.
-Hint: change @is(__, 'a'..'b', '...')@ to @is('ab', 'a'..'b', '...')@ to pass the test.
+Hint: change `is(__, 'a'..'b', '...')` to `is('ab', 'a'..'b', '...')` to pass the test.
+After making the changes, run the tests to see the results.
 ]]
 require "testwell"
 is(__, '', 'Strings can be empty')

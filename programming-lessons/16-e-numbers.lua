@@ -1,9 +1,10 @@
---[[ ~previous;15-r-strings.lua~ | ~contents;00-contents.lua~ | ~next;17-e-strings.lua~
+--[[ [previous](15-r-strings.lua) | [contents](00-contents.lua) | [next](17-e-strings.lua)
 
-! Exercise: numbers, operations, and priority
+# Exercise: numbers, operations, and priority
 
 Replace underscores (__) in the tests below with values to make tests correct.
-Hint: change @is(__, 2+3, '...')@ to @is(5, 2+3, '...')@ to pass the test.
+Hint: change `is(__, 2+3, '...')` to `is(5, 2+3, '...')` to pass the test.
+After making the changes, run the tests to see the results.
 ]] 
 require "testwell"
 is(__, 1 + 2 * 3 - 1, 'Multiplication done before addition and subtraction')

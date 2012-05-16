@@ -1,4 +1,4 @@
---[[ This program runs scripts that demonstrate what you can do with spirograph graphics. To execute this program ~click here;macro:run~, press @F6@ on the keyboard, or click on @Project | Run@ menu at the top of this window. After you explore the demos you can open each of the files to study and tweak them. ]]
+--[[ This program runs scripts that demonstrate what you can do with spirograph graphics. To execute this program [click here](macro:run), press `F6` on the keyboard, or click on `Project | Run` menu at the top of this window. After you explore the demos you can open each of the files to study and tweak them. ]]
 
 require "spirograph"
 local demos = [[
