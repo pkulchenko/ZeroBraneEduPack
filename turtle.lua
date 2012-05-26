@@ -126,8 +126,6 @@ local function reset()
   mdc:SelectObject(bitmap)
   mdc:Clear()
   mdc:SelectObject(wx.wxNullBitmap)
-
-  updt()
 end
 
 -- paint event handler for the frame that's called by wxEVT_PAINT
@@ -233,16 +231,19 @@ local function oval(x, y, w, h, color, start, finish)
   if autoUpdate then updt() end
 end
 
-local function move(dist)
+local function move(dist, dy)
   if not dist then return end
+
+  local dx -- if move is called with both parameters, move by vector
+  if dy then dx = dist end
 
   mdc:SelectObject(bitmap)
 
   each(function(turtle)
     mdc:SetPen(turtle.down and turtle.pendn or turtle.penup)
 
-    local dx = dist * math.cos(turtle.angle * math.pi/180)
-    local dy = dist * math.sin(turtle.angle * math.pi/180)
+    local dx = dx or dist * math.cos(turtle.angle * math.pi/180)
+    local dy = dy or dist * math.sin(turtle.angle * math.pi/180)
     turtle.x, turtle.y = turtle.x+dx, turtle.y+dy
     mdc:DrawLine(round(turtle.x-dx), round(turtle.y-dy), round(turtle.x), round(turtle.y))
     mdc:SetPen(wx.wxNullPen)
