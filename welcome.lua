@@ -11,4 +11,5 @@ ZeroBrane Studio is a **simple** and **friendly** environment to learn and explo
 #Demos
 - [Turtle graphics demo](+turtle-samples/demo.lua)
 - [Spirograph graphics demo](+spirograph-samples/demo.lua)
+- [Scratchpad demo](+livecoding-samples/demo.lua)
 ]]
