@@ -335,7 +335,7 @@ local function wait(seconds)
     if not seconds then wx.wxMilliSleep(minwait)
     elseif stillneed <= 0 then return
     elseif stillneed > minwait then wx.wxMilliSleep(minwait)
-    else wx.wxMilliSleep(stillneed); return
+    else wx.wxMilliSleep(math.floor(stillneed)); return
     end
   end
 end
