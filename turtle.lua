@@ -179,9 +179,11 @@ local function open(name)
       if not inloop then wx.wxGetApp():ExitMainLoop() end
     end)
 
-  frame:Show(true)
-
+  -- call reset() before Show() as on MacOS it shows the window right away,
+  -- which calls onPaint(), which expects reset() to be already called
   reset()
+
+  frame:Show(true)
 end
 
 local function line(x1, y1, x2, y2)
