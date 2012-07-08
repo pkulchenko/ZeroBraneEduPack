@@ -432,7 +432,7 @@ local drawing = {
   end,
   colr = function (r, g, b, a)
     if not g or not b then return r end
-    return wx.wxColour(r, g, b, (a or wx.wxALPHA_OPAQUE))
+    return wx.wxColour(math.floor(r), math.floor(g), math.floor(b), (a or wx.wxALPHA_OPAQUE))
   end,
   char = function (char)
     if char then return type(char) == 'string' and char:byte() or char end
