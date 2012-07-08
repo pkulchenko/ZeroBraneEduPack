@@ -285,6 +285,15 @@ function m.report()
   tb:note(("1..%d # %s"):format(total, msg))
 end
 
+function m.ismain()
+  for l = 3, 64 do -- only check up to 64 level; no more needed
+    local info = debug.getinfo(l)
+    if not info then return true end
+    if info.func == require then return false end
+  end
+  return true
+end
+
 for k, v in pairs(m) do  -- injection
   _G[k] = v
 end
