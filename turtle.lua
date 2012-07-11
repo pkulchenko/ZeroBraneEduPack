@@ -329,11 +329,12 @@ local function logf(value)
 end
 
 local minwait = 50 -- ms
+local gettime = pcall(require, "socket") and socket.gettime or os.time
 local function wait(seconds)
-  local stopat = os.clock() + (seconds or 0)
+  local stopat = gettime() + (seconds or 0)
   while true do
     wx.wxGetApp():MainLoop() -- this will abort as soon as it hits IDLE event
-    local stillneed = (stopat - os.clock()) * 1000 -- milliseconds
+    local stillneed = (stopat - gettime()) * 1000 -- milliseconds
     if not seconds then wx.wxMilliSleep(minwait)
     elseif stillneed <= 0 then return
     elseif stillneed > minwait then wx.wxMilliSleep(minwait)
