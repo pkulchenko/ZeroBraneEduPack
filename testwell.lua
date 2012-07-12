@@ -10,9 +10,7 @@
 local pairs = pairs
 local tostring = tostring
 local type = type
-local _G = _G
-
-_ENV = nil
+local _G = _G or _ENV
 
 -----------------------------------------------------------
 
@@ -68,8 +66,14 @@ function tb:ok(test, name, more)
   end
 end
 
-function tb:done_testing()
-  return self.curr_test, self.good_test, self.skip_test
+function tb:done_testing(reset)
+  local c, g, s = self.curr_test, self.good_test, self.skip_test
+  if reset then
+    self.curr_test = 0
+    self.good_test = 0
+    self.skip_test = 0
+  end
+  return c, g, s
 end
 
 -----------------------------------------------------------
@@ -264,7 +268,8 @@ function m.diag(...)
 end
 
 function m.report()
-  local total, good, skipped = tb:done_testing()
+  local total, good, skipped = tb:done_testing(true)
+  if total == 0 then return end
   local failed = total - good - skipped
   local sum = ("(%d/%d/%d)."):format(good, skipped, total)
   local num, msg = 0, ""
@@ -294,7 +299,16 @@ function m.ismain()
   return true
 end
 
-for k, v in pairs(m) do  -- injection
+-- this is needed to call report() when the test object is destroyed
+if _VERSION >= "Lua 5.2" then
+  setmetatable(m, {__gc = m.report})
+else
+  -- keep sentinel alive until 'm' is garbage collected
+  m.sentinel = newproxy(true)
+  getmetatable(m.sentinel).__gc = m.report
+end
+
+for k, v in pairs(m) do -- injection
   _G[k] = v
 end
 
