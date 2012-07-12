@@ -1,4 +1,4 @@
--- from http://www.headchant.com/2010/12/31/love2d-%E2%80%93-tutorial-part-2-pew-pew/
+-- from [love2d tutorial, part 2](http://www.headchant.com/2010/12/31/love2d-%E2%80%93-tutorial-part-2-pew-pew/)
 
 function love.load(arg) 
   if arg and arg[#arg] == "-debug" then require("mobdebug").start() end
