@@ -213,6 +213,19 @@ local function rect(x, y, w, h, r)
   if autoUpdate then updt() end
 end
 
+local function pixl(x, y)
+  mdc:SelectObject(bitmap)
+
+  each(function(turtle)
+    mdc:SetPen(turtle.down and turtle.pendn or turtle.penup)
+    mdc:DrawPoint(x, y)
+    mdc:SetPen(wx.wxNullPen)
+  end)
+
+  mdc:SelectObject(wx.wxNullBitmap)
+  if autoUpdate then updt() end
+end
+
 local function oval(x, y, w, h, color, start, finish)
   h = h or w
   start = start or 0
@@ -292,7 +305,7 @@ local function text(text, angle, dx, dy)
   return r1, r2
 end
 
-local function load(file)
+local function load(file, x, y)
   if not file then return end
   if not wx.wxFileName(file):FileExists() then file = file .. ".png" end
 
@@ -308,7 +321,7 @@ local function load(file)
   else
     each(function(turtle)
       mdc:SelectObject(bitmap)
-      mdc:DrawBitmap(bitmaps[file], turtle.x, turtle.y, true)
+      mdc:DrawBitmap(bitmaps[file], x or turtle.x, y or turtle.y, true)
       mdc:SelectObject(wx.wxNullBitmap)
     end)
   end
@@ -384,6 +397,16 @@ local drawing = {
     if showTurtles then updt() end
     return r
   end,
+  pnpx = function (...)
+    mdc:SelectObject(bitmap)
+    each(function(turtle, x, y)
+      local curr = turtle.pendn:GetColour()
+      mdc:GetPixel(x, y, curr)
+      turtle.pendn:SetColour(curr)
+    end, ...)
+    mdc:SelectObject(wx.wxNullBitmap)
+    if showTurtles then updt() end
+  end,
   posn = function (...)
     return each(function(turtle, nx, ny)
       if not nx and not ny then return turtle.x, turtle.y end
@@ -409,6 +432,7 @@ local drawing = {
   jump = function (dist) pnup() move(dist) pndn() end,
   back = function (dist) move(-dist) end,
 
+  pixl = pixl,
   line = line,
   rect = rect,
   crcl = function (x, y, r, c, s, f) oval(x, y, r, r, c, s, f) end,
@@ -467,7 +491,6 @@ local drawing = {
   time = function () return os.clock() end,
   open = open,
   done = function () frame:Close() end,
-  init = function () end, -- initialize turtle and the field
   size = function (x, y)
     local size = frame:GetClientSize()
     if not x and not y then return size:GetWidth(), size:GetHeight() end

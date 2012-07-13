@@ -13,6 +13,8 @@ local demos = [[
   circle.lua
   spiral-two.lua
   squared-spiral.lua
+  linearize.lua
+  pixels.lua
   rainbow.lua
   circles.lua
   rays.lua
