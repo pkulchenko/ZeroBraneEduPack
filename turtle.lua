@@ -516,6 +516,9 @@ local drawing = {
   open = open,
   done = function () frame:Close() end,
   size = size,
+  zero = function (x, y)
+    if x and y then mdc:SetDeviceOrigin(x, y) end
+  end
 }
 
 math.randomseed(os.time())
