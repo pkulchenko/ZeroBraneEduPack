@@ -52,7 +52,7 @@ end
 
 local function each(callback, ...)
   local r1, r2, r3 -- expect to return no more than three values
-  for num,turtle in ipairs(turtles) do
+  for _,turtle in ipairs(turtles) do
     if turtle.picked then
       if callback then r1, r2, r3 = callback(turtle, ...) end
     end
@@ -86,6 +86,14 @@ local function showTurtle(turtle)
 
   mdc:SetPen(wx.wxNullPen)
   mdc:SelectObject(wx.wxNullBitmap)
+end
+
+local function snap()
+  return bitmap:GetSubBitmap(wx.wxRect(0, 0, bitmap:GetWidth(), bitmap:GetHeight()))
+end
+
+local function undo(snapshot)
+  if snapshot then bitmap = wx.wxBitmap(snapshot) end
 end
 
 local function updt(update)
@@ -128,12 +136,12 @@ local function reset()
   mdc:SelectObject(wx.wxNullBitmap)
 end
 
--- paint event handler for the frame that's called by wxEVT_PAINT
-function OnPaint(event)
+-- paint event handler for the frame; called by wxEVT_PAINT
+function OnPaint()
   -- must always create a wxPaintDC in a wxEVT_PAINT handler
   local dc = wx.wxPaintDC(frame)
   dc:DrawBitmap(bitmap, 0, 0, true)
-  dc:delete() -- ALWAYS delete() any wxDCs created when done
+  dc:delete() -- always delete any wxDCs created when done
 end
 
 local function open(name)
@@ -358,13 +366,51 @@ end
 
 local function pndn() each(function(turtle) turtle.down = true end) end
 local function pnup() each(function(turtle) turtle.down = false end) end
-local function rand(limit) return limit and (math.random(limit)-1) or math.random() end
+local function pncl(...)
+  local r = each(function(turtle, color)
+    local curr = turtle.pendn:GetColour()
+    if color then turtle.pendn:SetColour(color) end
+    return curr
+  end, ...)
+  if showTurtles then updt() end
+  return r
+end
+
+local function colr(r, g, b, a)
+  if not g or not b then return r end
+  return wx.wxColour(math.floor(r), math.floor(g), math.floor(b), (a or wx.wxALPHA_OPAQUE))
+end
+
+local function rand(limit)
+  return limit and (math.random(limit)-1) or math.random() end
+local function ranc() return colr(rand(256),rand(256),rand(256)) end
+
+local function turn(angle)
+  if not angle then return end
+  each(function(turtle) turtle.angle = (turtle.angle + angle) % 360 end)
+  if showTurtles then updt() end
+end
+
+local function posn(...)
+  return each(function(turtle, nx, ny)
+    if not nx and not ny then return turtle.x, turtle.y end
+    if nx then turtle.x = nx end
+    if ny then turtle.y = ny end
+  end, ...)
+end
+
+local function size(x, y)
+  local size = frame:GetClientSize()
+  if not x and not y then return size:GetWidth(), size:GetHeight() end
+  local newx, newy = x or size:GetWidth(), y or size:GetHeight()
+  frame:SetClientSize(newx, newy)
+  frame:Move(screenSizeX - newx, screenSizeY - newy)
+  reset()
+end
 
 local drawing = {
   show = function () showTurtles = true updt() end,
   hide = function () showTurtles = false updt() end,
-  copy = function () end, -- copy a turtle
-  name = function () end, -- name the turtle
   trtl = trtl,
   pick = pick,
   rant = function (num) -- get a turtle and initialize randomly
@@ -388,15 +434,7 @@ local drawing = {
     if showTurtles then updt() end
     return r
   end,
-  pncl = function (...)
-    local r = each(function(turtle, color)
-      local curr = turtle.pendn:GetColour()
-      if color then turtle.pendn:SetColour(color) end
-      return curr
-    end, ...)
-    if showTurtles then updt() end
-    return r
-  end,
+  pncl = pncl,
   pnpx = function (...)
     mdc:SelectObject(bitmap)
     each(function(turtle, x, y)
@@ -407,24 +445,14 @@ local drawing = {
     mdc:SelectObject(wx.wxNullBitmap)
     if showTurtles then updt() end
   end,
-  posn = function (...)
-    return each(function(turtle, nx, ny)
-      if not nx and not ny then return turtle.x, turtle.y end
-      if nx then turtle.x = nx end
-      if ny then turtle.y = ny end
-    end, ...)
-  end,
+  posn = posn,
   dist = function ()
     return each(function(turtle)
       local x, y = turtle.x, turtle.y
       return math.sqrt(x*x + y*y)
     end)
   end,
-  turn = function (angle)
-    if not angle then return end
-    each(function(turtle) turtle.angle = (turtle.angle + angle) % 360 end)
-    if showTurtles then updt() end
-  end,
+  turn = turn,
   bank = function () end,
   ptch = function () end,
   fill = fill,
@@ -444,10 +472,10 @@ local drawing = {
       if font then
         if tonumber(font) == font then turtle.font:SetPointSize(font)
         elseif font == "bold"    then turtle.font:SetWeight(wx.wxFONTWEIGHT_BOLD)
-        elseif font == "italic"  then turtle.font:SetStyle(wxFONTSTYLE_ITALIC)
+        elseif font == "italic"  then turtle.font:SetStyle(wx.wxFONTSTYLE_ITALIC)
         elseif font == "normal"  then
-          turtle.font:SetStyle(wxFONTSTYLE_NORMAL)
-          turtle.font:SetWeight(wxFONTWEIGHT_NORMAL)
+          turtle.font:SetStyle(wx.wxFONTSTYLE_NORMAL)
+          turtle.font:SetWeight(wx.wxFONTWEIGHT_NORMAL)
         else
           turtle.font:SetNativeFontInfo(font)
         end
@@ -455,10 +483,7 @@ local drawing = {
       return curr
     end, ...)
   end,
-  colr = function (r, g, b, a)
-    if not g or not b then return r end
-    return wx.wxColour(math.floor(r), math.floor(g), math.floor(b), (a or wx.wxALPHA_OPAQUE))
-  end,
+  colr = colr,
   char = function (char)
     if char then return type(char) == 'string' and char:byte() or char end
     local curr = key
@@ -475,13 +500,12 @@ local drawing = {
   wait = wait,
   updt = updt,
   rand = rand,
-  ranc = function () return colr(rand(256),rand(256),rand(256)) end,
+  ranc = ranc,
   logf = logf,
   load = load,
   save = function (file) bitmap:SaveFile(file .. '.png', wx.wxBITMAP_TYPE_PNG) end,
-  snap = function () return bitmap:GetSubBitmap(
-    wx.wxRect(0, 0, bitmap:GetWidth(), bitmap:GetHeight())) end,
-  undo = function (snapshot) if snapshot then bitmap = wx.wxBitmap(snapshot) end end,
+  snap = snap,
+  undo = undo,
   play = function (file)
     if not wx.wxFileName(file):FileExists() then file = file .. ".wav" end
     if not sounds[file] then sounds[file] = wx.wxSound(file) end
@@ -491,17 +515,10 @@ local drawing = {
   time = function () return os.clock() end,
   open = open,
   done = function () frame:Close() end,
-  size = function (x, y)
-    local size = frame:GetClientSize()
-    if not x and not y then return size:GetWidth(), size:GetHeight() end
-    local newx, newy = x or size:GetWidth(), y or size:GetHeight()
-    frame:SetClientSize(newx, newy)
-    frame:Move(screenSizeX - newx, screenSizeY - newy)
-    reset()
-  end,
+  size = size,
 }
 
-math.randomseed(os.clock()*1000)
+math.randomseed(os.time())
 
 for name, func in pairs(drawing) do
   -- install a proxy function that will run open() if needed
