@@ -130,9 +130,10 @@ local function reset()
   turtles = {}
   trtl() -- add one turtle
 
-  mdc:SetDeviceOrigin(w/2, h/2)
   mdc:SelectObject(bitmap)
+  mdc:SetDeviceOrigin(0, 0)
   mdc:Clear()
+  mdc:SetDeviceOrigin(w/2, h/2)
   mdc:SelectObject(wx.wxNullBitmap)
 end
 
@@ -343,9 +344,11 @@ local function wipe()
   if autoUpdate then updt() end
 end
 
+local osname = wx.wxPlatformInfo.Get():GetOperatingSystemFamilyName()
+
 local function logf(value)
   local curr = mdc:GetLogicalFunction()
-  if value then mdc:SetLogicalFunction(value) end
+  if value and osname ~= 'Macintosh' then mdc:SetLogicalFunction(value) end
   return curr
 end
 
