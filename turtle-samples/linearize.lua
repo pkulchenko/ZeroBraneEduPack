@@ -1,7 +1,6 @@
 require "turtle"
 
 local x,y = size() -- get the current screen size
-local maxc = 256
 updt(false) -- disable auto updates
 zero(0, 0) -- change origin such that (0,0) is now in the left top corner
 load('turtle-samples/zerobrane')
