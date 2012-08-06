@@ -165,6 +165,7 @@ local function open(name)
     wx.wxSize(defaultSize, defaultSize),
     wx.wxDEFAULT_FRAME_STYLE + wx.wxSTAY_ON_TOP
     - wx.wxRESIZE_BORDER - wx.wxMAXIMIZE_BOX)
+  frame:SetClientSize(defaultSize, defaultSize)
 
   frame:Connect(wx.wxEVT_CLOSE_WINDOW,
     function(event)
