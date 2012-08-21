@@ -41,8 +41,8 @@ local width = love.graphics.getWidth()
 local height = love.graphics.getHeight()
 function love.update()
   local angle = 45
-  local velocity = 75
-  points = calcTrajectoryPoints(velocity, angle, 0.4)
+  local speed = 75
+  points = calcTrajectoryPoints(speed, angle, 0.4)
   position = (position or 0) + 2
   if position > width-25 then position = 0 end
 end
@@ -50,7 +50,9 @@ end
 local start = {x = 20, y = height-25}
 function love.draw()
   love.graphics.setColor(0,255,0,255)
-  love.graphics.rectangle("fill", position, start.y+12, 25, 5)
+  love.graphics.rectangle("fill", position, start.y+-15, 30, 15)
+
+  love.graphics.print("FPS: "..love.timer.getFPS(), 50, height-25)
 
   love.graphics.setColor(0,0,255,255)
   for i=1, #points do
