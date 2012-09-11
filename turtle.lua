@@ -8,6 +8,9 @@ local screenSizeX, screenSizeY = wx.wxDisplaySize()
 screenSizeX = screenSizeX - 40 -- adjust position for default offset
 screenSizeY = screenSizeY - 80
 local inloop = wx.wxGetApp():IsMainLoopRunning()
+local linux = 'Unix' == wx.wxPlatformInfo.Get():GetOperatingSystemFamilyName()
+-- don't use wxNullPen and wxNullBrush on Linux as either one generates
+-- warnings with GTK (IA__gdk_gc_set_foreground: assertion `color != NULL' failed)
 
 local frame
 local bitmap
@@ -84,7 +87,7 @@ local function showTurtle(turtle)
   mdc:DrawLine(x2, y2, x3, y3)
   mdc:DrawLine(x3, y3, x1, y1)
 
-  mdc:SetPen(wx.wxNullPen)
+  if not linux then mdc:SetPen(wx.wxNullPen) end
   mdc:SelectObject(wx.wxNullBitmap)
 end
 
@@ -202,7 +205,7 @@ local function line(x1, y1, x2, y2)
   each(function(turtle)
     mdc:SetPen(turtle.down and turtle.pendn or turtle.penup)
     mdc:DrawLine(x1, y1, x2, y2)
-    mdc:SetPen(wx.wxNullPen)
+    if not linux then mdc:SetPen(wx.wxNullPen) end
   end)
 
   mdc:SelectObject(wx.wxNullBitmap)
@@ -216,7 +219,7 @@ local function rect(x, y, w, h, r)
     mdc:SetPen(turtle.down and turtle.pendn or turtle.penup)
     if r then mdc:DrawRoundedRectangle(x, y, w, h, r)
     else mdc:DrawRectangle(x, y, w, h) end
-    mdc:SetPen(wx.wxNullPen)
+    if not linux then mdc:SetPen(wx.wxNullPen) end
   end)
 
   mdc:SelectObject(wx.wxNullBitmap)
@@ -229,7 +232,7 @@ local function pixl(x, y)
   each(function(turtle)
     mdc:SetPen(turtle.down and turtle.pendn or turtle.penup)
     mdc:DrawPoint(x, y)
-    mdc:SetPen(wx.wxNullPen)
+    if not linux then mdc:SetPen(wx.wxNullPen) end
   end)
 
   mdc:SelectObject(wx.wxNullBitmap)
@@ -248,8 +251,7 @@ local function oval(x, y, w, h, color, start, finish)
     mdc:SetBrush(
       color and wx.wxBrush(color, wx.wxSOLID) or wx.wxTRANSPARENT_BRUSH)
     mdc:DrawEllipticArc(x-w, y-h, w*2, h*2, start, finish)
-    mdc:SetBrush(wx.wxNullBrush)
-    mdc:SetPen(wx.wxNullPen)
+    if not linux then mdc:SetBrush(wx.wxNullBrush) mdc:SetPen(wx.wxNullPen) end
   end)
 
   mdc:SelectObject(wx.wxNullBitmap)
@@ -271,7 +273,7 @@ local function move(dist, dy)
     local dy = dy or dist * math.sin(turtle.angle * math.pi/180)
     turtle.x, turtle.y = turtle.x+dx, turtle.y+dy
     mdc:DrawLine(round(turtle.x-dx), round(turtle.y-dy), round(turtle.x), round(turtle.y))
-    mdc:SetPen(wx.wxNullPen)
+    if not linux then mdc:SetPen(wx.wxNullPen) end
   end)
 
   mdc:SelectObject(wx.wxNullBitmap)
@@ -287,7 +289,7 @@ local function fill(color, dx, dy)
     mdc:SetBrush(wx.wxBrush(color, wx.wxSOLID))
     mdc:FloodFill(turtle.x+(dx or 0), turtle.y+(dy or 0),
       turtle.pendn:GetColour(), wx.wxFLOOD_BORDER)
-    mdc:SetBrush(wx.wxNullBrush) -- release the brush
+    if not linux then mdc:SetBrush(wx.wxNullBrush) end -- release the brush
   end)
 
   mdc:SelectObject(wx.wxNullBitmap)
