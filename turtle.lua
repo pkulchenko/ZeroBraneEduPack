@@ -187,10 +187,11 @@ local function open(name)
   frame:Connect(wx.wxEVT_LEFT_DOWN, function (event) click['ld'] = event:GetLogicalPosition(mdc) end)
   frame:Connect(wx.wxEVT_RIGHT_DOWN, function (event) click['rd'] = event:GetLogicalPosition(mdc) end)
 
-  frame:Connect(wx.wxEVT_IDLE,
-    function ()
-      if not inloop then wx.wxGetApp():ExitMainLoop() end
-    end)
+  if not inloop then
+    local exitLoop = function () wx.wxGetApp():ExitMainLoop() end
+    frame:Connect(wx.wxEVT_IDLE, exitLoop)
+    frame:Connect(wx.wxEVT_TIMER, exitLoop)
+  end
 
   -- call reset() before Show() as on MacOS it shows the window right away,
   -- which calls onPaint(), which expects reset() to be already called
@@ -360,7 +361,13 @@ local gettime = pcall(require, "socket") and socket.gettime or os.time
 local function wait(seconds)
   local stopat = gettime() + (seconds or 0)
   while true do
-    wx.wxGetApp():MainLoop() -- this will abort as soon as it hits IDLE event
+    local app = wx.wxGetApp()
+    -- app:MainLoop() will abort as soon as it hits IDLE/TIMER event
+    if not linux then app:MainLoop()
+    elseif not seconds or 1000*seconds > minwait then
+      wx.wxTimer(app):Start(minwait,true)
+      app:MainLoop()
+    end
     local stillneed = (stopat - gettime()) * 1000 -- milliseconds
     if not seconds then wx.wxMilliSleep(minwait)
     elseif stillneed <= 0 then return
