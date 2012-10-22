@@ -1,6 +1,6 @@
---[[ These are sample scripts that can be run by [Love 2d game engine](http://love2d.org).
+--[[ These are sample scripts that can be run by [Love 2D game engine](http://love2d.org).
  
-- Copy [Love executable](https://love2d.org/) (along with all required files) to `love2d-samples` folder.
+- Make [Love executable](https://love2d.org/) available in PATH or put it into one of default folders: `C:\Program Files\` or `D:\Program Files\` on Windows or `/Applications` on Mac OS X.
 - Switch to love2d interpreter by going to `Project | Lua Interpreter | Love2d`.
 - Open any of the following scripts and run it.
   - [hello](+hello/main.lua): a simple "hello, world" script

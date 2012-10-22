@@ -1,6 +1,6 @@
 --[[
 
-# ZeroBrane Basics
+# ZeroBrane Studio Basics
 
 - [Hi there!](01-zb-start.lua)
 - [Lesson controls](02-controls.lua)
