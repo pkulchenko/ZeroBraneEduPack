@@ -15,4 +15,5 @@ ZeroBrane Studio is a **simple** and **friendly** environment to learn and explo
 - [Love 2D demo](+love2d-samples/demo.lua)
 - [Gideros demo](+gideros-samples/demo.lua)
 - [Moai demo](+moai-samples/demo.lua)
+- [Corona SDK demo](+corona-samples/demo.lua)
 ]]
