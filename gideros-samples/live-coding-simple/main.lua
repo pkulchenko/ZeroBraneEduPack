@@ -1,6 +1,9 @@
 --[[ Details of the implementation:
   http://giderosmobile.com/forum/discussion/comment/12833
   http://giderosmobile.com/forum/discussion/comment/12680
+
+  [set remote debugging](macro:shell(ide.config.gideros = {remote = "192.168.1.100"}))
+  [set local debugging](macro:shell(ide.config.gideros = nil))
 --]]
 
 LiveCodeSimple = LiveCodeSimple or Core.class(Sprite)
