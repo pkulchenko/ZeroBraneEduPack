@@ -1,14 +1,23 @@
 if not initialized then
   MOAISim.openWindow("Live coding", 320, 480)
-  local viewport = MOAIViewport.new()  viewport:setSize(320, 480)  viewport:setScale(320, 480)  
-  local gfxQuad = MOAIGfxQuad2D.new()  gfxQuad:setTexture("zbstudio.png")  gfxQuad:setRect(-32, -32, 32, 32)
-  prop1 = MOAIProp2D.new()  prop1:setDeck(gfxQuad)
+  local viewport = MOAIViewport.new()
+  viewport:setSize(320, 480)
+  viewport:setScale(320, 480)
+  
+  local gfxQuad = MOAIGfxQuad2D.new()
+  gfxQuad:setTexture("zbstudio.png")
+  gfxQuad:setRect(-32, -32, 32, 32)
+
+  prop1 = MOAIProp2D.new()
+  prop1:setDeck(gfxQuad)
+
   prop2 = MOAIProp2D.new()
   prop2:setDeck(gfxQuad)
   
   local layer = MOAILayer2D.new()
   layer:setViewport(viewport)
-  layer:insertProp(prop1)  layer:insertProp(prop2)
+  layer:insertProp(prop1)
+  layer:insertProp(prop2)
   MOAISim.pushRenderPass(layer)
 
   local thread = MOAIThread.new()
