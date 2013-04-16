@@ -243,7 +243,7 @@ end
 local function oval(x, y, w, h, color, start, finish)
   h = h or w
   start = start or 0
-  finish = finish or 0
+  finish = finish or 360
 
   mdc:SelectObject(bitmap)
 
