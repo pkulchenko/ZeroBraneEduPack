@@ -33,5 +33,9 @@ end
 function update()
   prop1:setLoc(40, 80)
   prop2:setLoc(-40, -120)
-  MOAIGfxDevice.setClearColor(0.80,0.80,0.90,1)
+  if MOAIGfxDevice.setClearColor then
+    MOAIGfxDevice.setClearColor(0.80,0.80,0.90,1)
+  else -- MOAI 1.4 changed setClearColor interface
+    MOAIGfxDevice.getFrameBuffer():setClearColor(0.80,0.80,0.90,1)
+  end
 end
