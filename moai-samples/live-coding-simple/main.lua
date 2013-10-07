@@ -20,7 +20,7 @@ if not initialized then
   layer:insertProp(prop2)
   MOAISim.pushRenderPass(layer)
 
-  local thread = MOAIThread.new()
+  local thread = MOAICoroutine.new()
   thread:run(function()
       while true do
         update()
