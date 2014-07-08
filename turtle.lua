@@ -8,7 +8,8 @@ local screenSizeX, screenSizeY = wx.wxDisplaySize()
 screenSizeX = screenSizeX - 40 -- adjust position for default offset
 screenSizeY = screenSizeY - 80
 local inloop = wx.wxGetApp():IsMainLoopRunning()
-local linux = 'Unix' == wx.wxPlatformInfo.Get():GetOperatingSystemFamilyName()
+local osname = wx.wxPlatformInfo.Get():GetOperatingSystemFamilyName()
+local linux = osname == 'Unix'
 -- don't use wxNullPen and wxNullBrush on Linux as either one generates
 -- warnings with GTK (IA__gdk_gc_set_foreground: assertion `color != NULL' failed)
 
@@ -348,8 +349,6 @@ local function wipe()
   if autoUpdate then updt() end
 end
 
-local osname = wx.wxPlatformInfo.Get():GetOperatingSystemFamilyName()
-
 local function logf(value)
   local curr = mdc:GetLogicalFunction()
   if value and osname ~= 'Macintosh' then mdc:SetLogicalFunction(value) end
@@ -452,7 +451,12 @@ local drawing = {
     mdc:SelectObject(bitmap)
     each(function(turtle, x, y)
       local curr = turtle.pendn:GetColour()
-      mdc:GetPixel(x, y, curr)
+      if osname == 'Macintosh' then
+        local image = bitmap:GetSubBitmap(wx.wxRect(x,y,1,1)):ConvertToImage()
+        curr = wx.wxColour(image:GetRed(0,0),image:GetGreen(0,0),image:GetBlue(0,0))
+      else
+        mdc:GetPixel(x, y, curr)
+      end
       turtle.pendn:SetColour(curr)
     end, ...)
     mdc:SelectObject(wx.wxNullBitmap)
