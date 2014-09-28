@@ -1,6 +1,11 @@
 -- Copyright (C) 2011-2012 Paul Kulchenko
 -- A turtle graphics library
 
+if not debug.getinfo(3) then
+  print("This is a module to load with `require('turtle')`.")
+  os.exit(1)
+end
+
 require("wx")
 
 local defaultSize = 450

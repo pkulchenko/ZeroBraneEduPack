@@ -5,6 +5,11 @@
 -- and http://en.wikipedia.org/wiki/Spirograph
 --
 
+if not debug.getinfo(3) then
+  print("This is a module to load with `require('spirograph')`.")
+  os.exit(1)
+end
+
 require "turtle"
 
 open("Spirograph Window")
