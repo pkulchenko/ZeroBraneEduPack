@@ -1,6 +1,6 @@
 -- from [LÖVE tutorial, part 2](http://www.headchant.com/2010/12/31/love2d-%E2%80%93-tutorial-part-2-pew-pew/)
 
-function love.load(arg) 
+function love.load(arg)
   if arg and arg[#arg] == "-debug" then require("mobdebug").start() end
   hero = {} -- new table for the hero
   hero.x = 300 -- x,y coordinates of the hero
@@ -9,7 +9,7 @@ function love.load(arg)
   hero.height = 15
   hero.speed = 150
   hero.shots = {} -- holds our fired shots
- 
+
   enemies = {}
   for i=0,7 do
     local enemy = {}
@@ -34,20 +34,20 @@ function love.update(dt)
   elseif love.keyboard.isDown("right") then
     hero.x = hero.x + hero.speed*dt
   end
- 
+
   local remEnemy = {}
   local remShot = {}
- 
+
   -- update the shots
   for i,v in ipairs(hero.shots) do
     -- move them up up up
     v.y = v.y - dt * 100
- 
+
     -- mark shots that are not visible for removal
     if v.y < 0 then
       table.insert(remShot, i)
     end
-       
+
     -- check for collision with enemies
     for ii,vv in ipairs(enemies) do
       if CheckCollision(v.x,v.y,2,5,vv.x,vv.y,vv.width,vv.height) then
@@ -58,7 +58,7 @@ function love.update(dt)
       end
     end
   end
- 
+
   -- remove the marked enemies
   for i,v in ipairs(remEnemy) do
     table.remove(enemies, v)
@@ -67,12 +67,12 @@ function love.update(dt)
   for i,v in ipairs(remShot) do
     table.remove(hero.shots, v)
   end
-   
+
   -- update those evil enemies
   for i,v in ipairs(enemies) do
     -- let them fall down slowly
     v.y = v.y + dt
-  
+
     -- check for collision with ground
     if v.y > 465 then
       -- you loose!!!

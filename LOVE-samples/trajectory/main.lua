@@ -9,14 +9,14 @@ local g = 9.8
 local function vxf(v, a) return v * math.cos(a / rad) end
 local function vyt(v, a, t) return v * math.sin(a / rad) - g * t end
 local function yt(v, a, t) return v * math.sin(a / rad) * t - 0.5 * g * t * t end
- 
+
 local function totalRangeHeightFlightTime(v, ag)
   local h = vyt(v, ag, 0) * vyt(v, ag, 0) / (2 * g)
   local t = 2 * vyt(v, ag, 0) / g
   local r = v * v * math.sin(2 * ag / rad) / g
   return r, h, t
 end
- 
+
 local function positionAtTime(v, ag, t)
   local vx = vxf(v,ag) -- horizontal velocity
   local x = vx * t -- horizontal distance
