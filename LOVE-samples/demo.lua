@@ -1,7 +1,7 @@
---[[ These are sample scripts that can be run by [Love 2D game engine](http://love2d.org).
+--[[ These are sample scripts that can be run by [LÖVE game engine](http://love2d.org).
  
-- Make [Love executable](https://love2d.org/) available in PATH or put it into one of the default folders: `C:\Program Files\love` or `D:\Program Files\love` on Windows or `/Applications` on Mac OS X.
-- Switch to love2d interpreter by going to `Project | Lua Interpreter | Love2d`.
+- Make [LÖVE executable](https://love2d.org/) available in PATH or put it into one of the default folders: `C:\Program Files\love` or `D:\Program Files\love` on Windows or `/Applications` on Mac OS X.
+- Switch to LÖVE interpreter by going to `Project | Lua Interpreter | LÖVE`.
 - Open any of the following scripts
   - [hello](+hello/main.lua): a simple "hello, world" script
   - [trajectory](+trajectory/main.lua): a trajectory drawing script
