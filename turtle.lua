@@ -147,7 +147,7 @@ local function reset()
 end
 
 -- paint event handler for the frame; called by wxEVT_PAINT
-function OnPaint()
+local function onPaint()
   -- must always create a wxPaintDC in a wxEVT_PAINT handler
   local dc = wx.wxPaintDC(frame)
   dc:DrawBitmap(bitmap, 0, 0, true)
@@ -182,7 +182,7 @@ local function open(name)
     end)
 
   -- connect the paint event handler function with the paint event
-  frame:Connect(wx.wxEVT_PAINT, OnPaint)
+  frame:Connect(wx.wxEVT_PAINT, onPaint)
   frame:Connect(wx.wxEVT_ERASE_BACKGROUND, function () end) -- do nothing
 
   frame:Connect(wx.wxEVT_KEY_DOWN, function (event) key = event:GetKeyCode() end)
