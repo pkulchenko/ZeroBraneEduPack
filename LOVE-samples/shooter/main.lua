@@ -22,7 +22,8 @@ function love.load(arg)
 end
 
 function love.keyreleased(key)
-  if (key == " ") then
+  -- in v0.9.2 and earlier space is represented by the actual space character ' ', so check for both
+  if (key == " " or key == "space") then
     shoot()
   end
 end
