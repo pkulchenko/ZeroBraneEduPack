@@ -1,6 +1,6 @@
 --[[
 
-# Welcome!
+#Welcome!
 
 ZeroBrane Studio is a **simple** and **friendly** environment to learn and explore programming, graphics, games, and other topics. Start with the lessons or go straight to the demonstrations to see what you can create.
 
@@ -16,4 +16,7 @@ ZeroBrane Studio is a **simple** and **friendly** environment to learn and explo
 - [Gideros demo](+gideros-samples/demo.lua)
 - [Moai demo](+moai-samples/demo.lua)
 - [Corona SDK demo](+corona-samples/demo.lua)
+
+#Other resources
+- [Lua quick start guide](+quick-start.lua)
 ]]
