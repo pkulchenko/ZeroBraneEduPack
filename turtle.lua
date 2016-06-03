@@ -250,6 +250,7 @@ local function oval(x, y, w, h, color, start, finish)
   h = h or w
   start = start or 0
   finish = finish or 360
+  if type(color) == "string" then color = wx.wxColour(color) end
 
   mdc:SelectObject(bitmap)
 
@@ -289,6 +290,7 @@ end
 
 local function fill(color, dx, dy)
   if not color then return end
+  if type(color) == "string" then color = wx.wxColour(color) end
 
   mdc:SelectObject(bitmap)
 
@@ -383,12 +385,14 @@ end
 
 local function pndn() each(function(turtle) turtle.down = true end) end
 local function pnup() each(function(turtle) turtle.down = false end) end
-local function pncl(...)
+local function pncl(color)
+  if type(color) == "string" then color = wx.wxColour(color) end
+
   local r = each(function(turtle, color)
     local curr = turtle.pendn:GetColour()
     if color then turtle.pendn:SetColour(color) end
     return curr
-  end, ...)
+  end, color)
   if showTurtles then updt() end
   return r
 end
