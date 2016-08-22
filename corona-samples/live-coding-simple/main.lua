@@ -44,8 +44,8 @@ if not initialized then
   local right = display.viewableContentWidth + display.screenOriginX
 
   local function animate(event)
-  	xpos = xpos + (xspeed * xdirection)
-  	ypos = ypos + (yspeed * ydirection)
+    xpos = xpos + (xspeed * xdirection)
+    ypos = ypos + (yspeed * ydirection)
 
     if (xpos > right - radius or xpos < left + radius) then
       xdirection = xdirection * -1
