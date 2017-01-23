@@ -513,6 +513,19 @@ local drawing = {
   char = function (char)
     if char then return type(char) == 'string' and char:byte() or char end
     local curr = key
+    -- KEY_DOWN event is not sent to the frame on OSX, so provide a (partial) workaround;
+    -- partial, because not all keys can be caught this way
+    if not curr and osname == 'Macintosh' then
+      for k = 32, 127 do
+        if wx.wxGetKeyState(k) then
+          -- as the same key generates upper- and lowercase codes,
+          -- convert to uppercase as only one can be kept and it's consistent with KEY_DOWN
+          -- behavior on Window and Linux
+          curr = string.byte(string.char(k):upper())
+          break
+        end
+      end
+    end
     key = nil
     return curr
   end,

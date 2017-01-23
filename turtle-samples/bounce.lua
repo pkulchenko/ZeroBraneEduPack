@@ -51,8 +51,8 @@ while true do
 
   local key = char()
   if key then
-    if key == char(',') then dx = dx-1 end
-    if key == char('.') then dx = dx+1 end
+    if key == char('K') then dx = dx-1 end
+    if key == char('L') then dx = dx+1 end
     if key == char('S') then dy = dy-1 end
     if key == char('X') then dy = dy+1 end
   end
