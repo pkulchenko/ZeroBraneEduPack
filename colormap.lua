@@ -2,6 +2,10 @@ local math = math
 local clMapping = {}
 local clClamp = {0, 255}
 
+function logStatus(anyMsg, ...)
+  io.write(tostring(anyMsg).."\n"); return ...
+end
+
 function getColorBlackRGB () return 0  ,  0,  0 end
 function getColorRedRGB   () return 255,  0,  0 end
 function getColorGreenRGB () return 0  ,255,  0 end
