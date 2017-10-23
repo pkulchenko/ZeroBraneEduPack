@@ -5,6 +5,10 @@ local tonumber     = tonumber
 local tostring     = tostring
 local setmetatable = setmetatable
 
+function logStatus(anyMsg, ...)
+  io.write(tostring(anyMsg).."\n"); return ...
+end
+
 local metaFractal = {}
 metaFractal.__type  = "fractal"
 metaFractal.__index = metaFractal
