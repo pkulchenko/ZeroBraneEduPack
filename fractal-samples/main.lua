@@ -72,7 +72,7 @@ local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup)
       S:Register("FUNCT","mandelbar",
         function (Z, C, R) Z:Pow(2); Z:NegIm(); Z:Add(C) end )
       S:Register("FUNCT","julia1",
-        function (Z, C, R) Z:Pow(2); Z:Add(ToComplex("-0.8+0.156i")) end )
+        function (Z, C, R) Z:Pow(2); Z:Add(compl.Convert("-0.8+0.156i")) end )
       S:Register("FUNCT","julia2",
         function (Z, C, R) Z:Set(cexp^(Z^3) - 0.621) end )
       S:Register("FUNCT","julia3",
