@@ -4,10 +4,8 @@ local string       = string
 local tonumber     = tonumber
 local tostring     = tostring
 local setmetatable = setmetatable
-local complex      = require("complex")
-local metaFractal  = {}
-metaFractal.__type  = "fractal"
-metaFractal.__index = metaFractal
+local complex      = require("ZeroBraineProjects/dvdlualib/complex")
+local fractal      = {}
 
 local function logStatus(anyMsg, ...)
   io.write(tostring(anyMsg).."\n"); return ...
@@ -22,7 +20,10 @@ local function clampValue(nVal,nMin,nMax)
   return nVal
 end
 
-function makeFractal(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
+local mtPlaneZ    = {}
+mtPlaneZ.__type  = "z-plane"
+mtPlaneZ.__index = mtPlaneZ
+local function makePlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
   local imgW , imgH  = w   , h
   local minRe, maxRe = minw, maxw
   local minIm, maxIm = minh, maxh
@@ -31,7 +32,7 @@ function makeFractal(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
   local imFac = (maxIm-minIm)/(imgH) -- Im units per pixel
   local self, frcPalet, frcNames, conKeys, uZoom, brdCl, bbrdP = {}, {}, {}, {}, 1, clbrd, bBrdP
   local uniCr, uniCi = minRe + ((maxRe - minRe) / 2), minIm + ((maxIm - minIm) / 2)
-  setmetatable(self,metaFractal)
+  setmetatable(self,mtPlaneZ)
   function self:SetControlWX(wx)
     conKeys.dirU, conKeys.dirD = (wx["WXK_UP"]   or -1), (wx["WXK_DOWN"]  or -1)
     conKeys.dirL, conKeys.dirR = (wx["WXK_LEFT"] or -1), (wx["WXK_RIGHT"] or -1)
@@ -149,8 +150,9 @@ function makeFractal(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
 end
 
 local mtTreeY = {}
-      mtTreeY.__type = "ytree"
-function makeTreeY(iMax, clDraw)
+      mtTreeY.__type  = "ytree"
+      mtTreeY.__index = mtTreeY
+local function makeTreeY(iMax, clDraw)
   local draw = clDraw
   local self = {Lev = 0, Max = (tonumber(iMax) or 0)}
   if(self.Max <= 0) then return logStatus("YTree depth invalid <"..tostring(self.Max)..">") end
@@ -176,3 +178,11 @@ function makeTreeY(iMax, clDraw)
   end
   return self
 end
+
+function fractal.New(sType, ...)
+  local sType =tostring(sType or "") 
+  if(sType == mtPlaneZ.__type) then return makePlaneZ(...) end
+  if(sType == mtTreeY.__type) then return makeTreeY(...) end  
+end
+
+return fractal
