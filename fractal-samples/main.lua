@@ -7,6 +7,10 @@ local clmap = require("colormap")
 
 -- z(0) = z,    z(n+1) = z(n)*z(n) + z,    n=0,1,2, ...    (1)
 
+local function logStatus(anyMsg, ...)
+  io.write(tostring(anyMsg).."\n"); return ...
+end
+
 io.stdout:setvbuf("no")
 
 -- Changable parameters
@@ -90,9 +94,9 @@ local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup)
       S:Register("PALET","region",
         function (Z, C, i, x, y) return clmap.getColorRegion(i,iTer,10) end)
       S:Register("PALET","hsl",
-        function (Z, C, i, x, y) local it = i / iTer; return getColorHSL(it*360,it,it) end)
+        function (Z, C, i, x, y) local it = i / iTer; return clmap.getColorHSL(it*360,it,it) end)
       S:Register("PALET","hsv",
-        function (Z, C, i, x, y) local it = i / iTer; return getColorHSV(it*360,1,1) end)
+        function (Z, C, i, x, y) local it = i / iTer; return clmap.getColorHSV(it*360,1,1) end)
       S:Register("PALET","wikipedia_r",function (Z, C, i, x, y, R)
         return clmap.getColorMap("wikipedia",i * (R[1] and 1+math.floor(math.abs(R[1])) or 1)) end)
 
