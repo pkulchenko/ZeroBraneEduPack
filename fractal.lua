@@ -4,7 +4,7 @@ local string       = string
 local tonumber     = tonumber
 local tostring     = tostring
 local setmetatable = setmetatable
-local complex      = require("ZeroBraineProjects/dvdlualib/complex")
+local complex      = require("complex")
 local fractal      = {}
 
 local function logStatus(anyMsg, ...)
