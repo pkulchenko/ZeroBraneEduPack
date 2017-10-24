@@ -18,7 +18,7 @@ function colormap.getColorRotateRigh(r, g, b) return b, r, g end
 local function roundValue(nE, nF)
   local nE = tonumber(nE)
   if(not nE) then
-    return logStatus("colormap.roundValue: Cannot round NAN {"..type(nvExact).."}<"..tostring(nvExact)..">") end
+    return logStatus("colormap.roundValue: Round NAN {"..type(nE).."}<"..tostring(nF)..">") end
   local nF = tonumber(nF) or 0
   if(nF == 0) then
     return logStatus(nil,"colormap.roundValue: Fraction must be <> 0") end
