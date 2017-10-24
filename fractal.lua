@@ -4,14 +4,23 @@ local string       = string
 local tonumber     = tonumber
 local tostring     = tostring
 local setmetatable = setmetatable
+local complex      = require("complex")
+local metaFractal  = {}
+metaFractal.__type  = "fractal"
+metaFractal.__index = metaFractal
 
-function logStatus(anyMsg, ...)
+local function logStatus(anyMsg, ...)
   io.write(tostring(anyMsg).."\n"); return ...
 end
 
-local metaFractal = {}
-metaFractal.__type  = "fractal"
-metaFractal.__index = metaFractal
+local function clampValue(nVal,nMin,nMax)
+  if(type(nVal) ~= "number") then return nil end
+  local Min = nMin or 0
+  local Max = nMax or 0
+  if(nVal >= Max) then return Max end
+  if(nVal <= Min) then return Min end
+  return nVal
+end
 
 function makeFractal(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
   local imgW , imgH  = w   , h
@@ -104,7 +113,7 @@ function makeFractal(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
       logStatus("Fractal.Draw: Iteretion depth #"..tostring(maxItr).." invalid"); return end
     local r, g, b, iDepth, isInside, nrmZ = 0, 0, 0, 0, true
     local sName, sPalet = tostring(sName), tostring(sPalet)
-    local C, Z, R = Complex(), Complex(), {}
+    local C, Z, R = complex.New(), complex.New(), {}
     logStatus("Zoom: {"..uZoom.."}")
     logStatus("Cent: {"..uniCr..","..uniCi.."}")
     logStatus("Area: {"..minRe..","..maxRe..","..minIm..","..maxIm.."}")
