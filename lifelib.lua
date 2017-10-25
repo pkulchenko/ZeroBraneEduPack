@@ -414,7 +414,7 @@ local function initStringRle(sStr, sDel, sEnd)
 end
 
 local function initFileLif105(sName)
-  local N = ShapePath.."/lif/"..sName:lower().."_105.lif"; F = io.open(N,"r")
+  local N = ShapePath.."/lif/"..sName:lower().."_105.lif"; F = io.open(N,"rb")
   if(not F) then return logStatus("initFileLif105: Invalid file: <"..N..">",nil) end
   local Line, ID, CH, Data = "", 1, 1, {}
   local Shape = {w = 0, h = 0, Header = {}, Offset = {Cent = {}}}
@@ -448,7 +448,7 @@ local function initFileLif105(sName)
 end
 
 local function initFileLif106(sName)
-  local N = ShapePath.."/lif/"..sName:lower().."_106.lif"; F = io.open(N,"r")
+  local N = ShapePath.."/lif/"..sName:lower().."_106.lif"; F = io.open(N,"rb")
   if(not F) then return logStatus("initFileLif106: Invalid file: <"..N..">",nil) end
   local Line, ID, CH, Data, Offset = "", 1, 1, {}, {}
   local MinX, MaxX, MinY, MaxY, x, y
@@ -497,7 +497,7 @@ local function initFileLif106(sName)
 end
 
 local function initFileRle(sName)
-  local N = ShapePath.."/rle/"..sName:lower()..".rle"; F = io.open(N,"r")
+  local N = ShapePath.."/rle/"..sName:lower()..".rle"; F = io.open(N,"rb")
   if(not F) then
     return logStatus("initFileRle: Invalid file: <"..N..">",nil) end
   local FilePos, ChCnt, leLine
@@ -543,7 +543,7 @@ local function initFileRle(sName)
 end
 
 local function initFileCells(sName)
-  local N = ShapePath.."/cells/"..sName:lower()..".cells"; F = io.open(N,"r")
+  local N = ShapePath.."/cells/"..sName:lower()..".cells"; F = io.open(N,"rb")
   if(not F) then
     return logStatus("initFileCells: Invalid file: <"..N..">",nil) end
   local x, y, Lenw = 0, 0, 0, 1
