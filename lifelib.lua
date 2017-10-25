@@ -553,7 +553,6 @@ local function initFileCells(sName)
     Line = F:read()
     if(not Line) then break end
     Line = stringTrim(Line)
-    print("1", Line)
     Firs = Line:sub(1,1)
     Lenw = Line:len()
     if(Firs ~= "!") then
