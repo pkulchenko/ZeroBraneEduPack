@@ -1,5 +1,8 @@
 require("turtle")
 require("wx")
+
+-- For more shapes please refer to: http://www.conwaylife.com/patterns/all.zip
+
 local life = require("lifelib")
 
 io.stdout:setvbuf("no")
