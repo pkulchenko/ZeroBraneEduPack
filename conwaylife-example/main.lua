@@ -48,7 +48,7 @@ updt(true)
 zero(0, 0)
 
 life.charAliv("o"); life.charDead("b")
-life.shapesPath("E:\\Documents\\Lua-Projs\\ZeroBraineIDE\\myprograms\\ZeroBraineProjects\\GameOfLife\\shapes")
+life.shapesPath("conwaylife-example/shapes")
 
 local gg1 = life.makeShape("gosperglidergun","file","rle")
 local gg2 = life.makeShape("gosperglidergun","file","rle")
