@@ -180,7 +180,7 @@ local function makeTreeY(iMax, clDraw)
 end
 
 function fractal.New(sType, ...)
-  local sType =tostring(sType or "") 
+  local sType = tostring(sType or "") 
   if(sType == mtPlaneZ.__type) then return makePlaneZ(...) end
   if(sType == mtTreeY.__type) then return makeTreeY(...) end  
 end
