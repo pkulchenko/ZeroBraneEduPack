@@ -20,7 +20,7 @@ local function clampValue(nVal,nMin,nMax)
   return nVal
 end
 
-local mtPlaneZ    = {}
+local mtPlaneZ   = {}
 mtPlaneZ.__type  = "z-plane"
 mtPlaneZ.__index = mtPlaneZ
 local function makePlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
