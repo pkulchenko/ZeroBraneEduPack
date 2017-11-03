@@ -21,7 +21,7 @@ local function roundValue(nE, nF)
     return logStatus("colormap.roundValue: Round NAN {"..type(nE).."}<"..tostring(nF)..">") end
   local nF = tonumber(nF) or 0
   if(nF == 0) then
-    return logStatus(nil,"colormap.roundValue: Fraction must be <> 0") end
+    return logStatus("colormap.roundValue: Fraction must be <> 0") end
   local q, f = math.modf(nE/nF)
   return nF * (q + (f > 0.5 and 1 or 0))
 end
@@ -92,7 +92,7 @@ function colormap.getColorMap(sKey,iNdex)
     return logStatus("colormap.getColorMap: Missing mapping for <"..sKey..">",getColorBlackRGB()) end
   local cid = iNdex % #rgb; rgb = rgb[cid]
   if(not rgb) then return colormap.getColorBlackRGB() end
-  return rgb[1], rgb[2], rgb[3]
+  return (rgb[1] or clClamp[2]), (rgb[2] or clClamp[2]), (rgb[3] or clClamp[2])
 end
 
 --[[
@@ -128,8 +128,8 @@ function colormap.getColorRegion(iDepth, maxDepth, iRegions)
         end
       else
         arRegions[regid].foo = function(iTer)
-          return 255, ((((iTer - arRegions[regid-1].brd) * arRegions[1].brd)
-                 / arRegions[regid-2].brd) + arRegions[regid-3].brd), 0
+          return clClamp[2], ((((iTer - arRegions[regid-1].brd) * arRegions[1].brd)
+                 / arRegions[regid-2].brd) + arRegions[regid-3].brd), clClamp[1]
         end
       end
     end
