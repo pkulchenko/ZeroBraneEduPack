@@ -47,7 +47,7 @@ local F = life.makeField(80,50)
 
 open("Game Of Life")
 size(Arg[1],Arg[2])
-updt(true)
+updt(false)
 zero(0, 0)
 
 life.charAliv("o"); life.charDead("b")
@@ -71,6 +71,7 @@ if(gg1 and gg2) then
   while true do
     Arg[5] = char()
     F:drwLife("turtle",Arg):evoNext()
+    updt()
   end
   
 end
