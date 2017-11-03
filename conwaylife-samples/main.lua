@@ -51,7 +51,7 @@ updt(false)
 zero(0, 0)
 
 life.charAliv("o"); life.charDead("b")
-life.shapesPath("conwaylife-example/shapes")
+life.shapesPath("conwaylife-samples/shapes")
 
 local gg1 = life.makeShape("gosperglidergun","file","rle")
 local gg2 = life.makeShape("gosperglidergun","file","rle")
