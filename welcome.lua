@@ -16,6 +16,7 @@ ZeroBrane Studio is a **simple** and **friendly** environment to learn and explo
 - [Gideros demo](+gideros-samples/demo.lua)
 - [Moai demo](+moai-samples/demo.lua)
 - [Corona SDK demo](+corona-samples/demo.lua)
+- [Conway Life demo](+conwaylife-samples/demo.lua)
 
 #Other resources
 - [Lua quick start guide](+quick-start.lua)
