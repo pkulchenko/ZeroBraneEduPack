@@ -42,8 +42,7 @@ end
 
 local function arRotateR(Arr,sX,sY)
   local Tmp = arMalloc2D(sY,sX)
-  local ii = 1
-  local jj = 1
+  local ii, jj = 1, 1
   for j = 1, sX, 1 do
     for i = sY, 1, -1  do
       if(jj > sY) then
@@ -65,8 +64,7 @@ end
 
 local function arRotateL(Arr,sX,sY)
   local Tmp = arMalloc2D(sY,sX)
-  local ii = 1
-  local jj = 1
+  local ii, jj = 1, 1
   for j = sX, 1, -1 do
     for i = 1, sY, 1  do
       if(jj > sY) then
@@ -105,9 +103,8 @@ local function arShift2D(Arr,sX,sY,nX,nY)
       end
     end
   end
-  if(y ~= 0) then
+  if(y ~= 0) then local M
     local sy,ey,dy = getValuesSED(y,sY,1)
-    local M
     for i = sy,ey,dy do
       for j = 1,sX do
         M = i-y
@@ -164,8 +161,7 @@ end
 local function arMirror2D(Arr,sX,sY,fX,fY)
   local Tmp, s
   if(fY) then
-    Tmp = 0
-    s   = 1
+    Tmp, s = 0, 1
     local e = sY
     while(s < e) do
       for k = 1,sX do
@@ -173,13 +169,11 @@ local function arMirror2D(Arr,sX,sY,fX,fY)
         Arr[s][k] = Arr[e][k]
         Arr[e][k] = Tmp
       end
-      s = s + 1
-      e = e - 1
+      s, e = (s + 1), (e - 1)
     end
   end
   if(fX) then
-    Tmp = 0
-    s   = 1
+    Tmp, s = 0, 1
     local e = sX
     while(s < e) do
       for k = 1,sY do
@@ -187,13 +181,12 @@ local function arMirror2D(Arr,sX,sY,fX,fY)
         Arr[k][s] = Arr[k][e]
         Arr[k][e] = Tmp
       end
-      s = s + 1
-      e = e - 1
+      s, e = (s + 1), (e - 1)
     end
   end
 end
 
-function strExplode(sStr,sDel)
+local function strExplode(sStr,sDel)
   local List, Ch, Idx, ID, dL = {""}, "", 1, 1, (sDel:len()-1)
   while(Ch) do
     Ch = sStr:sub(Idx,Idx+dL)
@@ -203,7 +196,7 @@ function strExplode(sStr,sDel)
   end; return List
 end
 
-function strImplode(tList,sDel)
+local function strImplode(tList,sDel)
   local ID, Str = 1, ""
   local Del = tostring(sDel or "")
   while(tList and tList[ID]) do
@@ -212,7 +205,7 @@ function strImplode(tList,sDel)
   end; return Str
 end
 
-function stringTrim(sStr, sWhat)
+local function stringTrim(sStr, sWhat)
   local sWhat = (sWhat or "%s")
   return sStr:match("^"..sWhat.."*(.-)"..sWhat.."*$") or sStr
 end
@@ -247,31 +240,25 @@ lifelib.getDefaultRule = function() -- Conway
 end
 
 lifelib.getRuleBS = function(sStr)
-  local cB, cS
-  local BS = {B = {}, S = {}}
-  local Len = sStr:len()
-  local BI, bI, sI = 1, 1, 1
-  local SI = sStr:find("/")
-  if(SI == nil) then return nil end
-  SI = SI + 1
-  while(cS ~= "" and cB ~= "/") do
-    cB = sStr:sub(BI,BI)
-    cS = sStr:sub(SI,SI)
-    if(cB ~= "/") then
-      if(tonumber(cB)) then
-        BS.B[bI] = tonumber(cB)
-        bI = bI + 1
-      end; BI = BI + 1
-    end
-    if(cS ~= "") then
-      if(tonumber(cS)) then
-        BS.S[sI] = tonumber(cS)
-        sI = sI + 1
-      end; SI = SI + 1
-    end
-  end
-  if(BS.B[1] and BS.S[1]) then return BS end
-  return nil
+  local BS = {Name = tostring(sStr or "")}
+  if(BS.Name == "") then 
+    return logStatus("getRuleBS: Empty rule") end
+  local expBS = strExplode(BS.Name,"/")
+  if(not (expBS[1] and expBS[2])) then 
+    return logStatus("getRuleBS: Rule invalid <"..BS.Name..">") end
+  local kB, kS = expBS[1]:sub(1,1)  , expBS[2]:sub(1,1)
+  if(kB ~= "B") then return logStatus("getRuleBS: Born invalid <"..BS.Name..">") end
+  if(kS ~= "S") then return logStatus("getRuleBS: Surv invalid <"..BS.Name..">") end
+  local bI, sI = 2, 2; BS[kB], BS[kS] = {}, {}
+  local cB, cS = expBS[1]:sub(bI,bI), expBS[2]:sub(sI,sI)
+  while(cB ~= "" or cS ~= "") do
+    local nB, nS = tonumber(cB), tonumber(cS)
+    if(nB) then BS[kB][#BS.B + 1] = nB end
+    if(nS) then BS[kS][#BS.S + 1] = nS end
+    bI, sI = (bI + 1), (sI + 1)
+    cB, cS = expBS[1]:sub(bI,bI), expBS[2]:sub(sI,sI)
+  end; if(BS[kB][1] and BS[kS][1]) then return BS end
+  return logStatus("getRuleBS: Population fail <"..BS.Name..">")
 end
 
 lifelib.getRleSettings = function(sStr)
