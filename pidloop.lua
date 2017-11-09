@@ -2,13 +2,28 @@ local type         = type
 local tonumber     = tonumber
 local tostring     = tostring
 local setmetatable = setmetatable
-local getSign      = function(anyVal)
-  local nVal = (tonumber(anyVal) or 0); return ((nVal > 0 and 1) or (nVal < 0 and -1) or 0) end
 local math         = math
-local tobool       = function(bV) return (bV and true or false) end
 local logStatus    = function(anyMsg, ...) io.write(tostring(anyMsg).."\n"); return ... end
 local pidloop      = {}
 
+-- Defines what should return /false/ when converted to a boolean
+local __toboolean = {
+  [0]       = true,
+  ["0"]     = true,
+  ["false"] = true,
+  [false]   = true
+}
+
+local function toboolean(anyVal) -- http://lua-users.org/lists/lua-l/2005-11/msg00207.html
+  if(not anyVal) then return false end
+  if(__toboolean[anyVal]) then return false end
+  return true
+end
+
+local function getSign(anyVal)
+  local nVal = (tonumber(anyVal) or 0)
+  return ((nVal > 0 and 1) or (nVal < 0 and -1) or 0)
+end
 
 --[[
  * newInterval: Class that maps one interval onto another
@@ -59,28 +74,23 @@ function pidloop.newTracer(sName)
   local mMatX, mMatY
   local enDraw = false
   
+  function self:getValue() return mTimN, mValN end
+  function self:setInterval(oIntX, oIntY)
+    mMatX, mMatY = oIntX, oIntY; return self end
   function self:Reset()
     mPntN.x, mPntN.y, mPntO.x, mPntO.y = 0,0,0,0
     enDraw, mValO, mValN = false,0,0; return self end
-    
-  function self:setInterval(oIntX, oIntY)
-    mMatX, mMatY = oIntX, oIntY; return self end
-  
-  function self:getValue() return mTimN, mValN end
+      
   function self:putValue(nTime, nVal)
     mValO, nValN = nValN, nVal
     mTimO, mTimN = mTimN, nTime
     mPntO.x, mPntO.y = mPntN.x, mPntN.y
     if(mMatX) then
       mPntN.x = mMatX:Convert(nTime):getValue()
-    else
-      mPntN.x = nTime
-    end;
+    else mPntN.x = nTime end;
     if(mMatY) then
       mPntN.y = mMatY:Convert(nValN):getValue()
-    else
-      mPntN.y = nValN
-    end; return self
+    else mPntN.y = nValN end; return self
   end
     
   function self:Draw(cCol)
@@ -88,7 +98,7 @@ function pidloop.newTracer(sName)
       pncl(cCol);
       line(mPntO.x,mPntO.y,mPntN.x,mPntN.y)
       rect(mPntO.x-2,mPntO.y-2,5,5)
-    else enDraw = true end
+    else enDraw = true end; return self
   end
 
   return self
@@ -121,7 +131,7 @@ function pidloop.newControl(nTo, sName)
   local function getTerm(kV,eV,pV) return (kV*mfSgn(eV)*mfAbs(eV)^pV) end
 
   function self:getGains() return mkP, mkI, mkD end
-  function self:setEnIntegral(bEn) meInt = tobool(bEn); return self end
+  function self:setEnIntegral(bEn) meInt = toboolean(bEn); return self end
   function self:getEnIntegral() return meInt end
   function self:getError() return mErrO, mErrN end
   function self:getControl() return mvCon end
@@ -131,7 +141,7 @@ function pidloop.newControl(nTo, sName)
   function self:setPower(pP, pI, pD)
     mpP, mpI, mpD = (tonumber(pP) or 0), (tonumber(pI) or 0), (tonumber(pD) or 0); return self end
   function self:setClamp(sD, sU) mSatD, mSatU = (tonumber(sD) or 0), (tonumber(sU) or 0); return self end
-  function self:setStruct(bCmb, bInv) mbCmb, mbInv = tobool(bCmb), tobool(bInv); return self end
+  function self:setStruct(bCmb, bInv) mbCmb, mbInv = toboolean(bCmb), toboolean(bInv); return self end
 
   function self:Reset()
     mErrO, mErrN  = 0, 0
