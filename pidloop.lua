@@ -43,7 +43,7 @@ function pidloop.newInterval(sName, nL1, nH1, nL2, nH2)
   local mH1  = (tonumber(nH1) or 0)
   local mL2  = (tonumber(nL2) or 0)
   local mH2  = (tonumber(nH2) or 0)
-  
+  setmetatable(self, metaInterval)
   function self:getName() return mNam end
   function self:setName(sName) mNam = tostring(sName or "N/A") end
   function self:getValue() return mVal end
