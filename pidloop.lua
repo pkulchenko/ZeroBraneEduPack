@@ -34,8 +34,9 @@ end
  * nH2   > Higher value second border
 ]]--
 local metaInterval = {}
-      metaInterval.__index = metaControl
+      metaInterval.__index = metaInterval
       metaInterval.__type  = "pidloop.Interval"
+      metaInterval.__tostring = function(oInterval) return oInterval:getString() end
 function pidloop.newInterval(sName, nL1, nH1, nL2, nH2)
   local self, mVal = {}, 0
   local mNam = tostring(sName or "")
@@ -51,7 +52,7 @@ function pidloop.newInterval(sName, nL1, nH1, nL2, nH2)
   function self:setBorderIn(nL1, nH1) mL1, mH1 = (tonumber(nL1) or 0), (tonumber(nH1) or 0) end
   function self:getBorderOut() return mL2, mH2 end
   function self:setBorderOut(nL2, nH2) mL2, mH2 = (tonumber(nL2) or 0), (tonumber(nH2) or 0) end
-  
+  function self:getString() return "["..metaInterval.__type.."] "..mNam.." {"..mL1..","..mH1.."} >> {"..mL2..","..mH2.."}" end
   function self:Convert(nVal)
     local val = tonumber(nVal); if(not val) then
       return logStatus("newInterval.Convert("..mNam.."): Source <"..tostring(nVal).."> NaN", self) end
@@ -67,8 +68,12 @@ end
  * newTracer: Class that plots a process variable
  * sName > A porper name to be identified as
 ]]--
+local metaTracer = {}
+      metaTracer.__index = metaTracer
+      metaTracer.__type  = "pidloop.Tracer"
+      metaTracer.__tostring = function(oTracer) return oTracer:getString() end
 function pidloop.newTracer(sName)
-  local self = {}
+  local self = {}; setmetatable(self, metaTracer)
   local mName = tostring(sName or "")
   local mValO, mValN = 0, 0
   local mTimO, mTimN = 0, 0
@@ -76,7 +81,7 @@ function pidloop.newTracer(sName)
   local mPntO = {x=0,y=0}
   local mMatX, mMatY
   local enDraw = false
-  
+  function self:getString() return "["..metaTracer.__type.."] "..mName end
   function self:getValue() return mTimN, mValN end
   function self:setInterval(oIntX, oIntY)
     mMatX, mMatY = oIntX, oIntY; return self end
