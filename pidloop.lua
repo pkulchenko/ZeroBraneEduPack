@@ -264,26 +264,26 @@ function pidloop.newUnit(nTo, tNum, tDen, sName)
   function self:getOutput() return mOut end
   
   function self:getBeta()
-    local vOut, iK = 0, mOrd
+    local nOut, iK = 0, mOrd
     while(iK > 0) do
-      vOut = vOut + (mNum[iK] or 0) * mSta[iK]
+      nOut = nOut + (mNum[iK] or 0) * mSta[iK]
       iK = iK - 1 -- Get next state
-    end; return vOut
+    end; return nOut
   end
     
   function self:getAlpha()
-    local vOut, iK = 0, mOrd
+    local nOut, iK = 0, mOrd
     while(iK > 1) do
-      vOut = vOut - (mDen[iK] or 0) * mSta[iK]
+      nOut = nOut - (mDen[iK] or 0) * mSta[iK]
       iK = iK - 1 -- Get next state
-    end; return vOut
+    end; return nOut
   end
     
   function self:putState(vX)
     local iK, nX = mOrd, (tonumber(vX) or 0)
     while(iK > 0 and mSta[iK]) do
       mSta[iK] = (mSta[iK-1] or 0); iK = iK - 1 -- Get next state
-    end; mSta[1] = vX
+    end; mSta[1] = nX; return self
   end
   
   function self:Process(vU)
