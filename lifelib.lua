@@ -229,7 +229,7 @@ lifelib.shapesPath = function(sData)
   local Typ = type(sData)
   if(Typ == "string" and sData ~= "") then
     ShapePath = stringTrim(sData:gsub("\\","/"),"/")
-    return logStatus("Shapes location: "..ShapePath,true)
+    return logStatus("Shapes location: "..ShapePath, true)
   end; return false
 end
 
@@ -241,10 +241,10 @@ end
 
 lifelib.getRuleBS = function(sStr)
   local BS = {Name = tostring(sStr or "")}
-  if(BS.Name == "") then 
+  if(BS.Name == "") then
     return logStatus("getRuleBS: Empty rule") end
   local expBS = strExplode(BS.Name,"/")
-  if(not (expBS[1] and expBS[2])) then 
+  if(not (expBS[1] and expBS[2])) then
     return logStatus("getRuleBS: Rule invalid <"..BS.Name..">") end
   local kB, kS = expBS[1]:sub(1,1)  , expBS[2]:sub(1,1)
   if(kB ~= "B") then return logStatus("getRuleBS: Born invalid <"..BS.Name..">") end
@@ -600,7 +600,7 @@ lifelib.makeField = function(w,h,sRule)
   else
     Rule = {}
     Rule.Name = sRule
-    Rule.Data = getRuleBS(sRule)
+    Rule.Data = lifelib.getRuleBS(sRule)
     if(Rule.Data == nil) then
       return logStatus("Field creator: Please redefine your life rule !",nil) end
   end
@@ -659,27 +659,26 @@ lifelib.makeField = function(w,h,sRule)
       end; ym1, y, yp1, yi = y, yp1, (yp1 + 1), (yi - 1)
     end; Old, New, Gen = New, Old, (Gen + 1); return self
   end
-  
+
   --[[
    * Registers a draw method under a particular key
   ]]--
   function self:regDraw(sKey,fFoo)
     if(type(sKey) == "string" and type(fFoo) == "function") then Draw[sKey] = fFoo
-    else logStatus("Field.drwLife(sMode,tArgs): Drawing method @"..tostring(sKey).." registration skipped !")
+    else logStatus("Field.regDraw(sKey,fFoo): Drawing method @"..tostring(sKey).." registration skipped !")
     end; return self
   end
-  
+
   --[[
    * Visualizates the field on the screen using the draw method given
   ]]--
-  function self:drwLife(sMode,tArgs)
+  function self:drwLife(sMode,...)
     local Mode = tostring(sMode or "text")
-    local Args = tArgs or {}
-    if(Draw[Mode]) then Draw[Mode](self,Args)
-    else logStatus("Field.drwLife(sMode,tArgs): Drawing mode <"..Mode.."> not found !")
+    if(Draw[Mode]) then Draw[Mode](self,...)
+    else logStatus("Field.drwLife(sMode,...): Drawing mode <"..Mode.."> not found !")
     end; return self
   end
-  
+
   --[[
    * Converts the field to a number, beware they are big
   ]]--
@@ -707,12 +706,11 @@ end
 --[[
  * Crates a shape ( life form ) object
 ]]--
-lifelib.makeShape = function(sName, sSrc, sExt, tArg)
+lifelib.makeShape = function(sName, sSrc, sExt, ...)
   local sName = tostring(sName or "")
   local sSrc  = tostring(sSrc  or "")
   local sExt  = tostring(sExt  or "")
-  local tArg  = tArg or {}
-  local isEmpty, iCnt, tInit = true, 1, nil
+  local tArg, isEmpty, iCnt, tInit = {...}, true, 1, nil
   if(sSrc == "file") then
     if    (sExt == "rle"   ) then tInit = initFileRle(sName)
     elseif(sExt == "cells" ) then tInit = initFileCells(sName)
@@ -745,12 +743,12 @@ lifelib.makeShape = function(sName, sSrc, sExt, tArg)
   local Draw = { ["text"] = drawConsole }
   local Rule = ""
   if(type(sRule) == "string") then
-    local Data = getRuleBS(sRule)
+    local Data = lifelib.getRuleBS(sRule)
     if(Data ~= nil) then Rule = sRule
     else return logStatus("makeShape(sName, sSrc, sExt, tArg): Check creator's Rule !",nil) end
   elseif(type(tInit.Rule) == "table") then
     if(type(tInit.Rule.Name) == "string") then
-      local Data = lifelib.getRuleBS(Rule)
+      local Data = lifelib.getRuleBS(tInit.Rule.Name)
       if(Data ~= nil) then Rule = tInit.Rule.Name
       else Rule = lifelib.getDefaultRule().Name end
     else return logStatus("makeShape(sName, sSrc, sExt, tArg): Check init Rule !",nil) end
@@ -773,16 +771,17 @@ lifelib.makeShape = function(sName, sSrc, sExt, tArg)
   ]]--
   function self:regDraw(sKey,fFoo)
     if(type(sKey) == "string" and type(fFoo) == "function") then Draw[sKey] = fFoo
-    else logStatus("Drawing method {"..tostring(sKey)..","..tostring(fFoo).."} registration skipped !") end
+    else logStatus("Shape.regDraw(sKey,fFoo): Drawing method @"..tostring(sKey).." registration skipped !")
+    end; return self
   end
   --[[
    * Visualizates the shape on the screen using the draw method given
   ]]--
-  function self:drwLife(sMode,tArgs)
+  function self:drwLife(sMode,...)
     local Mode = sMode or "text"
-    local Args = tArgs or {}
-    if(Draw[Mode]) then Draw[Mode](self, Args)
-    else logStatus("Shape.drwLife(sMode,tArgs): Drawing mode not found !\n") end
+    if(Draw[Mode]) then Draw[Mode](self, ...)
+    else logStatus("Shape.drwLife(sMode,...): Drawing mode not found !\n")
+    end; return self
   end
   --[[
    * Converts the shape to a number, beware they are big
