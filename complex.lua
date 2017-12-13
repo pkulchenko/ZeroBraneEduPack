@@ -234,7 +234,7 @@ function complex.New(nRe,nIm)
         Th = Th + AngStep
       end; return tRoots
     end; return nil
-  end; return nil
+  end; return self
 end
 
 local function StrValidateComplex(sStr)
