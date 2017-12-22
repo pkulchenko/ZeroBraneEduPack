@@ -23,7 +23,7 @@ end
 
 metaComplex.__unm = function(Comp)
   if(getmetatable(Comp) == metaComplex) then
-    return Complex(-Comp:getReal(),-Comp:getImag())
+    return complex.New(-Comp:getReal(),-Comp:getImag())
   end
 end
 
@@ -119,7 +119,7 @@ metaComplex.__lt =  function(C1,C2)
   return false
 end
 
-local function asrComplex(R,I)
+local function expComplex(R,I)
   if(not I) then
     if(getmetatable(R) == metaComplex) then
       return R:getReal(), R:getImag()
@@ -144,14 +144,14 @@ function complex.New(nRe,nIm)
   function self:Print(sS,sE)  io.write(tostring(sS or "").."{"..tostring(Re)..","..tostring(Im).."}"..tostring(sE or "")); return self end
   function self:getReal()   return Re end
   function self:getImag()   return Im end
-  function self:getDupe()   return Complex(Re,Im) end
-  function self:getFloor()  return Complex(math.floor(Re),math.floor(Im)) end
-  function self:getCeil()   return Complex(math.ceil(Re),math.ceil(Im)) end
+  function self:getDupe()   return complex.New(Re,Im) end
+  function self:getFloor()  return complex.New(math.floor(Re),math.floor(Im)) end
+  function self:getCeil()   return complex.New(math.ceil(Re),math.ceil(Im)) end
   function self:toPointXY() return {x = Re, y = Im} end
-  function self:getNeg()    return Complex(-Re,-Im) end
-  function self:getNegRe()  return Complex(-Re, Im) end
-  function self:getNegIm()  return Complex( Re,-Im) end
-  function self:getConj()   return Complex( Re,-Im) end
+  function self:getNeg()    return complex.New(-Re,-Im) end
+  function self:getNegRe()  return complex.New(-Re, Im) end
+  function self:getNegIm()  return complex.New( Re,-Im) end
+  function self:getConj()   return complex.New( Re,-Im) end
   function self:getNorm2()  return (Re*Re + Im*Im) end
   function self:getNorm()   return math.sqrt(Re*Re + Im*Im) end
   function self:getAngRad() return math.atan2(Im,Re) end
@@ -168,17 +168,17 @@ function complex.New(nRe,nIm)
   function self:getRound(nP) return complex.New(Re,IM):Round(nP) end
 
   function self:Set(R,I)
-    local R,I = asrComplex(R,I)
+    local R,I = expComplex(R,I)
     Re, Im = R, I; return self
   end
 
   function self:Add(R,I)
-    local R,I = asrComplex(R,I)
+    local R,I = expComplex(R,I)
     Re, Im = (Re + R), (Im + I); return self
   end
 
   function self:Sub(R,I)
-    local R,I = asrComplex(R,I)
+    local R,I = expComplex(R,I)
     Re, Im = (Re - R), (Im - I); return self
   end
 
@@ -188,19 +188,19 @@ function complex.New(nRe,nIm)
   end
 
   function self:Mul(R,I)
-    local A, C, D = Re, asrComplex(R,I)
+    local A, C, D = Re, expComplex(R,I)
     Re = A*C - Im*D
     Im = A*D + Im*C; return self
   end
 
   function self:Div(R,I)
-    local A, C, D = Re, asrComplex(R,I)
+    local A, C, D = Re, expComplex(R,I)
     local Z = (C*C + D*D)
     if(Z ~= 0) then Re, Im = ((A *C + Im*D) / Z), ((Im*C -  A*D) / Z) end; return self
   end
 
   function self:Mod(R,I)
-    local A, C, D = Re, asrComplex(R,I); self:Div(C,D)
+    local A, C, D = Re, expComplex(R,I); self:Div(C,D)
     local rei, ref = math.modf(Re)
     local imi, imf = math.modf(Im)
     self:Set(ref,imf)
@@ -208,7 +208,7 @@ function complex.New(nRe,nIm)
   end
 
   function self:Pow(R,I)
-    local C, D = asrComplex(R,I)
+    local C, D = expComplex(R,I)
     local Ro = self:getNorm()
     local Th = self:getAngRad()
     local nR = (Ro ^ C) * math.exp(-D * Th)
@@ -272,9 +272,9 @@ local function StrI2Complex(sStr, nS, nE, nI)
   if(nI == nE) then  -- (-0.7-2.9i) Skip symbols til +/- is reached
     while(C ~= "+" and C ~= "-") do
       M = M - 1; C = sStr:sub(M,M)
-    end; return complex.New(tonumber(sStr:sub(nS,M-1)), tonumber(sStr:sub(M,nE-1)))
+    end; return complex.New(tonumber(sStr:sub(nS,M-1)) or 0, tonumber(sStr:sub(M,nE-1)) or 0)
   else -- (-0.7-i2.9)
-    return complex.New(tonumber(sStr:sub(nS,M-1)), tonumber(C..sStr:sub(nI+1,nE)))
+    return complex.New(tonumber(sStr:sub(nS,M-1)) or 0, tonumber(C..sStr:sub(nI+1,nE)) or 0)
   end
 end
 
@@ -299,11 +299,8 @@ local function Tab2Complex(tTab)
         V2 = tTab["Y"]    or V2
         V2 = tTab["y"]    or V2
   if(V1 or V2) then
-    V2 = tonumber(V2) or 0
-    V1 = tonumber(V1) or 0
-    return complex.New(V1,V2)
-  end
-  return logStatus("StrI2Complex: Table format not supported",nil)
+    return complex.New(tonumber(V1) or 0, tonumber(V2) or 0) end
+  return logStatus("Tab2Complex: Table format not supported",nil)
 end
 
 function complex.Convert(In,Del)
@@ -314,7 +311,7 @@ function complex.Convert(In,Del)
   if(tIn == "string") then
     local Str, S, E = StrValidateComplex(In:gsub("*",""))
     if(not (Str and S and E)) then
-      return logStatus("ToComplex: Failed to vlalidate <"..tostring(In)..">",nil) end
+      return logStatus("complex.Convert: Failed to vlalidate <"..tostring(In)..">",nil) end
         Str = Str:sub(S ,E); E = E-S+1; S = 1
     local I = Str:find("i",S)
           I = Str:find("I",S) or I
@@ -323,7 +320,7 @@ function complex.Convert(In,Del)
     if(I and (I > 0)) then return StrI2Complex(Str, S, E, I)
     else return Str2Complex(Str, S, E, Del) end
   end
-  return logStatus("ToComplex: Type <"..Tin.."> not supported",nil)
+  return logStatus("complex.Convert: Type <"..Tin.."> not supported",nil)
 end
 
 return complex
