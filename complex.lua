@@ -119,7 +119,7 @@ metaComplex.__lt =  function(C1,C2)
   return false
 end
 
-local function expComplex(R,I)
+local function ExportComplex(R,I)
   if(not I) then
     if(getmetatable(R) == metaComplex) then
       return R:getReal(), R:getImag()
@@ -168,17 +168,17 @@ function complex.New(nRe,nIm)
   function self:getRound(nP) return complex.New(Re,IM):Round(nP) end
 
   function self:Set(R,I)
-    local R,I = expComplex(R,I)
+    local R,I = ExportComplex(R,I)
     Re, Im = R, I; return self
   end
 
   function self:Add(R,I)
-    local R,I = expComplex(R,I)
+    local R,I = ExportComplex(R,I)
     Re, Im = (Re + R), (Im + I); return self
   end
 
   function self:Sub(R,I)
-    local R,I = expComplex(R,I)
+    local R,I = ExportComplex(R,I)
     Re, Im = (Re - R), (Im - I); return self
   end
 
@@ -188,19 +188,19 @@ function complex.New(nRe,nIm)
   end
 
   function self:Mul(R,I)
-    local A, C, D = Re, expComplex(R,I)
+    local A, C, D = Re, ExportComplex(R,I)
     Re = A*C - Im*D
     Im = A*D + Im*C; return self
   end
 
   function self:Div(R,I)
-    local A, C, D = Re, expComplex(R,I)
+    local A, C, D = Re, ExportComplex(R,I)
     local Z = (C*C + D*D)
     if(Z ~= 0) then Re, Im = ((A *C + Im*D) / Z), ((Im*C -  A*D) / Z) end; return self
   end
 
   function self:Mod(R,I)
-    local A, C, D = Re, expComplex(R,I); self:Div(C,D)
+    local A, C, D = Re, ExportComplex(R,I); self:Div(C,D)
     local rei, ref = math.modf(Re)
     local imi, imf = math.modf(Im)
     self:Set(ref,imf)
@@ -208,7 +208,7 @@ function complex.New(nRe,nIm)
   end
 
   function self:Pow(R,I)
-    local C, D = expComplex(R,I)
+    local C, D = ExportComplex(R,I)
     local Ro = self:getNorm()
     local Th = self:getAngRad()
     local nR = (Ro ^ C) * math.exp(-D * Th)
