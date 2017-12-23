@@ -13,135 +13,29 @@ end
 metaComplex.__type  = "Complex"
 metaComplex.__index = metaComplex
 metaComplex.__bords = {"/|<({[","/|>)}]"}
-
-metaComplex.__tostring = function(Comp)
-  local R = tostring(Comp:getReal())
-  local I = tostring(Comp:getImag())
-  if(R and I) then return "{"..R..","..I.."}" end
-  return "{X,X}"
-end
-
-metaComplex.__unm = function(Comp)
-  if(getmetatable(Comp) == metaComplex) then
-    return complex.New(-Comp:getReal(),-Comp:getImag())
-  end
-end
-
-metaComplex.__add = function(C1,C2)
-  local O = complex.New()
-  O:Set(C1); O:Add(C2)
-  return O
-end
-
-metaComplex.__sub = function(C1,C2)
-  local O = complex.New()
-  O:Set(C1); O:Sub(C2)
-  return O
-end
-
-metaComplex.__mul = function(C1,C2)
-  local O = complex.New()
-  O:Set(C1); O:Mul(C2)
-  return O
-end
-
-metaComplex.__div = function(C1,C2)
-  local O = complex.New()
-  O:Set(C1); O:Div(C2)
-  return O
-end
-
-metaComplex.__mod =  function(C1,C2)
-  local O = complex.New()
-  O:Set(C1); O:Mod(C2)
-  return O
-end
-
-metaComplex.__concat = function(A,B)
-  if(getmetatable(A) == metaComplex) then
-    return "{"..A:getReal()..", "..A:getImag().."}"..tostring(B)
-  elseif(getmetatable(B) == metaComplex) then
-    return tostring(A).."{"..B:getReal()..", "..B:getImag().."}"
-  end; return "N/A"
-end
-
-metaComplex.__pow =  function(C1,C2)
-  local O = complex.New()
-  O:Set(C1); O:Pow(C2)
-  return O
-end
-
-metaComplex.__eq =  function(C1,C2)
-  local R1, R2, I1, I2 = 0, 0, 0, 0
-  if(getmetatable(C1) == metaComplex) then
-    R1, I1 = C1:getReal(), C1:getImag()
-  else
-    R1, I1 = (tonumber(C1) or 0), 0
-  end
-  if(getmetatable(C2) == metaComplex) then
-    R2, I2 = C2:getReal(), C2:getImag()
-  else
-    R2, I2 = (tonumber(C2) or 0), 0
-  end
-  if(R1 == R2 and I1 == I2) then return true end
-  return false
-end
-
-metaComplex.__le =  function(C1,C2)
-  local R1, R2, I1, I2 = 0, 0, 0, 0
-  if(getmetatable(C1) == metaComplex) then
-    R1, I1 = C1:getReal(), C1:getImag()
-  else
-    R1, I1 = (tonumber(C1) or 0), 0
-  end
-  if(getmetatable(C2) == metaComplex) then
-    R2, I2 = C2:getReal(), C2:getImag()
-  else
-    R2, I2 = (tonumber(C2) or 0), 0
-  end
-  if(R1 <= R2 and I1 <= I2) then return true end
-  return false
-end
-
-metaComplex.__lt =  function(C1,C2)
-  local R1, R2, I1, I2 = 0, 0, 0, 0
-  if(getmetatable(C1) == metaComplex) then
-    R1, I1 = C1:getReal(), C1:getImag()
-  else
-    R1, I1 = (tonumber(C1) or 0), 0
-  end
-  if(getmetatable(C2) == metaComplex) then
-    R2, I2 = C2:getReal(), C2:getImag()
-  else
-    R2, I2 = (tonumber(C2) or 0), 0
-  end
-  if(R1 < R2 and I1 < I2) then return true end
-  return false
-end
+metaComplex.__valre = 0
+metaComplex.__valim = 0
+metaComplex.__valns = "X"
 
 local function ExportComplex(R,I)
-  if(not I) then
-    if(getmetatable(R) == metaComplex) then
-      return R:getReal(), R:getImag()
-    else return (tonumber(R) or 0), (tonumber(I) or 0) end
-  else return (tonumber(R) or 0), (tonumber(I) or 0) end
+  if(not I and getmetatable(R) == metaComplex) then return R:getReal(), R:getImag() end
+  return (tonumber(R) or metaComplex.__valre), (tonumber(I) or metaComplex.__valim)
 end
 
 function complex.New(nRe,nIm)
   self = {}
-  local Re = tonumber(nRe) or 0
-  local Im = tonumber(nIm) or 0
+  local Re = tonumber(nRe) or metaComplex.__valre
+  local Im = tonumber(nIm) or metaComplex.__valim
 
   setmetatable(self,metaComplex)
 
   function self:NegRe()     Re = -Re; return self end
   function self:NegIm()     Im = -Im; return self end
   function self:Conj()      Im = -Im; return self end
-  function self:setReal(R)  Re = (tonumber(R) or 0); return self end
-  function self:setImag(I)  Im = (tonumber(I) or 0); return self end
+  function self:setReal(R)  Re = (tonumber(R) or metaComplex.__valre); return self end
+  function self:setImag(I)  Im = (tonumber(I) or metaComplex.__valim); return self end
   function self:Floor()     Re = math.floor(Re); Im = math.floor(Im); return self end
   function self:Ceil()      Re = math.ceil(Re); Im = math.ceil(Im); return self end
-  function self:Print(sS,sE)  io.write(tostring(sS or "").."{"..tostring(Re)..","..tostring(Im).."}"..tostring(sE or "")); return self end
   function self:getReal()   return Re end
   function self:getImag()   return Im end
   function self:getDupe()   return complex.New(Re,Im) end
@@ -157,12 +51,18 @@ function complex.New(nRe,nIm)
   function self:getAngRad() return math.atan2(Im,Re) end
   function self:getAngDeg() return (math.atan2(Im,Re) * 180) / math.pi end
 
+  function self:Print(sS,sE)
+    io.write(tostring(sS or "")..
+      "{"..tostring(Re)..","..tostring(Im).."}"..
+      tostring(sE or "")); return self
+  end
+
   function self:Round(nP)
     local nP = (tonumber(nP) or 0)
     if(nP < 0) then
       return logStatus("complex.Round: Negative count skip", self) end
-    Re = tonumber(string.format("%."..nP.."f", Re))
-    Im = tonumber(string.format("%."..nP.."f", Im)); return self
+    Re = tonumber(string.format("%."..nP.."f", Re)) or metaComplex.__valre
+    Im = tonumber(string.format("%."..nP.."f", Im)) or metaComplex.__valim; return self
   end
 
   function self:getRound(nP) return complex.New(Re,IM):Round(nP) end
@@ -237,6 +137,88 @@ function complex.New(nRe,nIm)
   end; return self
 end
 
+metaComplex.__tostring = function(Comp)
+  local R = tostring(Comp:getReal() or metaComplex.__valns)
+  local I = tostring(Comp:getImag() or metaComplex.__valns)
+  return "{"..R..","..I.."}"
+end
+
+metaComplex.__unm = function(Comp)
+  if(getmetatable(Comp) == metaComplex) then
+    return complex.New(-Comp:getReal(),-Comp:getImag())
+  end
+end
+
+metaComplex.__add = function(C1,C2)
+  local O = complex.New()
+  O:Set(C1); O:Add(C2)
+  return O
+end
+
+metaComplex.__sub = function(C1,C2)
+  local O = complex.New()
+  O:Set(C1); O:Sub(C2)
+  return O
+end
+
+metaComplex.__mul = function(C1,C2)
+  local O = complex.New()
+  O:Set(C1); O:Mul(C2)
+  return O
+end
+
+metaComplex.__div = function(C1,C2)
+  local O = complex.New()
+  O:Set(C1); O:Div(C2)
+  return O
+end
+
+metaComplex.__mod =  function(C1,C2)
+  local O = complex.New()
+  O:Set(C1); O:Mod(C2)
+  return O
+end
+
+metaComplex.__concat = function(A,B)
+  return tostring(A)..tostring(B)
+end
+
+metaComplex.__pow =  function(C1,C2)
+  local O = complex.New()
+  O:Set(C1); O:Pow(C2)
+  return O
+end
+
+metaComplex.__eq =  function(C1,C2)
+  local R1, R2, I1, I2 = 0, 0, 0, 0
+  if(getmetatable(C1) == metaComplex) then R1, I1 = C1:getReal(), C1:getImag()
+  else R1, I1 = (tonumber(C1) or metaComplex.__valre), metaComplex.__valim end
+  if(getmetatable(C2) == metaComplex) then R2, I2 = C2:getReal(), C2:getImag()
+  else R2, I2 = (tonumber(C2) or metaComplex.__valre), metaComplex.__valim end
+  if(R1 == R2 and I1 == I2) then return true end
+  return false
+end
+
+metaComplex.__le =  function(C1,C2)
+  local R1, R2, I1, I2 = 0, 0, 0, 0
+  if(getmetatable(C1) == metaComplex) then R1, I1 = C1:getReal(), C1:getImag()
+  else R1, I1 = (tonumber(C1) or metaComplex.__valre), metaComplex.__valim end
+  if(getmetatable(C2) == metaComplex) then R2, I2 = C2:getReal(), C2:getImag()
+  else R2, I2 = (tonumber(C2) or metaComplex.__valre), metaComplex.__valim end
+  if(R1 <= R2 and I1 <= I2) then return true end
+  return false
+end
+
+metaComplex.__lt =  function(C1,C2)
+  local R1, R2, I1, I2 = 0, 0, 0, 0
+  if(getmetatable(C1) == metaComplex) then R1, I1 = C1:getReal(), C1:getImag()
+  else R1, I1 = (tonumber(C1) or metaComplex.__valre), metaComplex.__valim end
+  if(getmetatable(C2) == metaComplex) then R2, I2 = C2:getReal(), C2:getImag()
+  else R2, I2 = (tonumber(C2) or metaComplex.__valre), metaComplex.__valim end
+  if(R1 < R2 and I1 < I2) then return true end
+  return false
+end
+
 local function StrValidateComplex(sStr)
   local Str = sStr:gsub("%s","") -- Remove hollows
   local S, E = 1, Str:len()
@@ -260,8 +242,9 @@ local function Str2Complex(sStr, nS, nE, sDel)
   local Del = tostring(sDel or ","):sub(1,1)
   local S, E, D = nS, nE, sStr:find(Del)
   if((not D) or (D < S) or (D > E)) then
-    return complex.New(tonumber(sStr:sub(S,E)) or 0, 0) end
-  return complex.New(tonumber(sStr:sub(S,D-1)) or 0, tonumber(sStr:sub(D+1,E)) or 0)
+    return complex.New(tonumber(sStr:sub(S,E)) or metaComplex.__valre, metaComplex.__valim) end
+  return complex.New(tonumber(sStr:sub(S,D-1)) or metaComplex.__valre,
+                     tonumber(sStr:sub(D+1,E)) or metaComplex.__valim)
 end
 
 local function StrI2Complex(sStr, nS, nE, nI)
@@ -272,9 +255,11 @@ local function StrI2Complex(sStr, nS, nE, nI)
   if(nI == nE) then  -- (-0.7-2.9i) Skip symbols til +/- is reached
     while(C ~= "+" and C ~= "-") do
       M = M - 1; C = sStr:sub(M,M)
-    end; return complex.New(tonumber(sStr:sub(nS,M-1)) or 0, tonumber(sStr:sub(M,nE-1)) or 0)
+    end; return complex.New(tonumber(sStr:sub(nS,M-1)) or metaComplex.__valre,
+                            tonumber(sStr:sub(M,nE-1)) or metaComplex.__valim)
   else -- (-0.7-i2.9)
-    return complex.New(tonumber(sStr:sub(nS,M-1)) or 0, tonumber(C..sStr:sub(nI+1,nE)) or 0)
+    return complex.New(tonumber(sStr:sub(nS,M-1))     or metaComplex.__valre,
+                       tonumber(C..sStr:sub(nI+1,nE)) or metaComplex.__valim)
   end
 end
 
@@ -299,7 +284,8 @@ local function Tab2Complex(tTab)
         V2 = tTab["Y"]    or V2
         V2 = tTab["y"]    or V2
   if(V1 or V2) then
-    return complex.New(tonumber(V1) or 0, tonumber(V2) or 0) end
+    return complex.New(tonumber(V1) or metaComplex.__valre,
+                       tonumber(V2) or metaComplex.__valim) end
   return logStatus("Tab2Complex: Table format not supported",nil)
 end
 
