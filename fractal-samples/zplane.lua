@@ -21,9 +21,9 @@ local szRe  = 2
 local szIm  = 2
 local nStep = 35
 local nZoom = 15
-local iTer  = 60
+local iTer  = 1000
 local sfrac = "mandelbrot"
-local spale = "wikipedia"
+local spale = "region"
 local brdcl = nil -- colr(0, 250, 100)
 local brdup = nil -- true
 
@@ -67,42 +67,29 @@ Area: {-0.10109910300926,-0.10109447337963,-0.95628833912037,-0.95628370949074}
 local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup)
       S:SetControlWX(wx)
    --    S:SetArea(-1.406574048011,-1.406574042524,0.00025352709190672,0.00025353257887517)
-      S:Register("FUNCT","mandelbrot",
-        function (Z, C, R) Z:Pow(2); Z:Add(C); R[1] = Z:getAngRad(); end )
-      S:Register("FUNCT","mandelbar",
-        function (Z, C, R) Z:Pow(2); Z:NegIm(); Z:Add(C) end )
-      S:Register("FUNCT","julia1",
-        function (Z, C, R) Z:Pow(2); Z:Add(compl.Convert("-0.8+0.156i")) end )
-      S:Register("FUNCT","julia2",
-        function (Z, C, R) Z:Set(cexp^(Z^3) - 0.621) end )
-      S:Register("FUNCT","julia3",
-        function (Z, C, R) Z:Set(cexp^Z) Z:Sub(0.65) end )
-      S:Register("FUNCT","julia4",
-        function (Z, C, R) Z:Pow(3) Z:Add(0.4)  end )
-      S:Register("FUNCT","julia5",
-        function (Z, C, R) Z:Set((Z^4) * cexp^Z + 0.41 )  end )
-      S:Register("FUNCT","julia6",
-        function (Z, C, R) Z:Set((Z^3) * cexp^Z + 0.33 )  end )
-      S:Register("PALET","default"   ,function (Z, C, i) return
-        (math.floor((64  * i) % maxCl)), (math.floor((128 * i) % maxCl)), (math.floor((192 * i) % maxCl)) end )
-      S:Register("PALET","rediter",
-        function (Z, C, i) return math.floor((1-(i / iTer)) * maxCl), 0, 0 end )
-      S:Register("PALET","greenbl",
-        function (Z, C, i, x, y) local it = i / iTer; return math.floor(0), math.floor((1 - it) * maxCl), math.floor(it * maxCl) end)
-      S:Register("PALET","wikipedia",
-        function (Z, C, i, x, y, R) return clmap.getColorMap("wikipedia",i) end)
-      S:Register("PALET","region",
-        function (Z, C, i, x, y) return clmap.getColorRegion(i,iTer,10) end)
-      S:Register("PALET","hsl",
-        function (Z, C, i, x, y) local it = i / iTer; return clmap.getColorHSL(it*360,it,it) end)
-      S:Register("PALET","hsv",
-        function (Z, C, i, x, y) local it = i / iTer; return clmap.getColorHSV(it*360,1,1) end)
-      S:Register("PALET","wikipedia_r",function (Z, C, i, x, y, R)
-        return clmap.getColorMap("wikipedia",i * (R[1] and 1+math.floor(math.abs(R[1])) or 1)) end)
+      S:Register("FUNCT",
+        "mandelbrot", function (Z, C, R) Z:Pow(2); Z:Add(C); R[1] = Z:getAngRad(); end,
+        "mandelbar", function (Z, C, R) Z:Pow(2); Z:NegIm(); Z:Add(C) end,
+        "julia1", function (Z, C, R) Z:Pow(2); Z:Add(compl.Convert("-0.8+0.156i")) end,
+        "julia2", function (Z, C, R) Z:Set(cexp^(Z^3) - 0.621) end,
+        "julia3", function (Z, C, R) Z:Set(cexp^Z) Z:Sub(0.65) end,
+        "julia4", function (Z, C, R) Z:Pow(3) Z:Add(0.4)  end,
+        "julia5", function (Z, C, R) Z:Set((Z^4) * cexp^Z + 0.41 ) end,
+        "julia6", function (Z, C, R) Z:Set((Z^3) * cexp^Z + 0.33 ) end)
+      S:Register("PALET",
+        "default", function (Z, C, i) return (math.floor((64  * i) % maxCl)), (math.floor((128 * i) % maxCl)), (math.floor((192 * i) % maxCl)) end,
+        "rediter", function (Z, C, i) return math.floor((1-(i / iTer)) * maxCl), 0, 0 end,
+        "greenbl", function (Z, C, i, x, y) local it = i / iTer; return math.floor(0), math.floor((1 - it) * maxCl), math.floor(it * maxCl) end,
+        "wikipedia", function (Z, C, i, x, y, R) return clmap.getColorMap("wikipedia",i) end,
+        "region", function (Z, C, i, x, y) return clmap.getColorRegion(i,iTer,10) end,
+        "hsl", function (Z, C, i, x, y) local it = i / iTer; return clmap.getColorHSL(it*360,it,it) end,
+        "hsv", function (Z, C, i, x, y) local it = i / iTer; return clmap.getColorHSV(it*360,1,1) end,
+        "wikipedia_r", function (Z, C, i, x, y, R) return clmap.getColorMap("wikipedia",i * (R[1] and 1+math.floor(math.abs(R[1])) or 1)) end)
 
 S:Draw(sfrac,spale,iTer)
 
 while true do
+  wait(0.2)
   local lx, ly = clck('ld')
   local rx, ry = clck('rd')
   local key = char()

@@ -85,11 +85,11 @@ end
 function colormap.getColorMap(sKey,iNdex)
   local iNdex = tonumber(iNdex) or 0
   if(iNdex <= 0) then
-    return logStatus("colormap.getColorMap: Missing index #"..tostring(iNdex), getColorBlackRGB()) end
+    return logStatus("colormap.getColorMap: Missing index #"..tostring(iNdex), colormap.getColorBlackRGB()) end
   local sKey = tostring(sKey)
   local rgb = clMapping[sKey]
   if(not rgb) then
-    return logStatus("colormap.getColorMap: Missing mapping for <"..sKey..">",getColorBlackRGB()) end
+    return logStatus("colormap.getColorMap: Missing mapping for <"..sKey..">", colormap.getColorBlackRGB()) end
   local cid = iNdex % #rgb; rgb = rgb[cid]
   if(not rgb) then return colormap.getColorBlackRGB() end
   return (rgb[1] or clClamp[2]), (rgb[2] or clClamp[2]), (rgb[3] or clClamp[2])
@@ -102,14 +102,14 @@ end
 function colormap.getColorRegion(iDepth, maxDepth, iRegions)
   local sKey, iDepth = "getColorRegion", (tonumber(iDepth) or 0)
   if(iDepth <= 0) then
-    logStatus("colormap.getColorRegion: Missing Region depth #"..iDepth,getColorBlackRGB()) end
+    logStatus("colormap.getColorRegion: Missing Region depth #"..iDepth,colormap.getColorBlackRGB()) end
   local maxDepth = tonumber(maxDepth) or 0
   if(maxDepth <= 0) then
-    logStatus("colormap.getColorRegion: Missing Region max depth #"..maxDepth,getColorBlackRGB()) end
+    logStatus("colormap.getColorRegion: Missing Region max depth #"..maxDepth,colormap.getColorBlackRGB()) end
   local iRegions = tonumber(iRegions) or 0
   if(iRegions <= 0) then
-    logStatus("colormap.getColorRegion: Missing Regions count #"..iRegions,getColorBlackRGB()) end
-  if (iDepth == maxDepth) then return getColorBlackRGB() end
+    logStatus("colormap.getColorRegion: Missing Regions count #"..iRegions,colormap.getColorBlackRGB()) end
+  if (iDepth == maxDepth) then return colormap.getColorBlackRGB() end
   -- Cache the damn thing as it is too heavy
   if(not clMapping[sKey]) then clMapping[sKey] = {} end
   if(not clMapping[sKey][iRegions]) then clMapping[sKey][iRegions] = {} end
