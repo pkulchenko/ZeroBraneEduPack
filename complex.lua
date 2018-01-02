@@ -28,7 +28,10 @@ function complex.New(nRe,nIm)
   local Im = tonumber(nIm) or metaComplex.__valim
 
   setmetatable(self,metaComplex)
-
+  
+  if(getmetatable(nRe) == metaComplex) then
+    Re, Im = nRe:getReal(), nRe:getImag() end
+  
   function self:NegRe()     Re = -Re; return self end
   function self:NegIm()     Im = -Im; return self end
   function self:Conj()      Im = -Im; return self end
@@ -290,6 +293,7 @@ local function Tab2Complex(tTab)
 end
 
 function complex.Convert(In,Del)
+  if(getmetatable(In) == metaComplex) then return In:getDupe() end
   local tIn = type(In)
   if(tIn ==  "table") then return Tab2Complex(In) end
   if(tIn == "number") then return complex.New(In,0) end
