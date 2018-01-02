@@ -1,5 +1,5 @@
 -- General inforamtion storage table
--- crash   > controls thread crashes. Currently at 99.99% crashing thread ID 2
+-- crash   > Controls thread crashes. Currently at 99.99% crashing thread ID 2
 -- time    > How much time the simulation is run for
 -- tablen  > The amount of work to be done
 -- thrcnt  > How many threads are allocated to do the job in question

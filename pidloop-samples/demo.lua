@@ -1,5 +1,6 @@
 require("turtle")
 
+local crt = require("chartmap")
 local pid = require("pidloop")
 local col = require("colormap")
 
@@ -10,14 +11,14 @@ local W, H  = 1200, 800
 local minC, maxC = -150, 150
 local To    = 0.001
 local endTm = 0.1
-local intX  = pid.newInterval("WinX",  0,endTm, 0, W)
-local intY  = pid.newInterval("WinY",-10,150 , H, 0)
+local intX  = crt.newInterval("WinX",  0,endTm, 0, W)
+local intY  = crt.newInterval("WinY",-10,150 , H, 0)
 local APR   = pid.newUnit(To,{0.74,-0.114},{1.282,-0.98,0.258},"Hesitating plant"):Dump()
 local PID   = pid.newControl(To,"Lin-QR"):Setup({0.825, 0.0036, 33.8, minC, maxC}):setStruct(true,false):Dump()
 
-local trRef = pid.newTracer("Ref"):setInterval(intX, intY)
-local trCon = pid.newTracer("Con"):setInterval(intX, intY)
-local trPV  = pid.newTracer("PV" ):setInterval(intX, intY)
+local trRef = crt.newTracer("Ref"):setInterval(intX, intY)
+local trCon = crt.newTracer("Con"):setInterval(intX, intY)
+local trPV  = crt.newTracer("PV" ):setInterval(intX, intY)
 
 open("Trasition processes")
 size(W,H)

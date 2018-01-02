@@ -1,6 +1,6 @@
 require("turtle")
+local drw = require("chartmap")
 local cmp = require("complex")
-local pid = require("pidloop")
 local col = require("colormap")
 
 io.stdout:setvbuf("no")
@@ -26,9 +26,9 @@ while(P:getImag() >= 0) do
 end
 
 local clGrn = colr(col.getColorGreenRGB())
-local intX  = pid.newInterval("WinX", 0, maxX, 0, W)
-local intY  = pid.newInterval("WinY", -100, maxY, H, 0)
-local trAj  = pid.newTracer("Trajectory"):setInterval(intX, intY)
+local intX  = drw.newInterval("WinX", 0, maxX, 0, W)
+local intY  = drw.newInterval("WinY", -100, maxY, H, 0)
+local trAj  = drw.newTracer("Trajectory"):setInterval(intX, intY)
 
 line(0, intY:Convert(0):getValue(), W, intY:Convert(0):getValue())
 
