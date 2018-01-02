@@ -40,4 +40,3 @@ for ID = 1, #traJ do
   text(tostring(cPos),0,intX:Convert(Re):getValue(),intY:Convert(Im):getValue())
   updt()
 end
-

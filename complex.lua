@@ -85,9 +85,9 @@ function complex.New(nRe,nIm)
     Re, Im = (Re - R), (Im - I); return self
   end
 
-  function self:Scale(nNum)
-    local N = tonumber(nNum)
-    if(N) then Re, Im = (Re * N), (Im * N) end; return self
+  function self:Scale(vNum)
+    local nNum = tonumber(vNum)
+    if(nNum) then Re, Im = (Re * nNum), (Im * nNum) end; return self
   end
 
   function self:Mul(R,I)
@@ -118,6 +118,10 @@ function complex.New(nRe,nIm)
     local nF =  C * Th  + D * math.log(Ro)
     Re = nR * math.cos(nF)
     Im = nR * math.sin(nF); return self
+  end
+  
+  function self:getPolar()
+    return self:getNorm(), self:getAngRad()
   end
 
   function self:getRoots(nNum)
@@ -290,6 +294,21 @@ local function Tab2Complex(tTab)
     return complex.New(tonumber(V1) or metaComplex.__valre,
                        tonumber(V2) or metaComplex.__valim) end
   return logStatus("Tab2Complex: Table format not supported",nil)
+end
+
+function complex.Euler(vRm, vPh)
+  local nRm = tonumber(vRm) or 0
+  local nPh = tonumber(vPh) or 0
+  local cO = complex.New(math.cos(nPh),math.sin(nPh))
+        cO:Scale(nRm); return cO
+end
+
+function complex.ToDegree(nRad)
+  return ((tonumber(nRad) or 0) * 180) / math.pi
+end
+
+function complex.ToRadian(nDeg)
+  return ((tonumber(nDeg) or 0) * math.pi) / 180
 end
 
 function complex.Convert(In,Del)
