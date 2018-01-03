@@ -7,11 +7,17 @@ local l = 7 -- depth of the tree
 -- f, a, l = 0.7, 20, 8
 -- f, a, l = 0.75, 25, 9
 
+local function clamp(a,b,c)
+  if(a <= b) then return b end
+  if(a >= c) then return c end
+  return a
+end
+
 function tree(d, n) -- distance to grow, level for recursion
   if n == 0 then return end
-  
+  local green = clamp(math.floor((10 - n)*24),0,255)
   local width = pnsz(n) -- set pen size; save current value
-  local color = pncl(colr(127,(10 - n)*24,0)) -- set pen color
+  local color = pncl(colr(127,green,0)) -- set pen color
 
   move(2/3*d)
   turn(a)
