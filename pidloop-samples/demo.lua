@@ -6,20 +6,24 @@ local col = require("colormap")
 
 io.stdout:setvbuf("no")
 
-local W, H  = 1200, 800
-
-local minC, maxC = -150, 150
-local To    = 0.001
-local endTm = 0.1
+-- Manual part
+local W, H       = 1200, 800 -- window dimensions
+local minC, maxC = -20, 20   -- control limists
+local stVal      = 10        -- Step responce final value               
+local To         = 0.1       -- Sampling time
+local wAit       = 0.01      -- Simulation speed-up
+local tScale     = 30        -- End time relative to the sampling time
+local tFixed     = 5
+-- Automated part
+local endTm = tFixed and tFixed or (tScale * To)
 local intX  = crt.newInterval("WinX",  0,endTm, 0, W)
-local intY  = crt.newInterval("WinY",-10,150 , H, 0)
-local APR   = pid.newUnit(To,{0.74,-0.114},{1.282,-0.98,0.258},"Hesitating plant"):Dump()
-local PID   = pid.newControl(To,"Lin-QR"):Setup({0.825, 0.0036, 33.8, minC, maxC}):setStruct(true,false):Dump()
-
+local intY  = crt.newInterval("WinY", -1, 15 , H, 0)
+local APR   = pid.newUnit(To,{8},{7 , 3, 1},"Hesitating plant"):Dump()
+local PID   = pid.newControl(To,"Lin-QR"):Setup({0.028, 0.01, -12, minC, maxC}):setStruct(false,false):Dump()
 local trRef = crt.newTracer("Ref"):setInterval(intX, intY)
 local trCon = crt.newTracer("Con"):setInterval(intX, intY)
 local trPV  = crt.newTracer("PV" ):setInterval(intX, intY)
-
+local function form(nV) return ("%03.2f"):format(nV) end
 open("Trasition processes")
 size(W,H)
 zero(0, 0)
@@ -39,10 +43,11 @@ local pvv, con, ref = 0, 0, 100
 
 curTm = 0
 while(curTm <= endTm) do
-  if(curTm > 0.1 * endTm) then con = 100 else con = 0 end
-  wait(To)
+  if(curTm > 0.1 * endTm) then con = stVal else con = 0 end
+  wait(wAit)
   pvv = APR:Process(con):getOutput()
   trPV:putValue(curTm, pvv):Draw(clBlk)
+  print("("..form(curTm)..") "..form(ref).." > "..form(pvv).." > "..form(con))
   curTm = curTm + To; updt()
 end; APR:Reset(); trPV:Reset(); wait(0.5)
 
@@ -50,13 +55,14 @@ end; APR:Reset(); trPV:Reset(); wait(0.5)
 
 curTm, pvv = 0, 0
 while(curTm <= endTm) do
-  wait(To)
-  if(curTm > 0.1 * endTm) then ref = 100 else ref = 0 end
+  wait(wAit)
+  if(curTm > 0.1 * endTm) then ref = stVal else ref = 0 end
   trRef:putValue(curTm, ref):Draw(clBlu)
   con = PID:Process(ref,pvv):getControl()
   trCon:putValue(curTm,con):Draw(clGrn)
   pvv = APR:Process(con):getOutput()
   trPV:putValue(curTm, pvv):Draw(clRed)
-  print(ref.." > "..pvv.." > "..con)
+  print("("..form(curTm)..") "..form(ref).." > "..form(pvv).." > "..
+             form(con).." : {"..table.concat({("%5.2f, %5.2f, %5.2f"):format(PID:getTerms())}).."}")
   curTm = curTm + To; updt()
 end

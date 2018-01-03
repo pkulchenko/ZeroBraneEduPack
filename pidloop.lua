@@ -53,6 +53,7 @@ function pidloop.newControl(nTo, sName)
   function self:getTerm(kV,eV,pV) return (kV*mfSgn(eV)*mfAbs(eV)^pV) end
   function self:Dump() return logStatus(self:getString(), self) end
   function self:getGains() return mkP, mkI, mkD end
+  function self:getTerms() return mvP, mvI, mvD end
   function self:setEnIntegral(bEn) meInt = tobool(bEn); return self end
   function self:getEnIntegral() return meInt end
   function self:getError() return mErrO, mErrN end
@@ -79,7 +80,7 @@ function pidloop.newControl(nTo, sName)
       mvP = self:getTerm(mkP, mErrN, mpP) end
     if((mkI > 0) and (mErrN ~= 0) and meInt) then -- I-Term
       mvI = self:getTerm(mkI, mErrN + mErrO, mpI) + mvI end
-    if((mkD > 0) and (mErrN ~= mErrO)) then -- D-Term
+    if((mkD ~= 0) and (mErrN ~= mErrO)) then -- D-Term
       mvD = self:getTerm(mkD, mErrN - mErrO, mpD) end
     mvCon = mvP + mvI + mvD  -- Calculate the control signal
     if(mSatD and mSatU) then -- Apply anti-windup effect
@@ -116,7 +117,7 @@ function pidloop.newControl(nTo, sName)
       if(mbCmb) then mkI = mkI * mkP end
     else logStatus("newControl.Setup: I-gain <"..tostring(arParam[2]).."> skipped") end
 
-    if(arParam[3] and (tonumber(arParam[3] or 0) > 0)) then
+    if(arParam[3] and (tonumber(arParam[3] or 0) ~= 0)) then
       mkD = (tonumber(arParam[3] or 0) * mTo)  -- Discrete derivative approximation
       if(mbCmb) then mkD = mkD * mkP end
     else logStatus("newControl.Setup: D-gain <"..tostring(arParam[3]).."> skipped") end
