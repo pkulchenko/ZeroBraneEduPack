@@ -13,14 +13,14 @@ local function newRoutine(id, t, n, all, terr)
   return coroutine.create(function(t, n, terr)
     for i = 1, n do
       if(terr and next(terr)) then -- This controls the thread crashing
-        marg = tonumber(terr[1])
-        maid = tonumber(terr[2])
+        marg = tonumber(terr[1])   -- Margin. When to crash the thread
+        maid = tonumber(terr[2])   -- What thread ID to crash
         if(marg > 0 and marg < 1 and maid > 1) then
-         if(id == maid and (i > (marg * n))) then n = t..n end 
-        end
+          if(id == maid and (i > (marg * n))) then n = t..n end 
+        end -- If the running thread has the given ID, try to concatenate number to a table
       end
-      t[i] = (i ^ i / i * (i - 64))
-      all[id] = ("%10.4f"):format(100*(i/n)).."%"
+      t[i] = (i ^ i / i * (i - 42)) -- The meaning of life, the universe and everything
+      all[id] = ("%6.2f"):format(100*(i/n)).."%"
       print(unpack(all)) -- Printout out output
       coroutine.yield() -- Make sure to pause this thread for others to do some work
     end
@@ -40,7 +40,7 @@ while((os.clock() - clk) < info.time and not exit) do
   for id = 1, #info.obj do
     local rut = info.obj[id]
     if(rut) then
-      local sta = coroutine.status(rut)
+      local sta = coroutine.status(rut) -- Take our status to decide what to do
       if(sta == "suspended") then -- The thread waits to be resumed by the handler
         local suc = coroutine.resume(rut, info.data[id], info.tablen, info.crash)
         if(not suc) then crash, info.obj[id] = (crash + 1)
