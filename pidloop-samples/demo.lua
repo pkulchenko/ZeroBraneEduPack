@@ -66,3 +66,5 @@ while(curTm <= endTm) do
              form(con).." : {"..table.concat({("%5.2f, %5.2f, %5.2f"):format(PID:getTerms())}).."}")
   curTm = curTm + To; updt()
 end
+
+wait()

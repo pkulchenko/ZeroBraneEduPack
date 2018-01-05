@@ -307,6 +307,7 @@ end
 function complex.Convert(In,Del)
   if(getmetatable(In) == metaComplex) then return In:getDupe() end
   local tIn = type(In)
+  if(tIn =="boolean") then return complex.New(In and 1 or 0,0) end
   if(tIn ==  "table") then return Tab2Complex(In) end
   if(tIn == "number") then return complex.New(In,0) end
   if(tIn ==    "nil") then return complex.New(0,0) end
