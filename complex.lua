@@ -16,6 +16,9 @@ metaComplex.__bords = {"/|<({[","/|>)}]"}
 metaComplex.__valre = 0
 metaComplex.__valim = 0
 metaComplex.__valns = "X"
+metaComplex.__ssyms = {"i", "I", "j", "J"}
+metaComplex.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
+metaComplex.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
 
 local function ExportComplex(R,I)
   if(not I and getmetatable(R) == metaComplex) then return R:getReal(), R:getImag() end
@@ -271,29 +274,19 @@ local function StrI2Complex(sStr, nS, nE, nI)
 end
 
 local function Tab2Complex(tTab)
-  if(not tTab) then return nil end
-  local V1 = tTab[1]
-        V1 = tTab["Real"] or V1
-        V1 = tTab["real"] or V1
-        V1 = tTab["Re"]   or V1
-        V1 = tTab["re"]   or V1
-        V1 = tTab["R"]    or V1
-        V1 = tTab["r"]    or V1
-        V1 = tTab["X"]    or V1
-        V1 = tTab["x"]    or V1
-  local V2 = tTab[2]
-        V2 = tTab["Imag"] or V2
-        V2 = tTab["imag"] or V2
-        V2 = tTab["Im"]   or V2
-        V2 = tTab["im"]   or V2
-        V2 = tTab["I"]    or V2
-        V2 = tTab["i"]    or V2
-        V2 = tTab["Y"]    or V2
-        V2 = tTab["y"]    or V2
-  if(V1 or V2) then
-    return complex.New(tonumber(V1) or metaComplex.__valre,
-                       tonumber(V2) or metaComplex.__valim) end
-  return logStatus("Tab2Complex: Table format not supported",nil)
+  if(not tTab) then return nil end; local R, I
+  for ID = 1, #metaComplex.__kreal do
+    local val = metaComplex.__kreal[ID]
+    R = tTab[val] or R; if(R) then break end
+  end
+  for ID = 1, #metaComplex.__kimag do
+    local val = metaComplex.__kimag[ID]
+    I = tTab[val] or I; if(I) then break end
+  end
+  if(R or I) then
+    return complex.New(tonumber(R) or metaComplex.__valre,
+                       tonumber(I) or metaComplex.__valim) end
+  return logStatus("Tab2Complex: Table format not supported", complex.New())
 end
 
 function complex.Euler(vRm, vPh)
@@ -321,11 +314,11 @@ function complex.Convert(In,Del)
     local Str, S, E = StrValidateComplex(In:gsub("*",""))
     if(not (Str and S and E)) then
       return logStatus("complex.Convert: Failed to vlalidate <"..tostring(In)..">",nil) end
-        Str = Str:sub(S ,E); E = E-S+1; S = 1
-    local I = Str:find("i",S)
-          I = Str:find("I",S) or I
-          I = Str:find("j",S) or I
-          I = Str:find("J",S) or I
+        Str = Str:sub(S ,E); E = E-S+1; S = 1; local I
+    for ID = 1, #metaComplex.__ssyms do
+      local val = metaComplex.__ssyms[ID]
+      I = Str:find(val,S) or I; if(I) then break end
+    end
     if(I and (I > 0)) then return StrI2Complex(Str, S, E, I)
     else return Str2Complex(Str, S, E, Del) end
   end
