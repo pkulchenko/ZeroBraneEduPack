@@ -20,71 +20,48 @@ metaComplex.__ssyms = {"i", "I", "j", "J"}
 metaComplex.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
 metaComplex.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
 
-local function ExportComplex(R,I)
+local function signValue(anyVal)
+  local nVal = (tonumber(anyVal) or 0)
+  return ((nVal > 0 and 1) or (nVal < 0 and -1) or 0)
+end
+
+local function roundValue(nE, nF)
+  local e = (tonumber(nE) or 0)
+  local f = signValue(e) * math.abs(tonumber(nF) or 0)
+  local q, d = math.modf(e/f); return (f * (q + (d > 0.5 and 1 or 0))  )
+end
+
+local function exportComplex(R, I)
   if(not I and getmetatable(R) == metaComplex) then return R:getReal(), R:getImag() end
   return (tonumber(R) or metaComplex.__valre), (tonumber(I) or metaComplex.__valim)
 end
 
 function complex.New(nRe,nIm)
-  self = {}
+  self = {}; setmetatable(self,metaComplex)
   local Re = tonumber(nRe) or metaComplex.__valre
   local Im = tonumber(nIm) or metaComplex.__valim
 
-  setmetatable(self,metaComplex)
-  
   if(getmetatable(nRe) == metaComplex) then
     Re, Im = nRe:getReal(), nRe:getImag() end
-  
-  function self:NegRe()     Re = -Re; return self end
-  function self:NegIm()     Im = -Im; return self end
-  function self:Conj()      Im = -Im; return self end
+
   function self:setReal(R)  Re = (tonumber(R) or metaComplex.__valre); return self end
   function self:setImag(I)  Im = (tonumber(I) or metaComplex.__valim); return self end
-  function self:Floor()     Re = math.floor(Re); Im = math.floor(Im); return self end
-  function self:Ceil()      Re = math.ceil(Re); Im = math.ceil(Im); return self end
   function self:getReal()   return Re end
   function self:getImag()   return Im end
-  function self:getDupe()   return complex.New(Re,Im) end
-  function self:getFloor()  return complex.New(math.floor(Re),math.floor(Im)) end
-  function self:getCeil()   return complex.New(math.ceil(Re),math.ceil(Im)) end
-  function self:toPointXY() return {x = Re, y = Im} end
-  function self:getNeg()    return complex.New(-Re,-Im) end
-  function self:getNegRe()  return complex.New(-Re, Im) end
-  function self:getNegIm()  return complex.New( Re,-Im) end
-  function self:getConj()   return complex.New( Re,-Im) end
-  function self:getNorm2()  return (Re*Re + Im*Im) end
-  function self:getNorm()   return math.sqrt(Re*Re + Im*Im) end
-  function self:getAngRad() return math.atan2(Im,Re) end
-  function self:getAngDeg() return (math.atan2(Im,Re) * 180) / math.pi end
-
-  function self:Print(sS,sE)
-    io.write(tostring(sS or "")..
-      "{"..tostring(Re)..","..tostring(Im).."}"..
-      tostring(sE or "")); return self
-  end
-
-  function self:Round(nP)
-    local nP = (tonumber(nP) or 0)
-    if(nP < 0) then
-      return logStatus("complex.Round: Negative count skip", self) end
-    Re = tonumber(string.format("%."..nP.."f", Re)) or metaComplex.__valre
-    Im = tonumber(string.format("%."..nP.."f", Im)) or metaComplex.__valim; return self
-  end
-
-  function self:getRound(nP) return complex.New(Re,IM):Round(nP) end
+  function self:getParts()  return Re, Im end
 
   function self:Set(R,I)
-    local R,I = ExportComplex(R,I)
+    local R, I = exportComplex(R, I)
     Re, Im = R, I; return self
   end
 
   function self:Add(R,I)
-    local R,I = ExportComplex(R,I)
+    local R, I = exportComplex(R, I)
     Re, Im = (Re + R), (Im + I); return self
   end
 
   function self:Sub(R,I)
-    local R,I = ExportComplex(R,I)
+    local R, I = exportComplex(R, I)
     Re, Im = (Re - R), (Im - I); return self
   end
 
@@ -94,19 +71,19 @@ function complex.New(nRe,nIm)
   end
 
   function self:Mul(R,I)
-    local A, C, D = Re, ExportComplex(R,I)
+    local A, C, D = Re, exportComplex(R, I)
     Re = A*C - Im*D
     Im = A*D + Im*C; return self
   end
 
   function self:Div(R,I)
-    local A, C, D = Re, ExportComplex(R,I)
+    local A, C, D = Re, exportComplex(R, I)
     local Z = (C*C + D*D)
-    if(Z ~= 0) then Re, Im = ((A *C + Im*D) / Z), ((Im*C -  A*D) / Z) end; return self
+    if(Z ~= 0) then Re, Im = ((A*C + Im*D) / Z), ((Im*C -  A*D) / Z) end; return self
   end
 
   function self:Mod(R,I)
-    local A, C, D = Re, ExportComplex(R,I); self:Div(C,D)
+    local A, C, D = Re, exportComplex(R, I); self:Div(C,D)
     local rei, ref = math.modf(Re)
     local imi, imf = math.modf(Im)
     self:Set(ref,imf)
@@ -114,7 +91,7 @@ function complex.New(nRe,nIm)
   end
 
   function self:Pow(R,I)
-    local C, D = ExportComplex(R,I)
+    local C, D = exportComplex(R, I)
     local Ro = self:getNorm()
     local Th = self:getAngRad()
     local nR = (Ro ^ C) * math.exp(-D * Th)
@@ -122,29 +99,125 @@ function complex.New(nRe,nIm)
     Re = nR * math.cos(nF)
     Im = nR * math.sin(nF); return self
   end
-  
-  function self:getPolar()
-    return self:getNorm(), self:getAngRad()
-  end
 
-  function self:getRoots(nNum)
-    local N = tonumber(nNum)
-    if(N) then
-      local N = math.floor(N)
-      local tRoots = {}
-      local Pi = math.pi
-      local R  = self:getNorm()   ^ (1 / N)
-      local Th = self:getAngRad() * (1 / N)
-      local CRe, CIm
-      local AngStep = (2*Pi) / N
-      for k = 1, N do
-        CRe = R * math.cos(Th)
-        CIm = R * math.sin(Th)
-        tRoots[k] = complex.New(CRe,CIm)
-        Th = Th + AngStep
-      end; return tRoots
-    end; return nil
-  end; return self
+  return self
+end
+
+function metaComplex:Floor()
+  local Re, Im = self:getParts()
+  Re, Im = math.floor(Re), math.floor(Im)
+  self:setReal(Re):setImag(Im); return self
+end
+
+function metaComplex:Ceil()
+  local Re, Im = self:getParts()
+  Re = math.ceil(Re); Im = math.ceil(Im);
+  self:setReal(Re):setImag(Im); return self
+end
+
+function metaComplex:NegRe() self:setReal(-self:getReal()); return self end
+function metaComplex:NegIm() self:setImag(-self:getImag()); return self end
+function metaComplex:Conj() self:NegIm(); return self end
+
+function metaComplex:getNorm2()
+  local Re, Im = self:getParts(); return(Re*Re + Im*Im) end
+
+function metaComplex:getNorm() return math.sqrt(self:getNorm2()) end
+
+function metaComplex:getAngRad()
+  local Re, Im = self:getParts(); return math.atan2(Im, Re) end
+
+function metaComplex:getAngDeg() return (self:getAngRad() * 180) / math.pi end
+
+function metaComplex:getDupe() return complex.New(self:getParts()) end
+
+function metaComplex:toPoint(kX, kY)
+  local Re, Im = self:getParts(); return {[kX] = Re, [kY] = Im} end
+
+function metaComplex:getNeg()
+  local Re, Im = self:getParts(); return complex.New(-Re,-Im) end
+
+function metaComplex:getNegRe()
+  local Re, Im = self:getParts(); return complex.New(-Re, Im) end
+
+function metaComplex:getNegIm()
+  local Re, Im = self:getParts(); return complex.New(Re,-Im) end
+
+function metaComplex:getConj()
+  local Re, Im = self:getParts(); return complex.New(Re,-Im) end
+
+function metaComplex:getCeil()
+  local Re, Im = self:getParts()
+  return complex.New(math.ceil(Re),math.ceil(Im))
+end
+
+function metaComplex:getFloor()
+  local Re, Im = self:getParts()
+  return complex.New(math.floor(Re),math.floor(Im))
+end
+
+function metaComplex:Print(sS,sE)
+  io.write(tostring(sS or "").."{"..tostring(self:getReal())..
+    ","..tostring(self:getImag()).."}"..tostring(sE or "")); return self
+end
+
+function metaComplex:Round(nF)
+  local Re, Im = self:getParts()
+  self:setReal(roundValue(Re, nF)):setImag(roundValue(Im, nF)); return self
+end
+
+function metaComplex:getRound(nP)
+  local Re, Im = self:getParts()
+  return complex.New(Re,IM):Round(nP)
+end
+
+function metaComplex:getPolar()
+  return self:getNorm(), self:getAngRad()
+end
+
+function metaComplex:getRoots(nNum)
+  local N = tonumber(nNum)
+  if(N) then
+    local N, tRt  = math.floor(N), {}
+    local Pw, As  = (1 / N), ((2*math.pi) / N)
+    local Rd, CRe = self:getNorm()   ^ Pw
+    local Th, CIm = self:getAngRad() * Pw
+    for k = 1, N do
+      CRe = Rd * math.cos(Th)
+      CIm = Rd * math.sin(Th)
+      tRt[k] = complex.New(CRe,CIm)
+      Th = Th + As
+    end; return tRt
+  end; return nil
+end
+
+function metaComplex:getFormat(sF,...)
+  local tArg = {...}
+  local sMod = tostring(tArg[1] or "")
+  if(sMod == "table") then
+    local Re, Im = self:getParts()
+    local iD = (tonumber(tArg[2]) or 1)
+          iD = ((iD > 0) and iD or 1)
+    local sF = metaComplex.__bords[1]:sub(5,5)
+    local sB = metaComplex.__bords[2]:sub(5,5)
+    local kR = metaComplex.__kreal[iD]
+    local kI = metaComplex.__kimag[iD]
+    if(not (kR and kI)) then return tostring(self) end
+    local qR = (getmetatable("R") == getmetatable(kR))
+    local qI = (getmetatable("I") == getmetatable(kI))
+          kR = qR and ("\""..kR.."\"") or kR
+          kI = qI and ("\""..kI.."\"") or kI
+    return sF.."["..kR.."]="..Re..",["..kI.."]="..Im..sB
+  elseif(sMod == "string") then
+    local Re, Im = self:getParts()
+    local mI, bS = (signValue(Im) * Im), tArg[3]
+    local iD, eS = (tonumber(tArg[2]) or 1), #metaComplex.__ssyms
+          iD = (iD > eS) and eS or iD
+    local kI = metaComplex.__ssyms[iD]
+    local sI = ((signValue(Im) < 0) and "-" or "+")
+    if(bS) then return (Re..sI..kI..mI)
+    else return (Re..sI..mI..kI) end
+  end; return tostring(self)
 end
 
 metaComplex.__tostring = function(Comp)
@@ -290,31 +363,31 @@ local function Tab2Complex(tTab)
 end
 
 function complex.Euler(vRm, vPh)
-  local nRm = tonumber(vRm) or 0
-  local nPh = tonumber(vPh) or 0
-  local cO = complex.New(math.cos(nPh),math.sin(nPh))
-        cO:Scale(nRm); return cO
+  local nRm, nPh = (tonumber(vRm) or 0), (tonumber(vPh) or 0)
+  return complex.New(math.cos(nPh),math.sin(nPh)):Scale(nRm)
 end
 
 function complex.ToDegree(nRad)
+  if(math.deg) then return math.deg(nRad) end
   return ((tonumber(nRad) or 0) * 180) / math.pi
 end
 
 function complex.ToRadian(nDeg)
+  if(math.rad) then return math.rad(nDeg) end
   return ((tonumber(nDeg) or 0) * math.pi) / 180
 end
 
-function complex.Convert(In,Del)
-  if(getmetatable(In) == metaComplex) then return In:getDupe() end
-  local tIn = type(In)
-  if(tIn =="boolean") then return complex.New(In and 1 or 0,0) end
-  if(tIn ==  "table") then return Tab2Complex(In) end
-  if(tIn == "number") then return complex.New(In,0) end
+function complex.Convert(vIn,Del)
+  if(getmetatable(vIn) == metaComplex) then return vIn:getDupe() end
+  local tIn = type(vIn)
+  if(tIn =="boolean") then return complex.New(vIn and 1 or 0,0) end
+  if(tIn ==  "table") then return Tab2Complex(vIn) end
+  if(tIn == "number") then return complex.New(vIn,0) end
   if(tIn ==    "nil") then return complex.New(0,0) end
   if(tIn == "string") then
-    local Str, S, E = StrValidateComplex(In:gsub("*",""))
+    local Str, S, E = StrValidateComplex(vIn:gsub("*",""))
     if(not (Str and S and E)) then
-      return logStatus("complex.Convert: Failed to vlalidate <"..tostring(In)..">",nil) end
+      return logStatus("complex.Convert: Failed to vlalidate <"..tostring(vIn)..">",nil) end
         Str = Str:sub(S ,E); E = E-S+1; S = 1; local I
     for ID = 1, #metaComplex.__ssyms do
       local val = metaComplex.__ssyms[ID]
@@ -323,7 +396,7 @@ function complex.Convert(In,Del)
     if(I and (I > 0)) then return StrI2Complex(Str, S, E, I)
     else return Str2Complex(Str, S, E, Del) end
   end
-  return logStatus("complex.Convert: Type <"..Tin.."> not supported",nil)
+  return logStatus("complex.Convert: Type <"..tIn.."> not supported",nil)
 end
 
 return complex
