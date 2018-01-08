@@ -131,7 +131,7 @@ function metaComplex:getAngDeg() return (self:getAngRad() * 180) / math.pi end
 
 function metaComplex:getDupe() return complex.New(self:getParts()) end
 
-function metaComplex:toPoint(kX, kY)
+function metaComplex:getTable(kX, kY)
   local Re, Im = self:getParts(); return {[kX] = Re, [kY] = Im} end
 
 function metaComplex:getNeg()
