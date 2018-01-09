@@ -38,9 +38,12 @@ local function logTable(tT,sS,tP)
   end
 end
 
-function export.Table(tT, sS)
-  local sS = tostring(sS or "Data")
-  local tP = {[tT] = sS}; logTable(tT, sS, tP); return tP
+function export.Table(tT, sS, tP)
+  local lS = tostring(sS or "Data")
+  local lP = {[tT] = lS}
+  if(type(tP) == "table") then
+    for ptr, abr in pairs(tP) do lP[ptr] = abr end end
+  logTable(tT, lS, lP); return lP
 end
 
 return export
