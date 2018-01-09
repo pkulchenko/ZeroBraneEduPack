@@ -47,8 +47,7 @@ local function makePlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
     imFac = (maxIm - minIm) / (imgH) -- Im units per pixel
   end
   function self:SetCenter(xCen,yCen,sMode)
-    local xCen = tonumber(xCen)
-    local yCen = tonumber(yCen)
+    local xCen, yCen = tonumber(xCen), tonumber(yCen)
     if(not xCen) then logStatus("PlaneZ.SetCenter: X nan"); return end
     if(not yCen) then logStatus("PlaneZ.SetCenter: Y nan"); return end
     local sMode = tostring(sMode or "IMG")
