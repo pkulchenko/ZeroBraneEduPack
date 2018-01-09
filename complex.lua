@@ -27,8 +27,10 @@ end
 
 local function roundValue(nE, nF)
   local e = (tonumber(nE) or 0)
-  local f = signValue(e) * math.abs(tonumber(nF) or 0)
-  local q, d = math.modf(e/f); return (f * (q + (d > 0.5 and 1 or 0))  )
+  local f = signValue(e) * (tonumber(nF) or 0)
+  if(f == 0) then return f end
+  local q, d = math.modf(e/f)
+  return (f * (q + (d > 0.5 and 1 or 0)))
 end
 
 local function exportComplex(R, I)
