@@ -11,3 +11,5 @@ if(oTree) then
   oTree:Allocate(oTree) 
   oTree:Draw(oTree,W/2,0,W/4,H/4,wait,0.01)
 end
+
+wait()
