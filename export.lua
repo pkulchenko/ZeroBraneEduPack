@@ -39,9 +39,9 @@ local function logTable(tT,sS,tP)
 end
 
 function export.Table(tT, sS, tP)
-  local lS = tostring(sS or "Data")
-  local lP = {[tT] = lS}
-  if(type(tP) == "table") then
+  local lS, lP = tostring(sS or "Data")
+  if(tT ~= nil) then lP = {[tT] = lS} end
+  if(type(tP) == "table" and lP) then
     for ptr, abr in pairs(tP) do lP[ptr] = abr end end
   logTable(tT, lS, lP); return lP
 end
