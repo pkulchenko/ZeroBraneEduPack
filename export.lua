@@ -39,8 +39,8 @@ local function logTable(tT,sS,tP)
 end
 
 function export.Table(tT, sS)
-  local sS, tP = tostring(sS or "Data"), {}
-  logTable(tT, sS, {[tT] = sS}); return tP
+  local sS = tostring(sS or "Data")
+  local tP = {[tT] = sS}; logTable(tT, sS, tP); return tP
 end
 
 return export
