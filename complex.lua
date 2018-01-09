@@ -34,7 +34,7 @@ local function roundValue(nE, nF)
 end
 
 local function exportComplex(R, I)
-  if(not I and getmetatable(R) == metaComplex) then return R:getReal(), R:getImag() end
+  if(not I and getmetatable(R) == metaComplex) then return R:getParts() end
   return (tonumber(R) or metaComplex.__valre), (tonumber(I) or metaComplex.__valim)
 end
 
@@ -67,7 +67,7 @@ function complex.New(nRe,nIm)
     Re, Im = (Re - R), (Im - I); return self
   end
 
-  function self:Scale(vNum)
+  function self:Rsz(vNum)
     local nNum = tonumber(vNum)
     if(nNum) then Re, Im = (Re * nNum), (Im * nNum) end; return self
   end
@@ -366,7 +366,7 @@ end
 
 function complex.Euler(vRm, vPh)
   local nRm, nPh = (tonumber(vRm) or 0), (tonumber(vPh) or 0)
-  return complex.New(math.cos(nPh),math.sin(nPh)):Scale(nRm)
+  return complex.New(math.cos(nPh),math.sin(nPh)):Rsz(nRm)
 end
 
 function complex.ToDegree(nRad)
