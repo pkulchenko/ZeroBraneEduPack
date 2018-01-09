@@ -21,7 +21,7 @@ local function clampValue(nVal,nMin,nMax)
 end
 
 local mtPlaneZ   = {}
-mtPlaneZ.__type  = "z-plane"
+mtPlaneZ.__type  = "fractal.z-plane"
 mtPlaneZ.__index = mtPlaneZ
 local function makePlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
   local imgW , imgH  = w   , h
@@ -149,7 +149,7 @@ local function makePlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
 end
 
 local mtTreeY = {}
-      mtTreeY.__type  = "ytree"
+      mtTreeY.__type  = "fractal.ytree"
       mtTreeY.__index = mtTreeY
 local function makeTreeY(iMax, clDraw)
   local draw = clDraw
@@ -179,7 +179,7 @@ local function makeTreeY(iMax, clDraw)
 end
 
 function fractal.New(sType, ...)
-  local sType = tostring(sType or "") 
+  local sType = "fractal."..tostring(sType or "") 
   if(sType == mtPlaneZ.__type) then return makePlaneZ(...) end
   if(sType == mtTreeY.__type) then return makeTreeY(...) end  
 end
