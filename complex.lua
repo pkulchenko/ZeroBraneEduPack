@@ -20,7 +20,10 @@ metaComplex.__valns = "X"
 metaComplex.__ssyms = {"i", "I", "j", "J"}
 metaComplex.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
 metaComplex.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
-metaComplex.__nocal = {["getParts"]=true, ["getReal"]=true, ["getImag"]=true}
+metaComplex.__encal = {["setReal"]=true,["setImag"]=true,
+  ["Set"]=true, ["Add"]=true, ["Sub"]=true, ["Rsz"]=true,
+  ["Mul"]=true, ["Div"]=true, ["Mod"]=true, ["Pow"]=true
+}
 
 local function signValue(anyVal)
   local nVal = (tonumber(anyVal) or 0)
@@ -107,20 +110,25 @@ function complex.New(nRe,nIm)
   return self
 end
 
+metaComplex.__encal["Floor"]=true
 function metaComplex:Floor()
   local Re, Im = self:getParts()
   Re, Im = math.floor(Re), math.floor(Im)
   self:setReal(Re):setImag(Im); return self
 end
 
+metaComplex.__encal["Ceil"]=true
 function metaComplex:Ceil()
   local Re, Im = self:getParts()
   Re = math.ceil(Re); Im = math.ceil(Im);
   self:setReal(Re):setImag(Im); return self
 end
 
+metaComplex.__encal["NegRe"]=true
 function metaComplex:NegRe() self:setReal(-self:getReal()); return self end
+metaComplex.__encal["NegIm"]=true
 function metaComplex:NegIm() self:setImag(-self:getImag()); return self end
+metaComplex.__encal["Conj"]=true
 function metaComplex:Conj() self:NegIm(); return self end
 
 function metaComplex:getNorm2()
@@ -162,11 +170,13 @@ function metaComplex:getFloor()
   return complex.New(math.floor(Re),math.floor(Im))
 end
 
+metaComplex.__encal["Print"]=true
 function metaComplex:Print(sS,sE)
   io.write(tostring(sS or "").."{"..tostring(self:getReal())..
     ","..tostring(self:getImag()).."}"..tostring(sE or "")); return self
 end
 
+metaComplex.__encal["Round"]=true
 function metaComplex:Round(nF)
   local Re, Im = self:getParts()
   self:setReal(roundValue(Re, nF)):setImag(roundValue(Im, nF)); return self
@@ -229,8 +239,7 @@ end
 metaComplex.__len = function(cNum) return cNum:getNorm() end
 
 metaComplex.__call = function(cNum, sMth, ...)
-  if(not sMth) then return cNum end
-  local sMth = tostring(sMth); if(metaComplex.__nocal[sMth]) then
+  local sMth = tostring(sMth); if(not metaComplex.__encal[sMth]) then
     return logStatus("Complex.__call: Disabled <"..sMth..">", cNum) end
   local fMth = cNum[sMth]; if(not fMth) then
     return logStatus("Complex.__call: Missing <"..sMth..">", cNum) end
