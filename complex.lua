@@ -1,5 +1,6 @@
 local type         = type
 local math         = math
+local pcall        = pcall
 local tonumber     = tonumber
 local tostring     = tostring
 local setmetatable = setmetatable
@@ -19,6 +20,7 @@ metaComplex.__valns = "X"
 metaComplex.__ssyms = {"i", "I", "j", "J"}
 metaComplex.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
 metaComplex.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
+metaComplex.__nocal = {["getParts"]=true, ["getReal"]=true, ["getImag"]=true}
 
 local function signValue(anyVal)
   local nVal = (tonumber(anyVal) or 0)
@@ -133,8 +135,10 @@ function metaComplex:getAngDeg() return (self:getAngRad() * 180) / math.pi end
 
 function metaComplex:getDupe() return complex.New(self:getParts()) end
 
-function metaComplex:getTable(kX, kY)
-  local Re, Im = self:getParts(); return {[kX] = Re, [kY] = Im} end
+function metaComplex:getTable(kR, kI)
+  local kR, kI = (kR or metaComplex.__kreal[1]), (kI or metaComplex.__kimag[1])
+  local Re, Im = self:getParts(); return {[kR] = Re, [kI] = Im}
+end
 
 function metaComplex:getNeg()
   local Re, Im = self:getParts(); return complex.New(-Re,-Im) end
@@ -222,15 +226,28 @@ function metaComplex:getFormat(sF,...)
   end; return tostring(self)
 end
 
-metaComplex.__tostring = function(Comp)
-  local R = tostring(Comp:getReal() or metaComplex.__valns)
-  local I = tostring(Comp:getImag() or metaComplex.__valns)
+metaComplex.__len = function(cNum) return cNum:getNorm() end
+
+metaComplex.__call = function(cNum, sMth, ...)
+  if(not sMth) then return cNum end
+  local sMth = tostring(sMth); if(metaComplex.__nocal[sMth]) then
+    return logStatus("Complex.__call: Disabled <"..sMth..">", cNum) end
+  local fMth = cNum[sMth]; if(not fMth) then
+    return logStatus("Complex.__call: Missing <"..sMth..">", cNum) end
+  local suc = pcall(fMth, cNum, ...); if(not suc) then
+    return logStatus("Complex.__call: Failed <"..sMth..">", cNum) end
+  return cNum
+end
+
+metaComplex.__tostring = function(cNum)
+  local R = tostring(cNum:getReal() or metaComplex.__valns)
+  local I = tostring(cNum:getImag() or metaComplex.__valns)
   return "{"..R..","..I.."}"
 end
 
-metaComplex.__unm = function(Comp)
-  if(getmetatable(Comp) == metaComplex) then
-    return complex.New(-Comp:getReal(),-Comp:getImag())
+metaComplex.__unm = function(cNum)
+  if(getmetatable(cNum) == metaComplex) then
+    return complex.New(-cNum:getReal(),-cNum:getImag())
   end
 end
 
@@ -389,7 +406,7 @@ function complex.Convert(vIn,Del)
   if(tIn == "string") then
     local Str, S, E = StrValidateComplex(vIn:gsub("*",""))
     if(not (Str and S and E)) then
-      return logStatus("complex.Convert: Failed to vlalidate <"..tostring(vIn)..">",nil) end
+      return logStatus("complex.Convert: Failed to validate <"..tostring(vIn)..">",nil) end
         Str = Str:sub(S ,E); E = E-S+1; S = 1; local I
     for ID = 1, #metaComplex.__ssyms do
       local val = metaComplex.__ssyms[ID]
