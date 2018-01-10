@@ -13,7 +13,7 @@ end
 
 metaComplex.__type  = "Complex"
 metaComplex.__index = metaComplex
-metaComplex.__bords = {"/|<({[","/|>)}]"}
+metaComplex.__bords = {"{([<|/","})]>|/"}
 metaComplex.__valre = 0
 metaComplex.__valim = 0
 metaComplex.__valns = "X"
@@ -126,45 +126,59 @@ end
 
 metaComplex.__encal["NegRe"]=true
 function metaComplex:NegRe() self:setReal(-self:getReal()); return self end
+
 metaComplex.__encal["NegIm"]=true
 function metaComplex:NegIm() self:setImag(-self:getImag()); return self end
+
 metaComplex.__encal["Conj"]=true
 function metaComplex:Conj() self:NegIm(); return self end
 
+metaComplex.__encal["getNorm2"]=true
 function metaComplex:getNorm2()
   local Re, Im = self:getParts(); return(Re*Re + Im*Im) end
 
+metaComplex.__encal["getNorm"]=true
 function metaComplex:getNorm() return math.sqrt(self:getNorm2()) end
 
+metaComplex.__encal["getAngRad"]=true
 function metaComplex:getAngRad()
   local Re, Im = self:getParts(); return math.atan2(Im, Re) end
 
-function metaComplex:getAngDeg() return (self:getAngRad() * 180) / math.pi end
+metaComplex.__encal["getAngDeg"]=true
+function metaComplex:getAngDeg() return ((self:getAngRad() * 180) / math.pi) end
 
+metaComplex.__encal["getDupe"]=true
 function metaComplex:getDupe() return complex.New(self:getParts()) end
 
+metaComplex.__encal["getTable"]=true
 function metaComplex:getTable(kR, kI)
   local kR, kI = (kR or metaComplex.__kreal[1]), (kI or metaComplex.__kimag[1])
   local Re, Im = self:getParts(); return {[kR] = Re, [kI] = Im}
 end
 
+metaComplex.__encal["getNeg"]=true
 function metaComplex:getNeg()
   local Re, Im = self:getParts(); return complex.New(-Re,-Im) end
 
+metaComplex.__encal["getNegRe"]=true
 function metaComplex:getNegRe()
   local Re, Im = self:getParts(); return complex.New(-Re, Im) end
 
+metaComplex.__encal["getNegIm"]=true
 function metaComplex:getNegIm()
   local Re, Im = self:getParts(); return complex.New(Re,-Im) end
 
+metaComplex.__encal["getConj"]=true
 function metaComplex:getConj()
   local Re, Im = self:getParts(); return complex.New(Re,-Im) end
 
+metaComplex.__encal["getCeil"]=true
 function metaComplex:getCeil()
   local Re, Im = self:getParts()
   return complex.New(math.ceil(Re),math.ceil(Im))
 end
 
+metaComplex.__encal["getFloor"]=true
 function metaComplex:getFloor()
   local Re, Im = self:getParts()
   return complex.New(math.floor(Re),math.floor(Im))
@@ -182,15 +196,17 @@ function metaComplex:Round(nF)
   self:setReal(roundValue(Re, nF)):setImag(roundValue(Im, nF)); return self
 end
 
+metaComplex.__encal["getRound"]=true
 function metaComplex:getRound(nP)
   local Re, Im = self:getParts()
-  return complex.New(Re,IM):Round(nP)
+  return complex.New(Re,Im):Round(nP)
 end
 
 function metaComplex:getPolar()
   return self:getNorm(), self:getAngRad()
 end
 
+metaComplex.__encal["getRoots"]=true
 function metaComplex:getRoots(nNum)
   local N = tonumber(nNum)
   if(N) then
@@ -207,15 +223,21 @@ function metaComplex:getRoots(nNum)
   end; return nil
 end
 
-function metaComplex:getFormat(sF,...)
+metaComplex.__encal["getFormat"]=true
+function metaComplex:getFormat(...)
   local tArg = {...}
   local sMod = tostring(tArg[1] or "")
   if(sMod == "table") then
+    local sN = tostring(tArg[3] or "%f")
+    local iB = tonumber(tArg[4] or 1), math.floor()
+    local iS = math.floor((metaComplex.__bords[1]..metaComplex.__bords[2]):len()/2)
+          iB = ((iB > iS) and iS or iB)
     local Re, Im = self:getParts()
     local iD = (tonumber(tArg[2]) or 1)
-          iD = ((iD > 0) and iD or 1)
-    local sF = metaComplex.__bords[1]:sub(5,5)
-    local sB = metaComplex.__bords[2]:sub(5,5)
+    local eS = math.floor((#metaComplex.__kreal + #metaComplex.__kimag)/2)
+          iD = ((iD > eS) and eS or iD)
+    local sF = metaComplex.__bords[1]:sub(iB,iB)
+    local sB = metaComplex.__bords[2]:sub(iB,iB)
     local kR = metaComplex.__kreal[iD]
     local kI = metaComplex.__kimag[iD]
     if(not (kR and kI)) then return tostring(self) end
@@ -223,7 +245,8 @@ function metaComplex:getFormat(sF,...)
     local qI = (getmetatable("I") == getmetatable(kI))
           kR = qR and ("\""..kR.."\"") or kR
           kI = qI and ("\""..kI.."\"") or kI
-    return sF.."["..kR.."]="..Re..",["..kI.."]="..Im..sB
+    return (sF.."["..kR.."]="..sN:format(Re)..
+               ",["..kI.."]="..sN:format(Im)..sB)
   elseif(sMod == "string") then
     local Re, Im = self:getParts()
     local mI, bS = (signValue(Im) * Im), tArg[3]
@@ -243,9 +266,9 @@ metaComplex.__call = function(cNum, sMth, ...)
     return logStatus("Complex.__call: Disabled <"..sMth..">", cNum) end
   local fMth = cNum[sMth]; if(not fMth) then
     return logStatus("Complex.__call: Missing <"..sMth..">", cNum) end
-  local suc = pcall(fMth, cNum, ...); if(not suc) then
-    return logStatus("Complex.__call: Failed <"..sMth..">", cNum) end
-  return cNum
+  local bSuc, cOut = pcall(fMth, cNum, ...); if(not bSuc) then
+    return logStatus("Complex.__call: Failed <"..sMth..">: "..cOut, cNum) end
+  return cOut
 end
 
 metaComplex.__tostring = function(cNum)
