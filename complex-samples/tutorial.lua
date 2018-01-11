@@ -24,18 +24,18 @@ complex.Convert("7+j7"):Print("3: ","\n")
 complex.Convert("7+7i"):Print("4: ","\n")
 
 logStatus("\nConverting to string. Variety of outputs")
-logStatus("1: "..tostring(a))
-logStatus("2: "..a:getFormat())
-logStatus("3: "..a:getFormat("table"))
-logStatus("4: "..a:getFormat("table",1,"%f",1))
-logStatus("5: "..a:getFormat("table",3,"%5.2f",4))
-logStatus("3: "..a:getFormat("string"))
-logStatus("4: "..a:getFormat("string",1))
-logStatus("5: "..a:getFormat("string",1,false))
-logStatus("6: "..a:getFormat("string",1,true))
-logStatus("7: "..a:getFormat("string",2,true))
-logStatus("8: "..a:getFormat("string",3,true))
-logStatus("9: "..a:getFormat("string",4,true))
+logStatus("Export 1: "..tostring(a))
+logStatus("Export 2: "..a:getFormat())
+logStatus("Export 3: "..a:getFormat("table"))
+logStatus("Export 4: "..a:getFormat("table",1,"%f",1))
+logStatus("Export 5: "..a:getFormat("table",3,"%5.2f",4))
+logStatus("Export 3: "..a:getFormat("string"))
+logStatus("Export 4: "..a:getFormat("string",1))
+logStatus("Export 5: "..a:getFormat("string",1,false))
+logStatus("Export 6: "..a:getFormat("string",1,true))
+logStatus("Export 7: "..a:getFormat("string",2,true))
+logStatus("Export 8: "..a:getFormat("string",3,true))
+logStatus("Export 9: "..a:getFormat("string",4,true))
 
 logStatus("\nConverting to polar coordinates and back")
 local r, p = a:getPolar(); print("1: "..r.."e^"..p.."i")
@@ -43,45 +43,53 @@ complex.Euler(r, p):Print("2: ","\n")
 
 logStatus("\nClass methods")
 local t = complex.New(a)
---- Addition
+
+logStatus("\nAddition")
 logStatus("Add 1: "..(a+1))
 logStatus("Add 2: "..(a+2):Round(0.01))
 logStatus("Add 3: "..t:Add(2):Round(0.01)); t:Set(a)
 t:Add(.7,.7):Round(0.01):Print("Add 4: "," >> a+(0.7+0.7i) \n"); t:Set(a)
 t:Add(a/10):Round(0.01):Print("Add 5: "," >> a+(0.7+0.7i) \n"); t:Set(a)
---- Substract
+
+logStatus("\nSubstract")
 logStatus("Sub 1: "..(a-1))
 logStatus("Sub 2: "..(a-2):Round(0.01))
 logStatus("Sub 3: "..t:Sub(2):Round(0.01)); t:Set(a)
 t:Sub(.7,.7):Round(0.01):Print("Add 4: "," >> a-(0.7+0.7i) \n"); t:Set(a)
 t:Sub(a/10):Round(0.01):Print("Add 5: "," >> a-(0.7+0.7i) \n"); t:Set(a)
---- Multy
+
+logStatus("\nMultiplication")
 logStatus("Mul 1: "..(a*1))
 logStatus("Mul 2: "..(a*2):Round(0.01))
 logStatus("Mul 3: "..t:Mul(2):Round(0.01)); t:Set(a)
 t:Mul(.7,.7):Round(0.01):Print("Mul 4: "," >> a-(0.7+0.7i) \n"); t:Set(a)
 t:Mul(a/10):Round(0.01):Print("Mul 5: "," >> a-(0.7+0.7i) \n"); t:Set(a)
---- Divide
+
+logStatus("\nDivision")
 logStatus("Div 1: "..(a/1))
 logStatus("Div 2: "..(a/2):Round(0.01))
 logStatus("Div 3: "..t:Div(2):Round(0.01)); t:Set(a)
 t:Div(.7,.7):Round(0.01):Print("Div 4: "," >> a-(0.7+0.7i) \n"); t:Set(a)
 t:Div(a/10):Round(0.01):Print("Div 5: "," >> a-(0.7+0.7i) \n"); t:Set(a)
---- Power
+
+logStatus("\nPower")
 logStatus("Pow 1: "..(a^1))
 logStatus("Pow 2: "..(a^2):Round(0.01))
 logStatus("Pow 3: "..t:Pow(2):Round(0.01)); t:Set(a)
 t:Pow(.7,.7):Round(0.01):Print("Pow 4: "," >> a^(0.7+0.7i) \n"); t:Set(a)
 t:Pow(a/10):Round(0.01):Print("Pow 5: "," >> a^(0.7+0.7i) \n"); t:Set(a)
---- Flooring
+
+logStatus("\nFlooring")
 local f = complex.New(a) + complex.Convert("0.5+0.5i"); t:Set(f)
 t:Floor():Print("Floor 1: "," >> floor(f)     << "..f.."\n"); t:Set(f)
 t:getFloor():Print("Floor 2: "," >> new floor(f) << "..f.."\n"); t:Set(f)
---- Ceiling
+
+logStatus("\nCeiling")
 local c = complex.New(a) + complex.Convert("0.5+0.5i"); t:Set(c)
 c:Ceil():Print("Floor 1: "," >> ceil(c)      << "..f.."\n"); t:Set(c)
 c:getCeil():Print("Floor 2: "," >> new ceil(c)  << "..f.."\n"); t:Set(c)
---Negate
+
+logStatus("\nNegate")
 local n = complex.New(a)
 complex.New(-n):Print("Neg 1: ","\n"); n:Set(a)
 complex.New(n:Neg()):Print("Neg 2: ","\n"); n:Set(a)
@@ -92,27 +100,43 @@ n:getNeg():Print("new Neg 1: ","\n"); n:Set(a)
 n:getNegRe():Print("new Neg 2: ","\n"); n:Set(a)
 n:getNegIm():Print("new Neg 3: ","\n"); n:Set(a)
 n:getConj():Print("new Neg 4: ","\n"); n:Set(a)
---- Round
---- Positive away from zero
+
+logStatus("\nRound")
+logStatus("\nPositive away from zero")
 local ru = ( a:getDup() * 10 + complex.Convert(" 0.36+0.36j")):Print("Positive : ","\n")
 local rd = (-a:getDup() * 10 + complex.Convert("-0.36-0.36j")):Print("Negative : ","\n")
 ru:getDup():Round(0 or nil):Print("Zero     :","\n")
-ru:getDup():Round(1):Print("Away positive integer   :","\n")
-ru:getDup():Round(0.1):Print("Away positive float     :","\n")
-ru:getDup():Round(-1):Print("Towards positive integer:","\n")
-ru:getDup():Round(-0.1):Print("Towards positive float  :","\n")
-rd:getDup():Round(1):Print("Away negative integer   :","\n")
-rd:getDup():Round(0.1):Print("Away negative float     :","\n")
-rd:getDup():Round(-1):Print("Towards negative integer:","\n")
-rd:getDup():Round(-0.1):Print("Towards negative float  :","\n")
+ru:getDup():Round(1):Print("Round away positive integer   :","\n")
+ru:getDup():Round(0.1):Print("Round away positive float     :","\n")
+ru:getDup():Round(-1):Print("Round towards positive integer:","\n")
+ru:getDup():Round(-0.1):Print("Round towards positive float  :","\n")
+rd:getDup():Round(1):Print("Round away negative integer   :","\n")
+rd:getDup():Round(0.1):Print("Round away negative float     :","\n")
+rd:getDup():Round(-1):Print("Round towards negative integer:","\n")
+rd:getDup():Round(-0.1):Print("Round towards negative float  :","\n")
 
-logStatus("Less            : "..tostring(complex.New(1,2) <  complex.New(2,3)))
-logStatus("Less or equal   : "..tostring(complex.New(1,2) <= complex.New(2,3)))
-logStatus("Geater          : "..tostring(complex.New(5,6) >  complex.New(2,3)))
-logStatus("Greater or equal: "..tostring(complex.New(2,4) >= complex.New(2,3)))
-logStatus("Equal           : "..tostring(complex.New(1,2) == complex.New(1,2)))
+logStatus("\nComparison operators")
+logStatus("Compare less            : "..tostring(complex.New(1,2) <  complex.New(2,3)))
+logStatus("Compare less or equal   : "..tostring(complex.New(1,2) <= complex.New(2,3)))
+logStatus("Compare geater          : "..tostring(complex.New(5,6) >  complex.New(2,3)))
+logStatus("Compare greater or equal: "..tostring(complex.New(2,4) >= complex.New(2,3)))
+logStatus("Compare equal           : "..tostring(complex.New(1,2) == complex.New(1,2)))
 
-local W, H = 400, 400 -- window size
+logStatus("\nComplex number call using the \"__call\" method")
+-- When calling the complex number as a function
+-- the first argument is the method you want to call given as string,
+-- the next are var-args, which are the parameters of the method.
+-- The call will always return a status and varargs representing the result of the call.
+-- For example let's set the complex number's real and imaginery parts via complex call.
+local bSuccess, cNum = a:getDup()("Set",1,1)
+if(bSuccess) then
+  logStatus("The complex call was successful. The result is "..tostring(cNum))
+else
+  logStatus("The complex call was not successful.")
+end
+
+
+local W, H = 800, 800 -- window size
 
 local R = 5 -- Roots base
 
