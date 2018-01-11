@@ -34,6 +34,13 @@ local function roundValue(nE, nF)
   return (f * (q + (d > 0.5 and 1 or 0)))
 end
 
+local function clampValue(nA, nS, nE)
+  local a = (tonumber(nA) or 0)
+  local s, e = (tonumber(nS) or 0), (tonumber(nE) or 0)
+  if(a < s) then return s end
+  if(a > e) then return e end; return a
+end
+
 local function exportComplex(R, I)
   if(not I and getmetatable(R) == metaComplex) then return R:getParts() end
   return (tonumber(R) or metaComplex.__valre), (tonumber(I) or metaComplex.__valim)
@@ -176,7 +183,7 @@ end
 
 function metaComplex:Round(nF)
   local Re, Im = self:getParts()
-  self:setReal(roundValue(Re, nF)):setImag(roundValue(Im, nF)); return self
+  return self:setReal(roundValue(Re, nF)):setImag(roundValue(Im, nF))
 end
 
 function metaComplex:getRound(nP)
@@ -208,14 +215,11 @@ function metaComplex:getFormat(...)
   local tArg = {...}
   local sMod = tostring(tArg[1] or "")
   if(sMod == "table") then
-    local sN = tostring(tArg[3] or "%f")
-    local iB = tonumber(tArg[4] or 1), math.floor()
+    local sN, Re, Im = tostring(tArg[3] or "%f"), self:getParts()
     local iS = math.floor((metaComplex.__bords[1]..metaComplex.__bords[2]):len()/2)
-          iB = ((iB > iS) and iS or iB)
-    local Re, Im = self:getParts()
-    local iD = (tonumber(tArg[2]) or 1)
+          iB = clampValue(tonumber(tArg[4] or 1), 1, iS)
     local eS = math.floor((#metaComplex.__kreal + #metaComplex.__kimag)/2)
-          iD = ((iD > eS) and eS or iD)
+          iD = clampValue((tonumber(tArg[2]) or 1), 1, eS)
     local sF = metaComplex.__bords[1]:sub(iB,iB)
     local sB = metaComplex.__bords[2]:sub(iB,iB)
     local kR = metaComplex.__kreal[iD]
