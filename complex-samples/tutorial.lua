@@ -9,7 +9,7 @@ end
      
 io.stdout:setvbuf("no")
 
-logStatus("\nMethods starting with upper letter meke internal changes and return /self/ .")
+logStatus("\nMethods starting with upper letter make internal changes and return /self/ .")
 logStatus("\nMethods starting with lower return somethng and do not change internals .")
 
 logStatus("\nCreating complex")
@@ -121,18 +121,21 @@ size(W, H)
 zero(0, 0)
 updt(false) -- disable auto updates
 
-
+-- Adjust the mapping intervals accrding to the number rooted
 local re, im = a:getParts()
 local intX = chartmap.newInterval("WinX", -re/2, re/2, 0, W)
 local intY = chartmap.newInterval("WinY", -im/2, im/2, H, 0)
 local x0, y0 = intX:Convert(0):getValue(), intY:Convert(0):getValue()
 
+-- Draw the coordinate system
 line(0, y0, W, y0); line(x0, 0, x0, H)
 
+-- Allocate colors
 local clGrn = colr(colormap.getColorGreenRGB())
 local clRed = colr(colormap.getColorRedRGB())
 local clBlk = colr(colormap.getColorBlackRGB())
 
+-- Custom function for drawing a number on the complex plane
 local function drawComplex(C, x0, y0, Ix, Iy)
   local r = C:getRound(0.001)
   local x = Ix:Convert(r:getReal()):getValue()
