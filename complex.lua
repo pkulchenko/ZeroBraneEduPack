@@ -20,10 +20,6 @@ metaComplex.__valns = "X"
 metaComplex.__ssyms = {"i", "I", "j", "J"}
 metaComplex.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
 metaComplex.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
-metaComplex.__encal = {["setReal"]=true,["setImag"]=true,
-  ["Set"]=true, ["Add"]=true, ["Sub"]=true, ["Rsz"]=true,
-  ["Mul"]=true, ["Div"]=true, ["Mod"]=true, ["Pow"]=true
-}
 
 local function signValue(anyVal)
   local nVal = (tonumber(anyVal) or 0)
@@ -41,6 +37,10 @@ end
 local function exportComplex(R, I)
   if(not I and getmetatable(R) == metaComplex) then return R:getParts() end
   return (tonumber(R) or metaComplex.__valre), (tonumber(I) or metaComplex.__valim)
+end
+
+function complex.IsValid(cNum)
+  return (getmetatable(cNum) == metaComplex)
 end
 
 function complex.New(nRe,nIm)
@@ -110,93 +110,73 @@ function complex.New(nRe,nIm)
   return self
 end
 
-metaComplex.__encal["Floor"]=true
 function metaComplex:Floor()
   local Re, Im = self:getParts()
   Re, Im = math.floor(Re), math.floor(Im)
   self:setReal(Re):setImag(Im); return self
 end
 
-metaComplex.__encal["Ceil"]=true
 function metaComplex:Ceil()
   local Re, Im = self:getParts()
   Re = math.ceil(Re); Im = math.ceil(Im);
   self:setReal(Re):setImag(Im); return self
 end
 
-metaComplex.__encal["NegRe"]=true
 function metaComplex:NegRe() self:setReal(-self:getReal()); return self end
 
-metaComplex.__encal["NegIm"]=true
 function metaComplex:NegIm() self:setImag(-self:getImag()); return self end
 
-metaComplex.__encal["Conj"]=true
 function metaComplex:Conj() self:NegIm(); return self end
 
-metaComplex.__encal["getNorm2"]=true
 function metaComplex:getNorm2()
   local Re, Im = self:getParts(); return(Re*Re + Im*Im) end
 
-metaComplex.__encal["getNorm"]=true
 function metaComplex:getNorm() return math.sqrt(self:getNorm2()) end
 
-metaComplex.__encal["getAngRad"]=true
 function metaComplex:getAngRad()
   local Re, Im = self:getParts(); return math.atan2(Im, Re) end
 
-metaComplex.__encal["getAngDeg"]=true
 function metaComplex:getAngDeg() return ((self:getAngRad() * 180) / math.pi) end
 
-metaComplex.__encal["getDupe"]=true
 function metaComplex:getDupe() return complex.New(self:getParts()) end
 
-metaComplex.__encal["getTable"]=true
 function metaComplex:getTable(kR, kI)
   local kR, kI = (kR or metaComplex.__kreal[1]), (kI or metaComplex.__kimag[1])
   local Re, Im = self:getParts(); return {[kR] = Re, [kI] = Im}
 end
 
-metaComplex.__encal["getNeg"]=true
 function metaComplex:getNeg()
   local Re, Im = self:getParts(); return complex.New(-Re,-Im) end
 
-metaComplex.__encal["getNegRe"]=true
 function metaComplex:getNegRe()
   local Re, Im = self:getParts(); return complex.New(-Re, Im) end
 
-metaComplex.__encal["getNegIm"]=true
 function metaComplex:getNegIm()
   local Re, Im = self:getParts(); return complex.New(Re,-Im) end
 
-metaComplex.__encal["getConj"]=true
 function metaComplex:getConj()
   local Re, Im = self:getParts(); return complex.New(Re,-Im) end
 
-metaComplex.__encal["getCeil"]=true
 function metaComplex:getCeil()
   local Re, Im = self:getParts()
   return complex.New(math.ceil(Re),math.ceil(Im))
 end
 
-metaComplex.__encal["getFloor"]=true
 function metaComplex:getFloor()
   local Re, Im = self:getParts()
   return complex.New(math.floor(Re),math.floor(Im))
 end
 
-metaComplex.__encal["Print"]=true
 function metaComplex:Print(sS,sE)
   io.write(tostring(sS or "").."{"..tostring(self:getReal())..
     ","..tostring(self:getImag()).."}"..tostring(sE or "")); return self
 end
 
-metaComplex.__encal["Round"]=true
 function metaComplex:Round(nF)
   local Re, Im = self:getParts()
   self:setReal(roundValue(Re, nF)):setImag(roundValue(Im, nF)); return self
 end
 
-metaComplex.__encal["getRound"]=true
 function metaComplex:getRound(nP)
   local Re, Im = self:getParts()
   return complex.New(Re,Im):Round(nP)
@@ -206,7 +186,6 @@ function metaComplex:getPolar()
   return self:getNorm(), self:getAngRad()
 end
 
-metaComplex.__encal["getRoots"]=true
 function metaComplex:getRoots(nNum)
   local N = tonumber(nNum)
   if(N) then
@@ -223,7 +202,6 @@ function metaComplex:getRoots(nNum)
   end; return nil
 end
 
-metaComplex.__encal["getFormat"]=true
 function metaComplex:getFormat(...)
   local tArg = {...}
   local sMod = tostring(tArg[1] or "")
@@ -262,13 +240,7 @@ end
 metaComplex.__len = function(cNum) return cNum:getNorm() end
 
 metaComplex.__call = function(cNum, sMth, ...)
-  local sMth = tostring(sMth); if(not metaComplex.__encal[sMth]) then
-    return logStatus("Complex.__call: Disabled <"..sMth..">", cNum) end
-  local fMth = cNum[sMth]; if(not fMth) then
-    return logStatus("Complex.__call: Missing <"..sMth..">", cNum) end
-  local bSuc, cOut = pcall(fMth, cNum, ...); if(not bSuc) then
-    return logStatus("Complex.__call: Failed <"..sMth..">: "..cOut, cNum) end
-  return cOut
+  return pcall(cNum[tostring(sMth)], cNum, ...)
 end
 
 metaComplex.__tostring = function(cNum)
