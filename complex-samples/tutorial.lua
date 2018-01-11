@@ -3,13 +3,6 @@ local complex  = require("complex")
 local chartmap = require("chartmap")
 local colormap = require("colormap")
 
-local W, H     = 400, 400
-
-open("Complex ballistics")
-size(W,H)
-zero(0, 0)
-updt(false) -- disable auto updates
-
 local function logStatus(anyMsg, ...)
   io.write(tostring(anyMsg).."\n"); return ...
 end
@@ -119,7 +112,16 @@ logStatus("Geater          : "..tostring(complex.New(5,6) >  complex.New(2,3)))
 logStatus("Greater or equal: "..tostring(complex.New(2,4) >= complex.New(2,3)))
 logStatus("Equal           : "..tostring(complex.New(1,2) == complex.New(1,2)))
 
-local b = 5 -- Roots base
+local W, H = 400, 400 -- window size
+
+local R = 5 -- Roots base
+
+open("Graphical complex roots for "..tostring(a))
+size(W, H)
+zero(0, 0)
+updt(false) -- disable auto updates
+
+
 local re, im = a:getParts()
 local intX = chartmap.newInterval("WinX", -re/2, re/2, 0, W)
 local intY = chartmap.newInterval("WinY", -im/2, im/2, H, 0)
@@ -140,10 +142,10 @@ local function drawComplex(C, x0, y0, Ix, Iy)
   pncl(clBlk); text(tostring(r),r:getAngDeg()+90,x,y)
 end
 
-local r = a:getRoots(b)
+local r = a:getRoots(R)
 if(r) then
   for id = 1, #r do
-    logStatus(r[id].."^"..b.." = "..(r[id]^b))
+    logStatus(r[id].."^"..R.." = "..(r[id]^R))
     drawComplex(r[id], x0, y0, intX, intY)
   end
 end
