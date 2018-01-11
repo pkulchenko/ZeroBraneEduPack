@@ -113,20 +113,22 @@ end
 function metaComplex:Floor()
   local Re, Im = self:getParts()
   Re, Im = math.floor(Re), math.floor(Im)
-  self:setReal(Re):setImag(Im); return self
+  return self:setReal(Re):setImag(Im)
 end
 
 function metaComplex:Ceil()
   local Re, Im = self:getParts()
   Re = math.ceil(Re); Im = math.ceil(Im);
-  self:setReal(Re):setImag(Im); return self
+  return self:setReal(Re):setImag(Im)
 end
 
-function metaComplex:NegRe() self:setReal(-self:getReal()); return self end
+function metaComplex:NegRe() return self:setReal(-self:getReal()) end
 
-function metaComplex:NegIm() self:setImag(-self:getImag()); return self end
+function metaComplex:NegIm() return self:setImag(-self:getImag()) end
 
-function metaComplex:Conj() self:NegIm(); return self end
+function metaComplex:Conj() return self:NegIm() end
+
+function metaComplex:Neg() return self:NegRe():NegIm() end
 
 function metaComplex:getNorm2()
   local Re, Im = self:getParts(); return(Re*Re + Im*Im) end
@@ -138,7 +140,7 @@ function metaComplex:getAngRad()
 
 function metaComplex:getAngDeg() return ((self:getAngRad() * 180) / math.pi) end
 
-function metaComplex:getDupe() return complex.New(self:getParts()) end
+function metaComplex:getDup() return complex.New(self:getParts()) end
 
 function metaComplex:getTable(kR, kI)
   local kR, kI = (kR or metaComplex.__kreal[1]), (kI or metaComplex.__kimag[1])
@@ -358,7 +360,7 @@ local function StrI2Complex(sStr, nS, nE, nI)
     return logStatus("StrI2Complex: Complex not in plain format [a+ib] or [a+bi]",nil) end
   local M = nI - 1 -- There will be no delimiter symbols here
   local C = sStr:sub(M,M)
-  if(nI == nE) then  -- (-0.7-2.9i) Skip symbols til +/- is reached
+  if(nI == nE) then  -- (-0.7-2.9i) Skip symbols until +/- is reached
     while(C ~= "+" and C ~= "-") do
       M = M - 1; C = sStr:sub(M,M)
     end; return complex.New(tonumber(sStr:sub(nS,M-1)) or metaComplex.__valre,
@@ -401,7 +403,7 @@ function complex.ToRadian(nDeg)
 end
 
 function complex.Convert(vIn,Del)
-  if(getmetatable(vIn) == metaComplex) then return vIn:getDupe() end
+  if(getmetatable(vIn) == metaComplex) then return vIn:getDup() end
   local tIn = type(vIn)
   if(tIn =="boolean") then return complex.New(vIn and 1 or 0,0) end
   if(tIn ==  "table") then return Tab2Complex(vIn) end
