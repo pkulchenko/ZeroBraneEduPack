@@ -5,7 +5,7 @@ local col = require("colormap")
 
 io.stdout:setvbuf("no")
 
-local W, H = 600, 400
+local W, H = 800, 400
 
 open("Complex ballistics")
 size(W,H)
@@ -22,7 +22,7 @@ local minX, maxX, minY, maxY, traJ = 0, 0, 0, 0, {cmp.New(P)}
 
 while(P:getImag() >= 0) do
   V:Add(G); P:Add(V)
-  traJ[#traJ+1] = P:getDupe()
+  traJ[#traJ+1] = P:getDup()
   local xP, yP = P:getReal(), P:getImag()
   if(xP >= maxX) then maxX = xP end
   if(yP >= maxY) then maxY = yP end
@@ -39,7 +39,7 @@ local zEro  = intY:Convert(0):getValue()
 line(0, zEro, W, zEro)
 
 for ID = 1, #traJ do
-  wait(0.1)
+  wait(0.05)
   local cPos = traJ[ID]
   local Re, Im = cPos:getReal(), cPos:getImag()
   trAj:putValue(Re, Im):Draw(clGrn)
