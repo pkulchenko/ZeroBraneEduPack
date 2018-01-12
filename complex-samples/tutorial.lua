@@ -76,8 +76,8 @@ logStatus("\nPower "..tostring(a))
 logStatus("Pow 1: "..(a^1))
 logStatus("Pow 2: "..(a^2):Round(0.01))
 logStatus("Pow 3: "..t:Pow(2):Round(0.01)); t:Set(a)
-t:Pow(.7,.7):Round(0.0001):Print("Pow 4: "," >> a^(0.7+0.7i) \n"); t:Set(a)
-t:Pow(a/10):Round(0.0001):Print("Pow 5: "," >> a^(0.7+0.7i) \n"); t:Set(a)
+t:Pow(.7,.7):Round(0.0001):Print("Pow 4: "," >> a^(0.7+0.7i) \n"); t:Set(a) -- {-1.5828,2.3963}
+t:Pow(a/10):Round(0.0001):Print("Pow 5: "," >> a^(0.7+0.7i) \n"); t:Set(a)  -- {-1.5828,2.3963}
 
 logStatus("\nFlooring "..tostring(a))
 local f = (complex.New(a) + complex.Convert("0.5+0.5i")); t:Set(f)
