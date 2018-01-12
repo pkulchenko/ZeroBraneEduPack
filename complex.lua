@@ -162,9 +162,9 @@ end
 
 function metaComplex:SinH()
   local Z = complex.New(self)
-  local pZ = math.exp(1)^( Z)
-  local nZ = math.exp(1)^(-Z)
-  return self:Set(pZ - nZ):Rsz(0.5)
+  local E = math.exp(1)
+  local pZ, nZ = E^Z, E^(-Z)
+  return self:Set(pZ):Sub(nZ):Rsz(0.5)
 end
 
 function metaComplex:getSinH()
@@ -173,9 +173,9 @@ end
 
 function metaComplex:CosH()
   local Z = complex.New(self)
-  local E = complex.New(math.exp(1))
-  local pZ, nZ = E^( Z), E^(-Z)
-  return self:Set(pZ + nZ):Rsz(0.5)
+  local E = math.exp(1)
+  local pZ, nZ = E^Z, E^(-Z)
+  return self:Set(pZ):Add(nZ):Rsz(0.5)
 end
 
 function metaComplex:getCosH()
