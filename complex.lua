@@ -114,7 +114,7 @@ function complex.New(nRe,nIm)
     local A, B = self:getParts()
     local C, D = exportComplex(R, I)
     local N, G = self:getNorm(), self:getAngRad()
-    local eK = N2^(C/2) * math.exp(-D*G)
+    local eK = N^C * math.exp(-D*G)
     local eC = (C*G + 0.5*D*math.log(N2))
     Re = eK * math.cos(eC)
     Im = eK * math.sin(eC); return self
