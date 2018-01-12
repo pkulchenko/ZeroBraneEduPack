@@ -156,10 +156,6 @@ function metaComplex:getMod(R, I)
   return complex.New(self):Mod(R, I)
 end
 
-function metaComplex:getMul(R, I)
-  return complex.New(self):Mul(R, I)
-end
-
 function metaComplex:getRev(R, I)
   return complex.New(self):Rev(R, I)
 end
