@@ -108,7 +108,13 @@ function complex.New(nRe,nIm)
     self:Set(ref,imf)
     self:Mul(C,D); return self
   end
-
+  
+  function self:Rev()
+    local N = self:getNorm2()
+    local R, I = self:getParts()
+    Re, Im = (R/N), (-I/N); return self
+  end
+  
   function self:Pow(R,I)
     local A, B = self:getParts()
     local C, D = exportComplex(R, I)
@@ -120,6 +126,46 @@ function complex.New(nRe,nIm)
   end
 
   return self
+end
+
+function metaComplex:getSet(R, I)
+  return complex.New(self):Set(R, I)
+end
+
+function metaComplex:getAdd(R, I)
+  return complex.New(self):Add(R, I)
+end
+
+function metaComplex:getSub(R, I)
+  return complex.New(self):Sub(R, I)
+end
+
+function metaComplex:getRsz(R, I)
+  return complex.New(self):Rsz(R, I)
+end
+
+function metaComplex:getMul(R, I)
+  return complex.New(self):Mul(R, I)
+end
+
+function metaComplex:getDiv(R, I)
+  return complex.New(self):Div(R, I)
+end
+
+function metaComplex:getMod(R, I)
+  return complex.New(self):Mod(R, I)
+end
+
+function metaComplex:getMul(R, I)
+  return complex.New(self):Mul(R, I)
+end
+
+function metaComplex:getRev(R, I)
+  return complex.New(self):Rev(R, I)
+end
+
+function metaComplex:getPow(R, I)
+  return complex.New(self):Pow(R, I)
 end
 
 function metaComplex:Sin()
@@ -161,10 +207,8 @@ function metaComplex:getCotg()
 end
 
 function metaComplex:SinH()
-  local Z = complex.New(self)
-  local E = math.exp(1)
-  local pZ, nZ = E^Z, E^(-Z)
-  return self:Set(pZ):Sub(nZ):Rsz(0.5)
+  local E = math.exp(1)^complex.New(self)
+  return self:Set(E):Sub(E:Rev()):Rsz(0.5)
 end
 
 function metaComplex:getSinH()
@@ -172,10 +216,8 @@ function metaComplex:getSinH()
 end
 
 function metaComplex:CosH()
-  local Z = complex.New(self)
-  local E = math.exp(1)
-  local pZ, nZ = E^Z, E^(-Z)
-  return self:Set(pZ):Add(nZ):Rsz(0.5)
+  local E = math.exp(1)^complex.New(self)
+  return self:Set(E):Add(E:Rev()):Rsz(0.5)
 end
 
 function metaComplex:getCosH()
