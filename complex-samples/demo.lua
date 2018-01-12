@@ -23,7 +23,7 @@ local minX, maxX, minY, maxY, traJ = 0, 0, 0, 0, {cmp.New(P)}
 while(P:getImag() >= 0) do
   V:Add(G); P:Add(V)
   traJ[#traJ+1] = P:getDup()
-  local xP, yP = P:getReal(), P:getImag()
+  local xP, yP = P:getParts()
   if(xP >= maxX) then maxX = xP end
   if(yP >= maxY) then maxY = yP end
   if(xP <= minX) then minX = xP end
@@ -41,7 +41,7 @@ line(0, zEro, W, zEro)
 for ID = 1, #traJ do
   wait(0.05)
   local cPos = traJ[ID]
-  local Re, Im = cPos:getReal(), cPos:getImag()
+  local Re, Im = cPos:getParts()
   trAj:putValue(Re, Im):Draw(clGrn)
   if(drwText) then
     text(tostring(cPos),0,intX:Convert(Re):getValue(),intY:Convert(Im):getValue()) end
