@@ -85,19 +85,24 @@ function complex.New(nRe,nIm)
   end
 
   function self:Mul(R,I)
-    local A, C, D = Re, exportComplex(R, I)
-    Re = A*C - Im*D
-    Im = A*D + Im*C; return self
+    local A, B = self:getParts()
+    local C, D = exportComplex(R, I)
+    Re = (A*C - B*D)
+    Im = (A*D + B*C); return self
   end
 
   function self:Div(R,I)
-    local A, C, D = Re, exportComplex(R, I)
+    local A, B = self:getParts()
+    local C, D = exportComplex(R, I)
     local Z = (C*C + D*D)
-    if(Z ~= 0) then Re, Im = ((A*C + Im*D) / Z), ((Im*C -  A*D) / Z) end; return self
+    Re = ((A*C + B*D) / Z)
+    Im = ((B*C - A*D) / Z)
+    return self
   end
 
   function self:Mod(R,I)
-    local A, C, D = Re, exportComplex(R, I); self:Div(C,D)
+    local A, B = self:getParts()
+    local C, D = exportComplex(R, I); self:Div(C,D)
     local rei, ref = math.modf(Re)
     local imi, imf = math.modf(Im)
     self:Set(ref,imf)
@@ -105,28 +110,121 @@ function complex.New(nRe,nIm)
   end
 
   function self:Pow(R,I)
+    local N2 = self:getNorm2()
+    local A, B = self:getParts()
     local C, D = exportComplex(R, I)
-    local Ro = self:getNorm()
-    local Th = self:getAngRad()
-    local nR = (Ro ^ C) * math.exp(-D * Th)
-    local nF =  C * Th  + D * math.log(Ro)
-    Re = nR * math.cos(nF)
-    Im = nR * math.sin(nF); return self
+    local N, G = self:getNorm(), self:getAngRad()
+    local eK = N2^(C/2) * math.exp(-D*G)
+    local eC = (C*G + 0.5*D*math.log(N2))
+    Re = eK * math.cos(eC)
+    Im = eK * math.sin(eC); return self
   end
 
   return self
 end
 
+function metaComplex:Sin()
+  local R, I = self:getParts()
+  local rE = math.sin(R)*math.cosh(I)
+  local iM = math.cos(R)*math.sinh(I)
+  return self:setReal(rE):setImag(iM)
+end
+
+function metaComplex:getSin()
+  return complex.New(self):Sin()
+end
+
+function metaComplex:Cos()
+  local R, I = self:getParts()
+  local rE =  math.cos(R)*math.cosh(I)
+  local iM = -math.sin(R)*math.sinh(I)
+  return self:setReal(rE):setImag(iM)
+end
+
+function metaComplex:getCos()
+  return complex.New(self):Cos()
+end
+
+function metaComplex:Tang()
+  return self:Set(self:getSin():Div(self:getCos()))
+end
+
+function metaComplex:getTang()
+  return complex.New(self):Tang()
+end
+
+function metaComplex:Cotg()
+  return self:Set(self:getCos():Div(self:getSin()))
+end
+
+function metaComplex:getCotg()
+  return complex.New(self):Cotg()
+end
+
+function metaComplex:SinH()
+  local Z = complex.New(self)
+  local pZ = math.exp(1)^( Z)
+  local nZ = math.exp(1)^(-Z)
+  return self:Set(pZ - nZ):Rsz(0.5)
+end
+
+function metaComplex:getSinH()
+  return complex.New(self):SinH()
+end
+
+function metaComplex:CosH()
+  local Z = complex.New(self)
+  local E = complex.New(math.exp(1))
+  local pZ, nZ = E^( Z), E^(-Z)
+  return self:Set(pZ + nZ):Rsz(0.5)
+end
+
+function metaComplex:getCosH()
+  return complex.New(self):CosH()
+end
+
+function metaComplex:TangH()
+  return self:Set(self:getSinH():Div(self:getCosH()))
+end
+
+function metaComplex:getTangH()
+  return complex.New(self):TangH()
+end
+
+function metaComplex:CotgH()
+  return self:Set(self:getCosH():Div(self:getSinH()))
+end
+
+function metaComplex:getCotgH()
+  return complex.New(self):CotgH()
+end
+
+function metaComplex:Log()
+  local R, T = self:getPolar()
+  return self:setReal(math.log(R)):setImag(T)
+end
+
+function metaComplex:getLog()
+  return complex.New(self):Log()
+end
+
 function metaComplex:Floor()
-  local Re, Im = self:getParts()
-  Re, Im = math.floor(Re), math.floor(Im)
-  return self:setReal(Re):setImag(Im)
+  local R, I = self:getParts()
+        R, I = math.floor(R), math.floor(I)
+  return self:setReal(R):setImag(I)
+end
+
+function metaComplex:getFloor()
+  return complex.New(self):Floor()
+end
+
+function metaComplex:getCeil()
+  local R, I = self:getParts()
+  return complex.New(math.ceil(R),math.ceil(I))
 end
 
 function metaComplex:Ceil()
-  local Re, Im = self:getParts()
-  Re = math.ceil(Re); Im = math.ceil(Im);
-  return self:setReal(Re):setImag(Im)
+  return complex.New(self):Ceil()
 end
 
 function metaComplex:NegRe() return self:setReal(-self:getReal()) end
@@ -138,12 +236,12 @@ function metaComplex:Conj() return self:NegIm() end
 function metaComplex:Neg() return self:NegRe():NegIm() end
 
 function metaComplex:getNorm2()
-  local Re, Im = self:getParts(); return(Re*Re + Im*Im) end
+  local R, I = self:getParts(); return(R*R + I*I) end
 
 function metaComplex:getNorm() return math.sqrt(self:getNorm2()) end
 
 function metaComplex:getAngRad()
-  local Re, Im = self:getParts(); return math.atan2(Im, Re) end
+  local R, I = self:getParts(); return math.atan2(I, R) end
 
 function metaComplex:getAngDeg() return ((self:getAngRad() * 180) / math.pi) end
 
@@ -151,30 +249,20 @@ function metaComplex:getDup() return complex.New(self:getParts()) end
 
 function metaComplex:getTable(kR, kI)
   local kR, kI = (kR or metaComplex.__kreal[1]), (kI or metaComplex.__kimag[1])
-  local Re, Im = self:getParts(); return {[kR] = Re, [kI] = Im}
+  local R , I  = self:getParts(); return {[kR] = R, [kI] = I}
 end
 
 function metaComplex:getNeg()
-  local Re, Im = self:getParts(); return complex.New(-Re,-Im) end
+  local R, I = self:getParts(); return complex.New(-R,-I) end
 
 function metaComplex:getNegRe()
-  local Re, Im = self:getParts(); return complex.New(-Re, Im) end
+  local R, I = self:getParts(); return complex.New(-R, I) end
 
 function metaComplex:getNegIm()
-  local Re, Im = self:getParts(); return complex.New(Re,-Im) end
+  local R, I = self:getParts(); return complex.New(R,-I) end
 
 function metaComplex:getConj()
-  local Re, Im = self:getParts(); return complex.New(Re,-Im) end
-
-function metaComplex:getCeil()
-  local Re, Im = self:getParts()
-  return complex.New(math.ceil(Re),math.ceil(Im))
-end
-
-function metaComplex:getFloor()
-  local Re, Im = self:getParts()
-  return complex.New(math.floor(Re),math.floor(Im))
-end
+  local R, I = self:getParts(); return complex.New(R,-I) end
 
 function metaComplex:Print(sS,sE)
   io.write(tostring(sS or "").."{"..tostring(self:getReal())..
@@ -182,13 +270,13 @@ function metaComplex:Print(sS,sE)
 end
 
 function metaComplex:Round(nF)
-  local Re, Im = self:getParts()
-  return self:setReal(roundValue(Re, nF)):setImag(roundValue(Im, nF))
+  local R, I = self:getParts()
+  return self:setReal(roundValue(R, nF)):setImag(roundValue(I, nF))
 end
 
 function metaComplex:getRound(nP)
-  local Re, Im = self:getParts()
-  return complex.New(Re,Im):Round(nP)
+  local R, I = self:getParts()
+  return complex.New(R,I):Round(nP)
 end
 
 function metaComplex:getPolar()
@@ -215,7 +303,7 @@ function metaComplex:getFormat(...)
   local tArg = {...}
   local sMod = tostring(tArg[1] or "")
   if(sMod == "table") then
-    local sN, Re, Im = tostring(tArg[3] or "%f"), self:getParts()
+    local sN, R, I = tostring(tArg[3] or "%f"), self:getParts()
     local iS = math.floor((metaComplex.__bords[1]..metaComplex.__bords[2]):len()/2)
           iB = clampValue(tonumber(tArg[4] or 1), 1, iS)
     local eS = math.floor((#metaComplex.__kreal + #metaComplex.__kimag)/2)
@@ -229,17 +317,17 @@ function metaComplex:getFormat(...)
     local qI = (getmetatable("I") == getmetatable(kI))
           kR = qR and ("\""..kR.."\"") or kR
           kI = qI and ("\""..kI.."\"") or kI
-    return (sF.."["..kR.."]="..sN:format(Re)..
-               ",["..kI.."]="..sN:format(Im)..sB)
+    return (sF.."["..kR.."]="..sN:format(R)..
+               ",["..kI.."]="..sN:format(I)..sB)
   elseif(sMod == "string") then
-    local Re, Im = self:getParts()
-    local mI, bS = (signValue(Im) * Im), tArg[3]
+    local R, I = self:getParts()
+    local mI, bS = (signValue(I) * I), tArg[3]
     local iD, eS = (tonumber(tArg[2]) or 1), #metaComplex.__ssyms
           iD = (iD > eS) and eS or iD
     local kI = metaComplex.__ssyms[iD]
-    local sI = ((signValue(Im) < 0) and "-" or "+")
-    if(bS) then return (Re..sI..kI..mI)
-    else return (Re..sI..mI..kI) end
+    local sI = ((signValue(I) < 0) and "-" or "+")
+    if(bS) then return (R..sI..kI..mI)
+    else return (R..sI..mI..kI) end
   end; return tostring(self)
 end
 
