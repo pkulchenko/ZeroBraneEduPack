@@ -110,12 +110,11 @@ function complex.New(nRe,nIm)
   end
 
   function self:Pow(R,I)
-    local N2 = self:getNorm2()
     local A, B = self:getParts()
     local C, D = exportComplex(R, I)
-    local N, G = self:getNorm(), self:getAngRad()
-    local eK = N^C * math.exp(-D*G)
-    local eC = (C*G + 0.5*D*math.log(N2))
+    local N, G = self:getNorm2(), self:getAngRad()
+    local eK = N^(C/2) * math.exp(-D*G)
+    local eC = (C*G + 0.5*D*math.log(N))
     Re = eK * math.cos(eC)
     Im = eK * math.sin(eC); return self
   end
