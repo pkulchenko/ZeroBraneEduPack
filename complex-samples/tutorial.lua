@@ -17,13 +17,13 @@ local a = complex.New(7,7):Print("1: ","\n")
 complex.New(a):Print("2: ","\n")
 a:getDup():Print("3: ","\n")
 
-logStatus("\nConverting complex from somrthing else")
+logStatus("\nConverting complex from somrthing else "..tostring(a))
 complex.Convert(a):Print("1: ","\n")
 complex.Convert({["r"] = a:getReal(), ["i"]=a.getImag()}):Print("2: ","\n")
 complex.Convert("7+j7"):Print("3: ","\n")
 complex.Convert("7+7i"):Print("4: ","\n")
 
-logStatus("\nConverting to string. Variety of outputs")
+logStatus("\nConverting to string. Variety of outputs "..tostring(a))
 logStatus("Export 1: "..tostring(a))
 logStatus("Export 2: "..a:getFormat())
 logStatus("Export 3: "..a:getFormat("table"))
@@ -37,50 +37,50 @@ logStatus("Export 7: "..a:getFormat("string",2,true))
 logStatus("Export 8: "..a:getFormat("string",3,true))
 logStatus("Export 9: "..a:getFormat("string",4,true))
 
-logStatus("\nConverting to polar coordinates and back")
+logStatus("\nConverting to polar coordinates and back "..tostring(a))
 local r, p = a:getPolar(); print("1: "..r.."e^"..p.."i")
 complex.Euler(r, p):Print("2: ","\n")
 
-logStatus("\nClass methods")
+logStatus("\nClass methods "..tostring(a))
 local t = complex.New(a)
 
-logStatus("\nAddition")
+logStatus("\nAddition "..tostring(a))
 logStatus("Add 1: "..(a+1))
 logStatus("Add 2: "..(a+2):Round(0.01))
 logStatus("Add 3: "..t:Add(2):Round(0.01)); t:Set(a)
 t:Add(.7,.7):Round(0.01):Print("Add 4: "," >> a+(0.7+0.7i) \n"); t:Set(a)
 t:Add(a/10):Round(0.01):Print("Add 5: "," >> a+(0.7+0.7i) \n"); t:Set(a)
 
-logStatus("\nSubstract")
+logStatus("\nSubstract "..tostring(a))
 logStatus("Sub 1: "..(a-1))
 logStatus("Sub 2: "..(a-2):Round(0.01))
 logStatus("Sub 3: "..t:Sub(2):Round(0.01)); t:Set(a)
 t:Sub(.7,.7):Round(0.01):Print("Add 4: "," >> a-(0.7+0.7i) \n"); t:Set(a)
 t:Sub(a/10):Round(0.01):Print("Add 5: "," >> a-(0.7+0.7i) \n"); t:Set(a)
 
-logStatus("\nMultiplication")
+logStatus("\nMultiplication "..tostring(a))
 logStatus("Mul 1: "..(a*1))
 logStatus("Mul 2: "..(a*2):Round(0.01))
 logStatus("Mul 3: "..t:Mul(2):Round(0.01)); t:Set(a)
-t:Mul(.7,.7):Round(0.01):Print("Mul 4: "," >> a-(0.7+0.7i) \n"); t:Set(a)
-t:Mul(a/10):Round(0.01):Print("Mul 5: "," >> a-(0.7+0.7i) \n"); t:Set(a)
+t:Mul(.7,.7):Round(0.01):Print("Mul 4: "," >> a*(0.7+0.7i) \n"); t:Set(a)
+t:Mul(a/10):Round(0.01):Print("Mul 5: "," >> a*(0.7+0.7i) \n"); t:Set(a)
 
-logStatus("\nDivision")
+logStatus("\nDivision "..tostring(a))
 logStatus("Div 1: "..(a/1))
 logStatus("Div 2: "..(a/2):Round(0.01))
 logStatus("Div 3: "..t:Div(2):Round(0.01)); t:Set(a)
-t:Div(.7,.7):Round(0.01):Print("Div 4: "," >> a-(0.7+0.7i) \n"); t:Set(a)
-t:Div(a/10):Round(0.01):Print("Div 5: "," >> a-(0.7+0.7i) \n"); t:Set(a)
+t:Div(.7,.7):Round(0.0001):Print("Div 4: "," >> a/(0.7+0.7i) \n"); t:Set(a)
+t:Div(a/10):Round(0.0001):Print("Div 5: "," >> a/(0.7+0.7i) \n"); t:Set(a)
 
-logStatus("\nPower")
+logStatus("\nPower "..tostring(a))
 logStatus("Pow 1: "..(a^1))
 logStatus("Pow 2: "..(a^2):Round(0.01))
 logStatus("Pow 3: "..t:Pow(2):Round(0.01)); t:Set(a)
-t:Pow(.7,.7):Round(0.01):Print("Pow 4: "," >> a^(0.7+0.7i) \n"); t:Set(a)
-t:Pow(a/10):Round(0.01):Print("Pow 5: "," >> a^(0.7+0.7i) \n"); t:Set(a)
+t:Pow(.7,.7):Round(0.0001):Print("Pow 4: "," >> a^(0.7+0.7i) \n"); t:Set(a)
+t:Pow(a/10):Round(0.0001):Print("Pow 5: "," >> a^(0.7+0.7i) \n"); t:Set(a)
 
-logStatus("\nFlooring")
-local f = complex.New(a) + complex.Convert("0.5+0.5i"); t:Set(f)
+logStatus("\nFlooring "..tostring(a))
+local f = (complex.New(a) + complex.Convert("0.5+0.5i")); t:Set(f)
 t:Floor():Print("Floor 1: "," >> floor(f)     << "..f.."\n"); t:Set(f)
 t:getFloor():Print("Floor 2: "," >> new floor(f) << "..f.."\n"); t:Set(f)
 
@@ -122,6 +122,18 @@ logStatus("Compare geater          : "..tostring(complex.New(5,6) >  complex.New
 logStatus("Compare greater or equal: "..tostring(complex.New(2,4) >= complex.New(2,3)))
 logStatus("Compare equal           : "..tostring(complex.New(1,2) == complex.New(1,2)))
 
+local b = complex.New(7,1)
+logStatus("\nComplex trigonometry and logarithm of "..tostring(b))
+logStatus("Sine          : "..tostring(b:getSin()))    -- {1.0137832978161,0.885986829195}
+logStatus("Cosine        : "..tostring(b:getCos()))    -- {1.1633319692207,-0.7720914350223}
+logStatus("Tangent       : "..tostring(b:getTang()))   -- {0.25407140331504,0.93021872707887}
+logStatus("Cotangent     : "..tostring(b:getCotg()))   -- {0.27323643702064,-1.0003866917748}
+logStatus("Hyp sine      : "..tostring(b:getSinH()))   -- {296.25646574921,461.392875559}
+logStatus("Hyp cosine    : "..tostring(b:getCosH()))   -- {296.25695844114,461.39210823679}
+logStatus("Hyp tangent   : "..tostring(b:getTangH()))  -- {1.0000006920752,1.5122148957712e-006}
+logStatus("Hyp cotangent : "..tostring(b:getCotgH()))  -- {0.999999307923,-1.5122128026371e-006}
+logStatus("Logarithm     : "..tostring(b:Log()))       -- {1.9560115027141,0.14189705460416}
+
 logStatus("\nComplex number call using the \"__call\" method")
 -- When calling the complex number as a function
 -- the first argument is the method you want to call given as string,
@@ -138,7 +150,7 @@ end
 
 local W, H = 800, 800 -- window size
 
-local R = 5 -- Roots base
+local R = 2 -- Roots base
 
 open("Graphical complex roots for "..tostring(a))
 size(W, H)
