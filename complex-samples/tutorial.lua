@@ -154,10 +154,13 @@ end
 local b = complex.New(7,1)
 for id = 1, #tTrig do
   local suc, rez = b(trim(tTrig[id][2]))
-        rez = tostring(rez)
-  local com = trim(tTrig[id][3])
-
-  logStatus(tTrig[id][1]..((rez == com) and "OK" or "FAIL").." >> "..com)
+  if(suc) then rez = tostring(rez)
+    local com = trim(tTrig[id][3])
+    logStatus(tTrig[id][1]..((rez == com) and "OK" or "FAIL").." >> "..com)
+  else
+    logStatus("There was a problem executing method <"..tTrig[id][1].."> at index #"..id)
+    logStatus("Error recieved: "..tostring(rez))
+  end
 end; logStatus("")
 
 local W, H = 800, 800 -- window size
