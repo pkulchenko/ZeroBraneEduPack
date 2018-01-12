@@ -217,12 +217,13 @@ function metaComplex:getFloor()
   return complex.New(self):Floor()
 end
 
-function metaComplex:getCeil()
+function metaComplex:Ceil()
   local R, I = self:getParts()
-  return complex.New(math.ceil(R),math.ceil(I))
+        R, I = math.ceil(R), math.ceil(I)
+  return self:setReal(R):setImag(I)
 end
 
-function metaComplex:Ceil()
+function metaComplex:getCeil()
   return complex.New(self):Ceil()
 end
 
