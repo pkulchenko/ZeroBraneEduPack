@@ -3,12 +3,12 @@ local complex  = require("complex")
 local chartmap = require("chartmap")
 local colormap = require("colormap")
 
+io.stdout:setvbuf("no")
+
 local function logStatus(anyMsg, ...)
   io.write(tostring(anyMsg).."\n"); return ...
 end
      
-io.stdout:setvbuf("no")
-
 logStatus("\nMethods starting with upper letter make internal changes and return /self/ .")
 logStatus("\nMethods starting with lower return somethng and do not change internals .")
 
@@ -122,18 +122,6 @@ logStatus("Compare geater          : "..tostring(complex.New(5,6) >  complex.New
 logStatus("Compare greater or equal: "..tostring(complex.New(2,4) >= complex.New(2,3)))
 logStatus("Compare equal           : "..tostring(complex.New(1,2) == complex.New(1,2)))
 
-local b = complex.New(7,1)
-logStatus("\nComplex trigonometry and logarithm of "..tostring(b))
-logStatus("Sine          : "..tostring(b:getSin()))    -- {1.0137832978161,0.885986829195}
-logStatus("Cosine        : "..tostring(b:getCos()))    -- {1.1633319692207,-0.7720914350223}
-logStatus("Tangent       : "..tostring(b:getTang()))   -- {0.25407140331504,0.93021872707887}
-logStatus("Cotangent     : "..tostring(b:getCotg()))   -- {0.27323643702064,-1.0003866917748}
-logStatus("Hyp sine      : "..tostring(b:getSinH()))   -- {296.25646574921,461.392875559}
-logStatus("Hyp cosine    : "..tostring(b:getCosH()))   -- {296.25695844114,461.39210823679}
-logStatus("Hyp tangent   : "..tostring(b:getTangH()))  -- {1.0000006920752,1.5122148957712e-006}
-logStatus("Hyp cotangent : "..tostring(b:getCotgH()))  -- {0.999999307923,-1.5122128026371e-006}
-logStatus("Logarithm     : "..tostring(b:Log()))       -- {1.9560115027141,0.14189705460416}
-
 logStatus("\nComplex number call using the \"__call\" method")
 -- When calling the complex number as a function
 -- the first argument is the method you want to call given as string,
@@ -142,11 +130,35 @@ logStatus("\nComplex number call using the \"__call\" method")
 -- For example let's set the complex number's real and imaginery parts via complex call.
 local bSuccess, cNum = a:getDup()("Set",1,1)
 if(bSuccess) then
-  logStatus("The complex call was successful. The result is "..tostring(cNum))
+  logStatus("The complex call was successful. The result is "..tostring(cNum).."\n")
 else
-  logStatus("The complex call was not successful.")
+  logStatus("The complex call was not successful.\n")
 end
 
+local tTrig = {
+  {"Sine          : ","getSin  ","{1.0137832978161,0.885986829195}      "},
+  {"Cosine        : ","getCos  ","{1.1633319692207,-0.7720914350223}    "},
+  {"Tangent       : ","getTang ","{0.25407140331504,0.93021872707887}   "},
+  {"Cotangent     : ","getCotg ","{0.27323643702064,-1.0003866917748}   "},
+  {"Hyp sine      : ","getSinH ","{296.25646574921,461.392875559}       "},
+  {"Hyp cosine    : ","getCosH ","{296.25695844114,461.39210823679}     "},
+  {"Hyp tangent   : ","getTangH","{1.0000006920752,1.5122148957712e-006}"},
+  {"Hyp cotangent : ","getCotgH","{0.999999307923,-1.5122128026371e-006}"},
+  {"Logarithm     : ","getLog  ","{1.9560115027141,0.14189705460416}    "}
+}
+
+local function trim(s)
+  return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+
+local b = complex.New(7,1)
+for id = 1, #tTrig do
+  local suc, rez = b(trim(tTrig[id][2]))
+        rez = tostring(rez)
+  local com = trim(tTrig[id][3])
+
+  logStatus(tTrig[id][1]..((rez == com) and "OK" or "FAIL").." >> "..com)
+end; logStatus("")
 
 local W, H = 800, 800 -- window size
 
@@ -181,6 +193,7 @@ local function drawComplex(C, x0, y0, Ix, Iy)
   pncl(clBlk); text(tostring(r),r:getAngDeg()+90,x,y)
 end
 
+logStatus("Complex roots returns a table of complex numbers being the roots of the base number "..tostring(a))
 local r = a:getRoots(R)
 if(r) then
   for id = 1, #r do
