@@ -84,12 +84,12 @@ local f = (complex.New(a) + complex.Convert("0.5+0.5i")); t:Set(f)
 t:Floor():Print("Floor 1: "," >> floor(f)     << "..f.."\n"); t:Set(f)
 t:getFloor():Print("Floor 2: "," >> new floor(f) << "..f.."\n"); t:Set(f)
 
-logStatus("\nCeiling")
+logStatus("\nCeiling "..tostring(a))
 local c = complex.New(a) + complex.Convert("0.5+0.5i"); t:Set(c)
 c:Ceil():Print("Floor 1: "," >> ceil(c)      << "..f.."\n"); t:Set(c)
 c:getCeil():Print("Floor 2: "," >> new ceil(c)  << "..f.."\n"); t:Set(c)
 
-logStatus("\nNegate")
+logStatus("\nNegate "..tostring(a))
 local n = complex.New(a)
 complex.New(-n):Print("Neg 1: ","\n"); n:Set(a)
 complex.New(n:Neg()):Print("Neg 2: ","\n"); n:Set(a)
@@ -101,8 +101,8 @@ n:getNegRe():Print("new Neg 2: ","\n"); n:Set(a)
 n:getNegIm():Print("new Neg 3: ","\n"); n:Set(a)
 n:getConj():Print("new Neg 4: ","\n"); n:Set(a)
 
-logStatus("\nRound")
-logStatus("\nPositive away from zero")
+logStatus("\nRound "..tostring(a))
+logStatus("Positive away from zero "..tostring(a))
 local ru = ( a:getDup() * 10 + complex.Convert(" 0.36+0.36j")):Print("Positive : ","\n")
 local rd = (-a:getDup() * 10 + complex.Convert("-0.36-0.36j")):Print("Negative : ","\n")
 ru:getDup():Round(0 or nil):Print("Zero     :","\n")
@@ -122,7 +122,7 @@ logStatus("Compare geater          : "..tostring(complex.New(5,6) >  complex.New
 logStatus("Compare greater or equal: "..tostring(complex.New(2,4) >= complex.New(2,3)))
 logStatus("Compare equal           : "..tostring(complex.New(1,2) == complex.New(1,2)))
 
-logStatus("\nComplex number call using the \"__call\" method")
+logStatus("\nComplex number call using the \"__call\" method "..tostring(a))
 -- When calling the complex number as a function
 -- the first argument is the method you want to call given as string,
 -- the next are var-args, which are the parameters of the method.
@@ -165,7 +165,7 @@ end; logStatus("")
 
 local W, H = 800, 800 -- window size
 
-local R = 2 -- Roots base
+local R = 5 -- Roots base
 
 open("Graphical complex roots for "..tostring(a))
 size(W, H)

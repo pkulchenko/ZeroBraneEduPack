@@ -382,39 +382,27 @@ metaComplex.__tostring = function(cNum)
 end
 
 metaComplex.__unm = function(cNum)
-  if(getmetatable(cNum) == metaComplex) then
-    return complex.New(-cNum:getReal(),-cNum:getImag())
-  end
+  return complex.New(cNum):Neg()
 end
 
 metaComplex.__add = function(C1,C2)
-  local O = complex.New()
-  O:Set(C1); O:Add(C2)
-  return O
+  return complex.New(C1):Add(C2)
 end
 
 metaComplex.__sub = function(C1,C2)
-  local O = complex.New()
-  O:Set(C1); O:Sub(C2)
-  return O
+  return complex.New(C1):Sub(C2)
 end
 
 metaComplex.__mul = function(C1,C2)
-  local O = complex.New()
-  O:Set(C1); O:Mul(C2)
-  return O
+  return complex.New(C1):Mul(C2)
 end
 
 metaComplex.__div = function(C1,C2)
-  local O = complex.New()
-  O:Set(C1); O:Div(C2)
-  return O
+  return complex.New(C1):Div(C2)
 end
 
 metaComplex.__mod =  function(C1,C2)
-  local O = complex.New()
-  O:Set(C1); O:Mod(C2)
-  return O
+  return complex.New(C1):Mod(C2)
 end
 
 metaComplex.__concat = function(A,B)
@@ -422,16 +410,14 @@ metaComplex.__concat = function(A,B)
 end
 
 metaComplex.__pow =  function(C1,C2)
-  local O = complex.New()
-  O:Set(C1); O:Pow(C2)
-  return O
+  return complex.New(C1):Pow(C2)
 end
 
 metaComplex.__eq =  function(C1,C2)
   local R1, R2, I1, I2 = 0, 0, 0, 0
-  if(getmetatable(C1) == metaComplex) then R1, I1 = C1:getReal(), C1:getImag()
+  if(getmetatable(C1) == metaComplex) then R1, I1 = C1:getParts()
   else R1, I1 = (tonumber(C1) or metaComplex.__valre), metaComplex.__valim end
-  if(getmetatable(C2) == metaComplex) then R2, I2 = C2:getReal(), C2:getImag()
+  if(getmetatable(C2) == metaComplex) then R2, I2 = C2:getParts()
   else R2, I2 = (tonumber(C2) or metaComplex.__valre), metaComplex.__valim end
   if(R1 == R2 and I1 == I2) then return true end
   return false
@@ -439,9 +425,9 @@ end
 
 metaComplex.__le =  function(C1,C2)
   local R1, R2, I1, I2 = 0, 0, 0, 0
-  if(getmetatable(C1) == metaComplex) then R1, I1 = C1:getReal(), C1:getImag()
+  if(getmetatable(C1) == metaComplex) then R1, I1 = C1:getParts()
   else R1, I1 = (tonumber(C1) or metaComplex.__valre), metaComplex.__valim end
-  if(getmetatable(C2) == metaComplex) then R2, I2 = C2:getReal(), C2:getImag()
+  if(getmetatable(C2) == metaComplex) then R2, I2 = C2:getParts()
   else R2, I2 = (tonumber(C2) or metaComplex.__valre), metaComplex.__valim end
   if(R1 <= R2 and I1 <= I2) then return true end
   return false
@@ -449,9 +435,9 @@ end
 
 metaComplex.__lt =  function(C1,C2)
   local R1, R2, I1, I2 = 0, 0, 0, 0
-  if(getmetatable(C1) == metaComplex) then R1, I1 = C1:getReal(), C1:getImag()
+  if(getmetatable(C1) == metaComplex) then R1, I1 = C1:getParts()
   else R1, I1 = (tonumber(C1) or metaComplex.__valre), metaComplex.__valim end
-  if(getmetatable(C2) == metaComplex) then R2, I2 = C2:getReal(), C2:getImag()
+  if(getmetatable(C2) == metaComplex) then R2, I2 = C2:getParts()
   else R2, I2 = (tonumber(C2) or metaComplex.__valre), metaComplex.__valim end
   if(R1 < R2 and I1 < I2) then return true end
   return false
