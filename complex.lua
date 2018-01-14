@@ -405,12 +405,12 @@ metaComplex.__mod =  function(C1,C2)
   return complex.New(C1):Mod(C2)
 end
 
-metaComplex.__concat = function(A,B)
-  return tostring(A)..tostring(B)
-end
-
 metaComplex.__pow =  function(C1,C2)
   return complex.New(C1):Pow(C2)
+end
+
+metaComplex.__concat = function(A,B)
+  return tostring(A)..tostring(B)
 end
 
 metaComplex.__eq =  function(C1,C2)
