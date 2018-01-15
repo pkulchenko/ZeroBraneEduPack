@@ -128,6 +128,16 @@ function complex.New(nRe,nIm)
   return self
 end
 
+function metaComplex:getDist2(R, I)
+  local R, I = exportComplex(R, I)
+  local C, D = self:getParts()
+  return ((R - C)^2 + (I - D)^2)
+end
+
+function metaComplex:getDist(R, I)
+  return math.sqrt(self:getDist2(R, I))
+end
+
 function metaComplex:getDet(R, I)
   local R, I = exportComplex(R, I)
   return (self:getReal()*I - self:getImag()*R)
