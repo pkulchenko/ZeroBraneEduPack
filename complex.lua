@@ -508,6 +508,14 @@ local function Tab2Complex(tTab)
   return logStatus("Tab2Complex: Table format not supported", complex.New())
 end
 
+function complex.Intersect(cP, cPr, cQ, cQs)
+  local cR, cS = complex.New(cPr):Sub(cP), complex.New(cQs):Sub(cQ)
+  local dD = cR:getDet(cS); if(dD == 0) then
+    return false end; local dO = complex.New(cQ):Sub(cP)
+  local nT, nU = (dO:getDet(cS) / dD), (dO:getDet(cR) / dD)
+  return true, nT, nU, cR, cS, (cP+nT*cR)
+end
+
 function complex.Euler(vRm, vPh)
   local nRm, nPh = (tonumber(vRm) or 0), (tonumber(vPh) or 0)
   return complex.New(math.cos(nPh),math.sin(nPh)):Rsz(nRm)
