@@ -128,6 +128,11 @@ function complex.New(nRe,nIm)
   return self
 end
 
+function metaComplex:getDet(R, I)
+  local R, I = exportComplex(R, I)
+  return (self:getReal()*I - self:getImag()*R)
+end
+
 function metaComplex:getSet(R, I)
   return complex.New(self):Set(R, I)
 end
