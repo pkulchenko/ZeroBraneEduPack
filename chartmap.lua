@@ -24,6 +24,10 @@ function chartmap.newInterval(sName, nL1, nH1, nL2, nH2)
   local mH1  = (tonumber(nH1) or 0)
   local mL2  = (tonumber(nL2) or 0)
   local mH2  = (tonumber(nH2) or 0)
+  if(mL1 == mH1) then
+    return logStatus("newInterval.Convert("..mNam.."): Bad input bounds", self) end
+  if(mL2 == mH2) then
+    return logStatus("newInterval.Convert("..mNam.."): Bad output bounds", self) end
   setmetatable(self, metaInterval)
   function self:getName() return mNam end
   function self:setName(sName) mNam = tostring(sName or "N/A") end
@@ -33,14 +37,14 @@ function chartmap.newInterval(sName, nL1, nH1, nL2, nH2)
   function self:getBorderOut() return mL2, mH2 end
   function self:setBorderOut(nL2, nH2) mL2, mH2 = (tonumber(nL2) or 0), (tonumber(nH2) or 0) end
   function self:getString() return "["..metaInterval.__type.."] "..mNam.." {"..mL1..","..mH1.."} >> {"..mL2..","..mH2.."}" end
-  function self:Convert(nVal)
+  function self:Convert(nVal, bRev)
     local val = tonumber(nVal); if(not val) then
       return logStatus("newInterval.Convert("..mNam.."): Source <"..tostring(nVal).."> NaN", self) end
-    if(val < mL1 or val > mH1) then
-      return logStatus("newInterval.Convert("..mNam.."): Source <"..tostring(val).."> out of border", self) end
-    local kf = ((val - mL1) / (mH1 - mL1)); mVal = (kf * (mH2 - mL2) + mL2); return self
+    if(bRev) then local kf = ((val - mL2) / (mH2 - mL2)); mVal = (kf * (mH1 - mL1) + mL1)
+    else          local kf = ((val - mL1) / (mH1 - mL1)); mVal = (kf * (mH2 - mL2) + mL2) end
+    return self
   end
-    
+
   return self
 end
 
@@ -68,7 +72,7 @@ function chartmap.newTracer(sName)
   function self:Reset()
     mPntN.x, mPntN.y, mPntO.x, mPntO.y = 0,0,0,0
     enDraw, mValO, mValN = false,0,0; return self end
-      
+
   function self:putValue(nTime, nVal)
     mValO, nValN = nValN, nVal
     mTimO, mTimN = mTimN, nTime
@@ -80,15 +84,17 @@ function chartmap.newTracer(sName)
       mPntN.y = mMatY:Convert(nValN):getValue()
     else mPntN.y = nValN end; return self
   end
-    
-  function self:Draw(cCol)
+
+  function self:Draw(cCol, vSz)
     if(enDraw) then
-      pncl(cCol);
+      local nSz = (tonumber(vSz) or 2)
+            nSz = (nSz < 2) and 2 or nSz
+      local nsE = ((2 * nSz) + 1); pncl(cCol)
       line(mPntO.x,mPntO.y,mPntN.x,mPntN.y)
-      rect(mPntO.x-2,mPntO.y-2,5,5)
+      rect(mPntO.x-nSz,mPntO.y-nSz,nsE,nsE)
     else enDraw = true end; return self
   end
-  
+
   return self
 end
 
