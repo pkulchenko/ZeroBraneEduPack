@@ -230,7 +230,7 @@ function metaComplex:getCotg()
 end
 
 function metaComplex:SinH()
-  local E = math.exp(1)^complex.New(self)
+  local E = math.exp(1)^self
   return self:Set(E):Sub(E:Rev()):Rsz(0.5)
 end
 
@@ -239,7 +239,7 @@ function metaComplex:getSinH()
 end
 
 function metaComplex:CosH()
-  local E = math.exp(1)^complex.New(self)
+  local E = math.exp(1)^self
   return self:Set(E):Add(E:Rev()):Rsz(0.5)
 end
 
