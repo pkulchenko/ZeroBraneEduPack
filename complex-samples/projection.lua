@@ -95,7 +95,7 @@ while true do
   end
   if(key == 27) then -- The user hits esc
     wipe(); drw = true
-    cRay1[1], cRay1[2] = nil, nil
+    cRay1[1], cRay1[2] = nil, nil; collectgarbage()
     drawCoordinateSystem(W, H, intX, intY, dX, dY, maxX, maxY, clBlk, clGry)
   end
   updt()
