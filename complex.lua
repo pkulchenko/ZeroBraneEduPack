@@ -375,8 +375,8 @@ function metaComplex:getFormat(...)
           iD = clampValue((tonumber(tArg[2]) or 1), 1, eS)
     local sF = metaComplex.__bords[1]:sub(iB,iB)
     local sB = metaComplex.__bords[2]:sub(iB,iB)
-    local kR = metaComplex.__kreal[iD]
-    local kI = metaComplex.__kimag[iD]
+    local kR = tostring(tArg[5] or metaComplex.__kreal[iD])
+    local kI = tostring(tArg[6] or metaComplex.__kimag[iD])
     if(not (kR and kI)) then return tostring(self) end
     local qR = (getmetatable("R") == getmetatable(kR))
     local qI = (getmetatable("I") == getmetatable(kI))
@@ -389,7 +389,7 @@ function metaComplex:getFormat(...)
     local mI, bS = (signValue(I) * I), tArg[3]
     local iD, eS = (tonumber(tArg[2]) or 1), #metaComplex.__ssyms
           iD = (iD > eS) and eS or iD
-    local kI = metaComplex.__ssyms[iD]
+    local kI = tostring(tArg[4] or metaComplex.__ssyms[iD])
     local sI = ((signValue(I) < 0) and "-" or "+")
     if(bS) then return (R..sI..kI..mI)
     else return (R..sI..mI..kI) end
