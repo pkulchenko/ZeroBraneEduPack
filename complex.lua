@@ -530,6 +530,14 @@ local function Tab2Complex(tTab)
   return logStatus("Tab2Complex: Table format not supported", complex.New())
 end
 
+function complex.Project(cP, cS, cE)
+  local x1, y1 = cS:getParts()
+  local x2, y2 = cE:getParts()
+  local x3, y3 = cP:getParts()
+  local ks = ((y2-y1)*(x3-x1)-(x2-x1)*(y3-y1)) / cS:getDist2(cE)
+  return complex.New(x3-ks*(y2-y1), y3+ks*(x2-x1))
+end
+
 function complex.Intersect(cP, cPr, cQ, cQs)
   local cR, cS = complex.New(cPr):Sub(cP), complex.New(cQs):Sub(cQ)
   local dD = cR:getDet(cS); if(dD == 0) then
