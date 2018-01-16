@@ -91,6 +91,13 @@ function complex.New(nRe,nIm)
     Im = (A*D + B*C); return self
   end
 
+  function self:Mid(R,I)
+    local A, B = self:getParts()
+    local C, D = exportComplex(R, I)
+    Re = ((A + C) / 2)
+    Im = ((B + D) / 2); return self
+  end
+
   function self:Div(R,I)
     local A, B = self:getParts()
     local C, D = exportComplex(R, I)
@@ -108,13 +115,13 @@ function complex.New(nRe,nIm)
     self:Set(ref,imf)
     self:Mul(C,D); return self
   end
-  
+
   function self:Rev()
     local N = self:getNorm2()
     local R, I = self:getParts()
     Re, Im = (R/N), (-I/N); return self
   end
-  
+
   function self:Pow(R,I)
     local A, B = self:getParts()
     local C, D = exportComplex(R, I)
@@ -128,9 +135,13 @@ function complex.New(nRe,nIm)
   return self
 end
 
+function metaComplex:getMid(R, I)
+  return complex.New(self):Mid(R, I)
+end
+
 function metaComplex:getDist2(R, I)
-  local R, I = exportComplex(R, I)
   local C, D = self:getParts()
+  local R, I = exportComplex(R, I)
   return ((R - C)^2 + (I - D)^2)
 end
 
@@ -139,8 +150,9 @@ function metaComplex:getDist(R, I)
 end
 
 function metaComplex:getDet(R, I)
+  local C, D = self:getParts()
   local R, I = exportComplex(R, I)
-  return (self:getReal()*I - self:getImag()*R)
+  return (C*I - D*R)
 end
 
 function metaComplex:getSet(R, I)
