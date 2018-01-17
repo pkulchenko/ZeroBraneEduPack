@@ -49,8 +49,7 @@ end
 local function selectKeyValue(tTab, tKeys, aKey)
   if(aKey) then return tTab[aKey] end
   local out; for ID = 1, #tKeys do
-    local key = tKeys[ID]
-          out = (tTab[key] or out)
+    local key = tKeys[ID]; out = (tTab[key] or out)
     if(out) then return out end
   end; return nil
 end
