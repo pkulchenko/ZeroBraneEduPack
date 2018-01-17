@@ -46,6 +46,15 @@ local function exportComplex(R, I)
   return (tonumber(R) or metaComplex.__valre), (tonumber(I) or metaComplex.__valim)
 end
 
+local function selectKeyValue(tTab, tKeys, aKey)
+  if(aKey) then return tTab[aKey] end
+  local out; for ID = 1, #tKeys do
+    local key = tKeys[ID]
+          out = (tTab[key] or out)
+    if(out) then return out end
+  end; return nil
+end
+
 function complex.IsValid(cNum)
   return (getmetatable(cNum) == metaComplex)
 end
@@ -310,7 +319,12 @@ function metaComplex:getAngRad()
 
 function metaComplex:getAngDeg() return ((self:getAngRad() * 180) / math.pi) end
 
-function metaComplex:getDup() return complex.New(self:getParts()) end
+function metaComplex:getNew(nR, nI)
+  local N = complex.New(self:getParts())
+  local R, I = tonumber(nR), tonumber(nI)
+  if(R) then N:setReal(R) end
+  if(I) then N:setImag(I) end; return N
+end
 
 function metaComplex:getTable(kR, kI)
   local kR, kI = (kR or metaComplex.__kreal[1]), (kI or metaComplex.__kimag[1])
@@ -470,66 +484,6 @@ metaComplex.__lt =  function(C1,C2)
   return false
 end
 
-local function StrValidateComplex(sStr)
-  local Str = sStr:gsub("%s","") -- Remove hollows
-  local S, E = 1, Str:len()
-  while(S < E) do
-    local CS = Str:sub(S,S)
-    local CE = Str:sub(E,E)
-    local FS = metaComplex.__bords[1]:find(CS,1,true)
-    local FE = metaComplex.__bords[2]:find(CE,1,true)
-    if((not FS) and FE) then
-      return logStatus("StrValidateComplex: Unbalanced end #"..CS..CE.."#",nil) end
-    if((not FE) and FS) then
-      return logStatus("StrValidateComplex: Unbalanced beg #"..CS..CE.."#",nil) end
-    if(FS and FE and FS > 0 and FE > 0) then
-      if(FS == FE) then S = S + 1; E = E - 1
-      else return logStatus("StrValidateComplex: Bracket mismatch #"..CS..CE.."#",nil) end
-    elseif(not (FS and FE)) then break end;
-  end; return Str, S, E
-end
-
-local function Str2Complex(sStr, nS, nE, sDel)
-  local Del = tostring(sDel or ","):sub(1,1)
-  local S, E, D = nS, nE, sStr:find(Del)
-  if((not D) or (D < S) or (D > E)) then
-    return complex.New(tonumber(sStr:sub(S,E)) or metaComplex.__valre, metaComplex.__valim) end
-  return complex.New(tonumber(sStr:sub(S,D-1)) or metaComplex.__valre,
-                     tonumber(sStr:sub(D+1,E)) or metaComplex.__valim)
-end
-
-local function StrI2Complex(sStr, nS, nE, nI)
-  if(nI == 0) then
-    return logStatus("StrI2Complex: Complex not in plain format [a+ib] or [a+bi]",nil) end
-  local M = nI - 1 -- There will be no delimiter symbols here
-  local C = sStr:sub(M,M)
-  if(nI == nE) then  -- (-0.7-2.9i) Skip symbols until +/- is reached
-    while(C ~= "+" and C ~= "-") do
-      M = M - 1; C = sStr:sub(M,M)
-    end; return complex.New(tonumber(sStr:sub(nS,M-1)) or metaComplex.__valre,
-                            tonumber(sStr:sub(M,nE-1)) or metaComplex.__valim)
-  else -- (-0.7-i2.9)
-    return complex.New(tonumber(sStr:sub(nS,M-1))     or metaComplex.__valre,
-                       tonumber(C..sStr:sub(nI+1,nE)) or metaComplex.__valim)
-  end
-end
-
-local function Tab2Complex(tTab)
-  if(not tTab) then return nil end; local R, I
-  for ID = 1, #metaComplex.__kreal do
-    local val = metaComplex.__kreal[ID]
-    R = tTab[val] or R; if(R) then break end
-  end
-  for ID = 1, #metaComplex.__kimag do
-    local val = metaComplex.__kimag[ID]
-    I = tTab[val] or I; if(I) then break end
-  end
-  if(R or I) then
-    return complex.New(tonumber(R) or metaComplex.__valre,
-                       tonumber(I) or metaComplex.__valim) end
-  return logStatus("Tab2Complex: Table format not supported", complex.New())
-end
-
 function complex.Project(cP, cS, cE)
   local x1, y1 = cS:getParts()
   local x2, y2 = cE:getParts()
@@ -562,24 +516,75 @@ function complex.ToRadian(nDeg)
   return ((tonumber(nDeg) or 0) * math.pi) / 180
 end
 
-function complex.Convert(vIn,Del)
-  if(getmetatable(vIn) == metaComplex) then return vIn:getDup() end
-  local tIn = type(vIn)
-  if(tIn =="boolean") then return complex.New(vIn and 1 or 0,0) end
-  if(tIn ==  "table") then return Tab2Complex(vIn) end
-  if(tIn == "number") then return complex.New(vIn,0) end
-  if(tIn ==    "nil") then return complex.New(0,0) end
-  if(tIn == "string") then
-    local Str, S, E = StrValidateComplex(vIn:gsub("*",""))
+local function stringValidComplex(sStr)
+  local Str = sStr:gsub("%s","") -- Remove hollows
+  local S, E, B = 1, Str:len(), metaComplex.__bords
+  while(S < E) do
+    local CS, CE = Str:sub(S,S), Str:sub(E,E)
+    local FS, FE = B[1]:find(CS,1,true), B[2]:find(CE,1,true)
+    if((not FS) and FE) then
+      return logStatus("stringValidComplex: Unbalanced end #"..CS..CE.."#",nil) end
+    if((not FE) and FS) then
+      return logStatus("stringValidComplex: Unbalanced beg #"..CS..CE.."#",nil) end
+    if(FS and FE and FS > 0 and FE > 0) then
+      if(FS == FE) then S = S + 1; E = E - 1
+      else return logStatus("stringValidComplex: Bracket mismatch #"..CS..CE.."#",nil) end
+    elseif(not (FS and FE)) then break end;
+  end; return Str, S, E
+end
+
+local function stringToComplex(sStr, nS, nE, sDel)
+  local Del = tostring(sDel or ","):sub(1,1)
+  local S, E, D = nS, nE, sStr:find(Del)
+  if((not D) or (D < S) or (D > E)) then
+    return complex.New(tonumber(sStr:sub(S,E)) or metaComplex.__valre, metaComplex.__valim) end
+  return complex.New(tonumber(sStr:sub(S,D-1)) or metaComplex.__valre,
+                     tonumber(sStr:sub(D+1,E)) or metaComplex.__valim)
+end
+
+local function stringToComplexI(sStr, nS, nE, nI)
+  if(nI == 0) then
+    return logStatus("stringToComplexI: Complex not in plain format [a+ib] or [a+bi]",nil) end
+  local M = nI - 1 -- There will be no delimiter symbols here
+  local C = sStr:sub(M,M)
+  if(nI == nE) then  -- (-0.7-2.9i) Skip symbols until +/- is reached
+    while(C ~= "+" and C ~= "-") do
+      M = M - 1; C = sStr:sub(M,M)
+    end; return complex.New(tonumber(sStr:sub(nS,M-1)) or metaComplex.__valre,
+                            tonumber(sStr:sub(M,nE-1)) or metaComplex.__valim)
+  else -- (-0.7-i2.9)
+    return complex.New(tonumber(sStr:sub(nS,M-1))     or metaComplex.__valre,
+                       tonumber(C..sStr:sub(nI+1,nE)) or metaComplex.__valim)
+  end
+end
+
+local function tableToComplex(tTab, kRe, kIm)
+  if(not tTab) then return nil end
+  local R = selectKeyValue(tTab, metaComplex.__kreal, kRe)
+  local I = selectKeyValue(tTab, metaComplex.__kimag, kIm)
+  if(R or I) then
+    return complex.New(tonumber(R) or metaComplex.__valre,
+                       tonumber(I) or metaComplex.__valim) end
+  return logStatus("tableToComplex: Table format not supported", complex.New())
+end
+
+function complex.Convert(vIn, ...)
+  if(getmetatable(vIn) == metaComplex) then return complex.New(vIn) end
+  local tIn, tArg = type(vIn), {...}
+  if(tIn =="boolean") then
+    return complex.New(vIn and 1 or 0,tArg[1] and 1 or 0)
+  elseif(tIn ==  "table") then return tableToComplex(vIn, tArg[1], tArg[2])
+  elseif(tIn == "number") then return complex.New(vIn,tArg[1])
+  elseif(tIn ==    "nil") then return complex.New(0,0)
+  elseif(tIn == "string") then
+    local Str, S, E = stringValidComplex(vIn:gsub("*",""))
     if(not (Str and S and E)) then
       return logStatus("complex.Convert: Failed to validate <"..tostring(vIn)..">",nil) end
-        Str = Str:sub(S ,E); E = E-S+1; S = 1; local I
-    for ID = 1, #metaComplex.__ssyms do
-      local val = metaComplex.__ssyms[ID]
-      I = Str:find(val,S) or I; if(I) then break end
-    end
-    if(I and (I > 0)) then return StrI2Complex(Str, S, E, I)
-    else return Str2Complex(Str, S, E, Del) end
+    Str = Str:sub(S ,E); E = E-S+1; S = 1; local Sim, I = metaComplex.__ssyms
+    for ID = 1, #Sim do local val = Sim[ID]
+      I = Str:find(val,S) or I; if(I) then break end end
+    if(I and (I > 0)) then return stringToComplexI(Str, S, E, I)
+    else return stringToComplex(Str, S, E, tArg[1]) end
   end
   return logStatus("complex.Convert: Type <"..tIn.."> not supported",nil)
 end
