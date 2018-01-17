@@ -198,8 +198,8 @@ updt(false) -- disable auto updates
 
 -- Adjust the mapping intervals accrding to the number rooted
 local re, im = a:getParts()
-local intX = chartmap.newInterval("WinX", -re/2, re/2, 0, W)
-local intY = chartmap.newInterval("WinY", -im/2, im/2, H, 0)
+local intX = chartmap.New("interval","WinX", -re/2, re/2, 0, W)
+local intY = chartmap.New("interval","WinY", -im/2, im/2, H, 0)
 local x0, y0 = intX:Convert(0):getValue(), intY:Convert(0):getValue()
 
 -- Draw the coordinate system

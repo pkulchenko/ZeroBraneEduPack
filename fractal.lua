@@ -23,7 +23,7 @@ end
 local mtPlaneZ   = {}
 mtPlaneZ.__type  = "fractal.z-plane"
 mtPlaneZ.__index = mtPlaneZ
-local function makePlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
+local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
   local imgW , imgH  = w   , h
   local minRe, maxRe = minw, maxw
   local minIm, maxIm = minh, maxh
@@ -151,7 +151,7 @@ end
 local mtTreeY = {}
       mtTreeY.__type  = "fractal.ytree"
       mtTreeY.__index = mtTreeY
-local function makeTreeY(iMax, clDraw)
+local function newTreeY(iMax, clDraw)
   local draw = clDraw
   local self = {Lev = 0, Max = (tonumber(iMax) or 0)}
   if(self.Max <= 0) then return logStatus("YTree depth invalid <"..tostring(self.Max)..">") end
@@ -180,8 +180,8 @@ end
 
 function fractal.New(sType, ...)
   local sType = "fractal."..tostring(sType or "") 
-  if(sType == mtPlaneZ.__type) then return makePlaneZ(...) end
-  if(sType == mtTreeY.__type) then return makeTreeY(...) end  
+  if(sType == mtPlaneZ.__type) then return newPlaneZ(...) end
+  if(sType == mtTreeY.__type) then return newTreeY(...) end  
 end
 
 return fractal

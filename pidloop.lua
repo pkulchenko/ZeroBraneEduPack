@@ -32,9 +32,9 @@ end
 ]]
 local metaControl = {}
       metaControl.__index = metaControl
-      metaControl.__type  = "pidloop.Control"
+      metaControl.__type  = "pidloop.control"
       metaControl.__tostring = function(oControl) return oControl:getString() end
-function pidloop.newControl(nTo, sName)
+local function newControl(nTo, sName)
   local mTo = (tonumber(nTo) or 0); if(mTo <= 0) then -- Sampling time [s]
     return logStatus(nil, "newControl: Sampling time <"..tostring(nTo).."> invalid") end
   local self  = {}                 -- Place to store the methods
@@ -142,9 +142,9 @@ end
 -- https://www.mathworks.com/help/simulink/slref/discretefilter.html
 local metaUnit = {}
       metaUnit.__index    = metaUnit
-      metaUnit.__type     = "pidloop.Unit"
+      metaUnit.__type     = "pidloop.unit"
       metaUnit.__tostring = function(oUnit) return oUnit:getString() end
-function pidloop.newUnit(nTo, tNum, tDen, sName)
+local function newUnit(nTo, tNum, tDen, sName)
   local mOrd = #tDen; if(mOrd < #tNum) then
     return logStatus("Unit physically impossible") end
   if(tDen[1] == 0) then
@@ -210,6 +210,12 @@ function pidloop.newUnit(nTo, tNum, tDen, sName)
   end
   
   return self
+end
+
+function pidloop.New(sType, ...)
+  local sType = "pidloop."..tostring(sType or "") 
+  if(sType == metaControl.__type) then return newControl(...) end
+  if(sType == metaUnit.__type) then return newUnit(...) end  
 end
 
 return pidloop

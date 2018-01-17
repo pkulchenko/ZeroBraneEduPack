@@ -16,8 +16,8 @@ local xySize = 3
 local greyLevel  = 200
 local minX, maxX = -20, 20
 local minY, maxY = -20, 20
-local intX  = crt.newInterval("WinX", minX, maxX, 0, W)
-local intY  = crt.newInterval("WinY", minY, maxY, H, 0)
+local intX  = crt.New("interval","WinX", minX, maxX, 0, W)
+local intY  = crt.New("interval","WinY", minY, maxY, H, 0)
 local clOrg = colr(col.getColorBlueRGB())
 local clRel = colr(col.getColorRedRGB())
 local clBlk = colr(col.getColorBlackRGB())
@@ -77,16 +77,16 @@ while true do
   local key = char()
   local lx, ly = clck('ld')
   local rx, ry = clck('rd')
-  if(lx and ly and #cRay1 < 2) then
-    lx = intX:Convert(lx,true):getValue()
-    ly = intY:Convert(ly,true):getValue()
+  if(lx and ly and #cRay1 < 2) then -- Reverse the interval conversion polarity
+    lx = intX:Convert(lx,true):getValue() -- It helps by converting x,y from positive integers to the interval above
+    ly = intY:Convert(ly,true):getValue() 
     local C = cmp.New(lx, ly)
     cRay1[#cRay1+1] = C
     drawComplex(C, intX, intY, clOrg)
     if(#cRay1 == 2) then drawComplexLine(cRay1[1], cRay1[2], intX, intY, clOrg) end
-  elseif(drw and rx and ry) then
-    rx = intX:Convert(rx,true):getValue()
-    ry = intY:Convert(ry,true):getValue(); cPnt:Set(rx, ry)
+  elseif(drw and rx and ry) then -- Reverse the interval and convert x, y image position to a complex
+    rx = intX:Convert(rx,true):getValue() 
+    ry = intY:Convert(ry,true):getValue(); cPnt:Set(rx, ry) 
     drawComplex(cPnt, intX, intY, clRel)
     local XX = cmp.Project(cPnt, cRay1[1], cRay1[2])
     drawComplex(XX, intX, intY, clMgn)
@@ -94,7 +94,7 @@ while true do
     logStatus("The complex projection is "..tostring(XX)); drw = false
   end
   if(key == 27) then -- The user hits esc
-    wipe(); drw = true
+    wipe(); drw = true -- Wipe all the drawing and redraw the coordinate system
     cRay1[1], cRay1[2] = nil, nil; collectgarbage()
     drawCoordinateSystem(W, H, intX, intY, dX, dY, maxX, maxY, clBlk, clGry)
   end

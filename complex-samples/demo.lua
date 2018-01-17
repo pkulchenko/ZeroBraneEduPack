@@ -31,9 +31,9 @@ while(P:getImag() >= 0) do
 end
 
 local clGrn = colr(col.getColorGreenRGB())
-local intX  = crt.newInterval("WinX", minX, maxX, 0, W)
-local intY  = crt.newInterval("WinY", minY, maxY, H, 0)
-local trAj  = crt.newTracer("Trajectory"):setInterval(intX, intY)
+local intX  = crt.New("interval","WinX", minX, maxX, 0, W)
+local intY  = crt.New("interval","WinY", minY, maxY, H, 0)
+local trAj  = crt.New("tracer","Trajectory"):setInterval(intX, intY)
 local zEro  = intY:Convert(0):getValue()
 
 line(0, zEro, W, zEro)

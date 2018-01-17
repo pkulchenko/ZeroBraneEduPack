@@ -7,7 +7,7 @@ local chartmap     = {}
 local logStatus    = function(anyMsg, ...) io.write(tostring(anyMsg).."\n"); return ... end
 --[[
  * newInterval: Class that maps one interval onto another
- * sName > A porper name to be identified as
+ * sName > A proper name to be identified as
  * nL1   > Lower  value first border
  * nH1   > Higher value first border
  * nL2   > Lower  value second border
@@ -15,31 +15,28 @@ local logStatus    = function(anyMsg, ...) io.write(tostring(anyMsg).."\n"); ret
 ]]--
 local metaInterval = {}
       metaInterval.__index = metaInterval
-      metaInterval.__type  = "chartmap.Interval"
+      metaInterval.__type  = "chartmap.interval"
       metaInterval.__tostring = function(oInterval) return oInterval:getString() end
-function chartmap.newInterval(sName, nL1, nH1, nL2, nH2)
-  local self, mVal = {}, 0
-  local mNam = tostring(sName or "")
-  local mL1  = (tonumber(nL1) or 0)
-  local mH1  = (tonumber(nH1) or 0)
-  local mL2  = (tonumber(nL2) or 0)
-  local mH2  = (tonumber(nH2) or 0)
+local function newInterval(sName, nL1, nH1, nL2, nH2)
+  local self, mVal, mNm = {}, 0, tostring(sName or "")
+  local mL1, mH1 = (tonumber(nL1) or 0), (tonumber(nH1) or 0)
+  local mL2, mH2 = (tonumber(nL2) or 0), (tonumber(nH2) or 0)
   if(mL1 == mH1) then
-    return logStatus("newInterval.Convert("..mNam.."): Bad input bounds", self) end
+    return logStatus("newInterval("..mNm.."): Bad input bounds", self) end
   if(mL2 == mH2) then
-    return logStatus("newInterval.Convert("..mNam.."): Bad output bounds", self) end
+    return logStatus("newInterval("..mNm.."): Bad output bounds", self) end
   setmetatable(self, metaInterval)
-  function self:getName() return mNam end
-  function self:setName(sName) mNam = tostring(sName or "N/A") end
+  function self:getName() return mNm end
+  function self:setName(sName) mNm = tostring(sName or "N/A") end
   function self:getValue() return mVal end
   function self:getBorderIn() return mL1, mH1 end
   function self:setBorderIn(nL1, nH1) mL1, mH1 = (tonumber(nL1) or 0), (tonumber(nH1) or 0) end
   function self:getBorderOut() return mL2, mH2 end
   function self:setBorderOut(nL2, nH2) mL2, mH2 = (tonumber(nL2) or 0), (tonumber(nH2) or 0) end
-  function self:getString() return "["..metaInterval.__type.."] "..mNam.." {"..mL1..","..mH1.."} >> {"..mL2..","..mH2.."}" end
+  function self:getString() return "["..metaInterval.__type.."] "..mNm.." {"..mL1..","..mH1.."} >> {"..mL2..","..mH2.."}" end
   function self:Convert(nVal, bRev)
     local val = tonumber(nVal); if(not val) then
-      return logStatus("newInterval.Convert("..mNam.."): Source <"..tostring(nVal).."> NaN", self) end
+      return logStatus("newInterval.Convert("..mNm.."): Source <"..tostring(nVal).."> NaN", self) end
     if(bRev) then local kf = ((val - mL2) / (mH2 - mL2)); mVal = (kf * (mH1 - mL1) + mL1)
     else          local kf = ((val - mL1) / (mH1 - mL1)); mVal = (kf * (mH2 - mL2) + mL2) end
     return self
@@ -50,13 +47,13 @@ end
 
 --[[
  * newTracer: Class that plots a process variable
- * sName > A porper name to be identified as
+ * sName > A proper name to be identified as
 ]]--
 local metaTracer = {}
       metaTracer.__index = metaTracer
-      metaTracer.__type  = "chartmap.Tracer"
+      metaTracer.__type  = "chartmap.tracer"
       metaTracer.__tostring = function(oTracer) return oTracer:getString() end
-function chartmap.newTracer(sName)
+local function newTracer(sName)
   local self = {}; setmetatable(self, metaTracer)
   local mName = tostring(sName or "")
   local mValO, mValN = 0, 0
@@ -96,6 +93,12 @@ function chartmap.newTracer(sName)
   end
 
   return self
+end
+
+function chartmap.New(sType, ...)
+  local sType = "chartmap."..tostring(sType or "") 
+  if(sType == metaInterval.__type) then return newInterval(...) end
+  if(sType == metaTracer.__type) then return newTracer(...) end  
 end
 
 return chartmap
