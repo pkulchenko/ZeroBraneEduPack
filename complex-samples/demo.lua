@@ -22,7 +22,7 @@ local minX, maxX, minY, maxY, traJ = 0, 0, 0, 0, {cmp.New(P)}
 
 while(P:getImag() >= 0) do
   V:Add(G); P:Add(V)
-  traJ[#traJ+1] = P:getDup()
+  traJ[#traJ+1] = P:getNew()
   local xP, yP = P:getParts()
   if(xP >= maxX) then maxX = xP end
   if(yP >= maxY) then maxY = yP end
