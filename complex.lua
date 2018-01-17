@@ -547,10 +547,10 @@ local function stringToComplexI(sStr, nS, nE, nI)
   local M = nI - 1 -- There will be no delimiter symbols here
   local C = sStr:sub(M,M)
   if(nI == nE) then  -- (-0.7-2.9i) Skip symbols until +/- is reached
-    while(C ~= "+" and C ~= "-") do
-      M = M - 1; C = sStr:sub(M,M)
-    end; return complex.New(tonumber(sStr:sub(nS,M-1)) or metaComplex.__valre,
-                            tonumber(sStr:sub(M,nE-1)) or metaComplex.__valim)
+    while(C ~= "+" and C ~= "-" and M > 0) do
+      M = M - 1; C = sStr:sub(M,M) end;
+    return complex.New(tonumber(sStr:sub(nS,M-1)) or metaComplex.__valre,
+                       tonumber(sStr:sub(M,nE-1)) or metaComplex.__valim)
   else -- (-0.7-i2.9)
     return complex.New(tonumber(sStr:sub(nS,M-1))     or metaComplex.__valre,
                        tonumber(C..sStr:sub(nI+1,nE)) or metaComplex.__valim)
