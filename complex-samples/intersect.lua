@@ -92,8 +92,8 @@ while true do
     if(#cRay2 == 2) then drawComplexLine(cRay2[1], cRay2[2], intX, intY, clRel) end
   end
   if(drw and #cRay1 == 2 and #cRay2 == 2) then
-    local int, nT, nU, cR, cS, XX = cmp.Intersect(cRay1[1], cRay1[2], cRay2[1], cRay2[2])
-    if(int) then
+    local suc, nT, nU, cD1, cD2, XX = cmp.Intersect(cRay1[1], cRay1[2], cRay2[1], cRay2[2])
+    if(suc) then
       drawComplex(XX, intX, intY, clMgn)
       logStatus("The complex intersection is "..tostring(XX))
     end; drw = false
@@ -101,7 +101,7 @@ while true do
   if(key == 27) then -- The user hits esc
     wipe(); drw = true
     cRay1[1], cRay1[2] = nil, nil
-    cRay2[1], cRay2[2] = nil, nil; collectgarbage()
+    cRay2[1], cRay2[2] = nil, nil
     drawCoordinateSystem(W, H, intX, intY, dX, dY, maxX, maxY, clBlk, clGry)
   end
   updt()
