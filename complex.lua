@@ -534,8 +534,9 @@ function complex.Project(cP, cS, cE)
   local x1, y1 = cS:getParts()
   local x2, y2 = cE:getParts()
   local x3, y3 = cP:getParts()
-  local ks = ((y2-y1)*(x3-x1)-(x2-x1)*(y3-y1)) / cS:getDist2(cE)
-  return complex.New(x3-ks*(y2-y1), y3+ks*(x2-x1))
+  local dx, dy = (x2-x1), (y2-y1)
+  local ks = (dy*(x3-x1)-dx*(y3-y1)) / cS:getDist2(cE)
+  return complex.New(x3-ks*dy, y3+ks*dx)
 end
 
 function complex.Intersect(cS1, cE1, cS2, cE2)
