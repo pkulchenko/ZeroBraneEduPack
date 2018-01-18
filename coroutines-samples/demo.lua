@@ -6,7 +6,7 @@
 -- out     > Stores the output cometion ration in %
 -- obj     > The /thread/ object being allocated/created
 -- data    > Table which contents are being modified
-local info = {crash = {0.9999, 2}, time = 20, tablen = 10000, thrcnt = 4, out = {}, obj = {}, data = {}}
+local info = {crash = {0.9999, 2}, time = 20, tablen = 30000, thrcnt = 4, out = {}, obj = {}, data = {}}
 
 -- Thread factory
 local function newRoutine(id, t, n, all, terr)
@@ -42,10 +42,10 @@ while((os.clock() - clk) < info.time and not exit) do
     if(rut) then
       local sta = coroutine.status(rut) -- Take our status to decide what to do
       if(sta == "suspended") then -- The thread waits to be resumed by the handler
-        local suc = coroutine.resume(rut, info.data[id], info.tablen, info.crash)
+        local suc, err = coroutine.resume(rut, info.data[id], info.tablen, info.crash)
         if(not suc) then crash, info.obj[id] = (crash + 1)
           -- Remove the crashed routine
-          print("There has been an error executing coroutine #"..id)
+          print("There has been an error executing coroutine #"..id.." @ "..info.out[id].."\nError: "..err)
           if((dead + crash) >= info.thrcnt) then
               endt, exit = (os.clock() - clk), true; break end
         end -- If the thread is dead dont do anyting besides going to the next one
