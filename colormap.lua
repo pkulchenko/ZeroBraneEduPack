@@ -1,7 +1,24 @@
-local colormap  = {}
 local math      = math
+local colormap  = {}
 local clMapping = {}
 local clClamp   = {0, 255}
+
+local function logStatus(anyMsg, ...)
+  io.write(tostring(anyMsg).."\n"); return ...
+end
+
+--[[ https://en.wikipedia.org/wiki/HSL_and_HSV ]]
+local function projectColorHC(h,c)
+  local hp = h / 60
+  local x  = c * (1 - math.abs((hp % 2) - 1))
+  if(hp >= 0 and hp < 1) then return c, x , 0 end
+  if(hp >= 1 and hp < 2) then return x, c , 0 end
+  if(hp >= 2 and hp < 3) then return 0, c , x end
+  if(hp >= 3 and hp < 4) then return 0, x , c end
+  if(hp >= 4 and hp < 5) then return x, 0 , c end
+  if(hp >= 5 and hp < 6) then return c, 0 , x end
+  return 0, 0, 0
+end
 
 function colormap.getColorBlackRGB () return 0  ,  0,  0 end
 function colormap.getColorRedRGB   () return 255,  0,  0 end
@@ -16,27 +33,12 @@ function colormap.getColorRotateLeft(r, g, b) return g, b, r end
 function colormap.getColorRotateRigh(r, g, b) return b, r, g end
 
 local function roundValue(nE, nF)
-  local nE = tonumber(nE)
-  if(not nE) then
-    return logStatus("colormap.roundValue: Round NAN {"..type(nE).."}<"..tostring(nF)..">") end
-  local nF = tonumber(nF) or 0
-  if(nF == 0) then
+  local nE = tonumber(nE); if(not nE) then
+    return logStatus("colormap.roundValue: NAN {"..type(nE).."}<"..tostring(nE)..">") end
+  local nF = (tonumber(nF) or 0); if(nF == 0) then
     return logStatus("colormap.roundValue: Fraction must be <> 0") end
   local q, f = math.modf(nE/nF)
   return nF * (q + (f > 0.5 and 1 or 0))
-end
-
--- https://en.wikipedia.org/wiki/HSL_and_HSV
-local function projectColorHC(h,c)
-  local hp = h / 60
-  local x  = c * (1 - math.abs((hp % 2) - 1))
-  if(hp >= 0 and hp < 1) then return c, x , 0 end
-  if(hp >= 1 and hp < 2) then return x, c , 0 end
-  if(hp >= 2 and hp < 3) then return 0, c , x end
-  if(hp >= 3 and hp < 4) then return 0, x , c end
-  if(hp >= 4 and hp < 5) then return x, 0 , c end
-  if(hp >= 5 and hp < 6) then return c, 0 , x end
-  return 0, 0, 0
 end
 
 -- H [0,360], S [0,1], V [0,1]
@@ -68,31 +70,36 @@ function colormap.getColorHCL(h,c,l)
          roundValue(clClamp[2] * (b + m),1)
 end
 
+function colormap.getClamp(vN)
+  local nN = tonumber(vN); if(not nN) then
+    return logStatus("colormap.getClamp: NAN {"..type(nN).."}<"..tostring(nN)..">") end
+  if(nN <= clClamp[1]) then return clClamp[1] end
+  if(nN >= clClamp[2]) then return clClamp[2] end; return math.floor(nN)
+end
+
 function colormap.printColorMap(r,g,b)
   logStatus("colormap.printColorMap: {"..tostring(r)..","..tostring(g)..","..tostring(b).."}") end
 
 function colormap.setColorMap(sKey,tTable,bReplace)
-  local tyTable = type(tTable)
-  if(tyTable ~= "table") then
-    return logStatus("colormap.getColorMap: Missing tabe argument",nil) end
+  local tyTable = type(tTable); if(tyTable ~= "table") then
+    return logStatus("colormap.getColorMap: Missing table argument",nil) end
   local sKey = tostring(sKey)
-  local rgb = clMapping[sKey]
-  if(rgb and not bReplace) then
+  local tRgb = clMapping[sKey]; if(tRgb and not bReplace) then
     return logStatus("colormap.getColorMap: Exists mapping for <"..sKey..">",nil) end
-  clMapping[sKey] = tTable; return clMapping[sKey]
+  clMapping[sKey] = tTable; if(not tTable.Size) then tTable.Size = #tTable end
+  return clMapping[sKey]
 end
 
 function colormap.getColorMap(sKey,iNdex)
-  local iNdex = tonumber(iNdex) or 0
-  if(iNdex <= 0) then
+  local iNdex = (tonumber(iNdex) or 0); if(iNdex <= 0) then
     return logStatus("colormap.getColorMap: Missing index #"..tostring(iNdex), colormap.getColorBlackRGB()) end
-  local sKey = tostring(sKey)
-  local rgb = clMapping[sKey]
-  if(not rgb) then
+  local sKey, tCl = tostring(sKey)
+  local tRgb = clMapping[sKey]; if(not tRgb) then
     return logStatus("colormap.getColorMap: Missing mapping for <"..sKey..">", colormap.getColorBlackRGB()) end
-  local cid = iNdex % #rgb; rgb = rgb[cid]
-  if(not rgb) then return colormap.getColorBlackRGB() end
-  return (rgb[1] or clClamp[2]), (rgb[2] or clClamp[2]), (rgb[3] or clClamp[2])
+  local cID = (iNdex % tRgb.Size + 1); tCl = tRgb[cID]
+  if(not tCl) then tCl = tRgb.Miss end
+  if(not tCl) then return colormap.getColorBlackRGB() end
+  return colormap.getClamp(tCl[1]), colormap.getClamp(tCl[2]), colormap.getClamp(tCl[3])
 end
 
 --[[
@@ -100,14 +107,11 @@ end
   https://a4.pbase.com/o6/09/60809/1/79579853.u4uTlB2w.Elephantvalleyhistogramcolors.JPG
 ]]--
 function colormap.getColorRegion(iDepth, maxDepth, iRegions)
-  local sKey, iDepth = "getColorRegion", (tonumber(iDepth) or 0)
-  if(iDepth <= 0) then
+  local sKey, iDepth = "getColorRegion", (tonumber(iDepth) or 0); if(iDepth <= 0) then
     logStatus("colormap.getColorRegion: Missing Region depth #"..iDepth,colormap.getColorBlackRGB()) end
-  local maxDepth = tonumber(maxDepth) or 0
-  if(maxDepth <= 0) then
+  local maxDepth = (tonumber(maxDepth) or 0); if(maxDepth <= 0) then
     logStatus("colormap.getColorRegion: Missing Region max depth #"..maxDepth,colormap.getColorBlackRGB()) end
-  local iRegions = tonumber(iRegions) or 0
-  if(iRegions <= 0) then
+  local iRegions = (tonumber(iRegions) or 0); if(iRegions <= 0) then
     logStatus("colormap.getColorRegion: Missing Regions count #"..iRegions,colormap.getColorBlackRGB()) end
   if (iDepth == maxDepth) then return colormap.getColorBlackRGB() end
   -- Cache the damn thing as it is too heavy

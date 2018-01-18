@@ -33,8 +33,8 @@ local w2, h2 = W/2, H/2
 local gr     = 1.681
 
 -- https://upload.wikimedia.org/wikipedia/commons/b/b3/Mandel_zoom_07_satellite.jpg
-clmap.setColorMap("wikipedia",
-{
+clmap.setColorMap("wikipedia",{
+  Miss = {255, 0, 255}, -- Color to use when "hole" in the array is located (ex. arr[5])
   { 66,  30,  15}, -- brown 3
   { 25,   7,  26}, -- dark violett
   {  9,   1,  47}, -- darkest blue
@@ -59,14 +59,13 @@ zero(0, 0)
 updt(false) -- disable auto updates
 
 --[[
-Zoom: {3375}
-Cent: {-0.10109678819444,-0.95628602430556}
-Area: {-0.10109910300926,-0.10109447337963,-0.95628833912037,-0.95628370949074}
+Some interesing places ( Mandelbrot )
+S:SetArea(-0.10109910300926,-0.10109447337963,-0.95628833912037,-0.95628370949074)
+S:SetArea(-0.75004543209877,-0.74996641975309,0.0031012345679011,0.0031802469135801)
 ]]
 
 local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup)
       S:SetControlWX(wx)
-   --    S:SetArea(-1.406574048011,-1.406574042524,0.00025352709190672,0.00025353257887517)
       S:Register("FUNCT",
         "mandelbrot", function (Z, C, R) Z:Pow(2); Z:Add(C); R[1] = Z:getAngRad(); end,
         "mandelbar", function (Z, C, R) Z:Pow(2); Z:NegIm(); Z:Add(C) end,
@@ -91,20 +90,16 @@ S:Draw(sfrac,spale,iTer)
 while true do
   wait(0.2)
   local lx, ly = clck('ld')
-  local rx, ry = clck('rd')
-  local key = char()
+  local key, rx, ry = char(), clck('rd')
   if(key or (lx and ly) or (rx and ry)) then
+    logStatus("KEY: {"..tostring(key).."}")
     logStatus("LFT: {"..tostring(lx)..","..tostring(ly).."}")
     logStatus("RGH: {"..tostring(rx)..","..tostring(ry).."}")
-    logStatus("KEY: {"..tostring(key).."}")
     if    (lx and ly) then
-      S:SetCenter(lx,ly)
-      S:Zoom( nZoom)
+      S:SetCenter(lx,ly); S:Zoom( nZoom)
     elseif(rx and ry) then
-      S:SetCenter(rx,ry)
-      S:Zoom(-nZoom)
+      S:SetCenter(rx,ry); S:Zoom(-nZoom)
     end
-    logStatus(S:GetKey("dirU"))
     if    (key == S:GetKey("dirU")) then S:MoveCenter(0,-nStep)
     elseif(key == S:GetKey("dirD")) then S:MoveCenter(0, nStep)
     elseif(key == S:GetKey("dirL")) then S:MoveCenter(-nStep,0)
@@ -112,3 +107,5 @@ while true do
     S:Draw(sfrac,spale,iTer)
   end
 end
+
+wait()
