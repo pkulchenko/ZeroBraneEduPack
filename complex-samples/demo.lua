@@ -12,7 +12,7 @@ size(W,H)
 zero(0, 0)
 updt(false) -- disable auto updates
 
-local drwText = true
+local drwText, nMarg = true, 30
 
 local V0 = cmp.New(200,200):Print("Initial velocity: ","\n")
 local P  = cmp.Convert("0+j0"):Print("Position        : ","\n")
@@ -30,9 +30,10 @@ while(P:getImag() >= 0) do
   if(yP <= minY) then minY = yP end
 end
 
+local oX,aN = cmp.New(1), 0
 local clGrn = colr(col.getColorGreenRGB())
-local intX  = crt.New("interval","WinX", minX, maxX, 0, W)
-local intY  = crt.New("interval","WinY", minY, maxY, H, 0)
+local intX  = crt.New("interval","WinX", minX, maxX,   nMarg, W-nMarg)
+local intY  = crt.New("interval","WinY", minY, maxY, H-2*nMarg,   0)
 local trAj  = crt.New("tracer","Trajectory"):setInterval(intX, intY)
 local zEro  = intY:Convert(0):getValue()
 
@@ -41,10 +42,12 @@ line(0, zEro, W, zEro)
 for ID = 1, #traJ do
   wait(0.05)
   local cPos = traJ[ID]
-  local Re, Im = cPos:getParts()
+  if(traJ[ID+1]) then
+    aN = cmp.ToDegree((traJ[ID+1] - traJ[ID]):getAngVec(oX))-90 end
+  local Re, Im = cPos:Round(0.001):getParts()
   trAj:putValue(Re, Im):Draw(clGrn)
   if(drwText) then
-    text(tostring(cPos),0,intX:Convert(Re):getValue(),intY:Convert(Im):getValue()) end
+    text(tostring(cPos),aN,intX:Convert(Re):getValue(),intY:Convert(Im):getValue()) end
   updt()
 end
 

@@ -92,6 +92,11 @@ function complex.New(nRe,nIm)
     if(nNum) then Re, Im = (Re * nNum), (Im * nNum) end; return self
   end
 
+  function self:Abs(R, I)
+    Re = (R and math.abs(Re) or Re)
+    Im = (I and math.abs(Im) or Im); return self
+  end
+
   function self:Mul(R,I)
     local A, B = self:getParts()
     local C, D = exportComplex(R, I)
@@ -141,6 +146,20 @@ function complex.New(nRe,nIm)
   end
 
   return self
+end
+
+function metaComplex:getAbs(R, I)
+  return complex.New(self):Abs(R, I)
+end
+
+function metaComplex:getDot(cV)
+  local sR, sI = self:getParts()
+  local vR, vI = cV:getParts()
+  return (sR*vR + sI*vI)
+end
+
+function metaComplex:getAngVec(cV)
+  return (self:getAngRad() - cV:getAngRad())
 end
 
 function metaComplex:getMid(R, I)
