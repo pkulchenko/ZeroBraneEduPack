@@ -77,8 +77,23 @@ function colormap.getClamp(vN)
   if(nN >= clClamp[2]) then return clClamp[2] end; return math.floor(nN)
 end
 
-function colormap.printColorMap(r,g,b)
-  logStatus("colormap.printColorMap: {"..tostring(r)..","..tostring(g)..","..tostring(b).."}") end
+function colormap.printColorMap(sKey, ...)
+  if(type(sKey) == "number") then
+    local tArg = {...}; local r, g, b = sKey, tArg[1], tArg[2]
+    return logStatus("colormap.printColorMap: {"..tostring(r)..","..tostring(g)..","..tostring(b).."}")
+  end; local sKey = tostring(sKey)
+  local tRgb = clMapping[sKey]; if(not tRgb) then
+    return logStatus("colormap.printColorMap: No mapping for <"..sKey..">") end
+  local tyRgb = type(tRgb); if(tyRgb ~= "table") then
+    return logStatus("colormap.printColorMap: Internal structure is ["..tyRgb.."]<"..tostring(tRgb)..">") end
+  local nRgb, pRef = #tRgb, "colormap.printColorMap["..sKey.."] "
+  local fRgb = "%"..tostring(nRgb):len().."d"
+  for ID = 1, nRgb do local tRow = tRgb[ID]
+    local tyRow = type(tRow); if(tyRow == "table") then
+      logStatus(pRef..fRgb:format(ID)..": {"..table.concat(tRow, ",").."}")
+    else logStatus(pRef..fRgb:format(ID)..": ["..tyRow.."]<"..tostring(tRow)..">") end
+  end
+end
 
 function colormap.setColorMap(sKey,tTable,bReplace)
   local tyTable = type(tTable); if(tyTable ~= "table") then
@@ -127,12 +142,12 @@ function colormap.getColorRegion(iDepth, maxDepth, iRegions)
       arRegions[regid].brd = arRegions[regid - 1].brd + arRegions[1].brd
       if(regid <= oneThird and regid > 1) then
         arRegions[regid].foo = function(iTer)
-          return ((((iTer - arRegions[regid-1].brd) * arRegions[oneThird-regid+1].brd)
+          return colormap.getClamp((((iTer - arRegions[regid-1].brd) * arRegions[oneThird-regid+1].brd)
                  * arRegions[2].brd) + arRegions[2].brd), 0, 0
         end
       else
         arRegions[regid].foo = function(iTer)
-          return clClamp[2], ((((iTer - arRegions[regid-1].brd) * arRegions[1].brd)
+          return clClamp[2], colormap.getClamp((((iTer - arRegions[regid-1].brd) * arRegions[1].brd)
                  / arRegions[regid-2].brd) + arRegions[regid-3].brd), clClamp[1]
         end
       end

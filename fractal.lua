@@ -11,15 +11,6 @@ local function logStatus(anyMsg, ...)
   io.write(tostring(anyMsg).."\n"); return ...
 end
 
-local function clampValue(nVal,nMin,nMax)
-  if(type(nVal) ~= "number") then return nil end
-  local Min = nMin or 0
-  local Max = nMax or 0
-  if(nVal >= Max) then return Max end
-  if(nVal <= Min) then return Min end
-  return nVal
-end
-
 local mtPlaneZ   = {}
 mtPlaneZ.__type  = "fractal.z-plane"
 mtPlaneZ.__index = mtPlaneZ
@@ -108,9 +99,8 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
   end
 
   function self:Draw(sName,sPalet,maxItr)
-    local maxItr = tonumber(maxItr) or 0
-    if(maxItr < 1) then
-      logStatus("PlaneZ.Draw: Iteretion depth #"..tostring(maxItr).." invalid"); return end
+    local maxItr = (tonumber(maxItr) or 0); if(maxItr < 1) then
+      logStatus("PlaneZ.Draw: Iteration depth #"..tostring(maxItr).." invalid"); return end
     local r, g, b, iDepth, isInside, nrmZ = 0, 0, 0, 0, true
     local sName, sPalet = tostring(sName), tostring(sPalet)
     local C, Z, R = complex.New(), complex.New(), {}
@@ -122,25 +112,20 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
       C:setImag(minIm + y*imFac)
       for x = 0, imgW do -- Col
         if(brdCl and bbrdP) then updt() end
-        C:setReal(minRe + x*reFac)
-        Z:Set(C)
-        isInside = true
+        C:setReal(minRe + x*reFac); Z:Set(C); isInside = true
         for n = 1, maxItr do
           nrmZ = Z:getNorm2()
           if(nrmZ > 4) then iDepth, isInside = n, false; break end
           if(not frcNames[sName]) then
             logStatus("PlaneZ.Draw: Invalid fractal name <"..sName.."> given"); return end
           frcNames[sName](Z, C, R) -- Call the fractal formula
-        end
-        r, g, b = 0, 0, 0
+        end; r, g, b = 0, 0, 0
         if(not isInside) then
           if(not frcPalet[sPalet]) then
-            logStatus("PlaneZ.Draw: Invalid palet <"..sPalet.."> given"); return end
+            logStatus("PlaneZ.Draw: Invalid pallet <"..sPalet.."> given"); return end
           r, g, b = frcPalet[sPalet](Z, C, iDepth, x, y, R) -- Call the fractal coloring
-          r, g, b = clampValue(r,0,255), clampValue(g,0,255), clampValue(b,0,255)
         end
-        pncl(colr(r, g, b))
-        pixl(x,y)
+        pncl(colr(r, g, b)); pixl(x,y)
       end
       updt()
     end
@@ -179,9 +164,9 @@ local function newTreeY(iMax, clDraw)
 end
 
 function fractal.New(sType, ...)
-  local sType = "fractal."..tostring(sType or "") 
+  local sType = "fractal."..tostring(sType or "")
   if(sType == mtPlaneZ.__type) then return newPlaneZ(...) end
-  if(sType == mtTreeY.__type) then return newTreeY(...) end  
+  if(sType == mtTreeY.__type) then return newTreeY(...) end
 end
 
 return fractal

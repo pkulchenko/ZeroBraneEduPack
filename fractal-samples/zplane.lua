@@ -1,9 +1,11 @@
-require("turtle")
 require("wx")
+require("turtle")
 
 local compl = require("complex")
 local fract = require("fractal")
 local clmap = require("colormap")
+
+io.stdout:setvbuf("no")
 
 -- z(0) = z,    z(n+1) = z(n)*z(n) + z,    n=0,1,2, ...    (1)
 
@@ -11,7 +13,32 @@ local function logStatus(anyMsg, ...)
   io.write(tostring(anyMsg).."\n"); return ...
 end
 
-io.stdout:setvbuf("no")
+local getClamp    = clmap.getClamp
+local getColorMap = clmap.getColorMap
+local getColorHSL = clmap.getColorHSL
+local getColorHSV = clmap.getColorHSV
+
+-- https://upload.wikimedia.org/wikipedia/commons/b/b3/Mandel_zoom_07_satellite.jpg
+clmap.setColorMap("wikipedia",{
+  -- Size = 30          -- You can  override the size ( set automatically on creation as #Table )
+  Miss = {255, 0, 255}, -- Color to use when "hole" in the array is located (ex. arr[5])
+  { 66,  30,  15}, -- brown 3
+  { 25,   7,  26}, -- dark violett
+  {  9,   1,  47}, -- darkest blue
+  {  4,   4,  73}, -- blue 5
+  {  0,   7, 100}, -- blue 4
+  { 12,  44, 138}, -- blue 3
+  { 24,  82, 177}, -- blue 2
+  { 57, 125, 209}, -- blue 1
+  {134, 181, 229}, -- blue 0
+  {211, 236, 248}, -- lightest blue
+  {241, 233, 191}, -- lightest yellow
+  {248, 201,  95}, -- light yellow
+  {255, 170,   0}, -- dirty yellow
+  {204, 128,   0}, -- brown 0
+  {153,  87,   0}, -- brown 1
+  {106,  52,   3}  -- brown 2
+})
 
 -- Changable parameters
 local maxCl = 255
@@ -31,27 +58,6 @@ local brdup = nil -- true
 local cexp   = compl.New(math.exp(1))
 local w2, h2 = W/2, H/2
 local gr     = 1.681
-
--- https://upload.wikimedia.org/wikipedia/commons/b/b3/Mandel_zoom_07_satellite.jpg
-clmap.setColorMap("wikipedia",{
-  Miss = {255, 0, 255}, -- Color to use when "hole" in the array is located (ex. arr[5])
-  { 66,  30,  15}, -- brown 3
-  { 25,   7,  26}, -- dark violett
-  {  9,   1,  47}, -- darkest blue
-  {  4,   4,  73}, -- blue 5
-  {  0,   7, 100}, -- blue 4
-  { 12,  44, 138}, -- blue 3
-  { 24,  82, 177}, -- blue 2
-  { 57, 125, 209}, -- blue 1
-  {134, 181, 229}, -- blue 0
-  {211, 236, 248}, -- lightest blue
-  {241, 233, 191}, -- lightest yellow
-  {248, 201,  95}, -- light yellow
-  {255, 170,   0}, -- dirty yellow
-  {204, 128,   0}, -- brown 0
-  {153,  87,   0}, -- brown 1
-  {106,  52,   3}  -- brown 2
-})
 
 open("Fractal plot 2D")
 size(W,H)
@@ -76,14 +82,14 @@ local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup)
         "julia5", function (Z, C, R) Z:Set((Z^4) * cexp^Z + 0.41 ) end,
         "julia6", function (Z, C, R) Z:Set((Z^3) * cexp^Z + 0.33 ) end)
       S:Register("PALET",
-        "default", function (Z, C, i) return (math.floor((64  * i) % maxCl)), (math.floor((128 * i) % maxCl)), (math.floor((192 * i) % maxCl)) end,
-        "rediter", function (Z, C, i) return math.floor((1-(i / iTer)) * maxCl), 0, 0 end,
-        "greenbl", function (Z, C, i, x, y) local it = i / iTer; return math.floor(0), math.floor((1 - it) * maxCl), math.floor(it * maxCl) end,
-        "wikipedia", function (Z, C, i, x, y, R) return clmap.getColorMap("wikipedia",i) end,
-        "region", function (Z, C, i, x, y) return clmap.getColorRegion(i,iTer,10) end,
-        "hsl", function (Z, C, i, x, y) local it = i / iTer; return clmap.getColorHSL(it*360,it,it) end,
-        "hsv", function (Z, C, i, x, y) local it = i / iTer; return clmap.getColorHSV(it*360,1,1) end,
-        "wikipedia_r", function (Z, C, i, x, y, R) return clmap.getColorMap("wikipedia",i * (R[1] and 1+math.floor(math.abs(R[1])) or 1)) end)
+        "default", function (Z, C, i) return (getClamp((64  * i) % maxCl)), (getClamp((128 * i) % maxCl)), (getClamp((192 * i) % maxCl)) end,
+        "rediter", function (Z, C, i) return getClamp((1-(i / iTer)) * maxCl), 0, 0 end,
+        "greenbl", function (Z, C, i, x, y) local it = i / iTer; return 0, getClamp((1 - it) * maxCl), getClamp(it * maxCl) end,
+        "wikipedia", function (Z, C, i, x, y, R) return getColorMap("wikipedia",i) end,
+        "region", function (Z, C, i, x, y) return getColorRegion(i,iTer,10) end,
+        "hsl", function (Z, C, i, x, y) local it = i / iTer; return getColorHSL(it*360,it,it) end,
+        "hsv", function (Z, C, i, x, y) local it = i / iTer; return getColorHSV(it*360,1,1) end,
+        "wikipedia_r", function (Z, C, i, x, y, R) return getColorMap("wikipedia",i * (R[1] and 1+math.floor(math.abs(R[1])) or 1)) end)
 
 S:Draw(sfrac,spale,iTer)
 
