@@ -41,6 +41,7 @@ clmap.setColorMap("wikipedia",{
 })
 
 -- Changable parameters
+local nGold = 1.618
 local maxCl = 255
 local W     = 400
 local H     = 400
@@ -68,6 +69,7 @@ updt(false) -- disable auto updates
 Some interesing places ( Mandelbrot )
 S:SetArea(-0.10109910300926,-0.10109447337963,-0.95628833912037,-0.95628370949074)
 S:SetArea(-0.75004543209877,-0.74996641975309,0.0031012345679011,0.0031802469135801)
+S:SetArea(-1.4576971634815,-1.4576968123155,-0.0014340916323731,-0.0014337404663923)
 ]]
 
 local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup)

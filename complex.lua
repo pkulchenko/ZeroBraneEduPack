@@ -381,9 +381,8 @@ function metaComplex:getPolar()
 end
 
 function metaComplex:getRoots(nNum)
-  local N = tonumber(nNum)
-  if(N) then
-    local N, tRt  = math.floor(N), {}
+  local N = math.floor(tonumber(nNum) or 0)
+  if(N > 0) then local tRt = {}
     local Pw, As  = (1 / N), ((2*math.pi) / N)
     local Rd, CRe = self:getNorm()   ^ Pw
     local Th, CIm = self:getAngRad() * Pw
@@ -393,7 +392,7 @@ function metaComplex:getRoots(nNum)
       tRt[k] = complex.New(CRe,CIm)
       Th = Th + As
     end; return tRt
-  end; return nil
+  end; return logStatus("getRoots: Invalid <"..N..">")
 end
 
 function metaComplex:getFormat(...)
