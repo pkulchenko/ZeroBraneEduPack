@@ -161,4 +161,34 @@ function colormap.getColorRegion(iDepth, maxDepth, iRegions)
   end
 end
 
+function stringExplode(sStr,sDel)
+  local aLst, Ch, Idx, ID, dL = {""}, "", 1, 1, (sDel:len()-1)
+  while(Ch) do
+    Ch = sStr:sub(Idx,Idx+dL)
+    if    (Ch ==  "" ) then return aLst
+    elseif(Ch == sDel) then ID = ID + 1; aLst[ID], Idx = "", (Idx + dL)
+    else aLst[ID] = aLst[ID]..Ch:sub(1,1) end; Idx = Idx + 1
+  end; return aLst
+end
+
+function colormap.Convert(aIn, ...)
+  local tArg, tyIn, cR, cG, cB = {...}, type(aIn)
+  if(tyIn == "boolean") then
+    cR = (aIn     and clClamp[2] or clClamp[1])
+    cG = (tArg[1] and clClamp[2] or clClamp[1])
+    cB = (tArg[2] and clClamp[2] or clClamp[1]); return cR, cG, cB
+  elseif(tyIn == "string") then
+    local sDe = (tArg[1] and tostring(tArg[1]) or ",")
+    local tCol = stringExplode(aIn,sDe)
+    cR = colormap.getClamp(tostring(tCol[1]) or clClamp[1])
+    cG = colormap.getClamp(tostring(tCol[2]) or clClamp[1])
+    cB = colormap.getClamp(tostring(tCol[3]) or clClamp[1]); return cR, cG, cB
+  elseif(tyIn == "number") then
+    cR = colormap.getClamp(tonumber(aIn    ) or clClamp[1])
+    cG = colormap.getClamp(tonumber(tArg[1]) or clClamp[1])
+    cB = colormap.getClamp(tonumber(tArg[2]) or clClamp[1]); return cR, cG, cB
+  end
+  return logStatus("colormap.Convert: Type <"..tyIn.."> not supported",nil)
+end
+
 return colormap

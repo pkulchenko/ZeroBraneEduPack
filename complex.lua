@@ -602,13 +602,13 @@ end
 
 function complex.Convert(vIn, ...)
   if(getmetatable(vIn) == metaComplex) then return complex.New(vIn) end
-  local tIn, tArg = type(vIn), {...}
-  if(tIn =="boolean") then
+  local tyIn, tArg = type(vIn), {...}
+  if(tyIn =="boolean") then
     return complex.New(vIn and 1 or 0,tArg[1] and 1 or 0)
-  elseif(tIn ==  "table") then return tableToComplex(vIn, tArg[1], tArg[2])
-  elseif(tIn == "number") then return complex.New(vIn,tArg[1])
-  elseif(tIn ==    "nil") then return complex.New(0,0)
-  elseif(tIn == "string") then
+  elseif(tyIn ==  "table") then return tableToComplex(vIn, tArg[1], tArg[2])
+  elseif(tyIn == "number") then return complex.New(vIn,tArg[1])
+  elseif(tyIn ==    "nil") then return complex.New(0,0)
+  elseif(tyIn == "string") then
     local Str, S, E = stringValidComplex(vIn:gsub("*",""))
     if(not (Str and S and E)) then
       return logStatus("complex.Convert: Failed to validate <"..tostring(vIn)..">",nil) end
@@ -618,7 +618,7 @@ function complex.Convert(vIn, ...)
     if(I and (I > 0)) then return stringToComplexI(Str, S, E, I)
     else return stringToComplex(Str, S, E, tArg[1]) end
   end
-  return logStatus("complex.Convert: Type <"..tIn.."> not supported",nil)
+  return logStatus("complex.Convert: Type <"..tyIn.."> not supported",nil)
 end
 
 return complex
