@@ -148,6 +148,14 @@ function complex.New(nRe,nIm)
   return self
 end
 
+function metaComplex:Unit()
+  self:Rsz(1/self:getNorm()); return self
+end
+
+function metaComplex:getUnit()
+  return complex.New(self):Unit()
+end
+
 function metaComplex:getAbs(R, I)
   return complex.New(self):Abs(R, I)
 end
@@ -515,6 +523,14 @@ function complex.Intersect(cO1, cD1, cO2, cD2)
     return false end; local dO = complex.New(cO2):Sub(cO1)
   local nT, nU = (dO:getDet(cD2) / dD), (dO:getDet(cD1) / dD)
   return true, nT, nU, dO:Set(cO1):Add(cD1:getRsz(nT))
+end
+
+function complex.Reflect(cO, cD, cV1, cV2)
+  local uD = cD:getUnit()
+  local cN = complex.Project(cO, cV1, cV2):Neg():Add(cO):Unit()
+  local nM = (2 * uD:getDot(cN))
+  local cR = complex.New(uD):Sub(cN:getNew():Mul(nM)):Unit()
+  return cN, cR
 end
 
 function complex.Euler(vRm, vPh)
