@@ -510,12 +510,11 @@ function complex.Project(cP, cS, cE)
   return complex.New(x3-ks*dy, y3+ks*dx)
 end
 
-function complex.Intersect(cS1, cE1, cS2, cE2)
-  local D1, D2 = complex.New(cE1):Sub(cS1), complex.New(cE2):Sub(cS2)
-  local dD = D1:getDet(D2); if(dD == 0) then
-    return false end; local dO = complex.New(cS2):Sub(cS1)
-  local nT, nU = (dO:getDet(D2) / dD), (dO:getDet(D1) / dD)
-  return true, nT, nU, D1, D2, dO:Set(cS1):Add(D1:getRsz(nT))
+function complex.Intersect(cO1, cD1, cO2, cD2)
+  local dD = cD1:getDet(cD2); if(dD == 0) then
+    return false end; local dO = complex.New(cO2):Sub(cO1)
+  local nT, nU = (dO:getDet(cD2) / dD), (dO:getDet(cD1) / dD)
+  return true, nT, nU, dO:Set(cO1):Add(cD1:getRsz(nT))
 end
 
 function complex.Euler(vRm, vPh)
