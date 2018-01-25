@@ -2,9 +2,22 @@ local math      = math
 local colormap  = {}
 local clMapping = {}
 local clClamp   = {0, 255}
+local clHash    = {
+  R = {1, "r", "R", "red"  , "Red"  , "RED"  },
+  G = {2, "g", "G", "green", "Green", "GREEN"},
+  B = {3, "b", "B", "blue" , "Blue" , "BLUE" }
+}
 
 local function logStatus(anyMsg, ...)
   io.write(tostring(anyMsg).."\n"); return ...
+end
+
+local function selectKeyValue(tTab, tKeys, aKey)
+  if(aKey) then return tTab[aKey] end
+  local out; for ID = 1, #tKeys do
+    local key = tKeys[ID]; out = (tTab[key] or out)
+    if(out) then return out end
+  end; return nil
 end
 
 --[[ https://en.wikipedia.org/wiki/HSL_and_HSV ]]
@@ -171,6 +184,14 @@ function stringExplode(sStr,sDel)
   end; return aLst
 end
 
+local function tableToColorRGB(tTab, kR, kG, kB)
+  if(not tTab) then return nil end
+  local cR = colormap.getClamp(tonumber(selectKeyValue(tTab, clHash.R, kR)) or clClamp[1])
+  local cG = colormap.getClamp(tonumber(selectKeyValue(tTab, clHash.G, kG)) or clClamp[1])
+  local cB = colormap.getClamp(tonumber(selectKeyValue(tTab, clHash.B, kB)) or clClamp[1])
+  return cR, cG, cB
+end
+
 function colormap.Convert(aIn, ...)
   local tArg, tyIn, cR, cG, cB = {...}, type(aIn)
   if(tyIn == "boolean") then
@@ -180,14 +201,14 @@ function colormap.Convert(aIn, ...)
   elseif(tyIn == "string") then
     local sDe = (tArg[1] and tostring(tArg[1]) or ",")
     local tCol = stringExplode(aIn,sDe)
-    cR = colormap.getClamp(tostring(tCol[1]) or clClamp[1])
-    cG = colormap.getClamp(tostring(tCol[2]) or clClamp[1])
-    cB = colormap.getClamp(tostring(tCol[3]) or clClamp[1]); return cR, cG, cB
+    cR = colormap.getClamp(tonumber(tCol[1]) or clClamp[1])
+    cG = colormap.getClamp(tonumber(tCol[2]) or clClamp[1])
+    cB = colormap.getClamp(tonumber(tCol[3]) or clClamp[1]); return cR, cG, cB
   elseif(tyIn == "number") then
     cR = colormap.getClamp(tonumber(aIn    ) or clClamp[1])
     cG = colormap.getClamp(tonumber(tArg[1]) or clClamp[1])
     cB = colormap.getClamp(tonumber(tArg[2]) or clClamp[1]); return cR, cG, cB
-  end
+  elseif(tyIn == "table") then return tableToColorRGB(aIn, tArg[1], tArg[2], tArg[3]) end
   return logStatus("colormap.Convert: Type <"..tyIn.."> not supported",nil)
 end
 
