@@ -525,12 +525,16 @@ function complex.Intersect(cO1, cD1, cO2, cD2)
   return true, nT, nU, dO:Set(cO1):Add(cD1:getRsz(nT))
 end
 
-function complex.Reflect(cO, cD, cV1, cV2)
+function complex.Reflect(cO, cD, cS, cE)
   local uD = cD:getUnit()
-  local cN = complex.Project(cO, cV1, cV2):Neg():Add(cO):Unit()
+  local cN = complex.Project(cO, cS, cE):Neg():Add(cO):Unit()
   local nM = (2 * uD:getDot(cN))
   local cR = complex.New(uD):Sub(cN:getNew():Mul(nM)):Unit()
   return cN, cR
+end
+
+function complex.Lay(cP, cS, cE)
+  return (cS - cP):getDet(cE - cP)
 end
 
 function complex.Euler(vRm, vPh)

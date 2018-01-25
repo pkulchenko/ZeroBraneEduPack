@@ -55,8 +55,8 @@ local function drawComplexLine(S, E, Ix, Iy, Cl)
   pncl(Cl); line(x1, y1, x2, y2)
 end
 
-logStatus("Create a primary ray to intersect using the left mouse button (BLUE)")
-logStatus("Create a secondary ray to intersect using the right mouse button (RED)")
+logStatus("Create a mirror line to reflect off using the right mouse button (RED)")
+logStatus("Create a ray to reflect of the mirror using the left mouse button (BLUE)")
 logStatus("By clicking on the chart the point selected will be drawn")
 logStatus("On the coordinate system the OX and OY axises are drawn in black")
 logStatus("The distance between every grey line on X is: "..tostring(dX))
