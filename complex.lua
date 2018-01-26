@@ -20,6 +20,8 @@ metaComplex.__valns = "X"
 metaComplex.__ssyms = {"i", "I", "j", "J"}
 metaComplex.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
 metaComplex.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
+metaComplex.__getpi = math.pi
+metaComplex.__radeg = (180 / metaComplex.__getpi)
 
 local function signValue(anyVal)
   local nVal = (tonumber(anyVal) or 0)
@@ -343,7 +345,7 @@ function metaComplex:getNorm() return math.sqrt(self:getNorm2()) end
 function metaComplex:getAngRad()
   local R, I = self:getParts(); return math.atan2(I, R) end
 
-function metaComplex:getAngDeg() return ((self:getAngRad() * 180) / math.pi) end
+function metaComplex:getAngDeg() return (self:getAngRad() * metaComplex.__radeg) end
 
 function metaComplex:getNew(nR, nI)
   local N = complex.New(self:getParts())
@@ -388,10 +390,24 @@ function metaComplex:getPolar()
   return self:getNorm(), self:getAngRad()
 end
 
+function metaComplex:RotRad(nA)
+  local nR, nP = self:getPolar(); nP = (nP + (tonumber(nA) or 0))
+  return self:setReal(math.cos(nP)):setImag(math.sin(nP)):Rsz(nR)
+end
+
+function metaComplex:getRotRad(nA)
+  return complex.New(self):RotRad(nA)
+end
+
+function metaComplex:setAngRad(nA)
+  local nR, nP = self:getNorm(), (tonumber(nA) or 0)
+  return self:setReal(math.cos(nP)):setImag(math.sin(nP)):Rsz(nR)
+end
+
 function metaComplex:getRoots(nNum)
   local N = math.floor(tonumber(nNum) or 0)
   if(N > 0) then local tRt = {}
-    local Pw, As  = (1 / N), ((2*math.pi) / N)
+    local Pw, As  = (1 / N), ((2*metaComplex.__getpi) / N)
     local Rd, CRe = self:getNorm()   ^ Pw
     local Th, CIm = self:getAngRad() * Pw
     for k = 1, N do
@@ -544,12 +560,24 @@ end
 
 function complex.ToDegree(nRad)
   if(math.deg) then return math.deg(nRad) end
-  return ((tonumber(nRad) or 0) * 180) / math.pi
+  return (tonumber(nRad) or 0) * metaComplex.__radeg
 end
 
 function complex.ToRadian(nDeg)
   if(math.rad) then return math.rad(nDeg) end
-  return ((tonumber(nDeg) or 0) * math.pi) / 180
+  return (tonumber(nDeg) or 0) / metaComplex.__radeg
+end
+
+function metaComplex:RotDeg(nA)
+  return self:RotRad(complex.ToRadian(tonumber(nA) or 0))
+end
+
+function metaComplex:getRotDeg(nA)
+  return complex.New(self):RotDeg(nA)
+end
+
+function metaComplex:setAngDeg(nA)
+  return self:setAngRad(complex.ToRadian(tonumber(nA) or 0))
 end
 
 local function stringValidComplex(sStr)

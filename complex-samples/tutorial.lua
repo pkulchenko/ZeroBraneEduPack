@@ -65,6 +65,11 @@ logStatus("\nConverting to polar coordinates and back "..tostring(a))
 local r, p = a:getPolar(); print("1: "..r.."e^"..p.."i")
 complex.Euler(r, p):Print("2: ","\n")
 
+logStatus("\nAngle handling radian to degree and back "..tostring(a))
+local r, d = a:getAngRad(), a:getAngDeg()
+logStatus("1: Angle in radian "..r.." is "..complex.ToDegree(r).." in degrees")
+logStatus("2: Angle in degree "..d.." is "..complex.ToRadian(d).." in radians")
+
 logStatus("\nClass methods "..tostring(a))
 local t = complex.New(a)
 
