@@ -22,6 +22,7 @@ metaComplex.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
 metaComplex.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
 metaComplex.__getpi = math.pi
 metaComplex.__radeg = (180 / metaComplex.__getpi)
+metaComplex.__cdraw = {}
 
 local function signValue(anyVal)
   local nVal = (tonumber(anyVal) or 0)
@@ -148,6 +149,11 @@ function complex.New(nRe,nIm)
   end
 
   return self
+end
+
+function metaComplex:Draw(aK,...)
+  if(not aK) then return self end
+  metaComplex.__cdraw[aK](self,...); return self
 end
 
 function metaComplex:Unit()
@@ -566,6 +572,13 @@ end
 function complex.ToRadian(nDeg)
   if(math.rad) then return math.rad(nDeg) end
   return (tonumber(nDeg) or 0) / metaComplex.__radeg
+end
+
+function complex.SetDraw(aK, fD)
+  if(not aK) then return logStatus("complex.SetDraw: No key", false) end
+  if(type(fD) == "function") then
+    metaComplex.__cdraw[aK] = fD; return true end
+  return logStatus("complex.SetDraw: Non-function", false)
 end
 
 function metaComplex:RotDeg(nA)
