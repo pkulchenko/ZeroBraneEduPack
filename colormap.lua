@@ -41,6 +41,8 @@ function colormap.getColorYellowRGB() return 255,255,  0 end
 function colormap.getColorCyanRGB  () return 0  ,255,255 end
 function colormap.getColorMagenRGB () return 255,  0,255 end
 function colormap.getColorWhiteRGB () return 255,255,255 end
+function colormap.getColorPadRGB(pad) return pad,pad,pad end
+function colormap.getColorNewRGB(r,g,b) return r, g, b end
 
 function colormap.getColorRotateLeft(r, g, b) return g, b, r end
 function colormap.getColorRotateRigh(r, g, b) return b, r, g end

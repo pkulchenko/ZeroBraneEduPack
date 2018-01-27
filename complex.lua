@@ -153,7 +153,11 @@ end
 
 function metaComplex:Draw(aK,...)
   if(not aK) then return self end
-  metaComplex.__cdraw[aK](self,...); return self
+  local fDr = metaComplex.__cdraw[aK]
+  if(not fDr) then return self end
+  local suc, err = pcall(fDr,self,...); if(not suc) then
+    return logStatus("complex.Draw("..tostring(aK).."): "..tostring(err), self) end
+  return self
 end
 
 function metaComplex:Unit()
@@ -574,11 +578,11 @@ function complex.ToRadian(nDeg)
   return (tonumber(nDeg) or 0) / metaComplex.__radeg
 end
 
-function complex.SetDraw(aK, fD)
-  if(not aK) then return logStatus("complex.SetDraw: No key", false) end
+function complex.Draw(aK, fD)
+  if(not aK) then return logStatus("complex.Draw: No key", false) end
   if(type(fD) == "function") then
     metaComplex.__cdraw[aK] = fD; return true end
-  return logStatus("complex.SetDraw: Non-function", false)
+  return logStatus("complex.Draw: Non-function", false)
 end
 
 function metaComplex:RotDeg(nA)

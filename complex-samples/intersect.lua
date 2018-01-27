@@ -24,36 +24,39 @@ local clBlk = colr(col.getColorBlackRGB())
 local clGry = colr(greyLevel,greyLevel,greyLevel)
 local clMgn = colr(col.getColorMagenRGB())
 
-local function drawCoordinateSystem(w, h, ix, iy, dx, dy, mx, my, cc, cu)
+local function drawCoordinateSystem(w, h, dx, dy, mx, my)
   local xe, ye = 0, 0
   for x = 0, mx, dx do
     local xp = intX:Convert( x):getValue()
     local xm = intX:Convert(-x):getValue()
     if(x == 0) then xe = xp
-    else  pncl(cu); line(xp, 0, xp, h); line(xm, 0, xm, h) end
+    else  pncl(clGry); line(xp, 0, xp, h); line(xm, 0, xm, h) end
   end
   for y = 0, my, dx do
     local yp = intY:Convert( y):getValue()
     local ym = intY:Convert(-y):getValue()
     if(y == 0) then ye = yp
-    else  pncl(cu); line(0, yp, w, yp); line(0, ym, w, ym) end
-  end; pncl(cc)
+    else  pncl(clGry); line(0, yp, w, yp); line(0, ym, w, ym) end
+  end; pncl(clBlk)
   line(xe, 0, xe, h); line(0, ye, w, ye)
 end
 
-local function drawComplex(C, Ix, Iy, Cl)
-  local x = Ix:Convert(C:getReal()):getValue()
-  local y = Iy:Convert(C:getImag()):getValue()
+local function drawComplex(C, Cl)
+  local x = intX:Convert(C:getReal()):getValue()
+  local y = intY:Convert(C:getImag()):getValue()
   pncl(Cl); rect(x-xySize,y-xySize,2*xySize+1,2*xySize+1)
 end
 
-local function drawComplexLine(S, E, Ix, Iy, Cl)
-  local x1 = Ix:Convert(S:getReal()):getValue()
-  local y1 = Iy:Convert(S:getImag()):getValue()
-  local x2 = Ix:Convert(E:getReal()):getValue()
-  local y2 = Iy:Convert(E:getImag()):getValue()
+local function drawComplexLine(S, E, Cl)
+  local x1 = intX:Convert(S:getReal()):getValue()
+  local y1 = intY:Convert(S:getImag()):getValue()
+  local x2 = intX:Convert(E:getReal()):getValue()
+  local y2 = intY:Convert(E:getImag()):getValue()
   pncl(Cl); line(x1, y1, x2, y2)
 end
+
+cmp.Draw("xy", drawComplex)
+cmp.Draw("ab", drawComplexLine)
 
 logStatus("Create a primary ray to intersect using the left mouse button (BLUE)")
 logStatus("Create a secondary ray to intersect using the right mouse button (RED)")
@@ -68,7 +71,7 @@ size(W,H)
 zero(0, 0)
 updt(false) -- disable auto updates
 
-drawCoordinateSystem(W, H, intX, intY, dX, dY, maxX, maxY, clBlk, clGry)
+drawCoordinateSystem(W, H, dX, dY, maxX, maxY)
 
 cRay1, cRay2, drw = {}, {}, true
 
@@ -81,21 +84,18 @@ while true do
     lx = intX:Convert(lx,true):getValue() -- It helps by converting x,y from positive integers to the interval above
     ly = intY:Convert(ly,true):getValue()
     local C = cmp.New(lx, ly)
-    cRay1[#cRay1+1] = C
-    drawComplex(C, intX, intY, clOrg)
-    if(#cRay1 == 2) then drawComplexLine(cRay1[1], cRay1[2], intX, intY, clOrg) end
+    cRay1[#cRay1+1] = C; C:Draw("xy", clOrg)
+    if(#cRay1 == 2) then cRay1[1]:Draw("ab", cRay1[2], clOrg) end
   elseif(rx and ry and #cRay2 < 2) then -- Reverse-convert x, y position to a complex number
     rx = intX:Convert(rx,true):getValue()
     ry = intY:Convert(ry,true):getValue()
-    local C = cmp.New(rx, ry)
-    drawComplex(C, intX, intY, clRel); cRay2[#cRay2+1] = C
-    if(#cRay2 == 2) then drawComplexLine(cRay2[1], cRay2[2], intX, intY, clRel) end
+    local C = cmp.New(rx, ry); C:Draw("xy", clRel); cRay2[#cRay2+1] = C
+    if(#cRay2 == 2) then cRay2[1]:Draw("ab", cRay2[2], clRel) end
   end
   if(drw and #cRay1 == 2 and #cRay2 == 2) then
     local cD1, cD2 = (cRay1[2] - cRay1[1]), (cRay2[2] - cRay2[1])
     local suc, nT, nU, XX = cmp.Intersect(cRay1[1], cD1, cRay2[1], cD2)
-    if(suc) then
-      drawComplex(XX, intX, intY, clMgn)
+    if(suc) then XX:Draw("xy", clMgn)
       logStatus("The complex intersection is "..tostring(XX))
     end; drw = false
   end
@@ -103,7 +103,7 @@ while true do
     wipe(); drw = true
     cRay1[1], cRay1[2] = nil, nil
     cRay2[1], cRay2[2] = nil, nil; collectgarbage()
-    drawCoordinateSystem(W, H, intX, intY, dX, dY, maxX, maxY, clBlk, clGry)
+    drawCoordinateSystem(W, H, dX, dY, maxX, maxY)
   end
   updt()
 end

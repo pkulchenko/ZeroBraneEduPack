@@ -192,9 +192,10 @@ for id = 1, #tTrig do
   end
 end; logStatus("")
 
-local W, H = 800, 800 -- window size
-
-local R = 5 -- Roots base
+local W, H   = 800, 800 -- Window size
+local dX, dY = 1, 1     -- Coordiante system step
+local gAlp   = 200      -- Coordinate system grey alpha level
+local R = 5             -- Roots base
 
 open("Graphical complex roots for "..tostring(a))
 size(W, H)
@@ -205,32 +206,66 @@ updt(false) -- disable auto updates
 local re, im = a:getParts()
 local intX = chartmap.New("interval","WinX", -re/2, re/2, 0, W)
 local intY = chartmap.New("interval","WinY", -im/2, im/2, H, 0)
-local x0, y0 = intX:Convert(0):getValue(), intY:Convert(0):getValue()
-
--- Draw the coordinate system
-line(0, y0, W, y0); line(x0, 0, x0, H)
+local _x0, _y0 = intX:Convert(0):getValue(), intY:Convert(0):getValue()
 
 -- Allocate colors
 local clGrn = colr(colormap.getColorGreenRGB())
 local clRed = colr(colormap.getColorRedRGB())
 local clBlk = colr(colormap.getColorBlackRGB())
+local clGry = colr(colormap.getColorPadRGB(gAlp))
 
--- Custom function for drawing a number on the complex plane
-local function drawComplex(C, x0, y0, Ix, Iy)
+-- This is used to properly draw the coordiante system
+local function drawCoordinateSystem(w, h, dx, dy, mx, my)
+  local xe, ye = 0, 0, 200
+  for x = 0, mx, dx do
+    local xp = intX:Convert( x):getValue()
+    local xm = intX:Convert(-x):getValue()
+    if(x == 0) then xe = xp
+    else  pncl(clGry); line(xp, 0, xp, h); line(xm, 0, xm, h) end
+  end
+  for y = 0, my, dx do
+    local yp = intY:Convert( y):getValue()
+    local ym = intY:Convert(-y):getValue()
+    if(y == 0) then ye = yp
+    else  pncl(clGry); line(0, yp, w, yp); line(0, ym, w, ym) end
+  end; pncl(clBlk)
+  line(xe, 0, xe, h); line(0, ye, w, ye)
+end
+
+--[[
+  Custom function for drawing a number on the complex plane
+  The the first argument must always be the complex mumber
+  tat you are gonna draw a.k.a. SELF. The other parameters are
+  VARARG, which means you can use a bunch of then in the stack
+  In this example all athe arguments are local for this file
+  so there is no point of extending the vararg on the stack
+  Prototype: drawFunction(SELF, ...)
+]]
+local function drawComplexFunction(C)
   local r = C:getRound(0.001)
-  local x = Ix:Convert(r:getReal()):getValue()
-  local y = Iy:Convert(r:getImag()):getValue()
-  pncl(clGrn); line(x0, y0, x, y)
+  local x = intX:Convert(r:getReal()):getValue()
+  local y = intY:Convert(r:getImag()):getValue()
+  pncl(clGrn); line(_x0, _y0, x, y)
   pncl(clRed); rect(x-2,y-2,5,5)
   pncl(clBlk); text(tostring(r),r:getAngDeg()+90,x,y)
 end
+
+--[[
+  It is easy for the complex numbers to be drawn using a attached drawing method
+  internally as every object keeps its local data and you can draw stuff using less arguments
+  Prototype: complex.Draw(KEY, FUNCTION)
+]]
+complex.Draw("This your draw key !" ,drawComplexFunction) -- This is how you register a drawing method
+
+drawCoordinateSystem(W, H, dX, dY, re/2, im/2)
 
 logStatus("Complex roots returns a table of complex numbers being the roots of the base number "..tostring(a))
 local r = a:getRoots(R)
 if(r) then
   for id = 1, #r do
     logStatus(r[id].."^"..R.." = "..(r[id]^R))
-    drawComplex(r[id], x0, y0, intX, intY)
+    r[id]:Draw("This your draw key !"); updt()
+    wait(0.3)
   end
 end
 
