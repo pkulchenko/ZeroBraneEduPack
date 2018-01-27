@@ -161,7 +161,7 @@ function metaComplex:Draw(aK,...)
 end
 
 function metaComplex:Unit()
-  self:Rsz(1/self:getNorm()); return self
+  return self:Rsz(1/self:getNorm())
 end
 
 function metaComplex:getUnit()
@@ -178,7 +178,7 @@ function metaComplex:getDot(cV)
   return (sR*vR + sI*vI)
 end
 
-function metaComplex:getAngVec(cV)
+function metaComplex:getAngRadVec(cV)
   return (self:getAngRad() - cV:getAngRad())
 end
 
@@ -354,8 +354,6 @@ function metaComplex:getNorm() return math.sqrt(self:getNorm2()) end
 
 function metaComplex:getAngRad()
   local R, I = self:getParts(); return math.atan2(I, R) end
-
-function metaComplex:getAngDeg() return (self:getAngRad() * metaComplex.__radeg) end
 
 function metaComplex:getNew(nR, nI)
   local N = complex.New(self:getParts())
@@ -578,12 +576,7 @@ function complex.ToRadian(nDeg)
   return (tonumber(nDeg) or 0) / metaComplex.__radeg
 end
 
-function complex.Draw(aK, fD)
-  if(not aK) then return logStatus("complex.Draw: No key", false) end
-  if(type(fD) == "function") then
-    metaComplex.__cdraw[aK] = fD; return true end
-  return logStatus("complex.Draw: Non-function", false)
-end
+function metaComplex:getAngDeg() return complex.ToDegree(self:getAngRad()) end
 
 function metaComplex:RotDeg(nA)
   return self:RotRad(complex.ToRadian(tonumber(nA) or 0))
@@ -595,6 +588,17 @@ end
 
 function metaComplex:setAngDeg(nA)
   return self:setAngRad(complex.ToRadian(tonumber(nA) or 0))
+end
+
+function metaComplex:getAngDegVec(cV)
+  return complex.ToDegree(self:getAngRadVec(cV))
+end
+
+function complex.Draw(aK, fD)
+  if(not aK) then return logStatus("complex.Draw: Miss-key", false) end
+  if(type(fD) == "function") then
+    metaComplex.__cdraw[aK] = fD; return true end
+  return logStatus("complex.Draw: Non-function", false)
 end
 
 local function stringValidComplex(sStr)
@@ -610,7 +614,7 @@ local function stringValidComplex(sStr)
     if(FS and FE and FS > 0 and FE > 0) then
       if(FS == FE) then S = S + 1; E = E - 1
       else return logStatus("stringValidComplex: Bracket mismatch #"..CS..CE.."#",nil) end
-    elseif(not (FS and FE)) then break end;
+    elseif(not (FS and FE)) then break end
   end; return Str, S, E
 end
 
@@ -626,11 +630,10 @@ end
 local function stringToComplexI(sStr, nS, nE, nI)
   if(nI == 0) then
     return logStatus("stringToComplexI: Complex not in plain format [a+ib] or [a+bi]",nil) end
-  local M = nI - 1 -- There will be no delimiter symbols here
-  local C = sStr:sub(M,M)
+  local M = (nI - 1); local C = sStr:sub(M,M) -- There will be no delimiter symbols here
   if(nI == nE) then  -- (-0.7-2.9i) Skip symbols until +/- is reached
     while(C ~= "+" and C ~= "-" and M > 0) do
-      M = M - 1; C = sStr:sub(M,M) end;
+      M = M - 1; C = sStr:sub(M,M) end
     return complex.New(tonumber(sStr:sub(nS,M-1)) or metaComplex.__valre,
                        tonumber(sStr:sub(M,nE-1)) or metaComplex.__valim)
   else -- (-0.7-i2.9)

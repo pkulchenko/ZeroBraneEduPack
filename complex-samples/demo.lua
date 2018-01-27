@@ -43,7 +43,7 @@ for ID = 1, #traJ do
   wait(0.05)
   local cPos = traJ[ID]
   if(traJ[ID+1]) then
-    aN = cmp.ToDegree((traJ[ID+1] - traJ[ID]):getAngVec(oX))-90 end
+    aN = (traJ[ID+1] - traJ[ID]):getAngDegVec(oX)-90 end
   local Re, Im = cPos:Round(0.001):getParts()
   trAj:putValue(Re, Im):Draw(clGrn)
   if(drwText) then
