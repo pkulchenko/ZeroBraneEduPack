@@ -563,7 +563,7 @@ end
 
 function complex.OnSegment(cP, cS, cE, nMr)
   local nM = math.abs(tonumber(nMr) or 0)
-  if(math.abs(complex.Lay(pO, pS, pE)) < nM) then
+  if(math.abs(complex.Lay(cP, cS, cE)) < nM) then
     local dV = (cE - cS)
     local dS = (cP - cS):getDot(dV)
     local dE = (cP - cE):getDot(dV)

@@ -29,8 +29,8 @@ function common.GetLineFile(pF)
   if(not pF) then return logStatus("common.getLine: No file", ""), true end
   local sCh, sLn = "X", "" -- Use a value to start cycle with
   while(sCh) do sCh = pF:read(1); if(not sCh) then break end
-    if(sCh == "\n") then return common.stringTrim(sLn), false else sLn = sLn..sCh end
-  end; return common.stringTrim(sLn), true -- EOF has been reached. Return the last data
+    if(sCh == "\n") then return common.StringTrim(sLn), false else sLn = sLn..sCh end
+  end; return common.StringTrim(sLn), true -- EOF has been reached. Return the last data
 end
 
 function common.GetSign(anyVal)
