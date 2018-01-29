@@ -561,6 +561,16 @@ function complex.Lay(cP, cS, cE)
   return (cS - cP):getDet(cE - cP)
 end
 
+function complex.OnSegment(cP, cS, cE, nMr)
+  local nM = math.abs(tonumber(nMr) or 0)
+  if(math.abs(complex.Lay(pO, pS, pE)) < nM) then
+    local dV = (cE - cS)
+    local dS = (cP - cS):getDot(dV)
+    local dE = (cP - cE):getDot(dV)
+    if(dS * dE > 0) then return false end; return true
+  end; return false
+end
+
 function complex.Euler(vRm, vPh)
   local nRm, nPh = (tonumber(vRm) or 0), (tonumber(vPh) or 0)
   return complex.New(math.cos(nPh),math.sin(nPh)):Rsz(nRm)

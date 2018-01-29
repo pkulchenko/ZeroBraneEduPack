@@ -60,4 +60,9 @@ function common.getBool(anyVal)
   return true
 end
 
+function common.ifGet(bC, vT, vF)
+  if(bC) then return vT end
+  return vF
+end
+
 return common
