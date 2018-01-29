@@ -1,17 +1,17 @@
 local common = {}
 
-function common.logStatus(anyMsg, ...)
+function common.LogStatus(anyMsg, ...)
   io.write(tostring(anyMsg).."\n"); return ...
 end
 
-function common.stringImplode(tLst,sDel)
+function common.StringImplode(tLst,sDel)
   local ID, sStr, sDel = 1, "", tostring(sDel or "")
   while(tLst and tLst[ID]) do sStr = sStr..tLst[ID]; ID = ID + 1
     if(tLst[ID] and sDel ~= "") then sStr = sStr..sDel end
   end; return sStr
 end
 
-function common.stringExplode(sStr,sDel)
+function common.StringExplode(sStr,sDel)
   local tLst, sCh, iDx, ID, dL = {""}, "", 1, 1, (sDel:len()-1)
   while(sCh) do sCh = sStr:sub(iDx,iDx+dL)
     if    (sCh ==  "" ) then return tLst
@@ -20,12 +20,12 @@ function common.stringExplode(sStr,sDel)
   end; return tLst
 end
 
-function common.stringTrim(sStr, sCh)
+function common.StringTrim(sStr, sCh)
   local sCh = tostring(sCh or "%s")
 	return sStr:match("^"..sCh.."*(.-)"..sCh.."*$" ) or sStr
 end
 
-function common.getLine(pF)
+function common.GetLineFile(pF)
   if(not pF) then return logStatus("common.getLine: No file", ""), true end
   local sCh, sLn = "X", "" -- Use a value to start cycle with
   while(sCh) do sCh = pF:read(1); if(not sCh) then break end
@@ -33,12 +33,12 @@ function common.getLine(pF)
   end; return common.stringTrim(sLn), true -- EOF has been reached. Return the last data
 end
 
-function common.getSign(anyVal)
+function common.GetSign(anyVal)
   local nVal = (tonumber(anyVal) or 0)
   return ((nVal > 0 and 1) or (nVal < 0 and -1) or 0)
 end
 
-function common.getType(o)
+function common.GetType(o)
   local mt = getmetatable(o)
   if(mt and mt.__type) then
     return tostring(mt.__type)
@@ -54,13 +54,13 @@ local __tobool = {
 }
 
 -- http://lua-users.org/lists/lua-l/2005-11/msg00207.html
-function common.getBool(anyVal)
+function common.ToBool(anyVal)
   if(not anyVal) then return false end
   if(__tobool[anyVal]) then return false end
   return true
 end
 
-function common.ifGet(bC, vT, vF)
+function common.IfGet(bC, vT, vF)
   if(bC) then return vT end
   return vF
 end
