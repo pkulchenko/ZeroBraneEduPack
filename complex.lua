@@ -90,9 +90,9 @@ function complex.New(nRe,nIm)
     Re, Im = (Re - R), (Im - I); return self
   end
 
-  function self:Rsz(vNum)
-    local nNum = tonumber(vNum)
-    if(nNum) then Re, Im = (Re * nNum), (Im * nNum) end; return self
+  function self:Rsz(vN)
+    local nN = tonumber(vN)
+    if(nN) then Re, Im = (Re * nN), (Im * nN) end; return self
   end
 
   function self:Abs(R, I)
@@ -212,7 +212,7 @@ function metaComplex:Orth()
 end
 
 function metaComplex:getOrth()
-  return complex.New(self):Orthogonal()
+  return complex.New(self):Orth()
 end
 
 function metaComplex:getSet(R, I)
