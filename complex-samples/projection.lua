@@ -89,9 +89,9 @@ while true do
   elseif(drw and rx and ry) then -- Reverse the interval and convert x, y image position to a complex
     rx = intX:Convert(rx,true):getValue() 
     ry = intY:Convert(ry,true):getValue(); cPnt:Set(rx, ry)
-    local XX = cmp.Project(cPnt, cRay1[1], cRay1[2])
+    local XX = cPnt:getProj(cRay1[1], cRay1[2])
     XX:Draw("xy", clMgn); cPnt:Draw("xy", clRel); cPnt:Draw("ab", XX, clMgn)
-    local bSegm = cmp.OnSegment(XX, cRay1[1], cRay1[2], 1e-10)
+    local bSegm = XX:isAmong(cRay1[1], cRay1[2], 1e-10)
     logStatus("The complex projection "..tostring(XX).." is "..(bSegm and "ON" or "OFF").." the line"); drw = false
   end
   if(key == 27) then -- The user hits esc

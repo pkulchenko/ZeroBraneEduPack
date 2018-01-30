@@ -206,6 +206,15 @@ function metaComplex:getCross(R, I)
   return self:getDet(R, I)
 end
 
+function metaComplex:Orth()
+  local R, I = self:getParts()
+  return self:setReal(I):setImag(-R)
+end
+
+function metaComplex:getOrth()
+  return complex.New(self):Orthogonal()
+end
+
 function metaComplex:getSet(R, I)
   return complex.New(self):Set(R, I)
 end
@@ -380,8 +389,7 @@ function metaComplex:getNegRe()
 function metaComplex:getNegIm()
   local R, I = self:getParts(); return complex.New(R,-I) end
 
-function metaComplex:getConj()
-  local R, I = self:getParts(); return complex.New(R,-I) end
+function metaComplex:getConj() return self:getNegIm() end
 
 function metaComplex:Print(sS,sE)
   io.write(tostring(sS or "").."{"..tostring(self:getReal())..
@@ -430,10 +438,10 @@ function metaComplex:getProj(cS, cE)
 end
 
 function metaComplex:getLay(cS, cE)
-  return cS:getSub(self):getCross(cE:getSub(self)
+  return cS:getSub(self):getCross(cE:getSub(self))
 end
 
-function metaComplex:isChunk(cS, cE, nMr)
+function metaComplex:isAmong(cS, cE, nMr)
   local nM = math.abs(tonumber(nMr) or 0)
   if(math.abs(self:getLay(cS, cE)) < nM) then
     local dV = cE:getSub(cS)
@@ -565,17 +573,15 @@ metaComplex.__lt =  function(C1,C2)
 end
 
 function complex.Intersect(cO1, cD1, cO2, cD2)
-  local dD = cD1:getDet(cD2); if(dD == 0) then
+  local dD = cD1:getCross(cD2); if(dD == 0) then
     return false end; local dO = complex.New(cO2):Sub(cO1)
-  local nT, nU = (dO:getDet(cD2) / dD), (dO:getDet(cD1) / dD)
+  local nT, nU = (dO:getCross(cD2) / dD), (dO:getCross(cD1) / dD)
   return true, nT, nU, dO:Set(cO1):Add(cD1:getRsz(nT))
 end
 
 function complex.Reflect(cO, cD, cS, cE)
-  local uD = cD:getUnit()
-  local cN = complex.Project(cO, cS, cE):Neg():Add(cO):Unit()
-  local nM = (2 * uD:getDot(cN))
-  local cR = complex.New(uD):Sub(cN:getNew():Mul(nM)):Unit()
+  local uD, cN = cD:getUnit(), cO:getProj(cS, cE):Neg():Add(cO):Unit()
+  local cR = uD:getNew():Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
   return cN, cR
 end
 
