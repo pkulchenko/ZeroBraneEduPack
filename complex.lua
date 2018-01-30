@@ -189,7 +189,7 @@ end
 function metaComplex:getDist2(R, I)
   local C, D = self:getParts()
   local R, I = exportComplex(R, I)
-  return ((R - C)^2 + (I - D)^2)
+  return ((C - R)^2 + (D - I)^2)
 end
 
 function metaComplex:getDist(R, I)
@@ -200,6 +200,10 @@ function metaComplex:getDet(R, I)
   local C, D = self:getParts()
   local R, I = exportComplex(R, I)
   return (C*I - D*R)
+end
+
+function metaComplex:getCross(R, I)
+  return self:getDet(R, I)
 end
 
 function metaComplex:getSet(R, I)
@@ -412,6 +416,33 @@ function metaComplex:setAngRad(nA)
   return self:setReal(math.cos(nP)):setImag(math.sin(nP)):Rsz(nR)
 end
 
+function metaComplex:Proj(cS, cE)
+  local x1, y1 = cS:getParts()
+  local x2, y2 = cE:getParts()
+  local x3, y3 = self:getParts()
+  local dx, dy = (x2-x1), (y2-y1)
+  local ks = (dy*(x3-x1)-dx*(y3-y1)) / cS:getDist2(cE)
+  return self:setReal(x3-ks*dy):setImag(y3+ks*dx)
+end
+
+function metaComplex:getProj(cS, cE)
+  return complex.New(self):Proj(cS, cE)
+end
+
+function metaComplex:getLay(cS, cE)
+  return cS:getSub(self):getCross(cE:getSub(self)
+end
+
+function metaComplex:isChunk(cS, cE, nMr)
+  local nM = math.abs(tonumber(nMr) or 0)
+  if(math.abs(self:getLay(cS, cE)) < nM) then
+    local dV = cE:getSub(cS)
+    local dS = self:getSub(cS):getDot(dV)
+    local dE = self:getSub(cE):getDot(dV)
+    if(dS * dE > 0) then return false end; return true
+  end; return false
+end
+
 function metaComplex:getRoots(nNum)
   local N = math.floor(tonumber(nNum) or 0)
   if(N > 0) then local tRt = {}
@@ -533,15 +564,6 @@ metaComplex.__lt =  function(C1,C2)
   return false
 end
 
-function complex.Project(cP, cS, cE)
-  local x1, y1 = cS:getParts()
-  local x2, y2 = cE:getParts()
-  local x3, y3 = cP:getParts()
-  local dx, dy = (x2-x1), (y2-y1)
-  local ks = (dy*(x3-x1)-dx*(y3-y1)) / cS:getDist2(cE)
-  return complex.New(x3-ks*dy, y3+ks*dx)
-end
-
 function complex.Intersect(cO1, cD1, cO2, cD2)
   local dD = cD1:getDet(cD2); if(dD == 0) then
     return false end; local dO = complex.New(cO2):Sub(cO1)
@@ -555,20 +577,6 @@ function complex.Reflect(cO, cD, cS, cE)
   local nM = (2 * uD:getDot(cN))
   local cR = complex.New(uD):Sub(cN:getNew():Mul(nM)):Unit()
   return cN, cR
-end
-
-function complex.Lay(cP, cS, cE)
-  return (cS - cP):getDet(cE - cP)
-end
-
-function complex.OnSegment(cP, cS, cE, nMr)
-  local nM = math.abs(tonumber(nMr) or 0)
-  if(math.abs(complex.Lay(cP, cS, cE)) < nM) then
-    local dV = (cE - cS)
-    local dS = (cP - cS):getDot(dV)
-    local dE = (cP - cE):getDot(dV)
-    if(dS * dE > 0) then return false end; return true
-  end; return false
 end
 
 function complex.Euler(vRm, vPh)
