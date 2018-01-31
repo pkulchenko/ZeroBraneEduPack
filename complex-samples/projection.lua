@@ -73,7 +73,7 @@ updt(false) -- disable auto updates
 
 drawCoordinateSystem(W, H, dX, dY, maxX, maxY)
 
-cRay1, cPnt, drw = {}, cmp.New(), true
+cRay1, cPnt, drw = {}, cmp.New(), false
 
 while true do
   wait(0.2)
@@ -85,7 +85,7 @@ while true do
     ly = intY:Convert(ly,true):getValue() 
     local C = cmp.New(lx, ly)
     cRay1[#cRay1+1] = C; C:Draw("xy", clOrg)
-    if(#cRay1 == 2) then cRay1[1]:Draw("ab", cRay1[2], clOrg) end
+    if(#cRay1 == 2) then cRay1[1]:Draw("ab", cRay1[2], clOrg); drw = true end
   elseif(drw and rx and ry) then -- Reverse the interval and convert x, y image position to a complex
     rx = intX:Convert(rx,true):getValue() 
     ry = intY:Convert(ry,true):getValue(); cPnt:Set(rx, ry)

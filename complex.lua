@@ -61,7 +61,7 @@ function complex.IsValid(cNum)
   return (getmetatable(cNum) == metaComplex)
 end
 
-function complex.New(nRe,nIm)
+function complex.New(nRe, nIm)
   self = {}; setmetatable(self,metaComplex)
   local Re = tonumber(nRe) or metaComplex.__valre
   local Im = tonumber(nIm) or metaComplex.__valim
@@ -160,16 +160,22 @@ function metaComplex:Draw(aK,...)
   return self
 end
 
+function metaComplex:getNew(nR, nI)
+  local N = complex.New(self); if(nR or nI) then
+    local R, I = exportComplex(nR, nI); N:Set(R, I)
+  end; return N
+end
+
 function metaComplex:Unit()
   return self:Rsz(1/self:getNorm())
 end
 
 function metaComplex:getUnit()
-  return complex.New(self):Unit()
+  return self:getNew():Unit()
 end
 
 function metaComplex:getAbs(R, I)
-  return complex.New(self):Abs(R, I)
+  return self:getNew():Abs(R, I)
 end
 
 function metaComplex:getDot(cV)
@@ -183,7 +189,7 @@ function metaComplex:getAngRadVec(cV)
 end
 
 function metaComplex:getMid(R, I)
-  return complex.New(self):Mid(R, I)
+  return self:getNew():Mid(R, I)
 end
 
 function metaComplex:getDist2(R, I)
@@ -212,43 +218,43 @@ function metaComplex:Orth()
 end
 
 function metaComplex:getOrth()
-  return complex.New(self):Orth()
+  return self:getNew():Orth()
 end
 
 function metaComplex:getSet(R, I)
-  return complex.New(self):Set(R, I)
+  return self:getNew():Set(R, I)
 end
 
 function metaComplex:getAdd(R, I)
-  return complex.New(self):Add(R, I)
+  return self:getNew():Add(R, I)
 end
 
 function metaComplex:getSub(R, I)
-  return complex.New(self):Sub(R, I)
+  return self:getNew():Sub(R, I)
 end
 
 function metaComplex:getRsz(R, I)
-  return complex.New(self):Rsz(R, I)
+  return self:getNew():Rsz(R, I)
 end
 
 function metaComplex:getMul(R, I)
-  return complex.New(self):Mul(R, I)
+  return self:getNew():Mul(R, I)
 end
 
 function metaComplex:getDiv(R, I)
-  return complex.New(self):Div(R, I)
+  return self:getNew():Div(R, I)
 end
 
 function metaComplex:getMod(R, I)
-  return complex.New(self):Mod(R, I)
+  return self:getNew():Mod(R, I)
 end
 
 function metaComplex:getRev(R, I)
-  return complex.New(self):Rev(R, I)
+  return self:getNew():Rev(R, I)
 end
 
 function metaComplex:getPow(R, I)
-  return complex.New(self):Pow(R, I)
+  return self:getNew():Pow(R, I)
 end
 
 function metaComplex:Sin()
@@ -259,7 +265,7 @@ function metaComplex:Sin()
 end
 
 function metaComplex:getSin()
-  return complex.New(self):Sin()
+  return self:getNew():Sin()
 end
 
 function metaComplex:Cos()
@@ -270,7 +276,7 @@ function metaComplex:Cos()
 end
 
 function metaComplex:getCos()
-  return complex.New(self):Cos()
+  return self:getNew():Cos()
 end
 
 function metaComplex:Tang()
@@ -278,7 +284,7 @@ function metaComplex:Tang()
 end
 
 function metaComplex:getTang()
-  return complex.New(self):Tang()
+  return self:getNew():Tang()
 end
 
 function metaComplex:Cotg()
@@ -286,7 +292,7 @@ function metaComplex:Cotg()
 end
 
 function metaComplex:getCotg()
-  return complex.New(self):Cotg()
+  return self:getNew():Cotg()
 end
 
 function metaComplex:SinH()
@@ -295,7 +301,7 @@ function metaComplex:SinH()
 end
 
 function metaComplex:getSinH()
-  return complex.New(self):SinH()
+  return self:getNew():SinH()
 end
 
 function metaComplex:CosH()
@@ -304,7 +310,7 @@ function metaComplex:CosH()
 end
 
 function metaComplex:getCosH()
-  return complex.New(self):CosH()
+  return self:getNew():CosH()
 end
 
 function metaComplex:TangH()
@@ -312,7 +318,7 @@ function metaComplex:TangH()
 end
 
 function metaComplex:getTangH()
-  return complex.New(self):TangH()
+  return self:getNew():TangH()
 end
 
 function metaComplex:CotgH()
@@ -320,7 +326,7 @@ function metaComplex:CotgH()
 end
 
 function metaComplex:getCotgH()
-  return complex.New(self):CotgH()
+  return self:getNew():CotgH()
 end
 
 function metaComplex:Log()
@@ -329,7 +335,7 @@ function metaComplex:Log()
 end
 
 function metaComplex:getLog()
-  return complex.New(self):Log()
+  return self:getNew():Log()
 end
 
 function metaComplex:Floor()
@@ -339,7 +345,7 @@ function metaComplex:Floor()
 end
 
 function metaComplex:getFloor()
-  return complex.New(self):Floor()
+  return self:getNew():Floor()
 end
 
 function metaComplex:Ceil()
@@ -349,15 +355,12 @@ function metaComplex:Ceil()
 end
 
 function metaComplex:getCeil()
-  return complex.New(self):Ceil()
+  return self:getNew():Ceil()
 end
 
 function metaComplex:NegRe() return self:setReal(-self:getReal()) end
-
 function metaComplex:NegIm() return self:setImag(-self:getImag()) end
-
 function metaComplex:Conj() return self:NegIm() end
-
 function metaComplex:Neg() return self:NegRe():NegIm() end
 
 function metaComplex:getNorm2()
@@ -368,28 +371,15 @@ function metaComplex:getNorm() return math.sqrt(self:getNorm2()) end
 function metaComplex:getAngRad()
   local R, I = self:getParts(); return math.atan2(I, R) end
 
-function metaComplex:getNew(nR, nI)
-  local N = complex.New(self:getParts())
-  local R, I = tonumber(nR), tonumber(nI)
-  if(R) then N:setReal(R) end
-  if(I) then N:setImag(I) end; return N
-end
-
 function metaComplex:getTable(kR, kI)
   local kR, kI = (kR or metaComplex.__kreal[1]), (kI or metaComplex.__kimag[1])
   local R , I  = self:getParts(); return {[kR] = R, [kI] = I}
 end
 
-function metaComplex:getNeg()
-  local R, I = self:getParts(); return complex.New(-R,-I) end
-
-function metaComplex:getNegRe()
-  local R, I = self:getParts(); return complex.New(-R, I) end
-
-function metaComplex:getNegIm()
-  local R, I = self:getParts(); return complex.New(R,-I) end
-
-function metaComplex:getConj() return self:getNegIm() end
+function metaComplex:getNeg  () return self:getNew():Neg() end
+function metaComplex:getNegRe() return self:getNew():NegRe() end
+function metaComplex:getNegIm() return self:getNew():NegIm() end
+function metaComplex:getConj () return self:getNegIm() end
 
 function metaComplex:Print(sS,sE)
   io.write(tostring(sS or "").."{"..tostring(self:getReal())..
@@ -402,8 +392,7 @@ function metaComplex:Round(nF)
 end
 
 function metaComplex:getRound(nP)
-  local R, I = self:getParts()
-  return complex.New(R,I):Round(nP)
+  return self:getNew():Round(nP)
 end
 
 function metaComplex:getPolar()
@@ -416,7 +405,7 @@ function metaComplex:RotRad(nA)
 end
 
 function metaComplex:getRotRad(nA)
-  return complex.New(self):RotRad(nA)
+  return self:getNew():RotRad(nA)
 end
 
 function metaComplex:setAngRad(nA)
@@ -434,7 +423,7 @@ function metaComplex:Proj(cS, cE)
 end
 
 function metaComplex:getProj(cS, cE)
-  return complex.New(self):Proj(cS, cE)
+  return self:getNew():Proj(cS, cE)
 end
 
 function metaComplex:getLay(cS, cE)
@@ -451,19 +440,17 @@ function metaComplex:isAmong(cS, cE, nMr)
   end; return false
 end
 
-function metaComplex:getRoots(nNum)
-  local N = math.floor(tonumber(nNum) or 0)
-  if(N > 0) then local tRt = {}
-    local Pw, As  = (1 / N), ((2*metaComplex.__getpi) / N)
-    local Rd, CRe = self:getNorm()   ^ Pw
-    local Th, CIm = self:getAngRad() * Pw
-    for k = 1, N do
-      CRe = Rd * math.cos(Th)
-      CIm = Rd * math.sin(Th)
-      tRt[k] = complex.New(CRe,CIm)
-      Th = Th + As
+function metaComplex:getRoots(nNm)
+  local nN = math.floor(tonumber(nNm) or 0)
+  if(nN > 0) then local tRt = {}
+    local nPw, dA  = (1 / nN), ((2*metaComplex.__getpi) / nN)
+    local nRa = self:getNorm()   ^ nPw
+    local nAn = self:getAngRad() * nPw
+    for k = 1, nN do
+      local cRe, cIm = (nRa * math.cos(nAn)), (nRa * math.sin(nAn))
+      tRt[k], nAn = self:getNew(cRe,cIm), (nAn + dA)
     end; return tRt
-  end; return logStatus("getRoots: Invalid <"..N..">")
+  end; return logStatus("getRoots: Invalid <"..nN..">")
 end
 
 function metaComplex:getFormat(...)
@@ -574,20 +561,21 @@ end
 
 function complex.Intersect(cO1, cD1, cO2, cD2)
   local dD = cD1:getCross(cD2); if(dD == 0) then
-    return false end; local dO = complex.New(cO2):Sub(cO1)
+    return false end; local dO = cO2:getNew():Sub(cO1)
   local nT, nU = (dO:getCross(cD2) / dD), (dO:getCross(cD1) / dD)
   return true, nT, nU, dO:Set(cO1):Add(cD1:getRsz(nT))
 end
 
 function complex.Reflect(cO, cD, cS, cE)
-  local uD, cN = cD:getUnit(), cO:getProj(cS, cE):Neg():Add(cO):Unit()
+  local uD, uO = cD:getUnit(), cO:getNew():Sub(cD)
+  local cN = uO:getProj(cS, cE):Neg():Add(uO):Unit()
   local cR = uD:getNew():Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
   return cN, cR
 end
 
 function complex.Euler(vRm, vPh)
   local nRm, nPh = (tonumber(vRm) or 0), (tonumber(vPh) or 0)
-  return complex.New(math.cos(nPh),math.sin(nPh)):Rsz(nRm)
+  return self:getNew(math.cos(nPh),math.sin(nPh)):Rsz(nRm)
 end
 
 function complex.ToDegree(nRad)
@@ -607,7 +595,7 @@ function metaComplex:RotDeg(nA)
 end
 
 function metaComplex:getRotDeg(nA)
-  return complex.New(self):RotDeg(nA)
+  return self:getNew():RotDeg(nA)
 end
 
 function metaComplex:setAngDeg(nA)
@@ -677,7 +665,7 @@ local function tableToComplex(tTab, kRe, kIm)
 end
 
 function complex.Convert(vIn, ...)
-  if(getmetatable(vIn) == metaComplex) then return complex.New(vIn) end
+  if(getmetatable(vIn) == metaComplex) then return vIn:getNew() end
   local tyIn, tArg = type(vIn), {...}
   if(tyIn =="boolean") then
     return complex.New(vIn and 1 or 0,tArg[1] and 1 or 0)
