@@ -4,11 +4,12 @@ function common.logStatus(anyMsg, ...)
   io.write(tostring(anyMsg).."\n"); return ...
 end
 
-function common.logConcat(aDel, ...)
+function common.logConcat(anyMsg,aDel, ...)
   local sDel, tDat = tostring(aDel or ","), {...}
+  io.write(tostring(anyMsg)..": ")
   for ID = 1, #tDat do
     io.write(tostring(tDat[ID] or ""))
-    io.write(sDel)
+    if(tDat[ID+1]) then io.write(sDel) end
   end; io.write("\n")
 end
 
@@ -34,15 +35,14 @@ function common.stringTrim(sStr, sCh)
 end
 
 function common.fileGetLine(pF)
-  if(not pF) then return common.logStatus("common.getLine: No file", ""), true end
+  if(not pF) then return common.logStatus("common.fileGetLine: No file", ""), true end
   local sCh, sLn = "X", "" -- Use a value to start cycle with
   while(sCh) do sCh = pF:read(1); if(not sCh) then break end
     if(sCh == "\n") then return common.stringTrim(sLn), false else sLn = sLn..sCh end
   end; return common.stringTrim(sLn), true -- EOF has been reached. Return the last data
 end
 
-function common.getSign(vVal)
-  local nVal = (tonumber(vVal) or 0)
+function common.getSign(nVal)
   return ((nVal > 0 and 1) or (nVal < 0 and -1) or 0)
 end
 
