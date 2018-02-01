@@ -1,4 +1,10 @@
-local common = {}
+local os         = os
+local math       = math
+local common     = {}
+local metaCommon = {
+  __time = 0,
+  __syms = "1234567890abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ"
+}
 
 function common.logStatus(anyMsg, ...)
   io.write(tostring(anyMsg).."\n"); return ...
@@ -11,6 +17,40 @@ function common.logConcat(anyMsg,aDel, ...)
     io.write(tostring(tDat[ID] or ""))
     if(tDat[ID+1]) then io.write(sDel) end
   end; io.write("\n")
+end
+
+-- http://lua-users.org/wiki/MathLibraryTutorial
+function common.randomNewSeed(bL)
+  local nT = os.time()
+  if((nT - metaCommon.__time) > 0) then
+    local nS = tonumber(tostring(nT):reverse():sub(1,6))
+    if(bL) then common.logStatus("common.randomNewSeed: #"..nS) end
+    math.randomseed(nS); metaCommon.__seed = nS
+    metaCommon.__time = nT; return nS
+  end; return 0
+end
+
+function common.randomSetString(sS)
+  metaCommon.__syms = tostring(sS or "")
+end
+
+function common.randomGetNumber(vC, nL, nU)
+  local iC = math.floor(tonumber(vC) or 0)
+  for iD = 1, iC do math.random() end
+  if(nL and nU) then return math.random(nL, nU)
+  elseif(nL and not nU) then return math.random(nL) end
+  return math.random()
+end
+
+function common.randomGetString(vE, vN)
+  local iN = math.floor(tonumber(vN) or 0)
+  local iE = math.floor(tonumber(vE) or 0)
+  local sS = metaCommon.__syms
+  local sR, nL = "", sS:len()
+  for iD = 1, iE do
+    local rN = common.randomGetNumber(iN, 1, nL)
+    sR = sR..sS:sub(rN, rN)
+  end; return sR
 end
 
 function common.stringImplode(tLst,sDel)
@@ -91,5 +131,14 @@ function common.getRound(nE, nF)
   local q, d = math.modf(nE/dF)
   return (dF * (q + (d > 0.5 and 1 or 0)))
 end
+
+function common.timeDelay(nD)
+  if(nD) then
+    local eT = (os.clock() + nD)
+    while(os.clock() < eT) do end
+  else while(true) do end end
+end
+
+common.randomNewSeed()
 
 return common

@@ -47,7 +47,7 @@ end
 local function concatInternal(tIn, sCh)
   local aAr, aID, aIN = {}, 1, 0
   for ID = 1, #tIn do
-    local sVal = common.StringTrim(tIn[ID])
+    local sVal = common.stringTrim(tIn[ID])
     if(sVal:find("{")) then aIN = aIN + 1 end
     if(sVal:find("}")) then aIN = aIN - 1 end
     if(not aAr[aID]) then aAr[aID] = "" end
@@ -60,14 +60,14 @@ local function concatInternal(tIn, sCh)
 end
 
 function export.stringTable(sRc)
-  local sIn = common.StringTrim(tostring(sRc or ""))
+  local sIn = common.stringTrim(tostring(sRc or ""))
   if(sIn:sub(1,1)..sIn:sub(-1,-1) ~= "{}") then
     return logStatus("export.stringTable: Table format invalid <"..sIn..">", false) end
-  local aIn, tOut = common.StringExplode(sIn:sub(2,-2),","), {}
+  local aIn, tOut = common.stringExplode(sIn:sub(2,-2),","), {}
   local tIn = concatInternal(aIn, ",")
-  for ID = 1, #tIn do local sVal = common.StringTrim(tIn[ID])
+  for ID = 1, #tIn do local sVal = common.stringTrim(tIn[ID])
     if(sVal ~= "") then
-      local aVal = common.StringExplode(sVal,"=")
+      local aVal = common.stringExplode(sVal,"=")
       local tVal = concatInternal(aVal, "=")
       local kVal, vVal = tVal[1], tVal[2]
       -- Handle keys
