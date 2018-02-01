@@ -85,12 +85,11 @@ function common.getClamp(nN, nL, nH)
   if(nN > nH) then return nH end; return nN
 end
 
-function common.getRound(vE, vF)
-  local nE = (tonumber(vE) or 0)
-  local nF = common.getSign(nE) * (tonumber(vF) or 0)
-  if(nF == 0) then return nF end
-  local q, d = math.modf(nE/nF)
-  return (nF * (q + (d > 0.5 and 1 or 0)))
+function common.getRound(nE, nF)
+  local dF = nF * common.getSign(nE)
+  if(dF == 0) then return dF end
+  local q, d = math.modf(nE/dF)
+  return (dF * (q + (d > 0.5 and 1 or 0)))
 end
 
 return common
