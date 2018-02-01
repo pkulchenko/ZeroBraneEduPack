@@ -1,14 +1,12 @@
 require("turtle")
-local complex  = require("complex")
-local chartmap = require("chartmap")
-local colormap = require("colormap")
+local complex   = require("complex")
+local chartmap  = require("chartmap")
+local colormap  = require("colormap")
+local common    = require("common")
+local logStatus = common.logStatus
 
 io.stdout:setvbuf("no")
 
-local function logStatus(anyMsg, ...)
-  io.write(tostring(anyMsg).."\n"); return ...
-end
-     
 logStatus("\nMethods starting with upper letter make internal changes and return /self/ .")
 logStatus("\nMethods starting with lower return somethng and do not change internals .")
 

@@ -1,19 +1,17 @@
+local complex      = require("complex")
+local common       = require("common")
 local type         = type
 local math         = math
 local string       = string
 local tonumber     = tonumber
 local tostring     = tostring
 local setmetatable = setmetatable
-local complex      = require("complex")
+local logStatus    = common.logStatus
 local fractal      = {}
 
-local function logStatus(anyMsg, ...)
-  io.write(tostring(anyMsg).."\n"); return ...
-end
-
-local mtPlaneZ   = {}
-mtPlaneZ.__type  = "fractal.z-plane"
-mtPlaneZ.__index = mtPlaneZ
+local mtPlaneZ     = {}
+mtPlaneZ.__type    = "fractal.z-plane"
+mtPlaneZ.__index   = mtPlaneZ
 local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
   local imgW , imgH  = w   , h
   local minRe, maxRe = minw, maxw

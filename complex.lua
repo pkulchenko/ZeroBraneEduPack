@@ -1,15 +1,17 @@
+local common       = require("common")
 local type         = type
 local math         = math
 local pcall        = pcall
 local tonumber     = tonumber
 local tostring     = tostring
 local setmetatable = setmetatable
-local complex       = {}
-local metaComplex   = {}
-
-local function logStatus(anyMsg, ...)
-  io.write(tostring(anyMsg).."\n"); return ...
-end
+local complex      = {}
+local metaComplex  = {}
+local logStatus    = common.logStatus
+local signValue    = common.getSign
+local roundValue   = common.getRound
+local clampValue   = common.getClamp
+local getValueKeys = common.getValueKeys
 
 metaComplex.__type  = "Complex"
 metaComplex.__index = metaComplex
@@ -24,37 +26,9 @@ metaComplex.__getpi = math.pi
 metaComplex.__radeg = (180 / metaComplex.__getpi)
 metaComplex.__cdraw = {}
 
-local function signValue(anyVal)
-  local nVal = (tonumber(anyVal) or 0)
-  return ((nVal > 0 and 1) or (nVal < 0 and -1) or 0)
-end
-
-local function roundValue(nE, nF)
-  local e = (tonumber(nE) or 0)
-  local f = signValue(e) * (tonumber(nF) or 0)
-  if(f == 0) then return f end
-  local q, d = math.modf(e/f)
-  return (f * (q + (d > 0.5 and 1 or 0)))
-end
-
-local function clampValue(nA, nS, nE)
-  local a = (tonumber(nA) or 0)
-  local s, e = (tonumber(nS) or 0), (tonumber(nE) or 0)
-  if(a < s) then return s end
-  if(a > e) then return e end; return a
-end
-
 local function exportComplex(R, I)
   if(not I and getmetatable(R) == metaComplex) then return R:getParts() end
   return (tonumber(R) or metaComplex.__valre), (tonumber(I) or metaComplex.__valim)
-end
-
-local function selectKeyValue(tTab, tKeys, aKey)
-  if(aKey) then return tTab[aKey] end
-  local out; for ID = 1, #tKeys do
-    local key = tKeys[ID]; out = (tTab[key] or out)
-    if(out) then return out end
-  end; return nil
 end
 
 function complex.IsValid(cNum)
@@ -656,8 +630,8 @@ end
 
 local function tableToComplex(tTab, kRe, kIm)
   if(not tTab) then return nil end
-  local R = selectKeyValue(tTab, metaComplex.__kreal, kRe)
-  local I = selectKeyValue(tTab, metaComplex.__kimag, kIm)
+  local R = getValueKeys(tTab, metaComplex.__kreal, kRe)
+  local I = getValueKeys(tTab, metaComplex.__kimag, kIm)
   if(R or I) then
     return complex.New(tonumber(R) or metaComplex.__valre,
                        tonumber(I) or metaComplex.__valim) end

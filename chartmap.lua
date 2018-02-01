@@ -1,10 +1,12 @@
+local common       = require("common")
 local type         = type
 local tonumber     = tonumber
 local tostring     = tostring
 local setmetatable = setmetatable
 local math         = math
+local logStatus    = common.logStatus
 local chartmap     = {}
-local logStatus    = function(anyMsg, ...) io.write(tostring(anyMsg).."\n"); return ... end
+
 --[[
  * newInterval: Class that maps one interval onto another
  * sName > A proper name to be identified as
@@ -96,9 +98,9 @@ local function newTracer(sName)
 end
 
 function chartmap.New(sType, ...)
-  local sType = "chartmap."..tostring(sType or "") 
+  local sType = "chartmap."..tostring(sType or "")
   if(sType == metaInterval.__type) then return newInterval(...) end
-  if(sType == metaTracer.__type) then return newTracer(...) end  
+  if(sType == metaTracer.__type) then return newTracer(...) end
 end
 
 return chartmap

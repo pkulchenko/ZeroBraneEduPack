@@ -3,13 +3,11 @@ require("turtle")
 local crt = require("chartmap")
 local cmp = require("complex")
 local col = require("colormap")
+local com = require("common")
 
 io.stdout:setvbuf("no")
 
-local function logStatus(anyMsg, ...)
-  io.write(tostring(anyMsg).."\n"); return ...
-end
-
+local logStatus = com.logStatus
 local  W,  H = 400, 400
 local dX, dY = 1,1
 local xySize = 3

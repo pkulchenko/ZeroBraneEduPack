@@ -4,15 +4,13 @@ require("turtle")
 local compl = require("complex")
 local fract = require("fractal")
 local clmap = require("colormap")
+local commn = require("common")
 
-io.stdout:setvbuf("no")
+ io.stdout:setvbuf("no")
 
 -- z(0) = z,    z(n+1) = z(n)*z(n) + z,    n=0,1,2, ...    (1)
 
-local function logStatus(anyMsg, ...)
-  io.write(tostring(anyMsg).."\n"); return ...
-end
-
+local logStatus   = commn.logStatus
 local getClamp    = clmap.getClamp
 local getColorMap = clmap.getColorMap
 local getColorHSL = clmap.getColorHSL

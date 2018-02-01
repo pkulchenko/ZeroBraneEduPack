@@ -1,29 +1,13 @@
+local common       = require("common")
 local type         = type
 local tonumber     = tonumber
 local tostring     = tostring
 local setmetatable = setmetatable
 local math         = math
-local logStatus    = function(anyMsg, ...) io.write(tostring(anyMsg).."\n"); return ... end
+local logStatus    = common.logStatus
+local toBool       = common.toBool
+local getSign      = common.getSign
 local pidloop      = {}
-
--- Defines what should return /false/ when converted to a boolean
-local __tobool = {
-  [0]       = true,
-  ["0"]     = true,
-  ["false"] = true,
-  [false]   = true
-}
-
-local function tobool(anyVal) -- http://lua-users.org/lists/lua-l/2005-11/msg00207.html
-  if(not anyVal) then return false end
-  if(__tobool[anyVal]) then return false end
-  return true
-end
-
-local function getSign(anyVal)
-  local nVal = (tonumber(anyVal) or 0)
-  return ((nVal > 0 and 1) or (nVal < 0 and -1) or 0)
-end
 
 --[[
 * newControl: Class state processing manager
@@ -54,7 +38,7 @@ local function newControl(nTo, sName)
   function self:Dump() return logStatus(self:getString(), self) end
   function self:getGains() return mkP, mkI, mkD end
   function self:getTerms() return mvP, mvI, mvD end
-  function self:setEnIntegral(bEn) meInt = tobool(bEn); return self end
+  function self:setEnIntegral(bEn) meInt = toBool(bEn); return self end
   function self:getEnIntegral() return meInt end
   function self:getError() return mErrO, mErrN end
   function self:getControl() return mvCon end
@@ -64,7 +48,7 @@ local function newControl(nTo, sName)
   function self:setPower(pP, pI, pD)
     mpP, mpI, mpD = (tonumber(pP) or 0), (tonumber(pI) or 0), (tonumber(pD) or 0); return self end
   function self:setClamp(sD, sU) mSatD, mSatU = (tonumber(sD) or 0), (tonumber(sU) or 0); return self end
-  function self:setStruct(bCmb, bInv) mbCmb, mbInv = tobool(bCmb), tobool(bInv); return self end
+  function self:setStruct(bCmb, bInv) mbCmb, mbInv = toBool(bCmb), toBool(bInv); return self end
 
   function self:Reset()
     mErrO, mErrN  = 0, 0
@@ -89,7 +73,7 @@ local function newControl(nTo, sName)
       else meInt = true end
     end; return self
   end
-  
+
   function self:getString()
     local sInfo = (mType ~= "") and (mType.."-") or mType
           sInfo = "["..sInfo..metaControl.__type.."] Properties:\n"
@@ -135,7 +119,7 @@ local function newControl(nTo, sName)
     for ID = 1, 5, 1 do mUser[ID] = mUser[ID] * Mul end
     self:Setup(mUser); return self -- Init multiple states using the table
   end
-  
+
   return self
 end
 
@@ -153,12 +137,12 @@ local function newUnit(nTo, tNum, tDen, sName)
   if(mTo <= 0) then return logStatus("Unit sampling time <"..tostring(nTo).."> invalid") end
   local mName, mOut = tostring(sName or "Unit plant"), nil
   local mSta, mDen, mNum = {}, {}, {}
-  
+
   for ik = 1, mOrd, 1 do mSta[ik] = 0 end
   for iK = 1, mOrd, 1 do mDen[iK] = (tonumber(tDen[iK]) or 0) end
   for iK = 1, mOrd, 1 do mNum[iK] = (tonumber(tNum[iK]) or 0) end
   for iK = 1, (mOrd - #tNum), 1 do table.insert(mNum,1,0); mNum[#mNum] = nil end
-  
+
   function self:Scale()
     local nK = mDen[1]
     for iK = 1, mOrd do
@@ -166,7 +150,7 @@ local function newUnit(nTo, tNum, tDen, sName)
       mDen[iK] = (mDen[iK] / nK)
     end; return self
   end
-  
+
   function self:getString()
     local sInfo = "["..metaUnit.__type.."] Properties:\n"
     sInfo = sInfo.."  Name       : "..mName.."^"..tostring(mOrd).." ["..tostring(mTo).."]s\n"
@@ -176,7 +160,7 @@ local function newUnit(nTo, tNum, tDen, sName)
   end
   function self:Dump() return logStatus(self:getString(), self)  end
   function self:getOutput() return mOut end
-  
+
   function self:getBeta()
     local nOut, iK = 0, mOrd
     while(iK > 0) do
@@ -184,7 +168,7 @@ local function newUnit(nTo, tNum, tDen, sName)
       iK = iK - 1 -- Get next state
     end; return nOut
   end
-    
+
   function self:getAlpha()
     local nOut, iK = 0, mOrd
     while(iK > 1) do
@@ -192,30 +176,30 @@ local function newUnit(nTo, tNum, tDen, sName)
       iK = iK - 1 -- Get next state
     end; return nOut
   end
-    
+
   function self:putState(vX)
     local iK, nX = mOrd, (tonumber(vX) or 0)
     while(iK > 0 and mSta[iK]) do
       mSta[iK] = (mSta[iK-1] or 0); iK = iK - 1 -- Get next state
     end; mSta[1] = nX; return self
   end
-  
+
   function self:Process(vU)
     local nU, nA = (tonumber(vU) or 0), self:getAlpha()
     self:putState((nU + nA) / mDen[1]); mOut = self:getBeta(); return self
   end
-  
+
   function self:Reset()
     for iK = 1, #mSta, 1 do mSta[iK] = 0 end; mOut = 0; return self
   end
-  
+
   return self
 end
 
 function pidloop.New(sType, ...)
-  local sType = "pidloop."..tostring(sType or "") 
+  local sType = "pidloop."..tostring(sType or "")
   if(sType == metaControl.__type) then return newControl(...) end
-  if(sType == metaUnit.__type) then return newUnit(...) end  
+  if(sType == metaUnit.__type) then return newUnit(...) end
 end
 
 return pidloop

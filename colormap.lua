@@ -1,3 +1,4 @@
+local common    = require("common")
 local math      = math
 local colormap  = {}
 local clMapping = {}
@@ -8,17 +9,10 @@ local clHash    = {
   B = {3, "b", "B", "blue" , "Blue" , "BLUE" }
 }
 
-local function logStatus(anyMsg, ...)
-  io.write(tostring(anyMsg).."\n"); return ...
-end
-
-local function selectKeyValue(tTab, tKeys, aKey)
-  if(aKey) then return tTab[aKey] end
-  local out; for ID = 1, #tKeys do
-    local key = tKeys[ID]; out = (tTab[key] or out)
-    if(out) then return out end
-  end; return nil
-end
+local logStatus       = common.logStatus
+local getValueKeys    = common.getValueKeys
+local stringExplode   = common.stringExplode
+local getClamp        = common.getClamp
 
 --[[ https://en.wikipedia.org/wiki/HSL_and_HSV ]]
 local function projectColorHC(h,c)
@@ -46,6 +40,12 @@ function colormap.getColorNewRGB(r,g,b) return r, g, b end
 
 function colormap.getColorRotateLeft(r, g, b) return g, b, r end
 function colormap.getColorRotateRigh(r, g, b) return b, r, g end
+
+function colormap.getClamp(vN)
+  local nN = tonumber(vN); if(not nN) then
+    return logStatus("colormap.getClamp: NAN {"..type(nN).."}<"..tostring(nN)..">") end
+  return getClamp(nN, clClamp[1], clClamp[2])
+end
 
 local function roundValue(nE, nF)
   local nE = tonumber(nE); if(not nE) then
@@ -85,12 +85,7 @@ function colormap.getColorHCL(h,c,l)
          roundValue(clClamp[2] * (b + m),1)
 end
 
-function colormap.getClamp(vN)
-  local nN = tonumber(vN); if(not nN) then
-    return logStatus("colormap.getClamp: NAN {"..type(nN).."}<"..tostring(nN)..">") end
-  if(nN <= clClamp[1]) then return clClamp[1] end
-  if(nN >= clClamp[2]) then return clClamp[2] end; return math.floor(nN)
-end
+
 
 function colormap.printColorMap(sKey, ...)
   if(type(sKey) == "number") then
@@ -176,21 +171,11 @@ function colormap.getColorRegion(iDepth, maxDepth, iRegions)
   end
 end
 
-function stringExplode(sStr,sDel)
-  local aLst, Ch, Idx, ID, dL = {""}, "", 1, 1, (sDel:len()-1)
-  while(Ch) do
-    Ch = sStr:sub(Idx,Idx+dL)
-    if    (Ch ==  "" ) then return aLst
-    elseif(Ch == sDel) then ID = ID + 1; aLst[ID], Idx = "", (Idx + dL)
-    else aLst[ID] = aLst[ID]..Ch:sub(1,1) end; Idx = Idx + 1
-  end; return aLst
-end
-
 local function tableToColorRGB(tTab, kR, kG, kB)
   if(not tTab) then return nil end
-  local cR = colormap.getClamp(tonumber(selectKeyValue(tTab, clHash.R, kR)) or clClamp[1])
-  local cG = colormap.getClamp(tonumber(selectKeyValue(tTab, clHash.G, kG)) or clClamp[1])
-  local cB = colormap.getClamp(tonumber(selectKeyValue(tTab, clHash.B, kB)) or clClamp[1])
+  local cR = colormap.getClamp(tonumber(getValueKeys(tTab, clHash.R, kR)) or clClamp[1])
+  local cG = colormap.getClamp(tonumber(getValueKeys(tTab, clHash.G, kG)) or clClamp[1])
+  local cB = colormap.getClamp(tonumber(getValueKeys(tTab, clHash.B, kB)) or clClamp[1])
   return cR, cG, cB
 end
 

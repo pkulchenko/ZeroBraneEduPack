@@ -1,17 +1,25 @@
 local common = {}
 
-function common.LogStatus(anyMsg, ...)
+function common.logStatus(anyMsg, ...)
   io.write(tostring(anyMsg).."\n"); return ...
 end
 
-function common.StringImplode(tLst,sDel)
+function common.logConcat(aDel, ...)
+  local sDel, tDat = tostring(aDel or ","), {...}
+  for ID = 1, #tDat do
+    io.write(tostring(tDat[ID] or ""))
+    io.write(sDel)
+  end; io.write("\n")
+end
+
+function common.stringImplode(tLst,sDel)
   local ID, sStr, sDel = 1, "", tostring(sDel or "")
   while(tLst and tLst[ID]) do sStr = sStr..tLst[ID]; ID = ID + 1
     if(tLst[ID] and sDel ~= "") then sStr = sStr..sDel end
   end; return sStr
 end
 
-function common.StringExplode(sStr,sDel)
+function common.stringExplode(sStr,sDel)
   local tLst, sCh, iDx, ID, dL = {""}, "", 1, 1, (sDel:len()-1)
   while(sCh) do sCh = sStr:sub(iDx,iDx+dL)
     if    (sCh ==  "" ) then return tLst
@@ -20,25 +28,25 @@ function common.StringExplode(sStr,sDel)
   end; return tLst
 end
 
-function common.StringTrim(sStr, sCh)
+function common.stringTrim(sStr, sCh)
   local sCh = tostring(sCh or "%s")
 	return sStr:match("^"..sCh.."*(.-)"..sCh.."*$" ) or sStr
 end
 
-function common.GetLineFile(pF)
-  if(not pF) then return logStatus("common.getLine: No file", ""), true end
+function common.fileGetLine(pF)
+  if(not pF) then return common.logStatus("common.getLine: No file", ""), true end
   local sCh, sLn = "X", "" -- Use a value to start cycle with
   while(sCh) do sCh = pF:read(1); if(not sCh) then break end
-    if(sCh == "\n") then return common.StringTrim(sLn), false else sLn = sLn..sCh end
-  end; return common.StringTrim(sLn), true -- EOF has been reached. Return the last data
+    if(sCh == "\n") then return common.stringTrim(sLn), false else sLn = sLn..sCh end
+  end; return common.stringTrim(sLn), true -- EOF has been reached. Return the last data
 end
 
-function common.GetSign(anyVal)
-  local nVal = (tonumber(anyVal) or 0)
+function common.getSign(vVal)
+  local nVal = (tonumber(vVal) or 0)
   return ((nVal > 0 and 1) or (nVal < 0 and -1) or 0)
 end
 
-function common.GetType(o)
+function common.getType(o)
   local mt = getmetatable(o)
   if(mt and mt.__type) then
     return tostring(mt.__type)
@@ -54,15 +62,35 @@ local __tobool = {
 }
 
 -- http://lua-users.org/lists/lua-l/2005-11/msg00207.html
-function common.ToBool(anyVal)
+function common.toBool(anyVal)
   if(not anyVal) then return false end
   if(__tobool[anyVal]) then return false end
   return true
 end
 
-function common.IfGet(bC, vT, vF)
-  if(bC) then return vT end
-  return vF
+function common.getPick(bC, vT, vF)
+  if(bC) then return vT end; return vF
+end
+
+function common.getValueKeys(tTab, tKeys, aKey)
+  if(aKey) then return tTab[aKey] end
+  local out; for ID = 1, #tKeys do
+    local key = tKeys[ID]; out = (tTab[key] or out)
+    if(out) then return out end
+  end; return nil
+end
+
+function common.getClamp(nN, nL, nH)
+  if(nN < nL) then return nL end
+  if(nN > nH) then return nH end; return nN
+end
+
+function common.getRound(vE, vF)
+  local nE = (tonumber(vE) or 0)
+  local nF = common.getSign(nE) * (tonumber(vF) or 0)
+  if(nF == 0) then return nF end
+  local q, d = math.modf(nE/nF)
+  return (nF * (q + (d > 0.5 and 1 or 0)))
 end
 
 return common

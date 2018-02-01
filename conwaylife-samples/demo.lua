@@ -6,10 +6,6 @@ local life = require("lifelib")
 
 io.stdout:setvbuf("no")
 
-function logStatus(anyMsg, ...)
-  io.write(tostring(anyMsg).."\n"); return ...
-end
-
 local function TurtleDraw(F,...)
   local sx, sy, x, y, i = 0, 18, 0, 0, 1
   local fx, fy = F:getW(), F:getH()
