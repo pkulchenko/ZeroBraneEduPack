@@ -20,14 +20,18 @@ function common.logConcat(anyMsg,aDel, ...)
 end
 
 -- http://lua-users.org/wiki/MathLibraryTutorial
-function common.randomNewSeed(bL)
+function common.randomSetSeed(bL)
   local nT = os.time()
   if((nT - metaCommon.__time) > 0) then
     local nS = tonumber(tostring(nT):reverse():sub(1,6))
-    if(bL) then common.logStatus("common.randomNewSeed: #"..nS) end
+    if(bL) then common.logStatus("common.randomSetSeed: #"..nS) end
     math.randomseed(nS); metaCommon.__seed = nS
     metaCommon.__time = nT; return nS
   end; return 0
+end
+
+function common.randomGetSeed(sS)
+  return (metaCommon.__seed or 0)
 end
 
 function common.randomSetString(sS)
@@ -139,6 +143,6 @@ function common.timeDelay(nD)
   else while(true) do end end
 end
 
-common.randomNewSeed()
+common.randomSetSeed()
 
 return common
