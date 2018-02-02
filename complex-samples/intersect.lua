@@ -69,6 +69,8 @@ size(W,H)
 zero(0, 0)
 updt(false) -- disable auto updates
 
+cmp.setMargin(1e-10)
+
 drawCoordinateSystem(W, H, dX, dY, maxX, maxY)
 
 cRay1, cRay2, drw = {}, {}, true
@@ -94,8 +96,8 @@ while true do
     local cD1, cD2 = (cRay1[2] - cRay1[1]), (cRay2[2] - cRay2[1])
     local suc, nT, nU, XX = cmp.getIntersectRays(cRay1[1], cD1, cRay2[1], cD2)
     if(suc) then XX:Act("xy", clMgn)
-      local onOne = XX:isAmong(cRay1[1], cRay1[2], 1e-10)
-      local onTwo = XX:isAmong(cRay2[1], cRay2[2], 1e-10)
+      local onOne = XX:isAmong(cRay1[1], cRay1[2])
+      local onTwo = XX:isAmong(cRay2[1], cRay2[2])
       logStatus("The complex intersection is "..tostring(XX))
       logStatus("The point is "..(onOne and "ON" or "OFF").." the first line (BLUE)")
       logStatus("The point is "..(onTwo and "ON" or "OFF").." the second line (RED)")

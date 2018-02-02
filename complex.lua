@@ -15,6 +15,7 @@ local getClamp     = common.getClamp
 local getValueKeys = common.getValueKeys
 
 metaComplex.__type  = "Complex"
+metaComplex.__margn = 1e-10
 metaComplex.__index = metaComplex
 metaComplex.__bords = {"{([<|/","})]>|/"}
 metaComplex.__valre = 0
@@ -34,6 +35,14 @@ end
 
 function complex.isValid(cNum)
   return (getmetatable(cNum) == metaComplex)
+end
+
+function complex.setMargin(nM)
+  metaComplex.__margn = math.abs((tonumber(nM) or 0))
+end
+
+function complex.getMargin()
+  return metaComplex.__margn
 end
 
 function complex.getNew(nRe, nIm)
@@ -403,8 +412,8 @@ function metaComplex:getLay(cS, cE)
   return cS:getSub(self):getCross(cE:getSub(self))
 end
 
-function metaComplex:isAmong(cS, cE, nMr)
-  local nM = math.abs(tonumber(nMr) or 0)
+function metaComplex:isAmong(cS, cE)
+  local nM = metaComplex.__margn
   if(math.abs(self:getLay(cS, cE)) < nM) then
     local dV = cE:getSub(cS)
     local dS = self:getSub(cS):getDot(dV)
