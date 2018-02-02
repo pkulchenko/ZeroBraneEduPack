@@ -69,8 +69,6 @@ size(W,H)
 zero(0, 0)
 updt(false) -- disable auto updates
 
-cmp.setMargin(1e-10)
-
 drawCoordinateSystem(W, H, dX, dY, maxX, maxY)
 
 cRay1, cPnt, drw = {}, cmp.getNew(), false
@@ -89,7 +87,7 @@ while true do
   elseif(drw and rx and ry and cRay1[1]) then -- Reverse the interval and convert x, y image position to a complex
     rx = intX:Convert(rx,true):getValue() 
     ry = intY:Convert(ry,true):getValue(); cPnt:Set(rx, ry)
-    local XX = cPnt:getProj(cRay1[1], cRay1[2])
+    local XX = cPnt:getProject(cRay1[1], cRay1[2])
     XX:Act("xy", clMgn); cPnt:Act("xy", clRel); cPnt:Act("ab", XX, clMgn)
     local bSegm = XX:isAmong(cRay1[1], cRay1[2])
     logStatus("The complex projection "..tostring(XX).." is "..(bSegm and "ON" or "OFF").." the line"); drw = false

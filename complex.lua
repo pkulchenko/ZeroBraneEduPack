@@ -194,13 +194,13 @@ function metaComplex:getCross(R, I)
   return self:getDet(R, I)
 end
 
-function metaComplex:Orth()
+function metaComplex:Orthogonal()
   local R, I = self:getParts()
   return self:setReal(I):setImag(-R)
 end
 
-function metaComplex:getOrth()
-  return self:getNew():Orth()
+function metaComplex:getOrthogonal()
+  return self:getNew():Orthogonal()
 end
 
 function metaComplex:getSet(R, I)
@@ -395,7 +395,7 @@ function metaComplex:setAngRad(nA)
   return self:setReal(math.cos(nP)):setImag(math.sin(nP)):Rsz(nR)
 end
 
-function metaComplex:Proj(cS, cE)
+function metaComplex:Project(cS, cE)
   local x1, y1 = cS:getParts()
   local x2, y2 = cE:getParts()
   local x3, y3 = self:getParts()
@@ -404,8 +404,8 @@ function metaComplex:Proj(cS, cE)
   return self:setReal(x3-ks*dy):setImag(y3+ks*dx)
 end
 
-function metaComplex:getProj(cS, cE)
-  return self:getNew():Proj(cS, cE)
+function metaComplex:getProject(cS, cE)
+  return self:getNew():Project(cS, cE)
 end
 
 function metaComplex:getLay(cS, cE)
@@ -568,14 +568,14 @@ end
 
 function complex.getReflectRayLine(cO, cD, cS, cE)
   local uD, uO = cD:getUnit(), cO:getNew():Sub(cD)
-  local cN = uO:getProj(cS, cE):Neg():Add(uO):Unit()
+  local cN = uO:getProject(cS, cE):Neg():Add(uO):Unit()
   local cR = uD:getNew():Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
   return cN, cR
 end
 
 function complex.getReflectRayCircle(cS, cD, cO, nR)
   local uD, uO = cD:getUnit(), cO:getNew():Sub(cD)
-  local cN = uO:getProj(cS, cE):Neg():Add(uO):Unit()
+  local cN = uO:getProject(cS, cE):Neg():Add(uO):Unit()
   local cR = uD:getNew():Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
   return cN, cR
 end

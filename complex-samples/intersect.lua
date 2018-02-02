@@ -69,8 +69,6 @@ size(W,H)
 zero(0, 0)
 updt(false) -- disable auto updates
 
-cmp.setMargin(1e-10)
-
 drawCoordinateSystem(W, H, dX, dY, maxX, maxY)
 
 cRay1, cRay2, drw = {}, {}, true
