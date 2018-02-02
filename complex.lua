@@ -31,11 +31,11 @@ local function exportComplex(R, I)
   return (tonumber(R) or metaComplex.__valre), (tonumber(I) or metaComplex.__valim)
 end
 
-function complex.IsValid(cNum)
+function complex.isValid(cNum)
   return (getmetatable(cNum) == metaComplex)
 end
 
-function complex.New(nRe, nIm)
+function complex.getNew(nRe, nIm)
   self = {}; setmetatable(self,metaComplex)
   local Re = tonumber(nRe) or metaComplex.__valre
   local Im = tonumber(nIm) or metaComplex.__valim
@@ -135,7 +135,7 @@ function metaComplex:Draw(aK,...)
 end
 
 function metaComplex:getNew(nR, nI)
-  local N = complex.New(self); if(nR or nI) then
+  local N = complex.getNew(self); if(nR or nI) then
     local R, I = exportComplex(nR, nI); N:Set(R, I)
   end; return N
 end
@@ -472,31 +472,31 @@ metaComplex.__tostring = function(cNum)
 end
 
 metaComplex.__unm = function(cNum)
-  return complex.New(cNum):Neg()
+  return complex.getNew(cNum):Neg()
 end
 
 metaComplex.__add = function(C1,C2)
-  return complex.New(C1):Add(C2)
+  return complex.getNew(C1):Add(C2)
 end
 
 metaComplex.__sub = function(C1,C2)
-  return complex.New(C1):Sub(C2)
+  return complex.getNew(C1):Sub(C2)
 end
 
 metaComplex.__mul = function(C1,C2)
-  return complex.New(C1):Mul(C2)
+  return complex.getNew(C1):Mul(C2)
 end
 
 metaComplex.__div = function(C1,C2)
-  return complex.New(C1):Div(C2)
+  return complex.getNew(C1):Div(C2)
 end
 
 metaComplex.__mod =  function(C1,C2)
-  return complex.New(C1):Mod(C2)
+  return complex.getNew(C1):Mod(C2)
 end
 
 metaComplex.__pow =  function(C1,C2)
-  return complex.New(C1):Pow(C2)
+  return complex.getNew(C1):Pow(C2)
 end
 
 metaComplex.__concat = function(A,B)
@@ -533,39 +533,53 @@ metaComplex.__lt =  function(C1,C2)
   return false
 end
 
-function complex.Intersect(cO1, cD1, cO2, cD2)
-  local dD = cD1:getCross(cD2); if(dD == 0) then
+function complex.getIntersectRays(cO1, cD1, cO2, cD2)
+  local dD = cD1:getDet(cD2); if(dD == 0) then
     return false end; local dO = cO2:getNew():Sub(cO1)
-  local nT, nU = (dO:getCross(cD2) / dD), (dO:getCross(cD1) / dD)
+  local nT, nU = (dO:getDet(cD2) / dD), (dO:getDet(cD1) / dD)
   return true, nT, nU, dO:Set(cO1):Add(cD1:getRsz(nT))
 end
 
-function complex.Reflect(cO, cD, cS, cE)
+function complex.getIntersectCircle(cS, cD, cO, nR)
+  local dD = cD1:getDet(cD2); if(dD == 0) then
+    return false end; local dO = cO2:getNew():Sub(cO1)
+  local nT, nU = (dO:getDet(cD2) / dD), (dO:getDet(cD1) / dD)
+  return true, nT, nU, dO:Set(cO1):Add(cD1:getRsz(nT))
+end
+
+function complex.getReflectLine(cO, cD, cS, cE)
   local uD, uO = cD:getUnit(), cO:getNew():Sub(cD)
   local cN = uO:getProj(cS, cE):Neg():Add(uO):Unit()
   local cR = uD:getNew():Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
   return cN, cR
 end
 
-function complex.Euler(vRm, vPh)
+function complex.getReflectCircle(cS, cD, cO, nR)
+  local uD, uO = cD:getUnit(), cO:getNew():Sub(cD)
+  local cN = uO:getProj(cS, cE):Neg():Add(uO):Unit()
+  local cR = uD:getNew():Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
+  return cN, cR
+end
+
+function complex.getEuler(vRm, vPh)
   local nRm, nPh = (tonumber(vRm) or 0), (tonumber(vPh) or 0)
   return self:getNew(math.cos(nPh),math.sin(nPh)):Rsz(nRm)
 end
 
-function complex.ToDegree(nRad)
+function complex.toDegree(nRad)
   if(math.deg) then return math.deg(nRad) end
   return (tonumber(nRad) or 0) * metaComplex.__radeg
 end
 
-function complex.ToRadian(nDeg)
+function complex.toRadian(nDeg)
   if(math.rad) then return math.rad(nDeg) end
   return (tonumber(nDeg) or 0) / metaComplex.__radeg
 end
 
-function metaComplex:getAngDeg() return complex.ToDegree(self:getAngRad()) end
+function metaComplex:getAngDeg() return complex.toDegree(self:getAngRad()) end
 
 function metaComplex:RotDeg(nA)
-  return self:RotRad(complex.ToRadian(tonumber(nA) or 0))
+  return self:RotRad(complex.toRadian(tonumber(nA) or 0))
 end
 
 function metaComplex:getRotDeg(nA)
@@ -573,14 +587,14 @@ function metaComplex:getRotDeg(nA)
 end
 
 function metaComplex:setAngDeg(nA)
-  return self:setAngRad(complex.ToRadian(tonumber(nA) or 0))
+  return self:setAngRad(complex.toRadian(tonumber(nA) or 0))
 end
 
 function metaComplex:getAngDegVec(cV)
-  return complex.ToDegree(self:getAngRadVec(cV))
+  return complex.toDegree(self:getAngRadVec(cV))
 end
 
-function complex.Draw(aK, fD)
+function complex.setDraw(aK, fD)
   if(not aK) then return logStatus("complex.Draw: Miss-key", false) end
   if(type(fD) == "function") then
     metaComplex.__cdraw[aK] = fD; return true end
@@ -608,8 +622,8 @@ local function stringToComplex(sStr, nS, nE, sDel)
   local Del = tostring(sDel or ","):sub(1,1)
   local S, E, D = nS, nE, sStr:find(Del)
   if((not D) or (D < S) or (D > E)) then
-    return complex.New(tonumber(sStr:sub(S,E)) or metaComplex.__valre, metaComplex.__valim) end
-  return complex.New(tonumber(sStr:sub(S,D-1)) or metaComplex.__valre,
+    return complex.getNew(tonumber(sStr:sub(S,E)) or metaComplex.__valre, metaComplex.__valim) end
+  return complex.getNew(tonumber(sStr:sub(S,D-1)) or metaComplex.__valre,
                      tonumber(sStr:sub(D+1,E)) or metaComplex.__valim)
 end
 
@@ -620,10 +634,10 @@ local function stringToComplexI(sStr, nS, nE, nI)
   if(nI == nE) then  -- (-0.7-2.9i) Skip symbols until +/- is reached
     while(C ~= "+" and C ~= "-" and M > 0) do
       M = M - 1; C = sStr:sub(M,M) end
-    return complex.New(tonumber(sStr:sub(nS,M-1)) or metaComplex.__valre,
+    return complex.getNew(tonumber(sStr:sub(nS,M-1)) or metaComplex.__valre,
                        tonumber(sStr:sub(M,nE-1)) or metaComplex.__valim)
   else -- (-0.7-i2.9)
-    return complex.New(tonumber(sStr:sub(nS,M-1))     or metaComplex.__valre,
+    return complex.getNew(tonumber(sStr:sub(nS,M-1))     or metaComplex.__valre,
                        tonumber(C..sStr:sub(nI+1,nE)) or metaComplex.__valim)
   end
 end
@@ -633,30 +647,30 @@ local function tableToComplex(tTab, kRe, kIm)
   local R = getValueKeys(tTab, metaComplex.__kreal, kRe)
   local I = getValueKeys(tTab, metaComplex.__kimag, kIm)
   if(R or I) then
-    return complex.New(tonumber(R) or metaComplex.__valre,
-                       tonumber(I) or metaComplex.__valim) end
-  return logStatus("tableToComplex: Table format not supported", complex.New())
+    return complex.getNew(tonumber(R) or metaComplex.__valre,
+                          tonumber(I) or metaComplex.__valim) end
+  return logStatus("tableToComplex: Table format not supported", complex.getNew())
 end
 
-function complex.Convert(vIn, ...)
+function complex.convNew(vIn, ...)
   if(getmetatable(vIn) == metaComplex) then return vIn:getNew() end
   local tyIn, tArg = type(vIn), {...}
   if(tyIn =="boolean") then
-    return complex.New(vIn and 1 or 0,tArg[1] and 1 or 0)
+    return complex.getNew(vIn and 1 or 0,tArg[1] and 1 or 0)
   elseif(tyIn ==  "table") then return tableToComplex(vIn, tArg[1], tArg[2])
-  elseif(tyIn == "number") then return complex.New(vIn,tArg[1])
-  elseif(tyIn ==    "nil") then return complex.New(0,0)
+  elseif(tyIn == "number") then return complex.getNew(vIn,tArg[1])
+  elseif(tyIn ==    "nil") then return complex.getNew(0,0)
   elseif(tyIn == "string") then
     local Str, S, E = stringValidComplex(vIn:gsub("*",""))
     if(not (Str and S and E)) then
-      return logStatus("complex.Convert: Failed to validate <"..tostring(vIn)..">",nil) end
+      return logStatus("complex.convNew: Failed to validate <"..tostring(vIn)..">",nil) end
     Str = Str:sub(S ,E); E = E-S+1; S = 1; local Sim, I = metaComplex.__ssyms
     for ID = 1, #Sim do local val = Sim[ID]
       I = Str:find(val,S) or I; if(I) then break end end
     if(I and (I > 0)) then return stringToComplexI(Str, S, E, I)
     else return stringToComplex(Str, S, E, tArg[1]) end
   end
-  return logStatus("complex.Convert: Type <"..tyIn.."> not supported",nil)
+  return logStatus("complex.convNew: Type <"..tyIn.."> not supported",nil)
 end
 
 return complex

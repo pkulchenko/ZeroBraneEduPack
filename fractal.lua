@@ -101,7 +101,7 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
       logStatus("PlaneZ.Draw: Iteration depth #"..tostring(maxItr).." invalid"); return end
     local r, g, b, iDepth, isInside, nrmZ = 0, 0, 0, 0, true
     local sName, sPalet = tostring(sName), tostring(sPalet)
-    local C, Z, R = complex.New(), complex.New(), {}
+    local C, Z, R = complex.getNew(), complex.getNew(), {}
     logStatus("PlaneZ.Zoom: {"..uZoom.."}")
     logStatus("PlaneZ.Cent: {"..uniCr..","..uniCi.."}")
     logStatus("PlaneZ.Area: {"..minRe..","..maxRe..","..minIm..","..maxIm.."}")

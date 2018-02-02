@@ -19,7 +19,7 @@ local intY = crt.New("interval","WinY", -50, 50, H, 0)
 local bxl, bxh = intX:getBorderIn()
 local byl, byh = intY:getBorderIn()
 local aAng, dA, nRad = 0, 15, 30
-local C = cmp.New(nRad, 0)
+local C = cmp.getNew(nRad, 0)
 local D = C:getNew()
 
 -- Allocate colors
@@ -58,14 +58,14 @@ local function drawCoordinateSystem(w, h, dx, dy, mx, my)
   line(xe, 0, xe, h); line(0, ye, w, ye)
 end
 
-cmp.Draw("ang", drawComplex)
+cmp.setDraw("ang", drawComplex)
 
 drawCoordinateSystem(W, H, dX, dY, bxh, byh)
 
 while(aAng < 360) do
-  C:getRotRad(cmp.ToRadian(aAng)):Draw("ang",aAng,true)
-  D:Set(C):RotRad(cmp.ToRadian(aAng)):Draw("ang",aAng)
-  D:Set(C):setAngRad(cmp.ToRadian(aAng)):Draw("ang",aAng)
+  C:getRotRad(cmp.toRadian(aAng)):Draw("ang",aAng,true)
+  D:Set(C):RotRad(cmp.toRadian(aAng)):Draw("ang",aAng)
+  D:Set(C):setAngRad(cmp.toRadian(aAng)):Draw("ang",aAng)
   C:getRotDeg(aAng):Draw("ang",aAng)
   D:Set(C):RotDeg(aAng):Draw("ang",aAng)
   D:Set(C):setAngDeg(aAng):Draw("ang",aAng)

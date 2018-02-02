@@ -54,7 +54,7 @@ local brdcl = nil -- colr(0, 250, 100)
 local brdup = nil -- true
 
 --- Dinamic parameters and constants
-local cexp   = compl.New(math.exp(1))
+local cexp   = compl.getNew(math.exp(1))
 local w2, h2 = W/2, H/2
 local gr     = 1.681
 

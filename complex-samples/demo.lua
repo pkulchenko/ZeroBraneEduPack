@@ -14,11 +14,11 @@ updt(false) -- disable auto updates
 
 local drwText, nMarg = true, 30
 
-local V0 = cmp.New(200,200):Print("Initial velocity: ","\n")
-local P  = cmp.Convert("0+j0"):Print("Position        : ","\n")
-local G  = cmp.Convert({0,-9.8}):Print("Gravity         : ","\n")
-local V  = cmp.Convert(V0):Print("Moment velocity : ","\n")
-local minX, maxX, minY, maxY, traJ = 0, 0, 0, 0, {cmp.New(P)}
+local V0 = cmp.getNew(200,200):Print("Initial velocity: ","\n")
+local P  = cmp.convNew("0+j0"):Print("Position        : ","\n")
+local G  = cmp.convNew({0,-9.8}):Print("Gravity         : ","\n")
+local V  = cmp.convNew(V0):Print("Moment velocity : ","\n")
+local minX, maxX, minY, maxY, traJ = 0, 0, 0, 0, {cmp.getNew(P)}
 
 while(P:getImag() >= 0) do
   V:Add(G); P:Add(V)
@@ -30,7 +30,7 @@ while(P:getImag() >= 0) do
   if(yP <= minY) then minY = yP end
 end
 
-local oX,aN = cmp.New(1), 0
+local oX,aN = cmp.getNew(1), 0
 local clGrn = colr(col.getColorGreenRGB())
 local intX  = crt.New("interval","WinX", minX, maxX,   nMarg, W-nMarg)
 local intY  = crt.New("interval","WinY", minY, maxY, H-2*nMarg,   0)

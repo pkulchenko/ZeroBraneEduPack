@@ -53,8 +53,8 @@ local function drawComplexLine(S, E, Cl)
   pncl(Cl); line(x1, y1, x2, y2)
 end
 
-cmp.Draw("xy", drawComplex)
-cmp.Draw("ab", drawComplexLine)
+cmp.setDraw("xy", drawComplex)
+cmp.setDraw("ab", drawComplexLine)
 
 logStatus("Create a primary ray to intersect using the left mouse button (BLUE)")
 logStatus("Create a secondary ray to intersect using the right mouse button (RED)")
@@ -81,20 +81,24 @@ while true do
   if(lx and ly and #cRay1 < 2) then -- Reverse the interval conversion polarity
     lx = intX:Convert(lx,true):getValue() -- It helps by converting x,y from positive integers to the interval above
     ly = intY:Convert(ly,true):getValue()
-    local C = cmp.New(lx, ly)
+    local C = cmp.getNew(lx, ly)
     cRay1[#cRay1+1] = C; C:Draw("xy", clOrg)
     if(#cRay1 == 2) then cRay1[1]:Draw("ab", cRay1[2], clOrg) end
   elseif(rx and ry and #cRay2 < 2) then -- Reverse-convert x, y position to a complex number
     rx = intX:Convert(rx,true):getValue()
     ry = intY:Convert(ry,true):getValue()
-    local C = cmp.New(rx, ry); C:Draw("xy", clRel); cRay2[#cRay2+1] = C
+    local C = cmp.getNew(rx, ry); C:Draw("xy", clRel); cRay2[#cRay2+1] = C
     if(#cRay2 == 2) then cRay2[1]:Draw("ab", cRay2[2], clRel) end
   end
   if(drw and #cRay1 == 2 and #cRay2 == 2) then
     local cD1, cD2 = (cRay1[2] - cRay1[1]), (cRay2[2] - cRay2[1])
-    local suc, nT, nU, XX = cmp.Intersect(cRay1[1], cD1, cRay2[1], cD2)
+    local suc, nT, nU, XX = cmp.getIntersectRays(cRay1[1], cD1, cRay2[1], cD2)
     if(suc) then XX:Draw("xy", clMgn)
+      local onOne = XX:isAmong(cRay1[1], cRay1[2], 1e-10)
+      local onTwo = XX:isAmong(cRay2[1], cRay2[2], 1e-10)
       logStatus("The complex intersection is "..tostring(XX))
+      logStatus("The point is "..(onOne and "ON" or "OFF").." the first line (BLUE)")
+      logStatus("The point is "..(onTwo and "ON" or "OFF").." the second line (RED)")
     end; drw = false
   end
   if(key == 27) then -- The user hits esc

@@ -53,8 +53,8 @@ local function drawComplexLine(S, E, Cl)
   pncl(Cl); line(x1, y1, x2, y2)
 end
 
-cmp.Draw("xy", drawComplex)
-cmp.Draw("ab", drawComplexLine)
+cmp.setDraw("xy", drawComplex)
+cmp.setDraw("ab", drawComplexLine)
 
 logStatus("Create a primary line to project on using the left mouse button (BLUE)")
 logStatus("Create a point to project on the line using the right mouse button (RED)")
@@ -71,7 +71,7 @@ updt(false) -- disable auto updates
 
 drawCoordinateSystem(W, H, dX, dY, maxX, maxY)
 
-cRay1, cPnt, drw = {}, cmp.New(), false
+cRay1, cPnt, drw = {}, cmp.getNew(), false
 
 while true do
   wait(0.2)
@@ -81,7 +81,7 @@ while true do
   if(lx and ly and #cRay1 < 2) then -- Reverse the interval conversion polarity
     lx = intX:Convert(lx,true):getValue() -- It helps by converting x,y from positive integers to the interval above
     ly = intY:Convert(ly,true):getValue() 
-    local C = cmp.New(lx, ly)
+    local C = cmp.getNew(lx, ly)
     cRay1[#cRay1+1] = C; C:Draw("xy", clOrg)
     if(#cRay1 == 2) then cRay1[1]:Draw("ab", cRay1[2], clOrg); drw = true end
   elseif(drw and rx and ry) then -- Reverse the interval and convert x, y image position to a complex
