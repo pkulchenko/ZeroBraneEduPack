@@ -541,21 +541,19 @@ metaComplex.__lt =  function(C1,C2)
   return false
 end
 
-function complex.getIntersectRays(cO1, cD1, cO2, cD2)
+function complex.getIntersectRayRay(cO1, cD1, cO2, cD2)
   local dD = cD1:getDet(cD2); if(dD == 0) then
     return false end; local dO = cO2:getNew():Sub(cO1)
   local nT, nU = (dO:getDet(cD2) / dD), (dO:getDet(cD1) / dD)
   return true, nT, nU, dO:Set(cO1):Add(cD1:getRsz(nT))
 end
 
-function complex.getIntersectCircle(cS, cE, cO, nR)
+function complex.getIntersectRayCircle(cS, cE, cO, nR)
   local dD = cE:getSub(cS)
   local dR = dD:getNorm()
-  print(dR)
   if(dR == 0) then return false end
   local dE, dR2 = cS:getDet(cE), (dR^2)
   local DD, rR2 = (nR^2 * dR2 - dE^2), (1/dR2)
-  print(DD)
   if(DD < 0) then return false end
   local dX, dY, qD = dD:getReal(), dD:getImag(), math.sqrt(DD)
   local mX, mY = (getSignNon(dY) * dX), math.abs(dY)
@@ -568,14 +566,14 @@ function complex.getIntersectCircle(cS, cE, cO, nR)
   return true, pP, pN
 end
 
-function complex.getReflectLine(cO, cD, cS, cE)
+function complex.getReflectRayLine(cO, cD, cS, cE)
   local uD, uO = cD:getUnit(), cO:getNew():Sub(cD)
   local cN = uO:getProj(cS, cE):Neg():Add(uO):Unit()
   local cR = uD:getNew():Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
   return cN, cR
 end
 
-function complex.getReflectCircle(cS, cD, cO, nR)
+function complex.getReflectRayCircle(cS, cD, cO, nR)
   local uD, uO = cD:getUnit(), cO:getNew():Sub(cD)
   local cN = uO:getProj(cS, cE):Neg():Add(uO):Unit()
   local cR = uD:getNew():Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
