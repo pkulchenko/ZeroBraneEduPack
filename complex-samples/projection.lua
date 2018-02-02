@@ -53,8 +53,8 @@ local function drawComplexLine(S, E, Cl)
   pncl(Cl); line(x1, y1, x2, y2)
 end
 
-cmp.setDraw("xy", drawComplex)
-cmp.setDraw("ab", drawComplexLine)
+cmp.setAction("xy", drawComplex)
+cmp.setAction("ab", drawComplexLine)
 
 logStatus("Create a primary line to project on using the left mouse button (BLUE)")
 logStatus("Create a point to project on the line using the right mouse button (RED)")
@@ -82,13 +82,13 @@ while true do
     lx = intX:Convert(lx,true):getValue() -- It helps by converting x,y from positive integers to the interval above
     ly = intY:Convert(ly,true):getValue() 
     local C = cmp.getNew(lx, ly)
-    cRay1[#cRay1+1] = C; C:Draw("xy", clOrg)
-    if(#cRay1 == 2) then cRay1[1]:Draw("ab", cRay1[2], clOrg); drw = true end
-  elseif(drw and rx and ry) then -- Reverse the interval and convert x, y image position to a complex
+    cRay1[#cRay1+1] = C; C:Act("xy", clOrg)
+    if(#cRay1 == 2) then cRay1[1]:Act("ab", cRay1[2], clOrg); drw = true end
+  elseif(drw and rx and ry and cRay1[1]) then -- Reverse the interval and convert x, y image position to a complex
     rx = intX:Convert(rx,true):getValue() 
     ry = intY:Convert(ry,true):getValue(); cPnt:Set(rx, ry)
     local XX = cPnt:getProj(cRay1[1], cRay1[2])
-    XX:Draw("xy", clMgn); cPnt:Draw("xy", clRel); cPnt:Draw("ab", XX, clMgn)
+    XX:Act("xy", clMgn); cPnt:Act("xy", clRel); cPnt:Act("ab", XX, clMgn)
     local bSegm = XX:isAmong(cRay1[1], cRay1[2], 1e-10)
     logStatus("The complex projection "..tostring(XX).." is "..(bSegm and "ON" or "OFF").." the line"); drw = false
   end

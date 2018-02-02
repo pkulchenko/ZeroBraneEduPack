@@ -24,7 +24,7 @@ metaComplex.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
 metaComplex.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
 metaComplex.__getpi = math.pi
 metaComplex.__radeg = (180 / metaComplex.__getpi)
-metaComplex.__cdraw = {}
+metaComplex.__cactf = {}
 
 local function exportComplex(R, I)
   if(not I and getmetatable(R) == metaComplex) then return R:getParts() end
@@ -125,12 +125,12 @@ function complex.getNew(nRe, nIm)
   return self
 end
 
-function metaComplex:Draw(aK,...)
+function metaComplex:Act(aK,...)
   if(not aK) then return self end
-  local fDr = metaComplex.__cdraw[aK]
+  local fDr = metaComplex.__cactf[aK]
   if(not fDr) then return self end
   local suc, err = pcall(fDr,self,...); if(not suc) then
-    return logStatus("complex.Draw("..tostring(aK).."): "..tostring(err), self) end
+    return logStatus("complex.Act("..tostring(aK).."): "..tostring(err), self) end
   return self
 end
 
@@ -594,11 +594,11 @@ function metaComplex:getAngDegVec(cV)
   return complex.toDegree(self:getAngRadVec(cV))
 end
 
-function complex.setDraw(aK, fD)
-  if(not aK) then return logStatus("complex.Draw: Miss-key", false) end
+function complex.setAction(aK, fD)
+  if(not aK) then return logStatus("complex.setAction: Miss-key", false) end
   if(type(fD) == "function") then
-    metaComplex.__cdraw[aK] = fD; return true end
-  return logStatus("complex.Draw: Non-function", false)
+    metaComplex.__cactf[aK] = fD; return true end
+  return logStatus("complex.setAction: Non-function", false)
 end
 
 local function stringValidComplex(sStr)

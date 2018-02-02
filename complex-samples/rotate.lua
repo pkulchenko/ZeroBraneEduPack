@@ -58,17 +58,17 @@ local function drawCoordinateSystem(w, h, dx, dy, mx, my)
   line(xe, 0, xe, h); line(0, ye, w, ye)
 end
 
-cmp.setDraw("ang", drawComplex)
+cmp.setAction("ang", drawComplex)
 
 drawCoordinateSystem(W, H, dX, dY, bxh, byh)
 
 while(aAng < 360) do
-  C:getRotRad(cmp.toRadian(aAng)):Draw("ang",aAng,true)
-  D:Set(C):RotRad(cmp.toRadian(aAng)):Draw("ang",aAng)
-  D:Set(C):setAngRad(cmp.toRadian(aAng)):Draw("ang",aAng)
-  C:getRotDeg(aAng):Draw("ang",aAng)
-  D:Set(C):RotDeg(aAng):Draw("ang",aAng)
-  D:Set(C):setAngDeg(aAng):Draw("ang",aAng)
+  C:getRotRad(cmp.toRadian(aAng)):Act("ang",aAng,true)
+  D:Set(C):RotRad(cmp.toRadian(aAng)):Act("ang",aAng)
+  D:Set(C):setAngRad(cmp.toRadian(aAng)):Act("ang",aAng)
+  C:getRotDeg(aAng):Act("ang",aAng)
+  D:Set(C):RotDeg(aAng):Act("ang",aAng)
+  D:Set(C):setAngDeg(aAng):Act("ang",aAng)
   aAng = aAng + dA
   updt(); wait(0.1)
 end
