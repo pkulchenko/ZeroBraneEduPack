@@ -8,9 +8,10 @@ local setmetatable = setmetatable
 local complex      = {}
 local metaComplex  = {}
 local logStatus    = common.logStatus
-local signValue    = common.getSign
+local getSign      = common.getSign
+local getSignNon   = common.getSignNon
 local roundValue   = common.getRound
-local clampValue   = common.getClamp
+local getClamp     = common.getClamp
 local getValueKeys = common.getValueKeys
 
 metaComplex.__type  = "Complex"
@@ -129,9 +130,7 @@ function metaComplex:Act(aK,...)
   if(not aK) then return self end
   local fDr = metaComplex.__cactf[aK]
   if(not fDr) then return self end
-  local suc, err = pcall(fDr,self,...); if(not suc) then
-    return logStatus("complex.Act("..tostring(aK).."): "..tostring(err), self) end
-  return self
+  return pcall(fDr,self,...)
 end
 
 function metaComplex:getNew(nR, nI)
@@ -433,9 +432,9 @@ function metaComplex:getFormat(...)
   if(sMod == "table") then
     local sN, R, I = tostring(tArg[3] or "%f"), self:getParts()
     local iS = math.floor((metaComplex.__bords[1]..metaComplex.__bords[2]):len()/2)
-          iB = clampValue(tonumber(tArg[4] or 1), 1, iS)
+          iB = getClamp(tonumber(tArg[4] or 1), 1, iS)
     local eS = math.floor((#metaComplex.__kreal + #metaComplex.__kimag)/2)
-          iD = clampValue((tonumber(tArg[2]) or 1), 1, eS)
+          iD = getClamp((tonumber(tArg[2]) or 1), 1, eS)
     local sF = metaComplex.__bords[1]:sub(iB,iB)
     local sB = metaComplex.__bords[2]:sub(iB,iB)
     local kR = tostring(tArg[5] or metaComplex.__kreal[iD])
@@ -449,11 +448,11 @@ function metaComplex:getFormat(...)
                ",["..kI.."]="..sN:format(I)..sB)
   elseif(sMod == "string") then
     local R, I = self:getParts()
-    local mI, bS = (signValue(I) * I), tArg[3]
+    local mI, bS = (getSign(I) * I), tArg[3]
     local iD, eS = (tonumber(tArg[2]) or 1), #metaComplex.__ssyms
           iD = (iD > eS) and eS or iD
     local kI = tostring(tArg[4] or metaComplex.__ssyms[iD])
-    local sI = ((signValue(I) < 0) and "-" or "+")
+    local sI = ((getSign(I) < 0) and "-" or "+")
     if(bS) then return (R..sI..kI..mI)
     else return (R..sI..mI..kI) end
   end; return tostring(self)
@@ -540,11 +539,24 @@ function complex.getIntersectRays(cO1, cD1, cO2, cD2)
   return true, nT, nU, dO:Set(cO1):Add(cD1:getRsz(nT))
 end
 
-function complex.getIntersectCircle(cS, cD, cO, nR)
-  local dD = cD1:getDet(cD2); if(dD == 0) then
-    return false end; local dO = cO2:getNew():Sub(cO1)
-  local nT, nU = (dO:getDet(cD2) / dD), (dO:getDet(cD1) / dD)
-  return true, nT, nU, dO:Set(cO1):Add(cD1:getRsz(nT))
+function complex.getIntersectCircle(cS, cE, cO, nR)
+  local dD = cE:getSub(cS)
+  local dR = dD:getNorm()
+  print(dR)
+  if(dR == 0) then return false end
+  local dE, dR2 = cS:getDet(cE), (dR^2)
+  local DD, rR2 = (nR^2 * dR2 - dE^2), (1/dR2)
+  print(DD)
+  if(DD < 0) then return false end
+  local dX, dY, qD = dD:getReal(), dD:getImag(), math.sqrt(DD)
+  local mX, mY = (getSignNon(dY) * dX), math.abs(dY)
+  local pP = cS:getNew()
+        pP:setReal( dE * dY + mX * qD):Rsz(rR2)
+        pP:setImag(-dE * dX + mY * qD):Rsz(rR2)
+  local pN = cE:getNew()
+        pN:setReal( dE * dY - mX * qD):Rsz(rR2)
+        pN:setImag(-dE * dX - mY * qD):Rsz(rR2)
+  return true, pP, pN
 end
 
 function complex.getReflectLine(cO, cD, cS, cE)

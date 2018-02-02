@@ -264,7 +264,7 @@ local r = a:getRoots(R)
 if(r) then
   for id = 1, #r do
     logStatus(r[id].."^"..R.." = "..(r[id]^R))
-    r[id]:Act("This your draw key !"); updt()
+    r[id]:Act("This your action key !"); updt()
     wait(0.3)
   end
 end
