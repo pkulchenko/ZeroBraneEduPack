@@ -38,7 +38,7 @@ function common.randomSetString(sS)
   metaCommon.__syms = tostring(sS or "")
 end
 
-function common.randomGetNumber(vC, nL, nU)
+function common.randomGetNumber(nL, nU, vC)
   local iC = math.floor(tonumber(vC) or 0)
   for iD = 1, iC do math.random() end
   if(nL and nU) then return math.random(nL, nU)
@@ -52,7 +52,7 @@ function common.randomGetString(vE, vN)
   local sS = metaCommon.__syms
   local sR, nL = "", sS:len()
   for iD = 1, iE do
-    local rN = common.randomGetNumber(iN, 1, nL)
+    local rN = common.randomGetNumber(1, nL, iN)
     sR = sR..sS:sub(rN, rN)
   end; return sR
 end
@@ -88,6 +88,10 @@ end
 
 function common.getSign(nVal)
   return ((nVal > 0 and 1) or (nVal < 0 and -1) or 0)
+end
+
+function common.getSignNon(nVal)
+  return ((nVal >= 0 and 1) or -1)
 end
 
 function common.getType(o)
