@@ -107,10 +107,18 @@ while true do
     end
   end
   if(drw and #cRay1 == 2 and #cRay2 == 2) then
-    local suc, pp, pn = cmp.getIntersectCircle(cRay1[1], cRay1[2], cRay2[1], rad)
-    if(suc) then pp:Act("xy", clMgn); pn:Act("xy", clMgn)
-      print("param", cRay1[1], cRay1[2], cRay2[1], rad)
-      print("out"  , pp, pn)
+    local dd = (cRay1[2]-cRay1[1])
+    local suc, pp, pm = cmp.getIntersectRayCircle(cRay1[1], dd, cRay2[1], rad)
+    if(suc) then pp:Act("xy", clMgn); pm:Act("xy", clMgn)
+      local suc, cn, cr = cmp.getReflectRayCircle(cRay1[1], dd, cRay2[1], rad)
+      logStatus("The ray has intersected the circle at "..pp.."/"..pm)
+      if(suc) then
+        cn:Mul(dd:getNorm() / 2):Add(pm); cr:Mul(dd:getNorm()):Add(pm)
+        cn:Act("ab", pm); cr:Act("ab", pm)
+        logStatus("Reflected ray from the circle is "..cr)
+      end
+    else
+      logStatus("The needed conditions are not met for the intersection to happen")
     end; drw = false
   end
   if(key == 27) then -- The user hits esc
