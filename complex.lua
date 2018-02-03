@@ -184,14 +184,10 @@ function metaComplex:getDist(R, I)
   return math.sqrt(self:getDist2(R, I))
 end
 
-function metaComplex:getDet(R, I)
+function metaComplex:getCross(R, I)
   local C, D = self:getParts()
   local R, I = exportComplex(R, I)
   return (C*I - D*R)
-end
-
-function metaComplex:getCross(R, I)
-  return self:getDet(R, I)
 end
 
 function metaComplex:Right()
@@ -542,9 +538,9 @@ metaComplex.__lt =  function(C1,C2)
 end
 
 function complex.getIntersectRayRay(cO1, cD1, cO2, cD2)
-  local dD = cD1:getDet(cD2); if(dD == 0) then
+  local dD = cD1:getCross(cD2); if(dD == 0) then
     return false end; local dO = cO2:getNew():Sub(cO1)
-  local nT, nU = (dO:getDet(cD2) / dD), (dO:getDet(cD1) / dD)
+  local nT, nU = (dO:getCross(cD2) / dD), (dO:getCross(cD1) / dD)
   return true, nT, nU, dO:Set(cO1):Add(cD1:getRsz(nT))
 end
 
