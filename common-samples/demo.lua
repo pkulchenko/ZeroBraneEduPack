@@ -36,12 +36,12 @@ for i = 1, 10 do
     That's why we have to call the random generator some couple of
     times before returning the actual value
     The function randomGetNumber arguments:
-      1) Dummy invoke times of "math.random" to generate the actual number (optional)
-      2) Lower limit for the "math.random" function (optional)
+      1) Lower limit for the "math.random" function (optional)
       2) Upper limit for the "math.random" function (optional)
+      3) Dummy invoke times of "math.random" to generate the actual number (optional)
     The function "randomGetString" arguments:
       1) How long the generated string must be (optional) (0 for empty string)
-      2) Controls the "randomGetNumber" first parameter when generating an index
+      2) Controls the "randomGetNumber" third parameter when generating an index
   ]]
   local n = common.randomGetNumber(100)
   local s = common.randomGetString(80)

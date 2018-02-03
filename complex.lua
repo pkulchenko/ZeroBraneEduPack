@@ -194,13 +194,13 @@ function metaComplex:getCross(R, I)
   return self:getDet(R, I)
 end
 
-function metaComplex:Orthogonal()
+function metaComplex:Right()
   local R, I = self:getParts()
   return self:setReal(I):setImag(-R)
 end
 
-function metaComplex:getOrthogonal()
-  return self:getNew():Orthogonal()
+function metaComplex:getRight()
+  return self:getNew():Right()
 end
 
 function metaComplex:getSet(R, I)
@@ -572,7 +572,7 @@ end
 function complex.getReflectRayCircle(cO, cD, cC, nR)
   local bS, pP, pM = complex.getIntersectRayCircle(cO, cD, cC, nR)
   if(not bS) then return false end
-  pP:Set(pM):Sub(cC):Orthogonal():Add(pM)
+  pP:Set(pM):Sub(cC):Right():Add(pM)
   return true, complex.getReflectRayLine(cO, cD, pP, pM)
 end
 
