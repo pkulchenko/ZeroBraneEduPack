@@ -82,18 +82,18 @@ while true do
     lx = intX:Convert(lx,true):getValue() -- It helps by converting x,y from positive integers to the interval above
     ly = intY:Convert(ly,true):getValue()
     local C = cmp.getNew(lx, ly)
-    cRay1[#cRay1+1] = C; C:Act("xy", clOrg)
-    if(#cRay1 == 2) then cRay1[1]:Act("ab", cRay1[2], clOrg) end
+    cRay1[#cRay1+1] = C; C:Action("xy", clOrg)
+    if(#cRay1 == 2) then cRay1[1]:Action("ab", cRay1[2], clOrg) end
   elseif(rx and ry and #cRay2 < 2) then -- Reverse-convert x, y position to a complex number
     rx = intX:Convert(rx,true):getValue()
     ry = intY:Convert(ry,true):getValue()
-    local C = cmp.getNew(rx, ry); C:Act("xy", clRel); cRay2[#cRay2+1] = C
-    if(#cRay2 == 2) then cRay2[1]:Act("ab", cRay2[2], clRel) end
+    local C = cmp.getNew(rx, ry); C:Action("xy", clRel); cRay2[#cRay2+1] = C
+    if(#cRay2 == 2) then cRay2[1]:Action("ab", cRay2[2], clRel) end
   end
   if(drw and #cRay1 == 2 and #cRay2 == 2) then
     local cD1, cD2 = (cRay1[2] - cRay1[1]), (cRay2[2] - cRay2[1])
     local suc, nT, nU, XX = cmp.getIntersectRayRay(cRay1[1], cD1, cRay2[1], cD2)
-    if(suc) then XX:Act("xy", clMgn)
+    if(suc) then XX:Action("xy", clMgn)
       local onOne = XX:isAmong(cRay1[1], cRay1[2])
       local onTwo = XX:isAmong(cRay2[1], cRay2[2])
       logStatus("The complex intersection is "..tostring(XX))

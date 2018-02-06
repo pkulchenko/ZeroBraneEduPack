@@ -82,14 +82,14 @@ while true do
     lx = intX:Convert(lx,true):getValue() -- It helps by converting x,y from positive integers to the interval above
     ly = intY:Convert(ly,true):getValue()
     local C = cmp.getNew(lx, ly)
-    cRay1[#cRay1+1] = C; C:Act("xy", clOrg)
-    if(#cRay1 == 2) then cRay1[1]:Act("ab", cRay1[2], clOrg) end
+    cRay1[#cRay1+1] = C; C:Action("xy", clOrg)
+    if(#cRay1 == 2) then cRay1[1]:Action("ab", cRay1[2], clOrg) end
   elseif(rx and ry and #cRay2 < 2) then -- Reverse-convert x, y position to a complex number
     rx = intX:Convert(rx,true):getValue()
     ry = intY:Convert(ry,true):getValue()
     local C = cmp.getNew(rx, ry)
-    C:Act("xy", clRel); cRay2[#cRay2+1] = C
-    if(#cRay2 == 2) then cRay2[1]:Act("ab", cRay2[2], clRel) end
+    C:Action("xy", clRel); cRay2[#cRay2+1] = C
+    if(#cRay2 == 2) then cRay2[1]:Action("ab", cRay2[2], clRel) end
   end
   if(drw and #cRay1 == 2 and #cRay2 == 2) then
     local cD1, cD2 = (cRay1[2] - cRay1[1]), (cRay2[2] - cRay2[1])
@@ -97,8 +97,8 @@ while true do
     local cN, cR = cmp.getReflectRayLine(cRay1[1], cD1, cRay2[1], cRay2[2])
     if(bS) then local nN = cD1:getNorm()
       local eR, eN = (cR*nN+cX), (cN*nN/2+cX)
-      cX:Act("xy", clMgn); eR:Act("xy", clMgn)
-      cX:Act("ab", eR, clOrg); cX:Act("ab", eN, clBlk)
+      cX:Action("xy", clMgn); eR:Action("xy", clMgn)
+      cX:Action("ab", eR, clOrg); cX:Action("ab", eN, clBlk)
       logStatus("The complex reflection is <"..tostring(cR).."/"..tostring(eR)..">")
     else
       logStatus("The complex reflection is parallel <"..tostring(cN).."/"..tostring(cR)..">")

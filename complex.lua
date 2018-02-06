@@ -135,7 +135,7 @@ function complex.getNew(nRe, nIm)
   return self
 end
 
-function metaComplex:Act(aK,...)
+function metaComplex:Action(aK,...)
   if(not aK) then return self end
   local fDr = metaComplex.__cactf[aK]
   if(not fDr) then return self end

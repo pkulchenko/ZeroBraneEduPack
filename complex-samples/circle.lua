@@ -90,16 +90,16 @@ while true do
     lx = intX:Convert(lx,true):getValue() -- It helps by converting x,y from positive integers to the interval above
     ly = intY:Convert(ly,true):getValue()
     local C = cmp.getNew(lx, ly)
-    cRay1[#cRay1+1] = C; C:Act("xy", clBlu)
-    if(#cRay1 == 2) then cRay1[1]:Act("ab", cRay1[2], clBlu) end
+    cRay1[#cRay1+1] = C; C:Action("xy", clBlu)
+    if(#cRay1 == 2) then cRay1[1]:Action("ab", cRay1[2], clBlu) end
   elseif(rx and ry and #cRay2 < 2) then -- Reverse-convert x, y position to a complex number
     rx = intX:Convert(rx,true):getValue()
     ry = intY:Convert(ry,true):getValue()
-    local C = cmp.getNew(rx, ry); C:Act("xy", clRed); cRay2[#cRay2+1] = C
-    if(#cRay2 == 2) then cRay2[1]:Act("ab", cRay2[2], clRed)
+    local C = cmp.getNew(rx, ry); C:Action("xy", clRed); cRay2[#cRay2+1] = C
+    if(#cRay2 == 2) then cRay2[1]:Action("ab", cRay2[2], clRed)
       rad = (cRay2[2] - cRay2[1]):getNorm()
-      local b1, v1 = cRay2[2]:Act("conv")
-      local b2, v2 = cRay2[1]:Act("conv")
+      local b1, v1 = cRay2[2]:Action("conv")
+      local b2, v2 = cRay2[1]:Action("conv")
       local vr = (v2 - v1):getNorm()
       local cx = intX:Convert(cRay2[1]:getReal()):getValue()
       local cy = intY:Convert(cRay2[1]:getImag()):getValue()
@@ -109,12 +109,12 @@ while true do
   if(drw and #cRay1 == 2 and #cRay2 == 2) then
     local dd = (cRay1[2]-cRay1[1])
     local suc, pp, pm = cmp.getIntersectRayCircle(cRay1[1], dd, cRay2[1], rad)
-    if(suc) then pp:Act("xy", clMgn); pm:Act("xy", clMgn)
+    if(suc) then pp:Action("xy", clMgn); pm:Action("xy", clMgn)
       local suc, cn, cr = cmp.getReflectRayCircle(cRay1[1], dd, cRay2[1], rad)
       logStatus("The ray has intersected the circle at "..pp.."/"..pm)
       if(suc) then
         cn:Mul(dd:getNorm() / 2):Add(pm); cr:Mul(dd:getNorm()):Add(pm)
-        cn:Act("ab", pm); cr:Act("ab", pm)
+        cn:Action("ab", pm); cr:Action("ab", pm)
         logStatus("Reflected ray from the circle is "..cr)
       end
     else

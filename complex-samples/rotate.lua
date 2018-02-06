@@ -63,12 +63,12 @@ cmp.setAction("ang", drawComplex)
 drawCoordinateSystem(W, H, dX, dY, bxh, byh)
 
 while(aAng < 360) do
-  C:getRotRad(cmp.toRadian(aAng)):Act("ang",aAng,true)
-  D:Set(C):RotRad(cmp.toRadian(aAng)):Act("ang",aAng)
-  D:Set(C):setAngRad(cmp.toRadian(aAng)):Act("ang",aAng)
-  C:getRotDeg(aAng):Act("ang",aAng)
-  D:Set(C):RotDeg(aAng):Act("ang",aAng)
-  D:Set(C):setAngDeg(aAng):Act("ang",aAng)
+  C:getRotRad(cmp.toRadian(aAng)):Action("ang",aAng,true)
+  D:Set(C):RotRad(cmp.toRadian(aAng)):Action("ang",aAng)
+  D:Set(C):setAngRad(cmp.toRadian(aAng)):Action("ang",aAng)
+  C:getRotDeg(aAng):Action("ang",aAng)
+  D:Set(C):RotDeg(aAng):Action("ang",aAng)
+  D:Set(C):setAngDeg(aAng):Action("ang",aAng)
   aAng = aAng + dA
   updt(); wait(0.1)
 end
