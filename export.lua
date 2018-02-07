@@ -86,4 +86,17 @@ function export.stringTable(sRc)
   end; return tOut
 end
 
+function export.copyItem(obj, seen)
+  seen = seen or {}
+  if(obj == nil) then return nil end
+  if(seen[obj]) then return seen[obj] end; local no
+  if(type(obj) == "table") then
+    no = {}; seen[obj] = no
+    for k, v in pairs(obj) do
+      no[export.copyItem(k, seen)] = export.copyItem(v, seen)
+    end
+    setmetatable(no, export.copyItem(getmetatable(obj), seen))
+  else no = obj end; return no
+end
+
 return export
