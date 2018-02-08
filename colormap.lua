@@ -85,8 +85,6 @@ function colormap.getColorHCL(h,c,l)
          roundValue(clClamp[2] * (b + m),1)
 end
 
-
-
 function colormap.printColorMap(sKey, ...)
   if(type(sKey) == "number") then
     local tArg = {...}; local r, g, b = sKey, tArg[1], tArg[2]
@@ -179,7 +177,7 @@ local function tableToColorRGB(tTab, kR, kG, kB)
   return cR, cG, cB
 end
 
-function colormap.Convert(aIn, ...)
+function colormap.convRGB(aIn, ...)
   local tArg, tyIn, cR, cG, cB = {...}, type(aIn)
   if(tyIn == "boolean") then
     cR = (aIn     and clClamp[2] or clClamp[1])
@@ -196,7 +194,7 @@ function colormap.Convert(aIn, ...)
     cG = colormap.getClamp(tonumber(tArg[1]) or clClamp[1])
     cB = colormap.getClamp(tonumber(tArg[2]) or clClamp[1]); return cR, cG, cB
   elseif(tyIn == "table") then return tableToColorRGB(aIn, tArg[1], tArg[2], tArg[3]) end
-  return logStatus("colormap.Convert: Type <"..tyIn.."> not supported",nil)
+  return logStatus("colormap.convRGB: Type <"..tyIn.."> not supported",nil)
 end
 
 return colormap
