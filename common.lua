@@ -153,6 +153,16 @@ function common.timeDelay(nD)
   else while(true) do end end
 end
 
+function common.getPI(nI)
+  local function approxPI(itr, top)
+    if(top == itr) then return 1 end
+    local bs = ((2 * itr) + 1)
+    local nu = ((itr + 1) ^ 2)
+    return bs + nu / approxPI(itr+1, top)
+  end
+  return (4 / approxPI(0, nI))
+end
+
 common.randomSetSeed()
 
 return common
