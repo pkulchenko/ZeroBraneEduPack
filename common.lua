@@ -163,6 +163,15 @@ function common.getPI(nI)
   return (4 / approxPI(0, nI))
 end
 
+function common.getEXP(nI)
+  local function epproxEXP(itr, top)
+    if(top == itr) then return 1 end; local fac = 1
+    for I = 1, itr do fac = fac * I end
+    return (1/fac + epproxEXP(itr+1, top))
+  end
+  return epproxEXP(1, nI)
+end
+
 common.randomSetSeed()
 
 return common
