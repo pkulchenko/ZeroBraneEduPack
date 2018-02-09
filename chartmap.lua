@@ -66,22 +66,24 @@ local function newTracer(sName)
   local enDraw = false
   function self:getString() return "["..metaTracer.__type.."] "..mName end
   function self:getValue() return mTimN, mValN end
+  function self:getChart() return mPntN.x, mPntN.y end
   function self:setInterval(oIntX, oIntY)
-    mMatX, mMatY = oIntX, oIntY; return self end
+    mMatX, mMatY = oIntX, oIntY
+    return self
+  end
   function self:Reset()
     mPntN.x, mPntN.y, mPntO.x, mPntO.y = 0,0,0,0
-    enDraw, mValO, mValN = false,0,0; return self end
-
+    enDraw, mValO, mValN = false,0,0
+    return self
+  end
   function self:putValue(nTime, nVal)
-    mValO, nValN = nValN, nVal
+    mValO, mValN = mValN, nVal
     mTimO, mTimN = mTimN, nTime
     mPntO.x, mPntO.y = mPntN.x, mPntN.y
-    if(mMatX) then
-      mPntN.x = mMatX:Convert(nTime):getValue()
+    if(mMatX) then mPntN.x = mMatX:Convert(nTime):getValue()
     else mPntN.x = nTime end;
-    if(mMatY) then
-      mPntN.y = mMatY:Convert(nValN):getValue()
-    else mPntN.y = nValN end; return self
+    if(mMatY) then mPntN.y = mMatY:Convert(mValN):getValue()
+    else mPntN.y = mValN end; return self
   end
 
   function self:Draw(cCol, vSz)

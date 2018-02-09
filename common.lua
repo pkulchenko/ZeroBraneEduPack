@@ -3,8 +3,38 @@ local math       = math
 local common     = {}
 local metaCommon = {
   __time = 0,
-  __syms = "1234567890abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  __syms = "1234567890abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  __func = {}
 }
+
+metaCommon.__func["pi"] = {}
+metaCommon.__func["pi"].foo = function (itr, top)
+  if(top == itr) then return 1 end
+  local bs, nu = ((2 * itr) + 1), ((itr + 1) ^ 2)
+  return bs + nu / metaCommon.__func["pi"].foo(itr+1, top)
+end
+metaCommon.__func["pi"].out = function(itr)
+  return (4 / metaCommon.__func["pi"].foo(0, itr))
+end
+
+metaCommon.__func["exp"] = {}
+metaCommon.__func["exp"].foo = function (itr, top)
+  if(top == itr) then return 1 end; local fac = 1
+  for I = 1, itr do fac = fac * I end
+  return (1/fac + metaCommon.__func["exp"].foo(itr+1, top))
+end
+metaCommon.__func["exp"].out = function(itr)
+  return metaCommon.__func["exp"].foo(1, itr)
+end
+
+metaCommon.__func["phi"] = {}
+metaCommon.__func["phi"].foo = function (itr, top)
+  if(top == itr) then return 1 end
+  return (1 + (1 / metaCommon.__func["phi"].foo(itr+1, top)))
+end
+metaCommon.__func["phi"].out = function(itr)
+  return metaCommon.__func["phi"].foo(0, itr)
+end
 
 function common.logStatus(anyMsg, ...)
   io.write(tostring(anyMsg).."\n"); return ...
@@ -147,20 +177,27 @@ function common.getRound(nE, nF)
 end
 
 function common.timeDelay(nD)
-  if(nD) then
-    local eT = (os.clock() + nD)
+  if(nD) then local eT = (os.clock() + nD)
     while(os.clock() < eT) do end
   else while(true) do end end
 end
 
-function common.getPI(nI)
-  local function approxPI(itr, top)
-    if(top == itr) then return 1 end
-    local bs = ((2 * itr) + 1)
-    local nu = ((itr + 1) ^ 2)
-    return bs + nu / approxPI(itr+1, top)
-  end
-  return (4 / approxPI(0, nI))
+function common.getCall(sNam, ...)
+  if(not metaCommon.__func[sNam]) then
+    return common.logStatus("common.getCall: Missed <"..tostring(sNam)..">", nil) end
+  return metaCommon.__func[sNam].out(...)
+end
+
+function common.setCall(sNam, fFoo, fOut)
+  if(metaCommon.__func[sNam]) then
+    common.logStatus("common.setCall: Replaced <"..tostring(sNam)..">") end
+  if(not (type(fFoo) == "function")) then
+    return common.logStatus("common.setCall: Main <"..tostring(sNam)..">", false) end
+  if(not (type(fOut) == "function")) then
+    return common.logStatus("common.setCall: Out <"..tostring(sNam)..">", false) end 
+  metaCommon.__func[sNam] = {}
+  metaCommon.__func[sNam].foo = fFoo
+  metaCommon.__func[sNam].out = fOut
 end
 
 function common.getEXP(nI)
