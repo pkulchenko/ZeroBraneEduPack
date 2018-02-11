@@ -539,23 +539,23 @@ end
 
 function complex.getIntersectRayRay(cO1, cD1, cO2, cD2)
   local dD = cD1:getCross(cD2); if(dD == 0) then
-    return false end; local dO = cO2:getNew():Sub(cO1)
+    return nil end; local dO = cO2:getNew():Sub(cO1)
   local nT, nU = (dO:getCross(cD2) / dD), (dO:getCross(cD1) / dD)
-  return true, nT, nU, dO:Set(cO1):Add(cD1:getRsz(nT))
+  return dO:Set(cO1):Add(cD1:getRsz(nT)), nT, nU
 end
 
 function complex.getIntersectRayCircle(cO, cD, cC, nR)
   local nA = cD:getNorm2()
-  if(nA <= metaComplex.__margn) then return false end
+  if(nA <= metaComplex.__margn) then return nil end
   local cR = cO:getNew():Sub(cC)
   local nB, nC = 2*cD:getDot(cR), (cR:getNorm2() - nR^2)
   local nD = nB^2-4*nA*nC
-  if(nD < 0) then return false end
+  if(nD < 0) then return nil end
   local dA = (1/(2*nA))
   local nD = dA*math.sqrt(nD); nB = -nB*dA
   local pP = cD:getNew():Mul(nB + nD):Add(cO)
   local pM = cD:getNew():Mul(nB - nD):Add(cO)
-  return true, pP, pM
+  return pP, pM
 end
 
 function complex.getReflectRayLine(cO, cD, cS, cE)
@@ -566,10 +566,10 @@ function complex.getReflectRayLine(cO, cD, cS, cE)
 end
 
 function complex.getReflectRayCircle(cO, cD, cC, nR)
-  local bS, pP, pM = complex.getIntersectRayCircle(cO, cD, cC, nR)
-  if(not bS) then return false end
+  local pP, pM = complex.getIntersectRayCircle(cO, cD, cC, nR)
+  if(not pP) then return nil end
   pP:Set(pM):Sub(cC):Right():Add(pM)
-  return true, complex.getReflectRayLine(cO, cD, pP, pM)
+  return complex.getReflectRayLine(cO, cD, pP, pM)
 end
 
 function complex.getEuler(vRm, vPh)

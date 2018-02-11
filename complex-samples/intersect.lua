@@ -92,8 +92,8 @@ while true do
   end
   if(drw and #cRay1 == 2 and #cRay2 == 2) then
     local cD1, cD2 = (cRay1[2] - cRay1[1]), (cRay2[2] - cRay2[1])
-    local suc, nT, nU, XX = cmp.getIntersectRayRay(cRay1[1], cD1, cRay2[1], cD2)
-    if(suc) then XX:Action("xy", clMgn)
+    local XX, nT, nU = cmp.getIntersectRayRay(cRay1[1], cD1, cRay2[1], cD2)
+    if(XX) then XX:Action("xy", clMgn)
       local onOne = XX:isAmong(cRay1[1], cRay1[2])
       local onTwo = XX:isAmong(cRay2[1], cRay2[2])
       logStatus("The complex intersection is "..tostring(XX))
