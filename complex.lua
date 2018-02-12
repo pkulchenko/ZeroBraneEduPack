@@ -549,10 +549,9 @@ function complex.getIntersectRayCircle(cO, cD, cC, nR)
   if(nA <= metaComplex.__margn) then return nil end
   local cR = cO:getNew():Sub(cC)
   local nB, nC = 2*cD:getDot(cR), (cR:getNorm2() - nR^2)
-  local nD = nB^2-4*nA*nC
-  if(nD < 0) then return nil end
-  local dA = (1/(2*nA))
-  local nD = dA*math.sqrt(nD); nB = -nB*dA
+  local nD = nB^2-4*nA*nC; if(nD < 0) then
+    return nil end; local dA = (1/(2*nA))
+  nD, nB = dA*math.sqrt(nD), -nB*dA
   local pP = cD:getNew():Mul(nB + nD):Add(cO)
   local pM = cD:getNew():Mul(nB - nD):Add(cO)
   return pP, pM
