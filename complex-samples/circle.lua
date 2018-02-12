@@ -108,13 +108,13 @@ while true do
   end
   if(drw and #cRay1 == 2 and #cRay2 == 2) then
     local dd = (cRay1[2]-cRay1[1])
-    local pp, pm = cmp.getIntersectRayCircle(cRay1[1], dd, cRay2[1], rad)
-    if(pp) then pp:Action("xy", clMgn); pm:Action("xy", clMgn)
+    local xN, xF = cmp.getIntersectRayCircle(cRay1[1], dd, cRay2[1], rad)
+    if(xN) then xN:Action("xy", clMgn); xF:Action("xy", clBlk)
       local cn, cr = cmp.getReflectRayCircle(cRay1[1], dd, cRay2[1], rad)
-      logStatus("The ray has intersected the circle at "..pp.."/"..pm)
-      if(cn) then
-        cn:Mul(dd:getNorm() / 2):Add(pm); cr:Mul(dd:getNorm()):Add(pm)
-        cn:Action("ab", pm); cr:Action("ab", pm)
+      logStatus("The ray has intersected the circle at "..xN.."/"..xF)
+      if(cn) then 
+        cn:Mul(dd:getNorm() / 2):Add(xN); cr:Mul(dd:getNorm()):Add(xN)
+        cn:Action("ab", xN, clMgn); cr:Action("ab", xN, clMgn)
         logStatus("Reflected ray from the circle is "..cr)
       end
     else
