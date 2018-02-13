@@ -185,7 +185,7 @@ end
 function common.getCall(sNam, ...)
   if(not metaCommon.__func[sNam]) then
     return common.logStatus("common.getCall: Missed <"..tostring(sNam)..">", nil) end
-  return metaCommon.__func[sNam].out(...)
+  return pcall(metaCommon.__func[sNam].out, ...)
 end
 
 function common.setCall(sNam, fFoo, fOut)
