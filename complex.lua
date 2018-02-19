@@ -199,6 +199,15 @@ function metaComplex:getRight()
   return self:getNew():Right()
 end
 
+function metaComplex:Left()
+  local R, I = self:getParts()
+  return self:setReal(-I):setImag(R)
+end
+
+function metaComplex:getLeft()
+  return self:getNew():Left()
+end
+
 function metaComplex:getSet(R, I)
   return self:getNew():Set(R, I)
 end
