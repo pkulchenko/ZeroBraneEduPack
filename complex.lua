@@ -413,17 +413,30 @@ function metaComplex:getProject(cS, cE)
   return self:getNew():Project(cS, cE)
 end
 
-function metaComplex:getLay(cS, cE)
+function metaComplex:getLayMargin(cS, cE)
   return cS:getSub(self):getCross(cE:getSub(self))
 end
 
-function metaComplex:isAmong(cS, cE)
+function metaComplex:isAmongLine(cS, cE, bF)
   local nM = metaComplex.__margn
-  if(math.abs(self:getLay(cS, cE)) < nM) then
+  if(math.abs(self:getLayMargin(cS, cE)) < nM) then
     local dV = cE:getSub(cS)
     local dS = self:getSub(cS):getDot(dV)
     local dE = self:getSub(cE):getDot(dV)
-    if(dS * dE > 0) then return false end; return true
+    if(not bF and dS * dE > 0) then return false end
+    return true
+  end; return false
+end
+
+function metaComplex:isAmongRay(cO, cD, bF)
+  local nM = metaComplex.__margn
+  local cE = cO:getNew():Add(cD)
+  if(math.abs(self:getLayMargin(cO, cE)) < nM) then
+    local dO = self:getSub(cO):getDot(cD)
+    local dE = self:getSub(cE):getDot(cD)
+    if(dO < 0 and dE < 0) then return false end
+    if(not bF and dO > 0 and dE > 0) then return false end
+    return true
   end; return false
 end
 

@@ -89,7 +89,7 @@ while true do
     ry = intY:Convert(ry,true):getValue(); cPnt:Set(rx, ry)
     local XX = cPnt:getProject(cRay1[1], cRay1[2])
     XX:Action("xy", clMgn); cPnt:Action("xy", clRel); cPnt:Action("ab", XX, clMgn)
-    local bSegm = XX:isAmong(cRay1[1], cRay1[2])
+    local bSegm = XX:isAmongLine(cRay1[1], cRay1[2])
     logStatus("The complex projection "..tostring(XX).." is "..(bSegm and "ON" or "OFF").." the line"); drw = false
   end
   if(key == 27) then -- The user hits esc
