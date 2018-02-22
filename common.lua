@@ -40,6 +40,10 @@ function common.logStatus(anyMsg, ...)
   io.write(tostring(anyMsg).."\n"); return ...
 end
 
+function common.isNil(vVal)
+  return (vVal == nil)
+end
+
 function common.logConcat(anyMsg,aDel, ...)
   local sDel, tDat = tostring(aDel or ","), {...}
   io.write(tostring(anyMsg)..": ")
