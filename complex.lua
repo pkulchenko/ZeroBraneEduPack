@@ -594,11 +594,10 @@ function complex.getReflectRayLine(cO, cD, cS, cE)
   return cN, cR
 end
 
-function complex.getReflectRayCircle(cO, cD, cC, nR)
-  local xN, xF = complex.getIntersectRayCircle(cO, cD, cC, nR)
-  if(not xN) then return nil end
-  xF:Set(xN):Sub(cC):Right():Add(xN)
-  return complex.getReflectRayLine(cO, cD, xN, xF)
+function complex.getReflectRayCircle(cO, cD, cC, nR, xF)
+  local xN = (xF and xF or complex.getIntersectRayCircle(cO, cD, cC, nR))
+  if(not xN) then return nil end; local cE = xN:getNew():Sub(cC):Right():Add(xN)
+  return complex.getReflectRayLine(cO, cD, xN, cE)
 end
 
 function complex.getEuler(vRm, vPh)
