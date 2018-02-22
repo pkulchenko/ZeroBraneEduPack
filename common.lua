@@ -44,6 +44,10 @@ function common.isNil(vVal)
   return (vVal == nil)
 end
 
+function common.isNaN(vVal)
+  return (vVal ~= vVal)
+end
+
 function common.logConcat(anyMsg,aDel, ...)
   local sDel, tDat = tostring(aDel or ","), {...}
   io.write(tostring(anyMsg)..": ")
@@ -198,7 +202,7 @@ function common.setCall(sNam, fFoo, fOut)
   if(not (type(fFoo) == "function")) then
     return common.logStatus("common.setCall: Main <"..tostring(sNam)..">", false) end
   if(not (type(fOut) == "function")) then
-    return common.logStatus("common.setCall: Out <"..tostring(sNam)..">", false) end 
+    return common.logStatus("common.setCall: Out <"..tostring(sNam)..">", false) end
   metaCommon.__func[sNam] = {}
   metaCommon.__func[sNam].foo = fFoo
   metaCommon.__func[sNam].out = fOut
