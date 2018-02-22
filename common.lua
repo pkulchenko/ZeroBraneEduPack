@@ -48,6 +48,30 @@ function common.isNaN(vVal)
   return (vVal ~= vVal)
 end
 
+function common.isNaN(vVal)
+  return (vVal ~= vVal)
+end
+
+function common.isInf(vVal)
+  if(vVal ==  math.huge) then return true,  1 end
+  if(vVal == -math.huge) then return true, -1 end
+  return false
+end
+
+function common.isEmpty(tTab)
+  if(type(tTab) ~= "table") then return nil end
+  return (next(tTab) == nil)
+end
+
+function common.isString(vVal)
+  return (getmetatable("") == getmetatable(vVal))
+end
+
+function common.isNumber(vVal)
+  if(not tonumber(vVal)) then return false end
+  return (nil == getmetatable(vVal))
+end
+
 function common.logConcat(anyMsg,aDel, ...)
   local sDel, tDat = tostring(aDel or ","), {...}
   io.write(tostring(anyMsg)..": ")
