@@ -39,10 +39,11 @@ local function drawCoordinateSystem(w, h, dx, dy, mx, my)
   line(xe, 0, xe, h); line(0, ye, w, ye)
 end
 
-local function drawComplex(C, Cl)
+local function drawComplex(C, Cl, vN)
+  local nN = (tonumber(vN) or xySize)
   local x = intX:Convert(C:getReal()):getValue()
   local y = intY:Convert(C:getImag()):getValue()
-  pncl(Cl); rect(x-xySize,y-xySize,2*xySize+1,2*xySize+1)
+  pncl(Cl); rect(x-nN,y-nN,2*nN,2*nN)
 end
 
 local function drawComplexLine(S, E, Cl)
@@ -116,6 +117,7 @@ while true do
         cn:Mul(dd:getNorm() / 2):Add(xN); cr:Mul(dd:getNorm()):Add(xN)
         cn:Action("ab", xN, clMgn); cr:Action("ab", xN, clMgn)
         logStatus("Reflected ray from the circle is "..cr)
+        cmp.getNew():ProjectCircle(cRay2[1], rad):Action("xy", clMgn, 6)
       end
     else
       logStatus("The needed conditions are not met for the intersection to happen")

@@ -400,7 +400,7 @@ function metaComplex:setAngRad(nA)
   return self:setReal(math.cos(nP)):setImag(math.sin(nP)):Rsz(nR)
 end
 
-function metaComplex:Project(cS, cE)
+function metaComplex:ProjectLine(cS, cE)
   local x1, y1 = cS:getParts()
   local x2, y2 = cE:getParts()
   local x3, y3 = self:getParts()
@@ -409,8 +409,16 @@ function metaComplex:Project(cS, cE)
   return self:setReal(x3-ks*dy):setImag(y3+ks*dx)
 end
 
-function metaComplex:getProject(cS, cE)
-  return self:getNew():Project(cS, cE)
+function metaComplex:getProjectLine(cS, cE)
+  return self:getNew():ProjectLine(cS, cE)
+end
+
+function metaComplex:ProjectCircle(cC, nR)
+  return self:Sub(cC):Unit():Mul(nR):Add(cC)
+end
+
+function metaComplex:getProjectCircle(cC, nR)
+  return self:getNew():ProjectCircle(cC, nR)
 end
 
 function metaComplex:getLayMargin(cS, cE)
@@ -581,7 +589,7 @@ end
 
 function complex.getReflectRayLine(cO, cD, cS, cE)
   local uD, uO = cD:getUnit(), cO:getNew():Sub(cD)
-  local cN = uO:getProject(cS, cE):Neg():Add(uO):Unit()
+  local cN = uO:getProjectLine(cS, cE):Neg():Add(uO):Unit()
   local cR = uD:getNew():Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
   return cN, cR
 end

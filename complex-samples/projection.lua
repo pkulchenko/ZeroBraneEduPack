@@ -87,7 +87,7 @@ while true do
   elseif(drw and rx and ry and cRay1[1]) then -- Reverse the interval and convert x, y image position to a complex
     rx = intX:Convert(rx,true):getValue() 
     ry = intY:Convert(ry,true):getValue(); cPnt:Set(rx, ry)
-    local XX = cPnt:getProject(cRay1[1], cRay1[2])
+    local XX = cPnt:getProjectLine(cRay1[1], cRay1[2])
     XX:Action("xy", clMgn); cPnt:Action("xy", clRel); cPnt:Action("ab", XX, clMgn)
     local bSegm = XX:isAmongLine(cRay1[1], cRay1[2])
     logStatus("The complex projection "..tostring(XX).." is "..(bSegm and "ON" or "OFF").." the line"); drw = false
