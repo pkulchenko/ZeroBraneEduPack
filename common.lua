@@ -140,6 +140,53 @@ function common.stringTrim(sStr, sCh)
 	return sStr:match("^"..sCh.."*(.-)"..sCh.."*$" ) or sStr
 end
 
+local function stringParseTableRec(sRc, fCnv, tInfo, nStg)
+  local sIn = common.stringTrim(tostring(sRc or ""))
+  if(sIn:sub(1,1)..sIn:sub(-1,-1) ~= "{}") then
+    return logStatus("common.stringTable: Table format invalid <"..sIn..">", false) end
+  local tIn, tOut = fCnv(common.stringExplode(sIn:sub(2,-2),","), ","), {}
+  for ID = 1, #tIn do local sVal = common.stringTrim(tIn[ID])
+    if(sVal ~= "") then
+      local tVal = fCnv(common.stringExplode(sVal,"="), "=")
+      local kVal, vVal = tVal[1], tVal[2]
+      if(not vVal) then -- If no key is provided but just value use default integer keys
+        if(not tInfo[nStg]) then tInfo[nStg] = 0 end
+        tInfo[nStg] = tInfo[nStg] + 1
+        kVal, vVal = tInfo[nStg], kVal
+      end
+      -- Handle keys
+      if(kVal == "") then return logStatus("common.stringTable: Table key fail at <"..vVal..">", false) end
+      if(tostring(kVal):sub(1,1)..tostring(kVal):sub(-1,-1) == "\"\"") then kVal = tostring(kVal):sub(2,-2)
+      elseif(tonumber(kVal)) then kVal = tonumber(kVal)
+      else kVal = tostring(kVal) end
+      -- Handle values
+      if(vVal == "") then vVal = nil
+      elseif(vVal:sub(1,1)..vVal:sub(-1,-1) == "\"\"") then vVal = vVal:sub(2,-2)
+      elseif(vVal:sub(1,1)..vVal:sub(-1,-1) == "{}")   then vVal = stringParseTableRec(vVal, fCnv, tInfo, nStg + 1)
+      else vVal = (tonumber(vVal) or 0) end
+      -- Write stuff
+      tOut[kVal] = vVal
+    end
+  end; return tOut
+end
+
+function common.stringToTable(sRc)
+  return stringParseTableRec(sRc,function(tIn, sCh)
+    local aAr, aID, aIN = {}, 1, 0
+    for ID = 1, #tIn do
+      local sVal = common.stringTrim(tIn[ID])
+      if(sVal:find("{")) then aIN = aIN + 1 end
+      if(sVal:find("}")) then aIN = aIN - 1 end
+      if(not aAr[aID]) then aAr[aID] = "" end
+      if(aIN == 0) then
+        aAr[aID] = aAr[aID]..sVal; aID = (aID + 1)
+      else
+        aAr[aID] = aAr[aID]..sVal..sCh
+      end
+    end; return aAr
+  end, {}, 1)
+end
+
 function common.fileGetLine(pF)
   if(not pF) then return common.logStatus("common.fileGetLine: No file", ""), true end
   local sCh, sLn = "X", "" -- Use a value to start cycle with
@@ -232,13 +279,59 @@ function common.setCall(sNam, fFoo, fOut)
   metaCommon.__func[sNam].out = fOut
 end
 
-function common.getEXP(nI)
-  local function epproxEXP(itr, top)
-    if(top == itr) then return 1 end; local fac = 1
-    for I = 1, itr do fac = fac * I end
-    return (1/fac + epproxEXP(itr+1, top))
+function common.copyItem(obj, seen)
+  seen = seen or {}
+  if(obj == nil) then return nil end
+  if(seen[obj]) then return seen[obj] end; local no
+  if(type(obj) == "table") then
+    no = {}; seen[obj] = no
+    for k, v in pairs(obj) do
+      no[common.copyItem(k, seen)] = common.copyItem(v, seen)
+    end
+    setmetatable(no, common.copyItem(getmetatable(obj), seen))
+  else no = obj end; return no
+end
+
+local function logTableRec(tT,sS,tP)
+  local sS, tP = tostring(sS or "Data"), (tP or {})
+  local vS, vT, vK = type(sS), type(tT), ""
+  if(vT ~= "table") then
+    return common.logStatus("{"..vT.."}["..tostring(sS or "Data").."] = <"..tostring(tT)..">",nil) end
+  if(next(tT) == nil) then
+    return common.logStatus(sS.." = {}") end; common.logStatus(sS.." = {}",nil)
+  for k,v in pairs(tT) do
+    if(type(k) == "string") then
+      vK = sS.."[\""..k.."\"]"
+    else sK = tostring(k)
+      if(tP[k]) then sK = tostring(tP[k]) end
+      vK = sS.."["..sK.."]"
+    end
+    if(type(v) ~= "table") then
+      if(type(v) == "string") then
+        common.logStatus(vK.." = \""..v.."\"")
+      else sK = tostring(v)
+        if(tP[v]) then sK = tostring(tP[v]) end
+        common.logStatus(vK.." = "..sK)
+      end
+    else
+      if(v == tT) then
+        common.logStatus(vK.." = "..sS)
+      elseif(tP[v]) then
+        common.logStatus(vK.." = "..tostring(tP[v]))
+      else
+        if(not tP[v]) then tP[v] = vK end
+        logTableRec(v,vK,tP)
+      end
+    end
   end
-  return epproxEXP(1, nI)
+end
+
+function common.logTable(tT, sS, tP)
+  local lS, lP = tostring(sS or "Data")
+  if(tT ~= nil) then lP = {[tT] = lS} end
+  if(type(tP) == "table" and lP) then
+    for ptr, abr in pairs(tP) do lP[ptr] = abr end end
+  logTableRec(tT, lS, lP); return lP
 end
 
 common.randomSetSeed()
