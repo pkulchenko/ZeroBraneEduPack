@@ -1,10 +1,17 @@
-local os         = os
-local math       = math
-local common     = {}
-local metaCommon = {
+local os           = os
+local math         = math
+local type         = type
+local next         = next
+local pairs        = pairs
+local tonumber     = tonumber
+local tostring     = tostring
+local getmetatable = getmetatable
+local common       = {}
+local metaCommon   = {
   __time = 0,
-  __syms = "1234567890abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ",
-  __func = {}
+  __func = {},
+  __type = {"number", "boolean", "string", "function", "table"},
+  __syms = "1234567890abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ"
 }
 
 metaCommon.__func["pi"] = {}
@@ -40,36 +47,53 @@ function common.logStatus(anyMsg, ...)
   io.write(tostring(anyMsg).."\n"); return ...
 end
 
-function common.isNil(vVal)
-  return (vVal == nil)
+function common.isNil(nVal)
+  return (nVal == nil)
 end
 
-function common.isNaN(vVal)
-  return (vVal ~= vVal)
+function common.isNan(nVal)
+  return (nVal ~= nVal)
 end
 
-function common.isNaN(vVal)
-  return (vVal ~= vVal)
-end
-
-function common.isInf(vVal)
-  if(vVal ==  math.huge) then return true,  1 end
-  if(vVal == -math.huge) then return true, -1 end
+function common.isInf(nVal)
+  if(nVal ==  math.huge) then return true,  1 end
+  if(nVal == -math.huge) then return true, -1 end
   return false
 end
 
-function common.isEmpty(tTab)
-  if(type(tTab) ~= "table") then return nil end
-  return (next(tTab) == nil)
+function common.isTable(tVal)
+  return (type(tVal) == metaCommon.__type[5])
 end
 
-function common.isString(vVal)
-  return (getmetatable("") == getmetatable(vVal))
+function common.isDryTable(tVal)
+  if(not common.isTable(tVal)) then return false end
+  return (next(tVal) == nil)
 end
 
-function common.isNumber(vVal)
-  if(not tonumber(vVal)) then return false end
-  return (nil == getmetatable(vVal))
+function common.isString(sVal)
+  local sTy = metaCommon.__type[3]
+  return (getmetatable(sTy) == getmetatable(sVal))
+end
+
+function common.isDryString(sVal)
+  if(not common.isString(sVal)) then return false end
+  return (sVal == "")
+end
+
+function common.isNumber(nVal)
+  if(not tonumber(nVal)) then return false end
+  if(nil ~= getmetatable(nVal)) then return false end
+  return (type(nVal) == metaCommon.__type[1])
+end
+
+function common.isFunction(fVal)
+  return (type(fVal) == metaCommon.__type[4])
+end
+
+function common.isBool(bVal)
+  if(bVal == true ) then return true end
+  if(bVal == false) then return true end
+  return false
 end
 
 function common.logConcat(anyMsg,aDel, ...)
