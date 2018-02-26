@@ -143,7 +143,7 @@ end
 local function stringParseTableRec(sRc, fCnv, tInfo, nStg)
   local sIn = common.stringTrim(tostring(sRc or ""))
   if(sIn:sub(1,1)..sIn:sub(-1,-1) ~= "{}") then
-    return logStatus("common.stringTable: Table format invalid <"..sIn..">", false) end
+    return common.logStatus("common.stringTable: Table format invalid <"..sIn..">", false) end
   local tIn, tOut = fCnv(common.stringExplode(sIn:sub(2,-2),","), ","), {}
   for ID = 1, #tIn do local sVal = common.stringTrim(tIn[ID])
     if(sVal ~= "") then
@@ -155,7 +155,7 @@ local function stringParseTableRec(sRc, fCnv, tInfo, nStg)
         kVal, vVal = tInfo[nStg], kVal
       end
       -- Handle keys
-      if(kVal == "") then return logStatus("common.stringTable: Table key fail at <"..vVal..">", false) end
+      if(kVal == "") then return common.logStatus("common.stringTable: Table key fail at <"..vVal..">", false) end
       if(tostring(kVal):sub(1,1)..tostring(kVal):sub(-1,-1) == "\"\"") then kVal = tostring(kVal):sub(2,-2)
       elseif(tonumber(kVal)) then kVal = tonumber(kVal)
       else kVal = tostring(kVal) end
