@@ -356,6 +356,16 @@ local function logTableRec(tT,sS,tP)
   end
 end
 
+function common.addPathLibrary(sB, sE)
+  local bas = tostring(sB or "")
+  if(bas == "") then common.logStatus("common.addPathLibrary: Missing path") return end
+  bas = ((bas:sub(-1,-1) == "/") and bas or (bas.."/"))
+  local ext = tostring(sE or ""):gsub("%*",""):gsub("%.","")
+  if(ext == "") then common.logStatus("common.addPathLibrary: Missing extension") return end
+  local pad = (bas.."*."..ext):match("(.-)[^\\/]+$").."?."..ext
+  package.path = package.path..";"..pad
+end
+
 function common.logTable(tT, sS, tP)
   local lS, lP = tostring(sS or "Data")
   if(tT ~= nil) then lP = {[tT] = lS} end
