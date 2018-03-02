@@ -8,6 +8,7 @@ local setmetatable = setmetatable
 local complex      = {}
 local metaComplex  = {}
 local logStatus    = common.logStatus
+local logString    = common.logString
 local getSign      = common.getSign
 local getSignNon   = common.getSignNon
 local roundValue   = common.getRound
@@ -369,8 +370,7 @@ function metaComplex:getNegIm() return self:getNew():NegIm() end
 function metaComplex:getConj () return self:getNegIm() end
 
 function metaComplex:Print(sS,sE)
-  io.write(tostring(sS or "").."{"..tostring(self:getReal())..
-    ","..tostring(self:getImag()).."}"..tostring(sE or "")); return self
+  return logString(tostring(sS or "")..tostring(self)..tostring(sE or ""), self)
 end
 
 function metaComplex:Round(nF)

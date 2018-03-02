@@ -62,7 +62,7 @@ logStatus("Export string 7: "..a:getFormat("string",4,true))
 logStatus("Export string 8: "..a:getFormat("string",4,true,"$"))
 
 logStatus("\nConverting to polar coordinates and back "..tostring(a))
-local r, p = a:getPolar(); print("1: "..r.."e^"..p.."i")
+local r, p = a:getPolar(); logStatus("1: "..r.."e^"..p.."i")
 complex.getEuler(r, p):Print("2: ","\n")
 
 logStatus("\nAngle handling radian to degree and back "..tostring(a))

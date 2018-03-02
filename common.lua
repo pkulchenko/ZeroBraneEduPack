@@ -47,6 +47,10 @@ function common.logStatus(anyMsg, ...)
   io.write(tostring(anyMsg).."\n"); return ...
 end
 
+function common.logString(anyMsg, ...)
+  io.write(tostring(anyMsg)); return ...
+end
+
 function common.isNil(nVal)
   return (nVal == nil)
 end
