@@ -13,6 +13,7 @@ local logStatus       = common.logStatus
 local getValueKeys    = common.getValueKeys
 local stringExplode   = common.stringExplode
 local getClamp        = common.getClamp
+local getRound        = common.getRound
 
 --[[ https://en.wikipedia.org/wiki/HSL_and_HSV ]]
 local function projectColorHC(h,c)
@@ -47,23 +48,14 @@ function colormap.getClamp(vN)
   return getClamp(nN, clClamp[1], clClamp[2])
 end
 
-local function roundValue(nE, nF)
-  local nE = tonumber(nE); if(not nE) then
-    return logStatus("colormap.roundValue: NAN {"..type(nE).."}<"..tostring(nE)..">") end
-  local nF = (tonumber(nF) or 0); if(nF == 0) then
-    return logStatus("colormap.roundValue: Fraction must be <> 0") end
-  local q, f = math.modf(nE/nF)
-  return nF * (q + (f > 0.5 and 1 or 0))
-end
-
 -- H [0,360], S [0,1], V [0,1]
 function colormap.getColorHSV(h,s,v)
   local c = v * s
   local m = v - c
   local r, g, b = projectColorHC(h,c)
-  return roundValue(clClamp[2] * (r + m),1),
-         roundValue(clClamp[2] * (g + m),1),
-         roundValue(clClamp[2] * (b + m),1)
+  return getRound(clClamp[2] * (r + m),1),
+         getRound(clClamp[2] * (g + m),1),
+         getRound(clClamp[2] * (b + m),1)
 end
 
 -- H [0,360], S [0,1], L [0,1]
@@ -71,18 +63,18 @@ function colormap.getColorHSL(h,s,l)
   local c = (1 - math.abs(2*l - 1)) * s
   local m = l - 0.5*c
   local r, g, b = projectColorHC(h,c)
-  return roundValue(clClamp[2] * (r + m),1),
-         roundValue(clClamp[2] * (g + m),1),
-         roundValue(clClamp[2] * (b + m),1)
+  return getRound(clClamp[2] * (r + m),1),
+         getRound(clClamp[2] * (g + m),1),
+         getRound(clClamp[2] * (b + m),1)
 end
 
 -- H [0,360], C [0,1], L [0,1]
 function colormap.getColorHCL(h,c,l)
   local r, g, b = projectColorHC(h,c)
   local m = l - (0.30*r + 0.59*g + 0.11*b)
-  return roundValue(clClamp[2] * (r + m),1),
-         roundValue(clClamp[2] * (g + m),1),
-         roundValue(clClamp[2] * (b + m),1)
+  return getRound(clClamp[2] * (r + m),1),
+         getRound(clClamp[2] * (g + m),1),
+         getRound(clClamp[2] * (b + m),1)
 end
 
 function colormap.printColorMap(sKey, ...)

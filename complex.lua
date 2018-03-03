@@ -56,21 +56,22 @@ function complex.getNew(nRe, nIm)
 
   function self:setReal(R)  Re = (tonumber(R) or metaComplex.__valre); return self end
   function self:setImag(I)  Im = (tonumber(I) or metaComplex.__valim); return self end
+  function self:Swap()      Re, Im = Im, Re; return self end
   function self:getReal()   return Re end
   function self:getImag()   return Im end
   function self:getParts()  return Re, Im end
 
-  function self:Set(R,I)
+  function self:Set(R, I)
     local R, I = exportComplex(R, I)
     Re, Im = R, I; return self
   end
 
-  function self:Add(R,I)
+  function self:Add(R, I)
     local R, I = exportComplex(R, I)
     Re, Im = (Re + R), (Im + I); return self
   end
 
-  function self:Sub(R,I)
+  function self:Sub(R, I)
     local R, I = exportComplex(R, I)
     Re, Im = (Re - R), (Im - I); return self
   end
@@ -85,21 +86,27 @@ function complex.getNew(nRe, nIm)
     Im = (I and math.abs(Im) or Im); return self
   end
 
-  function self:Mul(R,I)
+  function self:Mul(R, I)
     local A, B = self:getParts()
     local C, D = exportComplex(R, I)
     Re = (A*C - B*D)
     Im = (A*D + B*C); return self
   end
+  
+  function self:Mew(R, I)
+    local A, B = self:getParts()
+    local C, D = exportComplex(R, I)
+    Re, Im = (A*C), (B*D); return self
+  end
 
-  function self:Mid(R,I)
+  function self:Mid(R, I)
     local A, B = self:getParts()
     local C, D = exportComplex(R, I)
     Re = ((A + C) / 2)
     Im = ((B + D) / 2); return self
   end
 
-  function self:Div(R,I)
+  function self:Div(R, I)
     local A, B = self:getParts()
     local C, D = exportComplex(R, I)
     local Z = (C*C + D*D)
@@ -108,7 +115,7 @@ function complex.getNew(nRe, nIm)
     return self
   end
 
-  function self:Mod(R,I)
+  function self:Mod(R, I)
     local A, B = self:getParts()
     local C, D = exportComplex(R, I); self:Div(C,D)
     local rei, ref = math.modf(Re)
@@ -123,7 +130,7 @@ function complex.getNew(nRe, nIm)
     Re, Im = (R/N), (-I/N); return self
   end
 
-  function self:Pow(R,I)
+  function self:Pow(R, I)
     local A, B = self:getParts()
     local C, D = exportComplex(R, I)
     local N, G = self:getNorm2(), self:getAngRad()
@@ -209,6 +216,10 @@ function metaComplex:getLeft()
   return self:getNew():Left()
 end
 
+function metaComplex:getSwap()
+  return self:getNew():Swap()
+end
+
 function metaComplex:getSet(R, I)
   return self:getNew():Set(R, I)
 end
@@ -227,6 +238,10 @@ end
 
 function metaComplex:getMul(R, I)
   return self:getNew():Mul(R, I)
+end
+
+function metaComplex:getMew(R, I)
+  return self:getNew():Mew(R, I)
 end
 
 function metaComplex:getDiv(R, I)
@@ -400,17 +415,22 @@ function metaComplex:setAngRad(nA)
   return self:setReal(math.cos(nP)):setImag(math.sin(nP)):Rsz(nR)
 end
 
+function metaComplex:ProjectRay(cO, cD)
+  local cV = self:getNew():Sub(cO)
+  local nK = cV:getCross(cD) / cD:getNorm2()
+  return self:Add(cD:Mew(nK, -nK):Swap())
+end
+
+function metaComplex:getProjectRay(cO, cD)
+  return self:getNew():ProjectRay(cO, cD)
+end
+
 function metaComplex:ProjectLine(cS, cE)
-  local x1, y1 = cS:getParts()
-  local x2, y2 = cE:getParts()
-  local x3, y3 = self:getParts()
-  local dx, dy = (x2-x1), (y2-y1)
-  local ks = (dy*(x3-x1)-dx*(y3-y1)) / cS:getDist2(cE)
-  return self:setReal(x3-ks*dy):setImag(y3+ks*dx)
+  return self:ProjectRay(cS, cE:getSub(cS))
 end
 
 function metaComplex:getProjectLine(cS, cE)
-  return self:getNew():ProjectLine(cS, cE)
+  return self:getProjectRay(cS, cE:getSub(cS))
 end
 
 function metaComplex:ProjectCircle(cC, nR)
