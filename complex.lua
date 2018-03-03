@@ -29,11 +29,6 @@ metaComplex.__getpi = math.pi
 metaComplex.__radeg = (180 / metaComplex.__getpi)
 metaComplex.__cactf = {}
 
-local function exportComplex(R, I)
-  if(not I and getmetatable(R) == metaComplex) then return R:getParts() end
-  return (tonumber(R) or metaComplex.__valre), (tonumber(I) or metaComplex.__valim)
-end
-
 function complex.isValid(cNum)
   return (getmetatable(cNum) == metaComplex)
 end
@@ -44,6 +39,11 @@ end
 
 function complex.getMargin()
   return metaComplex.__margn
+end
+
+function complex.getUnpack(R, I, E)
+  if(complex.isValid(R)) then local nR, nI = R:getParts() return nR, nI, I end
+  return (tonumber(R) or metaComplex.__valre), (tonumber(I) or metaComplex.__valim), E
 end
 
 function complex.getNew(nRe, nIm)
@@ -62,17 +62,17 @@ function complex.getNew(nRe, nIm)
   function self:getParts()  return Re, Im end
 
   function self:Set(R, I)
-    local R, I = exportComplex(R, I)
+    local R, I = complex.getUnpack(R, I)
     Re, Im = R, I; return self
   end
 
   function self:Add(R, I)
-    local R, I = exportComplex(R, I)
+    local R, I = complex.getUnpack(R, I)
     Re, Im = (Re + R), (Im + I); return self
   end
 
   function self:Sub(R, I)
-    local R, I = exportComplex(R, I)
+    local R, I = complex.getUnpack(R, I)
     Re, Im = (Re - R), (Im - I); return self
   end
 
@@ -86,38 +86,34 @@ function complex.getNew(nRe, nIm)
     Im = (I and math.abs(Im) or Im); return self
   end
 
-  function self:Mul(R, I)
+  function self:Mul(R, I, E)
     local A, B = self:getParts()
-    local C, D = exportComplex(R, I)
-    Re = (A*C - B*D)
-    Im = (A*D + B*C); return self
+    local C, D, U = complex.getUnpack(R, I, E)
+    if(U) then Re, Im = (A*C), (B*D) else
+      Re, Im = (A*C - B*D), (A*D + B*C)
+    end; return self
   end
-  
-  function self:Mew(R, I)
-    local A, B = self:getParts()
-    local C, D = exportComplex(R, I)
-    Re, Im = (A*C), (B*D); return self
-  end
-
+ 
   function self:Mid(R, I)
     local A, B = self:getParts()
-    local C, D = exportComplex(R, I)
+    local C, D = complex.getUnpack(R, I)
     Re = ((A + C) / 2)
     Im = ((B + D) / 2); return self
   end
 
-  function self:Div(R, I)
+  function self:Div(R, I, E)
     local A, B = self:getParts()
-    local C, D = exportComplex(R, I)
-    local Z = (C*C + D*D)
-    Re = ((A*C + B*D) / Z)
-    Im = ((B*C - A*D) / Z)
-    return self
+    local C, D, U = complex.getUnpack(R, I, E)
+    if(U) then Re, Im = (A/C), (B/D) else
+      local Z = (C*C + D*D)
+      Re = ((A*C + B*D) / Z)
+      Im = ((B*C - A*D) / Z)
+    end; return self
   end
 
   function self:Mod(R, I)
     local A, B = self:getParts()
-    local C, D = exportComplex(R, I); self:Div(C,D)
+    local C, D = complex.getUnpack(R, I); self:Div(C,D)
     local rei, ref = math.modf(Re)
     local imi, imf = math.modf(Im)
     self:Set(ref,imf)
@@ -130,14 +126,16 @@ function complex.getNew(nRe, nIm)
     Re, Im = (R/N), (-I/N); return self
   end
 
-  function self:Pow(R, I)
+  function self:Pow(R, I, E)
     local A, B = self:getParts()
-    local C, D = exportComplex(R, I)
-    local N, G = self:getNorm2(), self:getAngRad()
-    local eK = N^(C/2) * math.exp(-D*G)
-    local eC = (C*G + 0.5*D*math.log(N))
-    Re = eK * math.cos(eC)
-    Im = eK * math.sin(eC); return self
+    local C, D, U = complex.getUnpack(R, I, E)
+    if(U) then Re, Im = (A^C), (B^D) else
+      local N, G = self:getNorm2(), self:getAngRad()
+      local eK = N^(C/2) * math.exp(-D*G)
+      local eC = (C*G + 0.5*D*math.log(N))
+      Re = eK * math.cos(eC)
+      Im = eK * math.sin(eC)
+    end; return self
   end
 
   return self
@@ -152,7 +150,7 @@ end
 
 function metaComplex:getNew(nR, nI)
   local N = complex.getNew(self); if(nR or nI) then
-    local R, I = exportComplex(nR, nI); N:Set(R, I)
+    local R, I = complex.getUnpack(nR, nI); N:Set(R, I)
   end; return N
 end
 
@@ -184,7 +182,7 @@ end
 
 function metaComplex:getDist2(R, I)
   local C, D = self:getParts()
-  local R, I = exportComplex(R, I)
+  local R, I = complex.getUnpack(R, I)
   return ((C - R)^2 + (D - I)^2)
 end
 
@@ -194,7 +192,7 @@ end
 
 function metaComplex:getCross(R, I)
   local C, D = self:getParts()
-  local R, I = exportComplex(R, I)
+  local R, I = complex.getUnpack(R, I)
   return (C*I - D*R)
 end
 
@@ -238,10 +236,6 @@ end
 
 function metaComplex:getMul(R, I)
   return self:getNew():Mul(R, I)
-end
-
-function metaComplex:getMew(R, I)
-  return self:getNew():Mew(R, I)
 end
 
 function metaComplex:getDiv(R, I)
@@ -418,7 +412,7 @@ end
 function metaComplex:ProjectRay(cO, cD)
   local cV = self:getNew():Sub(cO)
   local nK = cV:getCross(cD) / cD:getNorm2()
-  return self:Add(cD:Mew(nK, -nK):Swap())
+  return self:Add(cD:Mul(nK, -nK, true):Swap())
 end
 
 function metaComplex:getProjectRay(cO, cD)
