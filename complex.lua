@@ -56,7 +56,6 @@ function complex.getNew(nRe, nIm)
 
   function self:setReal(R)  Re = (tonumber(R) or metaComplex.__valre); return self end
   function self:setImag(I)  Im = (tonumber(I) or metaComplex.__valim); return self end
-  function self:Swap()      Re, Im = Im, Re; return self end
   function self:getReal()   return Re end
   function self:getImag()   return Im end
   function self:getParts()  return Re, Im end
@@ -93,7 +92,7 @@ function complex.getNew(nRe, nIm)
       Re, Im = (A*C - B*D), (A*D + B*C)
     end; return self
   end
- 
+
   function self:Mid(R, I)
     local A, B = self:getParts()
     local C, D = complex.getUnpack(R, I)
@@ -154,6 +153,15 @@ function metaComplex:getNew(nR, nI)
   end; return N
 end
 
+function metaComplex:NegRe   () return self:setReal(-self:getReal()) end
+function metaComplex:NegIm   () return self:setImag(-self:getImag()) end
+function metaComplex:Conj    () return self:NegIm() end
+function metaComplex:Neg     () return self:NegRe():NegIm() end
+function metaComplex:getNeg  () return self:getNew():Neg() end
+function metaComplex:getNegRe() return self:getNew():NegRe() end
+function metaComplex:getNegIm() return self:getNew():NegIm() end
+function metaComplex:getConj () return self:getNegIm() end
+
 function metaComplex:Unit()
   return self:Rsz(1/self:getNorm())
 end
@@ -196,9 +204,17 @@ function metaComplex:getCross(R, I)
   return (C*I - D*R)
 end
 
-function metaComplex:Right()
+function metaComplex:Swap()
   local R, I = self:getParts()
-  return self:setReal(I):setImag(-R)
+  return self:setReal(I):setImag(R)
+end
+
+function metaComplex:getSwap()
+  return self:getNew():Swap()
+end
+
+function metaComplex:Right()
+  return self:Swap():NegIm()
 end
 
 function metaComplex:getRight()
@@ -206,16 +222,11 @@ function metaComplex:getRight()
 end
 
 function metaComplex:Left()
-  local R, I = self:getParts()
-  return self:setReal(-I):setImag(R)
+  return self:Swap():NegRe()
 end
 
 function metaComplex:getLeft()
   return self:getNew():Left()
-end
-
-function metaComplex:getSwap()
-  return self:getNew():Swap()
 end
 
 function metaComplex:getSet(R, I)
@@ -355,11 +366,6 @@ function metaComplex:getCeil()
   return self:getNew():Ceil()
 end
 
-function metaComplex:NegRe() return self:setReal(-self:getReal()) end
-function metaComplex:NegIm() return self:setImag(-self:getImag()) end
-function metaComplex:Conj() return self:NegIm() end
-function metaComplex:Neg() return self:NegRe():NegIm() end
-
 function metaComplex:getNorm2()
   local R, I = self:getParts(); return(R*R + I*I) end
 
@@ -372,11 +378,6 @@ function metaComplex:getTable(kR, kI)
   local kR, kI = (kR or metaComplex.__kreal[1]), (kI or metaComplex.__kimag[1])
   local R , I  = self:getParts(); return {[kR] = R, [kI] = I}
 end
-
-function metaComplex:getNeg  () return self:getNew():Neg() end
-function metaComplex:getNegRe() return self:getNew():NegRe() end
-function metaComplex:getNegIm() return self:getNew():NegIm() end
-function metaComplex:getConj () return self:getNegIm() end
 
 function metaComplex:Print(sS,sE)
   return logString(tostring(sS or "")..tostring(self)..tostring(sE or ""), self)
@@ -605,7 +606,7 @@ function complex.getReflectRayLine(cO, cD, cS, cE)
   local uD, uO = cD:getUnit(), cO:getNew():Sub(cD)
   local cN = uO:getProjectLine(cS, cE):Neg():Add(uO):Unit()
   local cR = uD:getNew():Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
-  return cN, cR
+  return cR, cN
 end
 
 function complex.getReflectRayCircle(cO, cD, cC, nR, xF)

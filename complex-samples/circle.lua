@@ -21,6 +21,8 @@ local clRed = colr(col.getColorRedRGB())
 local clBlk = colr(col.getColorBlackRGB())
 local clGry = colr(col.getColorPadRGB(greyLevel))
 local clMgn = colr(col.getColorMagenRGB())
+local clGrn = colr(col.getColorGreenRGB())
+local clCya = colr(col.getColorCyanRGB())
 
 local function drawCoordinateSystem(w, h, dx, dy, mx, my)
   local xe, ye = 0, 0
@@ -108,16 +110,20 @@ while true do
     end
   end
   if(drw and #cRay1 == 2 and #cRay2 == 2) then
-    local dd = (cRay1[2]-cRay1[1])
-    local xN, xF = cmp.getIntersectRayCircle(cRay1[1], dd, cRay2[1], rad)
+    local cD = (cRay1[2]-cRay1[1])
+    local xN, xF = cmp.getIntersectRayCircle(cRay1[1], cD, cRay2[1], rad)
     if(xN) then xN:Action("xy", clMgn); xF:Action("xy", clBlk)
-      local cn, cr = cmp.getReflectRayCircle(cRay1[1], dd, cRay2[1], rad)
+      local cR, cN = cmp.getReflectRayCircle(cRay1[1], cD, cRay2[1], rad)
       logStatus("The ray has intersected the circle at "..xN.."/"..xF)
-      if(cn) then 
-        cn:Mul(dd:getNorm() / 2):Add(xN); cr:Mul(dd:getNorm()):Add(xN)
-        cn:Action("ab", xN, clMgn); cr:Action("ab", xN, clMgn)
-        logStatus("Reflected ray from the circle is "..cr)
+      if(cN) then local nL = cD:getNorm()
+        cN:Mul(nL / 2):Add(xN); cR:Mul(cD:getNorm()):Add(xN)
+        cN:Action("ab", xN, clMgn); cR:Action("ab", xN, clMgn)
+        logStatus("Reflected ray from the circle is "..cR)
         cmp.getNew():ProjectCircle(cRay2[1], rad):Action("xy", clMgn, 6)
+        local cV = xN:getSub(cRay2[1])
+        cV:getRight():Add(xN):Action("ab", xN, clGrn)
+        cV:getLeft():Add(xN):Action("ab", xN, clBlk)
+        xN:Action("ab", cRay2[1], clCya)
       end
     else
       logStatus("The needed conditions are not met for the intersection to happen")

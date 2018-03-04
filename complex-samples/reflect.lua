@@ -94,7 +94,7 @@ while true do
   if(drw and #cRay1 == 2 and #cRay2 == 2) then
     local cD1, cD2 = (cRay1[2] - cRay1[1]), (cRay2[2] - cRay2[1])
     local cX, nT, nU = cmp.getIntersectRayRay(cRay1[1], cD1, cRay2[1], cD2)
-    local cN, cR = cmp.getReflectRayLine(cRay1[1], cD1, cRay2[1], cRay2[2])
+    local cR, cN = cmp.getReflectRayLine(cRay1[1], cD1, cRay2[1], cRay2[2])
     if(cX) then local nN = cD1:getNorm()
       local eR, eN = (cR*nN+cX), (cN*nN/2+cX)
       cX:Action("xy", clMgn); eR:Action("xy", clMgn)
