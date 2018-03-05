@@ -14,6 +14,7 @@ local getSignNon   = common.getSignNon
 local roundValue   = common.getRound
 local getClamp     = common.getClamp
 local getValueKeys = common.getValueKeys
+local isString     = common.isString
 
 metaComplex.__type  = "Complex"
 metaComplex.__margn = 1e-10
@@ -480,18 +481,18 @@ function metaComplex:getFormat(...)
   local tArg = {...}
   local sMod = tostring(tArg[1] or "")
   if(sMod == "table") then
+    local tvB = metaComplex.__bords
+    local tkR, tkI = metaComplex.__kreal, metaComplex.__kimag
     local sN, R, I = tostring(tArg[3] or "%f"), self:getParts()
-    local iS = math.floor((metaComplex.__bords[1]..metaComplex.__bords[2]):len()/2)
+    local iS = math.floor((tvB[1]..tvB[2]):len()/2)
           iB = getClamp(tonumber(tArg[4] or 1), 1, iS)
-    local eS = math.floor((#metaComplex.__kreal + #metaComplex.__kimag)/2)
+    local eS = math.floor((#tkR + #tkI)/2)
           iD = getClamp((tonumber(tArg[2]) or 1), 1, eS)
-    local sF = metaComplex.__bords[1]:sub(iB,iB)
-    local sB = metaComplex.__bords[2]:sub(iB,iB)
-    local kR = tostring(tArg[5] or metaComplex.__kreal[iD])
-    local kI = tostring(tArg[6] or metaComplex.__kimag[iD])
+    local sF, sB = tvB[1]:sub(iB,iB), tvB[2]:sub(iB,iB)
+    local kR = tostring(tArg[5] or tkR[iD])
+    local kI = tostring(tArg[6] or tkI[iD])
     if(not (kR and kI)) then return tostring(self) end
-    local qR = (getmetatable("R") == getmetatable(kR))
-    local qI = (getmetatable("I") == getmetatable(kI))
+    local qR, qI = isString(kR), isString(kI)
           kR = qR and ("\""..kR.."\"") or kR
           kI = qI and ("\""..kI.."\"") or kI
     return (sF.."["..kR.."]="..sN:format(R)..
