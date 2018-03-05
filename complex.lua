@@ -245,12 +245,12 @@ function metaComplex:getRsz(R, I)
   return self:getNew():Rsz(R, I)
 end
 
-function metaComplex:getMul(R, I)
-  return self:getNew():Mul(R, I)
+function metaComplex:getMul(R, I, E)
+  return self:getNew():Mul(R, I, E)
 end
 
-function metaComplex:getDiv(R, I)
-  return self:getNew():Div(R, I)
+function metaComplex:getDiv(R, I, E)
+  return self:getNew():Div(R, I, E)
 end
 
 function metaComplex:getMod(R, I)
@@ -261,8 +261,8 @@ function metaComplex:getRev(R, I)
   return self:getNew():Rev(R, I)
 end
 
-function metaComplex:getPow(R, I)
-  return self:getNew():Pow(R, I)
+function metaComplex:getPow(R, I, E)
+  return self:getNew():Pow(R, I, E)
 end
 
 function metaComplex:Sin()
@@ -425,7 +425,7 @@ function metaComplex:ProjectLine(cS, cE)
 end
 
 function metaComplex:getProjectLine(cS, cE)
-  return self:getProjectRay(cS, cE:getSub(cS))
+  return self:getNew():ProjectLine(cS, cE)
 end
 
 function metaComplex:ProjectCircle(cC, nR)
