@@ -314,16 +314,13 @@ function common.setCall(sNam, fFoo, fOut)
 end
 
 function common.copyItem(obj, seen)
-  seen = seen or {}
-  if(obj == nil) then return nil end
-  if(seen[obj]) then return seen[obj] end; local no
-  if(type(obj) == "table") then
-    no = {}; seen[obj] = no
-    for k, v in pairs(obj) do
-      no[common.copyItem(k, seen)] = common.copyItem(v, seen)
-    end
-    setmetatable(no, common.copyItem(getmetatable(obj), seen))
-  else no = obj end; return no
+  if(type(obj) ~= "table") then return obj end
+  if(seen and seen[obj]) then return seen[obj] end
+  local s, copy = (seen or {}), (common.copyItem)
+  local res = setmetatable({}, getmetatable(obj))
+  s[obj] = res; for k, v in pairs(obj) do
+    res[copy(k, s)] = copy(v, s) end
+  return res
 end
 
 local function logTableRec(tT,sS,tP)
