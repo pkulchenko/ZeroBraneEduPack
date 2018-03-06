@@ -2,6 +2,7 @@ local os           = os
 local math         = math
 local type         = type
 local next         = next
+local pcall        = pcall
 local pairs        = pairs
 local tonumber     = tonumber
 local tostring     = tostring
@@ -313,13 +314,27 @@ function common.setCall(sNam, fFoo, fOut)
   metaCommon.__func[sNam].out = fOut
 end
 
-function common.copyItem(obj, seen)
+function common.copyItem(obj, ccpy, seen)
   if(type(obj) ~= "table") then return obj end
   if(seen and seen[obj]) then return seen[obj] end
-  local s, copy = (seen or {}), (common.copyItem)
-  local res = setmetatable({}, getmetatable(obj))
-  s[obj] = res; for k, v in pairs(obj) do
-    res[copy(k, s)] = copy(v, s) end
+  local c, mt = (ccpy or {}), getmetatable(obj)
+  -- Copy-constructor linked to the meta table
+  if(mt) then
+    if(type(c[mt]) == "function") then
+      local suc, out = pcall(c[mt], obj); if(suc) then
+        return common.logStatus("common.copyItem: Copy-meta-table: <"..tostring(mt).."> OK", out) end
+      return common.logStatus("common.copyItem: Copy-meta-table: <"..tostring(mt).."> FAIL", out)
+    elseif(mt.__type) then local mtt = mt.__type
+      if(type(mtt) == "string" and type(c[mtt]) == "function") then
+        local suc, out = pcall(c[mtt], obj); if(suc) then return
+          common.logStatus("common.copyItem: Copy-meta-type: <"..mtt.."> OK", out) end
+        common.logStatus("common.copyItem: Copy-meta-type: <"..mtt.."> FAIL", out)
+      end
+    end
+  end
+  local s, res = (seen or {}), setmetatable({}, mt)
+  s[obj], f = res, (common.copyItem)
+  for k, v in pairs(obj) do res[f(k, c, s)] = f(v, c, s) end
   return res
 end
 
