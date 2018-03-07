@@ -321,19 +321,17 @@ function common.copyItem(obj, ccpy, seen)
   -- Copy-constructor linked to the meta table
   if(mt) then
     if(type(c[mt]) == "function") then
-      local suc, out = pcall(c[mt], obj); if(suc) then
-        return common.logStatus("common.copyItem: Copy-meta-table: <"..tostring(mt).."> OK", out) end
-      return common.logStatus("common.copyItem: Copy-meta-table: <"..tostring(mt).."> FAIL", out)
+      local suc, out = pcall(c[mt], obj); if(suc) then return out end
+      return common.logStatus("common.copyItem("..tostring(mt).."): "..tostring(out), nil)
     elseif(mt.__type) then local mtt = mt.__type
       if(type(mtt) == "string" and type(c[mtt]) == "function") then
-        local suc, out = pcall(c[mtt], obj); if(suc) then return
-          common.logStatus("common.copyItem: Copy-meta-type: <"..mtt.."> OK", out) end
-        common.logStatus("common.copyItem: Copy-meta-type: <"..mtt.."> FAIL", out)
+        local suc, out = pcall(c[mtt], obj); if(suc) then return out end
+        common.logStatus("common.copyItem("..mtt.."): "..tostring(out), nil)
       end
     end
   end
   local s, res = (seen or {}), setmetatable({}, mt)
-  s[obj], f = res, (common.copyItem)
+  local f = common.copyItem; s[obj] = res
   for k, v in pairs(obj) do res[f(k, c, s)] = f(v, c, s) end
   return res
 end

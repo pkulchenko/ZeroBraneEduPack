@@ -16,7 +16,7 @@ local getClamp     = common.getClamp
 local getValueKeys = common.getValueKeys
 local isString     = common.isString
 
-metaComplex.__type  = "Complex"
+metaComplex.__type  = "complex.complex"
 metaComplex.__margn = 1e-10
 metaComplex.__index = metaComplex
 metaComplex.__bords = {"{([<|/","})]>|/"}
