@@ -15,6 +15,8 @@ local roundValue   = common.getRound
 local getClamp     = common.getClamp
 local getValueKeys = common.getValueKeys
 local isString     = common.isString
+local isNil        = common.isNil
+local getPick      = common.getPick
 
 metaComplex.__type  = "complex.complex"
 metaComplex.__margn = 1e-10
@@ -79,11 +81,6 @@ function complex.getNew(nRe, nIm)
   function self:Rsz(vN)
     local nN = tonumber(vN)
     if(nN) then Re, Im = (Re * nN), (Im * nN) end; return self
-  end
-
-  function self:Abs(R, I)
-    Re = (R and math.abs(Re) or Re)
-    Im = (I and math.abs(Im) or Im); return self
   end
 
   function self:Mul(R, I, E)
@@ -170,10 +167,6 @@ end
 
 function metaComplex:getUnit()
   return self:getNew():Unit()
-end
-
-function metaComplex:getAbs(R, I)
-  return self:getNew():Abs(R, I)
 end
 
 function metaComplex:getDot(cV)
@@ -348,10 +341,32 @@ function metaComplex:getLog()
   return self:getNew():Log()
 end
 
-function metaComplex:Floor()
+function metaComplex:Apply(fF, bR, bI)
   local R, I = self:getParts()
-        R, I = math.floor(R), math.floor(I)
+  local br = getPick(isNil(bR), true, bR)
+  local bi = getPick(isNil(bI), true, bI)
+  local sR, vR = pcall(fF, R); if(not sR) then
+    return logStatus("complex.Apply(R): Failed: "..vR, self) end
+  local sI, vI = pcall(fF, I); if(not sI) then
+    return logStatus("complex.Apply(I): Failed: "..vI, self) end
+  R, I = (br and vR or R), (bi and vI or I)
   return self:setReal(R):setImag(I)
+end
+
+function metaComplex:getApply(fF, bR, bI)
+  return self:getNew():Apply(fF, bR, bI)
+end
+
+function metaComplex:Abs(bR, bI)
+  return self:Apply(math.abs, bR, bI)
+end
+
+function metaComplex:getAbs(bR, bI)
+  return self:getNew():Abs(bR, bI)
+end
+
+function metaComplex:Floor(bR, bI)
+  return self:Apply(math.floor, bR, bI)
 end
 
 function metaComplex:getFloor()
@@ -359,9 +374,7 @@ function metaComplex:getFloor()
 end
 
 function metaComplex:Ceil()
-  local R, I = self:getParts()
-        R, I = math.ceil(R), math.ceil(I)
-  return self:setReal(R):setImag(I)
+  return self:Apply(math.ceil, bR, bI)
 end
 
 function metaComplex:getCeil()
