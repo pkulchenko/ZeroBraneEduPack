@@ -7,6 +7,8 @@ local logStatus = common.logStatus
 
 io.stdout:setvbuf("no")
 
+local tPar
+
 logStatus("\nMethods starting with upper letter make internal changes and return /self/ .")
 logStatus("\nMethods starting with lower return somethng and do not change internals .")
 
@@ -20,30 +22,82 @@ a:getNew(nil,-7):Print("5: ","\n")
 a:getNew(-7,-7):Print("6: ","\n")
 
 logStatus("\nConverting complex from somrthing else "..tostring(a))
-logStatus("The type of the first argument is used to identify what is converted")
-complex.convNew(a):Print("Complex 1 : ","\n")
-complex.convNew({a:getReal(),a.getImag()}):Print("Table 1 : ","\n")
-complex.convNew({["r"] = a:getReal(), ["i"]=a.getImag()}):Print("Table 2 : ","\n")
-complex.convNew({["asd"] = a:getReal(), ["fgh"]=a.getImag()},"asd","fgh"):Print("Table 3 : ","\n")
-complex.convNew("7+j7"):Print("Direct string 1 : ","\n")
-complex.convNew("7+7i"):Print("Direct string 2 : ","\n")
-complex.convNew("7+J7"):Print("Direct string 3 : ","\n")
-complex.convNew("7+7J"):Print("Direct string 4 : ","\n")
-complex.convNew("7,7"):Print("Basic string 1 :  ","\n")
-complex.convNew("7&7","&"):Print("Basic string 2 :  ","\n")
-complex.convNew("{7,7}"):Print("Basic string 3 :  ","\n")
-complex.convNew("/7,7/"):Print("Basic string 4 :  ","\n")
-complex.convNew("[7,7]"):Print("Basic string 5 :  ","\n")
-complex.convNew("(7,7)"):Print("Basic string 6 :  ","\n")
-complex.convNew("|7,7|"):Print("Basic string 7 :  ","\n")
-complex.convNew("<7,7>"):Print("Basic string 8 :  ","\n")
-complex.convNew("/{7,7}/"):Print("Basic string 9 :  ","\n")
-complex.convNew(7,7):Print("Number 1  : ","\n")
-complex.convNew(true, true):Print("Boolean 1 : ","\n")
-complex.convNew(true, false):Print("Boolean 2 : ","\n")
-complex.convNew(false, true):Print("Boolean 3 : ","\n")
-complex.convNew(false, false):Print("Boolean 4 : ","\n")
-complex.convNew(nil, nil):Print("Boolean 5 : ","\n")
+logStatus("The type of the first argument is used to identify what is converted !")
+tPar = {}
+
+tPar[1] = {
+  Name = "Directly using a complex with copy-constructor",
+  {Typ="copy-constructor", Arg={a}, Out="{7,7}"}
+}
+
+tPar[2] = {
+  Name = "Converting tables to a complex number. Convert form a table with given keys",
+  {Typ="table number keys 1,2", Arg={{a:getReal(),a.getImag()}},Out="{7,7}"},
+  {Typ="table predefined keys", Arg={{["r"] = a:getReal(), ["i"]=a.getImag()}},Out="{7,7}"},
+  {Typ="table custom key data", Arg={{["asd"] = a:getReal(), ["fgh"]=a.getImag()},"asd","fgh"},Out="{7,7}"},
+}
+
+tPar[3] = {
+  Name = "Table with viriety of key storage",
+  {Typ="string j", Arg={"7+j7"},Out="{7,7}"},
+  {Typ="string j", Arg={"7+j7"},Out="{7,7}"},
+  {Typ="string i", Arg={"7+7i"},Out="{7,7}"},
+  {Typ="string J", Arg={"7+J7"},Out="{7,7}"},
+  {Typ="string I", Arg={"7+7J"},Out="{7,7}"}
+}
+
+tPar[3] = {
+  Name = "Table with viriety of key storage",
+  {Typ="default format", Arg={"7,7"},Out="{7,7}"},
+  {Typ="default format", Arg={"7,-7"},Out="{7,-7}"},
+  {Typ="default format", Arg={"-7,7"},Out="{-7,7}"},
+  {Typ="default format", Arg={"-7,-7"},Out="{-7,-7}"},
+  {Typ="string custom delimiter &", Arg={"7&7","&"},Out="{7,7}"},
+  {Typ="string complex format {}", Arg={"{7,7}"  },Out="{7,7}"},
+  {Typ="string complex format //", Arg={"/7,7/"  },Out="{7,7}"},
+  {Typ="string complex format []", Arg={"[7,7]"  },Out="{7,7}"},
+  {Typ="string complex format ()", Arg={"(7,7)"  },Out="{7,7}"},
+  {Typ="string complex format ||", Arg={"|7,7|"  },Out="{7,7}"},
+  {Typ="string complex format <>", Arg={"<7,7>"  },Out="{7,7}"},
+  {Typ="string complex format /{}/", Arg={"/{7,7}/"},Out="{7,7}"},
+  {Typ="string", Arg={"+i"},Out="{0,1}"},
+  {Typ="string", Arg={"i" },Out="{0,1}"},
+  {Typ="string", Arg={"-i"},Out="{0,-1}"},
+}
+
+tPar[4] = {
+  Name = "Numbers",
+  {Typ="number", Arg={7,7},Out="{7,7}"},
+  {Typ="number", Arg={-7,7},Out="{-7,7}"},
+  {Typ="number", Arg={7,-7},Out="{7,-7}"},
+  {Typ="number", Arg={-7,-7},Out="{-7,-7}"}
+}
+
+tPar[5] = {
+  Name = "Booleans and non-existent",
+  {Typ="boolean", Arg={true, true  },Out="{1,1}"},
+  {Typ="boolean", Arg={true, false },Out="{1,0}"},
+  {Typ="boolean", Arg={true,  nil  },Out="{1,0}"},
+  {Typ="boolean", Arg={false, true },Out="{0,1}"},
+  {Typ="boolean", Arg={false, false},Out="{0,0}"},
+  {Typ="boolean", Arg={false, nil  },Out="{0,0}"},
+  {Typ="non-existent", Arg={nil  , nil  },Out="{0,0}"}
+}
+
+for ID = 1, #tPar do
+  local test = tPar[ID]
+  logStatus("Status: "..test.Name)
+  for IR = 1, #test do
+    local row = test[IR]
+    local num = tostring(complex.convNew(unpack(row.Arg)))
+    if(num ~= row.Out) then
+      logStatus("  FAIL: ("..row.Typ..") <"..num.."> = <"..row.Out..">")
+      logStatus("     Converting complex test #"..ID.." found mistmatch at index #"..IR)
+    else
+      logStatus("  OK: ("..row.Typ..") <"..num..">")
+    end
+  end
+end
 
 logStatus("\nConverting to string. Variety of outputs "..tostring(a))
 logStatus("Export n/a 1: "..tostring(a))

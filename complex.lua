@@ -154,6 +154,7 @@ function metaComplex:getNew(nR, nI)
   end; return N
 end
 
+function metaComplex:getType () return metaComplex.__type end
 function metaComplex:NegRe   () return self:setReal(-self:getReal()) end
 function metaComplex:NegIm   () return self:setImag(-self:getImag()) end
 function metaComplex:Conj    () return self:NegIm() end
@@ -687,13 +688,15 @@ local function stringToComplexI(sStr, nS, nE, nI)
     return logStatus("stringToComplexI: Complex not in plain format [a+ib] or [a+bi]",nil) end
   local M = (nI - 1); local C = sStr:sub(M,M) -- There will be no delimiter symbols here
   if(nI == nE) then  -- (-0.7-2.9i) Skip symbols until +/- is reached
-    while(C ~= "+" and C ~= "-" and M > 0) do
-      M = M - 1; C = sStr:sub(M,M) end
-    return complex.getNew(tonumber(sStr:sub(nS,M-1)) or metaComplex.__valre,
-                       tonumber(sStr:sub(M,nE-1)) or metaComplex.__valim)
+    while(C ~= "+" and C ~= "-" and M > 0) do M = M - 1; C = sStr:sub(M,M) end
+    local vR, vI = sStr:sub(nS,M-1), sStr:sub(M,nE-1) -- Automatically change real part
+              vI = (tonumber(vI) and vI or (vI.."1")) -- Process cases for (+i,-i,i)
+    return complex.getNew(tonumber(vR) or metaComplex.__valre,
+                          tonumber(vI) or metaComplex.__valim)
   else -- (-0.7-i2.9)
-    return complex.getNew(tonumber(sStr:sub(nS,M-1))     or metaComplex.__valre,
-                       tonumber(C..sStr:sub(nI+1,nE)) or metaComplex.__valim)
+    local vR, vI = sStr:sub(nS,M-1), (C..sStr:sub(nI+1,nE))
+    return complex.getNew(tonumber(vR) or metaComplex.__valre,
+                          tonumber(vI) or metaComplex.__valim)
   end
 end
 
@@ -715,13 +718,13 @@ function complex.convNew(vIn, ...)
   elseif(tyIn ==  "table") then return tableToComplex(vIn, tArg[1], tArg[2])
   elseif(tyIn == "number") then return complex.getNew(vIn,tArg[1])
   elseif(tyIn ==    "nil") then return complex.getNew(0,0)
-  elseif(tyIn == "string") then
-    local Str, S, E = stringValidComplex(vIn:gsub("*",""))
-    if(not (Str and S and E)) then
+  elseif(tyIn == "string") then -- Remove brackets and leave the values
+    local Str, S, E = stringValidComplex(vIn:gsub("*","")); if(not Str) then
       return logStatus("complex.convNew: Failed to validate <"..tostring(vIn)..">",nil) end
-    Str = Str:sub(S ,E); E = E-S+1; S = 1; local Sim, I = metaComplex.__ssyms
+    Str = Str:sub(S, E); E = E-S+1; S = 1 -- Refresh string indexes
+    local Sim, I = metaComplex.__ssyms    -- Prepare to find imaginary unit
     for ID = 1, #Sim do local val = Sim[ID]
-      I = Str:find(val,S) or I; if(I) then break end end
+      I = Str:find(val, S, true) or I; if(I) then break end end
     if(I and (I > 0)) then return stringToComplexI(Str, S, E, I)
     else return stringToComplex(Str, S, E, tArg[1]) end
   end
