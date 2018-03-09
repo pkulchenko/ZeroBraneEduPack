@@ -153,13 +153,13 @@ end
 
 function metaComplex:Apply(fF, bR, bI)
   local R, I = self:getParts()
-  local br = getPick(isNil(bR), true, bR)
-  local bi = getPick(isNil(bI), true, bI)
-  local sR, vR = pcall(fF, R); if(not sR) then
-    return logStatus("complex.Apply(R): Failed: "..vR, self) end
-  local sI, vI = pcall(fF, I); if(not sI) then
-    return logStatus("complex.Apply(I): Failed: "..vI, self) end
-  R, I = (br and vR or R), (bi and vI or I)
+  local br, sR, vR = getPick(isNil(bR), true, bR)
+  local bi, sI, vI = getPick(isNil(bI), true, bI)
+  if(br) then sR, vR = pcall(fF, R); if(not sR) then
+    return logStatus("complex.Apply(R): Failed: "..vR, self) end end
+  if(bi) then sI, vI = pcall(fF, I); if(not sI) then
+    return logStatus("complex.Apply(I): Failed: "..vI, self) end end
+  R, I = ((br) and vR or R), ((bi) and vI or I)
   return self:setReal(R):setImag(I)
 end
 
@@ -519,7 +519,7 @@ function metaComplex:getRoots(nNm)
       local cRe, cIm = (nRa * math.cos(nAn)), (nRa * math.sin(nAn))
       tRt[k], nAn = self:getNew(cRe,cIm), (nAn + dA)
     end; return tRt
-  end; return logStatus("getRoots: Invalid <"..nN..">")
+  end; return logStatus("complex.getRoots: Invalid <"..nN..">")
 end
 
 function metaComplex:getFormat(...)
