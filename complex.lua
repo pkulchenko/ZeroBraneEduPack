@@ -568,31 +568,24 @@ metaComplex.__concat = function(A,B)
 end
 
 metaComplex.__eq =  function(C1,C2)
-  local R1, R2, I1, I2 = 0, 0, 0, 0
-  if(getmetatable(C1) == metaComplex) then R1, I1 = C1:getParts()
-  else R1, I1 = (tonumber(C1) or metaComplex.__valre), metaComplex.__valim end
-  if(getmetatable(C2) == metaComplex) then R2, I2 = C2:getParts()
-  else R2, I2 = (tonumber(C2) or metaComplex.__valre), metaComplex.__valim end
+  local R1, I1 = complex.getUnpack(C1)
+  local R2, I2 = complex.getUnpack(C2)
   if(R1 == R2 and I1 == I2) then return true end
   return false
 end
 
 metaComplex.__le =  function(C1,C2)
-  local R1, R2, I1, I2 = 0, 0, 0, 0
-  if(getmetatable(C1) == metaComplex) then R1, I1 = C1:getParts()
-  else R1, I1 = (tonumber(C1) or metaComplex.__valre), metaComplex.__valim end
-  if(getmetatable(C2) == metaComplex) then R2, I2 = C2:getParts()
-  else R2, I2 = (tonumber(C2) or metaComplex.__valre), metaComplex.__valim end
+  local R1, I1 = complex.getUnpack(C1)
+  local R2, I2 = complex.getUnpack(C2)
+  if(I1 == 0 and I2 == 0) then return (R1 <= R2) end
   if(R1 <= R2 and I1 <= I2) then return true end
   return false
 end
 
 metaComplex.__lt =  function(C1,C2)
-  local R1, R2, I1, I2 = 0, 0, 0, 0
-  if(getmetatable(C1) == metaComplex) then R1, I1 = C1:getParts()
-  else R1, I1 = (tonumber(C1) or metaComplex.__valre), metaComplex.__valim end
-  if(getmetatable(C2) == metaComplex) then R2, I2 = C2:getParts()
-  else R2, I2 = (tonumber(C2) or metaComplex.__valre), metaComplex.__valim end
+  local R1, I1 = complex.getUnpack(C1)
+  local R2, I2 = complex.getUnpack(C2)
+  if(I1 == 0 and I2 == 0) then return (R1 < R2) end
   if(R1 < R2 and I1 < I2) then return true end
   return false
 end
