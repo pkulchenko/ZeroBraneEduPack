@@ -151,6 +151,18 @@ function metaComplex:getNew(nR, nI)
   end; return N
 end
 
+function metaComplex:Apply(fF, bR, bI)
+  local R, I = self:getParts()
+  local br = getPick(isNil(bR), true, bR)
+  local bi = getPick(isNil(bI), true, bI)
+  local sR, vR = pcall(fF, R); if(not sR) then
+    return logStatus("complex.Apply(R): Failed: "..vR, self) end
+  local sI, vI = pcall(fF, I); if(not sI) then
+    return logStatus("complex.Apply(I): Failed: "..vI, self) end
+  R, I = (br and vR or R), (bi and vI or I)
+  return self:setReal(R):setImag(I)
+end
+
 function metaComplex:getType () return metaComplex.__type end
 function metaComplex:NegRe   () return self:setReal(-self:getReal()) end
 function metaComplex:NegIm   () return self:setImag(-self:getImag()) end
@@ -212,6 +224,22 @@ function metaComplex:getCsgn()
   if(R > 0) then return 1 end
   if(R < 0) then return -1 end
   return getSign(I)
+end
+
+function metaComplex:Sgnu()
+  return self:Apply(getSign)
+end
+
+function metaComplex:getSgnu()
+  return self:getNew():Sgnu()
+end
+
+function metaComplex:SgNon()
+  return self:Apply(getSignNon)
+end
+
+function metaComplex:getSgNon()
+  return self:getNew():SgNon()
 end
 
 function metaComplex:Swap()
@@ -354,18 +382,6 @@ end
 
 function metaComplex:getLog()
   return self:getNew():Log()
-end
-
-function metaComplex:Apply(fF, bR, bI)
-  local R, I = self:getParts()
-  local br = getPick(isNil(bR), true, bR)
-  local bi = getPick(isNil(bI), true, bI)
-  local sR, vR = pcall(fF, R); if(not sR) then
-    return logStatus("complex.Apply(R): Failed: "..vR, self) end
-  local sI, vI = pcall(fF, I); if(not sI) then
-    return logStatus("complex.Apply(I): Failed: "..vI, self) end
-  R, I = (br and vR or R), (bi and vI or I)
-  return self:setReal(R):setImag(I)
 end
 
 function metaComplex:getApply(fF, bR, bI)
