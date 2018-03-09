@@ -199,6 +199,21 @@ function metaComplex:getCross(R, I)
   return (C*I - D*R)
 end
 
+function metaComplex:Sign()
+  return self:Unit()
+end
+
+function metaComplex:getSign()
+  return self:getNew():Sign()
+end
+
+function metaComplex:getCsgn()
+  local R, I = self:getParts()
+  if(R > 0) then return 1 end
+  if(R < 0) then return -1 end
+  return getSign(I)
+end
+
 function metaComplex:Swap()
   local R, I = self:getParts()
   return self:setReal(I):setImag(R)
