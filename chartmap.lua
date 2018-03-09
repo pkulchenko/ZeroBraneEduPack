@@ -18,6 +18,7 @@ local chartmap     = {}
 local metaInterval = {}
       metaInterval.__index = metaInterval
       metaInterval.__type  = "chartmap.interval"
+      metaInterval.__metatable = metaInterval.__type
       metaInterval.__tostring = function(oInterval) return oInterval:getString() end
 local function newInterval(sName, nL1, nH1, nL2, nH2)
   local self, mVal, mNm = {}, 0, tostring(sName or "")
@@ -54,6 +55,7 @@ end
 local metaTracer = {}
       metaTracer.__index = metaTracer
       metaTracer.__type  = "chartmap.tracer"
+      metaTracer.__metatable = metaTracer.__type
       metaTracer.__tostring = function(oTracer) return oTracer:getString() end
 local function newTracer(sName)
   local self = {}; setmetatable(self, metaTracer)

@@ -17,6 +17,7 @@ local pidloop      = {}
 local metaControl = {}
       metaControl.__index = metaControl
       metaControl.__type  = "pidloop.control"
+      metaControl.__metatable = metaControl.__type
       metaControl.__tostring = function(oControl) return oControl:getString() end
 local function newControl(nTo, sName)
   local mTo = (tonumber(nTo) or 0); if(mTo <= 0) then -- Sampling time [s]
@@ -125,9 +126,10 @@ end
 
 -- https://www.mathworks.com/help/simulink/slref/discretefilter.html
 local metaUnit = {}
-      metaUnit.__index    = metaUnit
-      metaUnit.__type     = "pidloop.unit"
-      metaUnit.__tostring = function(oUnit) return oUnit:getString() end
+      metaUnit.__index     = metaUnit
+      metaUnit.__type      = "pidloop.unit"
+      metaUnit.__metatable = metaUnit.__type
+      metaUnit.__tostring  = function(oUnit) return oUnit:getString() end
 local function newUnit(nTo, tNum, tDen, sName)
   local mOrd = #tDen; if(mOrd < #tNum) then
     return logStatus("Unit physically impossible") end

@@ -8,6 +8,10 @@ local io        = io
 local metaShape = {}
 local metaField = {}
 
+metaShape.__type = "lifelib.shape"
+metaShape.__metatable = metaShape.__type
+metaField.__type = "lifelib.field"
+metaField.__metatable = metaField.__type
 --------------------------- ALIVE / DEAD / PATH -------------------------------
 
 local Aliv = "O"
@@ -627,7 +631,7 @@ lifelib.makeField = function(w,h,sRule)
     local Py = (Py or 1) % h
     if(Shape == nil) then
       return logStatus("Field.setShape(Shape,PosX,PosY): Shape: Not present !",nil) end
-    if(getmetatable(Shape) ~= metaShape) then
+    if(getmetatable(Shape) ~= metaShape.__type) then
       return logStatus("Field.setShape(Shape,PosX,PosY): Shape: SHAPE obj invalid !",nil) end
     if(Rule.Name ~= Shape:getRuleName()) then
       return logStatus("Field.setShape(Shape,PosX,PosY): Shape: Different kind of life !",nil) end

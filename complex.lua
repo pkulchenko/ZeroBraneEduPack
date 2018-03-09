@@ -4,9 +4,11 @@ local math         = math
 local pcall        = pcall
 local tonumber     = tonumber
 local tostring     = tostring
+local getmetatable = getmetatable
 local setmetatable = setmetatable
 local complex      = {}
 local metaComplex  = {}
+local metaData     = {}
 local logStatus    = common.logStatus
 local logString    = common.logString
 local getSign      = common.getSign
@@ -19,46 +21,46 @@ local isNil        = common.isNil
 local getPick      = common.getPick
 
 metaComplex.__type  = "complex.complex"
-metaComplex.__margn = 1e-10
 metaComplex.__index = metaComplex
-metaComplex.__bords = {"{([<|/","})]>|/"}
-metaComplex.__valre = 0
-metaComplex.__valim = 0
-metaComplex.__valns = "X"
-metaComplex.__ssyms = {"i", "I", "j", "J"}
-metaComplex.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
-metaComplex.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
-metaComplex.__getpi = math.pi
-metaComplex.__radeg = (180 / metaComplex.__getpi)
-metaComplex.__cactf = {}
+
+metaData.__valre = 0
+metaData.__valre = 0
+metaData.__valns = "X"
+metaData.__margn = 1e-10
+metaData.__bords = {"{([<|/","})]>|/"}
+metaData.__ssyms = {"i", "I", "j", "J"}
+metaData.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
+metaData.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
+metaData.__getpi = math.pi
+metaData.__radeg = (180 / metaData.__getpi)
+metaData.__cactf = {}
 
 function complex.isValid(cNum)
   return (getmetatable(cNum) == metaComplex)
 end
 
 function complex.setMargin(nM)
-  metaComplex.__margn = math.abs((tonumber(nM) or 0))
+  metaData.__margn = math.abs((tonumber(nM) or 0))
 end
 
 function complex.getMargin()
-  return metaComplex.__margn
+  return metaData.__margn
 end
 
 function complex.getUnpack(R, I, E)
   if(complex.isValid(R)) then local nR, nI = R:getParts() return nR, nI, I end
-  return (tonumber(R) or metaComplex.__valre), (tonumber(I) or metaComplex.__valim), E
+  return (tonumber(R) or metaData.__valre), (tonumber(I) or metaData.__valre), E
 end
 
 function complex.getNew(nRe, nIm)
-  self = {}; setmetatable(self,metaComplex)
-  local Re = tonumber(nRe) or metaComplex.__valre
-  local Im = tonumber(nIm) or metaComplex.__valim
+  self = {}; setmetatable(self, metaComplex)
+  local Re = tonumber(nRe) or metaData.__valre
+  local Im = tonumber(nIm) or metaData.__valre
 
-  if(getmetatable(nRe) == metaComplex) then
-    Re, Im = nRe:getReal(), nRe:getImag() end
+  if(complex.isValid(nRe)) then Re, Im = nRe:getReal(), nRe:getImag() end
 
-  function self:setReal(R)  Re = (tonumber(R) or metaComplex.__valre); return self end
-  function self:setImag(I)  Im = (tonumber(I) or metaComplex.__valim); return self end
+  function self:setReal(R)  Re = (tonumber(R) or metaData.__valre); return self end
+  function self:setImag(I)  Im = (tonumber(I) or metaData.__valre); return self end
   function self:getReal()   return Re end
   function self:getImag()   return Im end
   function self:getParts()  return Re, Im end
@@ -140,7 +142,7 @@ end
 
 function metaComplex:Action(aK,...)
   if(not aK) then return self end
-  local fDr = metaComplex.__cactf[aK]
+  local fDr = metaData.__cactf[aK]
   if(not fDr) then return self end
   return pcall(fDr,self,...)
 end
@@ -421,7 +423,7 @@ function metaComplex:getAngRad()
   local R, I = self:getParts(); return math.atan2(I, R) end
 
 function metaComplex:getTable(kR, kI)
-  local kR, kI = (kR or metaComplex.__kreal[1]), (kI or metaComplex.__kimag[1])
+  local kR, kI = (kR or metaData.__kreal[1]), (kI or metaData.__kimag[1])
   local R , I  = self:getParts(); return {[kR] = R, [kI] = I}
 end
 
@@ -487,7 +489,7 @@ function metaComplex:getLayMargin(cS, cE)
 end
 
 function metaComplex:isAmongLine(cS, cE, bF)
-  local nM = metaComplex.__margn
+  local nM = metaData.__margn
   if(math.abs(self:getLayMargin(cS, cE)) < nM) then
     local dV = cE:getSub(cS)
     local dS = self:getSub(cS):getDot(dV)
@@ -498,7 +500,7 @@ function metaComplex:isAmongLine(cS, cE, bF)
 end
 
 function metaComplex:isAmongRay(cO, cD, bF)
-  local nM = metaComplex.__margn
+  local nM = metaData.__margn
   local cE = cO:getNew():Add(cD)
   if(math.abs(self:getLayMargin(cO, cE)) < nM) then
     local dO = self:getSub(cO):getDot(cD)
@@ -512,7 +514,7 @@ end
 function metaComplex:getRoots(nNm)
   local nN = math.floor(tonumber(nNm) or 0)
   if(nN > 0) then local tRt = {}
-    local nPw, dA  = (1 / nN), ((2*metaComplex.__getpi) / nN)
+    local nPw, dA  = (1 / nN), ((2*metaData.__getpi) / nN)
     local nRa = self:getNorm()   ^ nPw
     local nAn = self:getAngRad() * nPw
     for k = 1, nN do
@@ -526,8 +528,8 @@ function metaComplex:getFormat(...)
   local tArg = {...}
   local sMod = tostring(tArg[1] or "")
   if(sMod == "table") then
-    local tvB = metaComplex.__bords
-    local tkR, tkI = metaComplex.__kreal, metaComplex.__kimag
+    local tvB = metaData.__bords
+    local tkR, tkI = metaData.__kreal, metaData.__kimag
     local sN, R, I = tostring(tArg[3] or "%f"), self:getParts()
     local iS = math.floor((tvB[1]..tvB[2]):len()/2)
           iB = getClamp(tonumber(tArg[4] or 1), 1, iS)
@@ -545,9 +547,9 @@ function metaComplex:getFormat(...)
   elseif(sMod == "string") then
     local R, I = self:getParts()
     local mI, bS = (getSign(I) * I), tArg[3]
-    local iD, eS = (tonumber(tArg[2]) or 1), #metaComplex.__ssyms
+    local iD, eS = (tonumber(tArg[2]) or 1), #metaData.__ssyms
           iD = (iD > eS) and eS or iD
-    local kI = tostring(tArg[4] or metaComplex.__ssyms[iD])
+    local kI = tostring(tArg[4] or metaData.__ssyms[iD])
     local sI = ((getSign(I) < 0) and "-" or "+")
     if(bS) then return (R..sI..kI..mI)
     else return (R..sI..mI..kI) end
@@ -561,8 +563,8 @@ metaComplex.__call = function(cNum, sMth, ...)
 end
 
 metaComplex.__tostring = function(cNum)
-  local R = tostring(cNum:getReal() or metaComplex.__valns)
-  local I = tostring(cNum:getImag() or metaComplex.__valns)
+  local R = tostring(cNum:getReal() or metaData.__valns)
+  local I = tostring(cNum:getImag() or metaData.__valns)
   return "{"..R..","..I.."}"
 end
 
@@ -630,7 +632,7 @@ end
 
 function complex.getIntersectRayCircle(cO, cD, cC, nR)
   local nA = cD:getNorm2()
-  if(nA <= metaComplex.__margn) then return nil end
+  if(nA <= metaData.__margn) then return nil end
   local cR = cO:getNew():Sub(cC)
   local nB, nC = 2*cD:getDot(cR), (cR:getNorm2() - nR^2)
   local nD = nB^2-4*nA*nC; if(nD < 0) then
@@ -661,12 +663,12 @@ end
 
 function complex.toDegree(nRad)
   if(math.deg) then return math.deg(nRad) end
-  return (tonumber(nRad) or 0) * metaComplex.__radeg
+  return (tonumber(nRad) or 0) * metaData.__radeg
 end
 
 function complex.toRadian(nDeg)
   if(math.rad) then return math.rad(nDeg) end
-  return (tonumber(nDeg) or 0) / metaComplex.__radeg
+  return (tonumber(nDeg) or 0) / metaData.__radeg
 end
 
 function metaComplex:getAngDeg() return complex.toDegree(self:getAngRad()) end
@@ -690,13 +692,13 @@ end
 function complex.setAction(aK, fD)
   if(not aK) then return logStatus("complex.setAction: Miss-key", false) end
   if(type(fD) == "function") then
-    metaComplex.__cactf[aK] = fD; return true end
+    metaData.__cactf[aK] = fD; return true end
   return logStatus("complex.setAction: Non-function", false)
 end
 
 local function stringValidComplex(sStr)
   local Str = sStr:gsub("%s","") -- Remove hollows
-  local S, E, B = 1, Str:len(), metaComplex.__bords
+  local S, E, B = 1, Str:len(), metaData.__bords
   while(S < E) do
     local CS, CE = Str:sub(S,S), Str:sub(E,E)
     local FS, FE = B[1]:find(CS,1,true), B[2]:find(CE,1,true)
@@ -715,9 +717,9 @@ local function stringToComplex(sStr, nS, nE, sDel)
   local Del = tostring(sDel or ","):sub(1,1)
   local S, E, D = nS, nE, sStr:find(Del)
   if((not D) or (D < S) or (D > E)) then
-    return complex.getNew(tonumber(sStr:sub(S,E)) or metaComplex.__valre, metaComplex.__valim) end
-  return complex.getNew(tonumber(sStr:sub(S,D-1)) or metaComplex.__valre,
-                     tonumber(sStr:sub(D+1,E)) or metaComplex.__valim)
+    return complex.getNew(tonumber(sStr:sub(S,E)) or metaData.__valre, metaData.__valre) end
+  return complex.getNew(tonumber(sStr:sub(S,D-1)) or metaData.__valre,
+                     tonumber(sStr:sub(D+1,E)) or metaData.__valre)
 end
 
 local function stringToComplexI(sStr, nS, nE, nI)
@@ -728,22 +730,22 @@ local function stringToComplexI(sStr, nS, nE, nI)
     while(C ~= "+" and C ~= "-" and M > 0) do M = M - 1; C = sStr:sub(M,M) end
     local vR, vI = sStr:sub(nS,M-1), sStr:sub(M,nE-1) -- Automatically change real part
               vI = (tonumber(vI) and vI or (vI.."1")) -- Process cases for (+i,-i,i)
-    return complex.getNew(tonumber(vR) or metaComplex.__valre,
-                          tonumber(vI) or metaComplex.__valim)
+    return complex.getNew(tonumber(vR) or metaData.__valre,
+                          tonumber(vI) or metaData.__valre)
   else -- (-0.7-i2.9)
     local vR, vI = sStr:sub(nS,M-1), (C..sStr:sub(nI+1,nE))
-    return complex.getNew(tonumber(vR) or metaComplex.__valre,
-                          tonumber(vI) or metaComplex.__valim)
+    return complex.getNew(tonumber(vR) or metaData.__valre,
+                          tonumber(vI) or metaData.__valre)
   end
 end
 
 local function tableToComplex(tTab, kRe, kIm)
   if(not tTab) then return nil end
-  local R = getValueKeys(tTab, metaComplex.__kreal, kRe)
-  local I = getValueKeys(tTab, metaComplex.__kimag, kIm)
+  local R = getValueKeys(tTab, metaData.__kreal, kRe)
+  local I = getValueKeys(tTab, metaData.__kimag, kIm)
   if(R or I) then
-    return complex.getNew(tonumber(R) or metaComplex.__valre,
-                          tonumber(I) or metaComplex.__valim) end
+    return complex.getNew(tonumber(R) or metaData.__valre,
+                          tonumber(I) or metaData.__valre) end
   return logStatus("tableToComplex: Table format not supported", complex.getNew())
 end
 
@@ -759,7 +761,7 @@ function complex.convNew(vIn, ...)
     local Str, S, E = stringValidComplex(vIn:gsub("*","")); if(not Str) then
       return logStatus("complex.convNew: Failed to validate <"..tostring(vIn)..">",nil) end
     Str = Str:sub(S, E); E = E-S+1; S = 1 -- Refresh string indexes
-    local Sim, I = metaComplex.__ssyms    -- Prepare to find imaginary unit
+    local Sim, I = metaData.__ssyms    -- Prepare to find imaginary unit
     for ID = 1, #Sim do local val = Sim[ID]
       I = Str:find(val, S, true) or I; if(I) then break end end
     if(I and (I > 0)) then return stringToComplexI(Str, S, E, I)

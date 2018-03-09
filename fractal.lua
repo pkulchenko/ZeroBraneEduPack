@@ -12,6 +12,7 @@ local fractal      = {}
 local mtPlaneZ     = {}
 mtPlaneZ.__type    = "fractal.z-plane"
 mtPlaneZ.__index   = mtPlaneZ
+mtPlaneZ.__metatable = mtPlaneZ.__type
 local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
   local imgW , imgH  = w   , h
   local minRe, maxRe = minw, maxw
@@ -134,6 +135,7 @@ end
 local mtTreeY = {}
       mtTreeY.__type  = "fractal.ytree"
       mtTreeY.__index = mtTreeY
+      mtTreeY.__metatable = mtTreeY.__type
 local function newTreeY(iMax, clDraw)
   local draw = clDraw
   local self = {Lev = 0, Max = (tonumber(iMax) or 0)}

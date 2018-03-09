@@ -8,12 +8,12 @@ local tonumber     = tonumber
 local tostring     = tostring
 local getmetatable = getmetatable
 local common       = {}
-local metaCommon   = {
-  __time = 0,
-  __func = {},
-  __type = {"number", "boolean", "string", "function", "table"},
-  __syms = "1234567890abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ"
-}
+local metaCommon   = {}
+metaCommon.__time = 0
+metaCommon.__func = {}
+metaCommon.__type = {"number", "boolean", "string", "function", "table"}
+metaCommon.__syms = "1234567890abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ"
+metaCommon.__metatable = "common.lib"
 
 metaCommon.__func["pi"] = {}
 metaCommon.__func["pi"].foo = function (itr, top)
