@@ -412,7 +412,6 @@ function common.arConvert2D(arLin,w,h)
 end
 
 function common.arRotateR(tArr,sX,sY)
-  common.logTable(tArr)
   local ii, jj, tTmp = 1, 1, common.arMalloc2D(sY,sX)
   for j = 1, sX, 1 do for i = sY, 1, -1  do
       if(jj > sY) then ii, jj = (ii + 1), 1 end
