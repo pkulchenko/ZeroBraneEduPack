@@ -53,7 +53,7 @@ lifelib.shapesPath = function(sData)
   local Typ = type(sData)
   if(Typ == "string" and sData ~= "") then
     metaData.__path = stringTrim(sData:gsub("\\","/"),"/")
-    return logStatus("Shapes location: "..metaData.__path, true)
+    return logStatus("lifelib.shapesPath: "..metaData.__path, true)
   end; return false
 end
 
@@ -66,13 +66,13 @@ end
 lifelib.getRuleBS = function(sStr)
   local BS = {Name = tostring(sStr or "")}
   if(BS.Name == "") then
-    return logStatus("getRuleBS: Empty rule") end
+    return logStatus("lifelib.getRuleBS: Empty rule") end
   local expBS = strExplode(BS.Name,"/")
   if(not (expBS[1] and expBS[2])) then
-    return logStatus("getRuleBS: Rule invalid <"..BS.Name..">") end
+    return logStatus("lifelib.getRuleBS: Rule invalid <"..BS.Name..">") end
   local kB, kS = expBS[1]:sub(1,1)  , expBS[2]:sub(1,1)
-  if(kB ~= "B") then return logStatus("getRuleBS: Born invalid <"..BS.Name..">") end
-  if(kS ~= "S") then return logStatus("getRuleBS: Surv invalid <"..BS.Name..">") end
+  if(kB ~= "B") then return logStatus("lifelib.getRuleBS: Born invalid <"..BS.Name..">") end
+  if(kS ~= "S") then return logStatus("lifelib.getRuleBS: Surv invalid <"..BS.Name..">") end
   local bI, sI = 2, 2; BS[kB], BS[kS] = {}, {}
   local cB, cS = expBS[1]:sub(bI,bI), expBS[2]:sub(sI,sI)
   while(cB ~= "" or cS ~= "") do
@@ -82,7 +82,7 @@ lifelib.getRuleBS = function(sStr)
     bI, sI = (bI + 1), (sI + 1)
     cB, cS = expBS[1]:sub(bI,bI), expBS[2]:sub(sI,sI)
   end; if(BS[kB][1] and BS[kS][1]) then return BS end
-  return logStatus("getRuleBS: Population fail <"..BS.Name..">")
+  return logStatus("lifelib.getRuleBS: Population fail <"..BS.Name..">")
 end
 
 lifelib.getRleSettings = function(sStr)
@@ -274,7 +274,7 @@ local function initFileLif106(sName)
           if(x < MinX) then MinX = x end
           if(y > MaxY) then MaxY = y end
           if(y < MinY) then MinY = y end
-        else return logStatus("Coordinates conversion failed !", nil) end
+        else return logStatus("initFileLif106: Coordinates conversion failed !", nil) end
       else
         x = tonumber(Line:sub(1,ID-1)) or 0
         y = tonumber(Line:sub(ID+1,leLine)) or 0
@@ -402,7 +402,7 @@ end
 --[[
  * Creates a field object used for living environment for the shapes ( organisms )
 ]]--
-lifelib.makeField = function(w,h,sRule)
+lifelib.newField = function(w,h,sRule)
   local self  = {}
   local w = tonumber(w) or 0
         w = (w >= 1) and w or 1
@@ -417,9 +417,9 @@ lifelib.makeField = function(w,h,sRule)
   else
     Rule = {}
     Rule.Name = sRule
-    Rule.Data = lifelib.getRuleBS(sRule)
+    Rule.Data = lifelib.getRuleBS(Rule.Name)
     if(Rule.Data == nil) then
-      return logStatus("Field creator: Please redefine your life rule !",nil) end
+      return logStatus("lifelib.newField: Please redefine your life rule !",nil) end
   end
   --[[
    * Internal data primitives
@@ -443,11 +443,11 @@ lifelib.makeField = function(w,h,sRule)
     local Px = (Px or 1) % w
     local Py = (Py or 1) % h
     if(Shape == nil) then
-      return logStatus("Field.setShape(Shape,PosX,PosY): Shape: Not present !",nil) end
+      return logStatus("lifelib.newField.setShape(Shape,PosX,PosY): Shape: Not present !",nil) end
     if(getmetatable(Shape) ~= metaShape) then
-      return logStatus("Field.setShape(Shape,PosX,PosY): Shape: SHAPE obj invalid !",nil) end
+      return logStatus("lifelib.newField.setShape(Shape,PosX,PosY): Shape: SHAPE obj invalid !",nil) end
     if(Rule.Name ~= Shape:getRuleName()) then
-      return logStatus("Field.setShape(Shape,PosX,PosY): Shape: Different kind of life !",nil) end
+      return logStatus("lifelib.newField.setShape(Shape,PosX,PosY): Shape: Different kind of life !",nil) end
     local sw = Shape:getW()
     local sh = Shape:getH()
     local ar = Shape:getArray()
@@ -482,7 +482,7 @@ lifelib.makeField = function(w,h,sRule)
   ]]--
   function self:regDraw(sKey,fFoo)
     if(type(sKey) == "string" and type(fFoo) == "function") then Draw[sKey] = fFoo
-    else logStatus("Field.regDraw(sKey,fFoo): Drawing method @"..tostring(sKey).." registration skipped !")
+    else logStatus("lifelib.newField.regDraw(sKey,fFoo): Drawing method @"..tostring(sKey).." registration skipped !")
     end; return self
   end
 
@@ -492,7 +492,7 @@ lifelib.makeField = function(w,h,sRule)
   function self:drwLife(sMode,...)
     local Mode = tostring(sMode or "text")
     if(Draw[Mode]) then Draw[Mode](self,...)
-    else logStatus("Field.drwLife(sMode,...): Drawing mode <"..Mode.."> not found !")
+    else logStatus("lifelib.newField.drwLife(sMode,...): Drawing mode <"..Mode.."> not found !")
     end; return self
   end
 
@@ -523,7 +523,7 @@ end
 --[[
  * Crates a shape ( life form ) object
 ]]--
-lifelib.makeShape = function(sName, sSrc, sExt, ...)
+lifelib.newStamp = function(sName, sSrc, sExt, ...)
   local sName = tostring(sName or "")
   local sSrc  = tostring(sSrc  or "")
   local sExt  = tostring(sExt  or "")
@@ -533,25 +533,25 @@ lifelib.makeShape = function(sName, sSrc, sExt, ...)
     elseif(sExt == "cells" ) then tInit = initFileCells(sName)
     elseif(sExt == "lif105") then tInit = initFileLif105(sName)
     elseif(sExt == "lif106") then tInit = initFileLif106(sName)
-    else return logStatus("makeShape(sName, sSrc, sExt, ...): Extension <"..sExt.."> not supported on the source <"..sSrc.."> for <"..sName..">",nil) end
+    else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Extension <"..sExt.."> not supported on the source <"..sSrc.."> for <"..sName..">",nil) end
   elseif(sSrc == "string") then
     if    (sExt == "rle" ) then tInit = initStringRle(sName,tArg[1],tArg[2])
     elseif(sExt == "txt" ) then tInit = initStringText(sName,tArg[1])
-    else return logStatus("makeShape(sName, sSrc, sExt, ...): Extension <"..sExt.."> not supported on the source <"..sSrc.."> for <"..sName">",nil) end
+    else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Extension <"..sExt.."> not supported on the source <"..sSrc.."> for <"..sName">",nil) end
   elseif(sSrc == "strict") then tInit = initStruct(sName)
-  else return logStatus("makeShape(sName, sSrc, sExt, ...): Source <"..sSrc.."> not suported for <"..sName..">",nil) end
+  else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Source <"..sSrc.."> not suported for <"..sName..">",nil) end
 
   if(not tInit) then
-    return logStatus("makeShape(sName, sSrc, sExt, ...): No initialization table",nil) end
+    return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): No initialization table",nil) end
   if(not (tInit.w and tInit.h)) then
-    return logStatus("makeShape(sName, sSrc, sExt, ...): Initialization table bad dimensions\n",nil) end
+    return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Initialization table bad dimensions\n",nil) end
   if(not (tInit.w > 0 and tInit.h > 0)) then
-    return logStatus("makeShape(sName, sSrc, sExt, ...): Check Shape unit structure !\n",nil) end
+    return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Check Shape unit structure !\n",nil) end
 
   while(tInit[iCnt]) do
     if(tInit[iCnt] == 1) then isEmpty = false end; iCnt = iCnt + 1 end
   if(isEmpty) then
-    return logStatus("makeShape(sName, sSrc, sExt, ...): Shape <"..sName.."> empty for <"..sExt.."> <"..sSrc..">",nil) end
+    return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Shape <"..sName.."> empty for <"..sExt.."> <"..sSrc..">",nil) end
   local self = {}
         self.Init = tInit
   local w    = tInit.w
@@ -562,13 +562,13 @@ lifelib.makeShape = function(sName, sSrc, sExt, ...)
   if(type(sRule) == "string") then
     local Data = lifelib.getRuleBS(sRule)
     if(Data ~= nil) then Rule = sRule
-    else return logStatus("makeShape(sName, sSrc, sExt, ...): Check creator's Rule !",nil) end
+    else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Check creator's Rule !",nil) end
   elseif(type(tInit.Rule) == "table") then
     if(type(tInit.Rule.Name) == "string") then
       local Data = lifelib.getRuleBS(tInit.Rule.Name)
       if(Data ~= nil) then Rule = tInit.Rule.Name
       else Rule = lifelib.getDefaultRule().Name end
-    else return logStatus("makeShape(sName, sSrc, sExt, ...): Check init Rule !",nil) end
+    else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Check init Rule !",nil) end
   else Rule = lifelib.getDefaultRule().Name end
   --[[
    * Internal data primitives
@@ -588,7 +588,7 @@ lifelib.makeShape = function(sName, sSrc, sExt, ...)
   ]]--
   function self:regDraw(sKey,fFoo)
     if(type(sKey) == "string" and type(fFoo) == "function") then Draw[sKey] = fFoo
-    else logStatus("Shape.regDraw(sKey,fFoo): Drawing method @"..tostring(sKey).." registration skipped !")
+    else logStatus("lifelib.newStamp.regDraw(sKey,fFoo): Drawing method @"..tostring(sKey).." registration skipped !")
     end; return self
   end
   --[[
@@ -597,7 +597,7 @@ lifelib.makeShape = function(sName, sSrc, sExt, ...)
   function self:drwLife(sMode,...)
     local Mode = sMode or "text"
     if(Draw[Mode]) then Draw[Mode](self, ...)
-    else logStatus("Shape.drwLife(sMode,...): Drawing mode not found !\n")
+    else logStatus("lifelib.newStamp.drwLife(sMode,...): Drawing mode not found !\n")
     end; return self
   end
   --[[
@@ -650,9 +650,9 @@ lifelib.makeShape = function(sName, sSrc, sExt, ...)
   function self:toStringText(sDel,bTrim)
     local sAlv, sDed = metaData.__aliv, metaData.__dead
     if(sDel == sAlv) then
-      return logStatus("Shape.toStringText(sMode,tArgs) Delimiter <"..sDel.."> matches alive","") end
+      return logStatus("lifelib.newStamp.toStringText(sMode,tArgs) Delimiter <"..sDel.."> matches alive","") end
     if(sDel == sDed) then
-      return logStatus("Shape.toStringText(sMode,tArgs) Delimiter <"..sDel.."> matches dead","")  end
+      return logStatus("lifelib.newStamp.toStringText(sMode,tArgs) Delimiter <"..sDel.."> matches dead","")  end
     local Line, Len = ""
     for i = 1,h do Len = w
       if(bTrim) then while(Data[i][Len] == 0) do Len = Len - 1 end end
