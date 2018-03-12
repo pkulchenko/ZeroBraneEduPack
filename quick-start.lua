@@ -97,6 +97,7 @@ end
 
 -- [Variables](http://www.lua.org/manual/5.1/manual.html#2.3)
 -- Variables are places that store values.
+-- There are three kinds of variables in Lua: global variables, local variables, and table fields.
 
 -- [Assignment](http://www.lua.org/manual/5.1/manual.html#2.4.3)
 -- multiple variables localized
