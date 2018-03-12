@@ -1,5 +1,5 @@
+local common    = require("common")
 local lifelib   = {}
-
 local pairs     = pairs
 local tonumber  = tonumber
 local tostring  = tostring
@@ -7,240 +7,60 @@ local type      = type
 local io        = io
 local metaShape = {}
 local metaField = {}
+local metaData  = {}
 
 metaShape.__type = "lifelib.shape"
-metaShape.__metatable = metaShape.__type
 metaField.__type = "lifelib.field"
-metaField.__metatable = metaField.__type
+
+metaData.__aliv  = "O"
+metaData.__dead  = "-"
+metaData.__path  = "game-of-life/shapes/"
+
+local logStatus    = common.logStatus
+local getSign      = common.getSign
+local arMalloc2D   = common.arMalloc2D
+local arRotateR    = common.arRotateR
+local arRotateL    = common.arRotateL
+local getValuesSED = common.getValuesSED
+local arShift2D    = common.arShift2D
+local arMirror2D   = common.arMirror2D
+local strExplode   = common.stringExplode
+local strImplode   = common.stringImplode
+local stringTrim   = common.stringTrim
+local copyItem     = common.copyItem
+local arConvert2D  = common.arConvert2D
+
 --------------------------- ALIVE / DEAD / PATH -------------------------------
 
-local Aliv = "O"
-local Dead = "-"
-local ShapePath = "game-of-life/shapes/"
-
-local function logStatus(anyMsg, ...)
-  io.write(tostring(anyMsg).."\n"); return ...
-end
-
-local function getSign(anyVal)
-  local nVal = (tonumber(anyVal) or 0); return ((nVal > 0 and 1) or (nVal < 0 and -1) or 0)
-end
-
-local function getValuesSED(Val,Min,Max)
-  local s = (Val > 0) and Min or Max
-  local e = (Val > 0) and Max or Min
-  local d = getSign(e - s)
-  return s, e, d
-end
-
-local function arMalloc2D(w,h)
-  local Arr = {}
-  for y=1,h do
-    Arr[y] = {}
-    for x=1,w do
-      Arr[y][x]=0
-    end
-  end
-  return Arr
-end
-
-local function arRotateR(Arr,sX,sY)
-  local Tmp = arMalloc2D(sY,sX)
-  local ii, jj = 1, 1
-  for j = 1, sX, 1 do
-    for i = sY, 1, -1  do
-      if(jj > sY) then
-        ii = ii + 1
-        jj = 1
-      end
-      Tmp[ii][jj] = Arr[i][j]
-      Arr[i][j]   = nil
-      jj = jj + 1
-    end
-  end
-  for i = 1, sX do
-    Arr[i] = {}
-    for j = 1, sY  do
-      Arr[i][j] = Tmp[i][j]
-    end
-  end
-end
-
-local function arRotateL(Arr,sX,sY)
-  local Tmp = arMalloc2D(sY,sX)
-  local ii, jj = 1, 1
-  for j = sX, 1, -1 do
-    for i = 1, sY, 1  do
-      if(jj > sY) then
-        ii = ii + 1
-        jj = 1
-      end
-      Tmp[ii][jj] = Arr[i][j]
-      Arr[i][j]   = nil
-      jj = jj + 1
-    end
-  end
-  for i = 1, sX do
-    Arr[i] = {}
-    for j = 1, sY  do
-      Arr[i][j] = Tmp[i][j]
-    end
-  end
-end
-
-local function arShift2D(Arr,sX,sY,nX,nY)
-  if( not( sX > 0 and sY > 0) ) then return end
-  local x = math.floor(nX or 0)
-  local y = math.floor(nY or 0)
-  local Tmp = 0
-  if(x ~= 0) then
-    local sx,ex,dx = getValuesSED(x,sX,1)
-    local M
-    for i = 1,sY do
-      for j = sx,ex,dx do
-        M = j-x
-        if(M >= 1 and M <= sX) then
-          Arr[i][j] = Arr[i][M]
-        else
-          Arr[i][j] = 0
-        end
-      end
-    end
-  end
-  if(y ~= 0) then local M
-    local sy,ey,dy = getValuesSED(y,sY,1)
-    for i = sy,ey,dy do
-      for j = 1,sX do
-        M = i-y
-        if(M >= 1 and M <= sY) then
-          Arr[i][j] = Arr[M][j]
-        else
-          Arr[i][j] = 0
-        end
-      end
-    end
-  end
-end
-
-local function arRoll2D(Arr,sX,sY,nX,nY)
-  if( not( sX > 0 and sY > 0) ) then return end
-  local x = math.floor(nX or 0)
-  local y = math.floor(nY or 0)
-  if(y ~= 0) then
-    local MaxY = (y > 0) and sY or 1
-    local MinY = (y > 0) and 1 or sY
-    local siY  = getSign(y)
-          y    = y * siY
-    local arTmp = {}
-    while(y > 0) do
-      for i = 1,sX do
-        arTmp[i] = Arr[MaxY][i]
-      end
-      arShift2D(Arr,sX,sY,0,siY)
-      for i = 1,sX do
-        Arr[MinY][i] = arTmp[i]
-      end
-      y = y - 1
-    end
-  end
-  if(x ~= 0) then
-    local MaxX = (x > 0) and sX or 1
-    local MinX = (x > 0) and 1 or sX
-    local siX  = getSign(x)
-          x    = x * siX
-    local arTmp = {}
-    while(x > 0) do
-      for i = 1,sY do
-        arTmp[i] = Arr[i][MaxX]
-      end
-      arShift2D(Arr,sX,sY,siX)
-      for i = 1,sY do
-        Arr[i][MinX] = arTmp[i]
-      end
-      x = x - 1
-    end
-  end
-end
-
-local function arMirror2D(Arr,sX,sY,fX,fY)
-  local Tmp, s
-  if(fY) then
-    Tmp, s = 0, 1
-    local e = sY
-    while(s < e) do
-      for k = 1,sX do
-        Tmp = Arr[s][k]
-        Arr[s][k] = Arr[e][k]
-        Arr[e][k] = Tmp
-      end
-      s, e = (s + 1), (e - 1)
-    end
-  end
-  if(fX) then
-    Tmp, s = 0, 1
-    local e = sX
-    while(s < e) do
-      for k = 1,sY do
-        Tmp = Arr[k][s]
-        Arr[k][s] = Arr[k][e]
-        Arr[k][e] = Tmp
-      end
-      s, e = (s + 1), (e - 1)
-    end
-  end
-end
-
-local function strExplode(sStr,sDel)
-  local List, Ch, Idx, ID, dL = {""}, "", 1, 1, (sDel:len()-1)
-  while(Ch) do
-    Ch = sStr:sub(Idx,Idx+dL)
-    if    (Ch ==  "" ) then return List
-    elseif(Ch == sDel) then ID = ID + 1; List[ID], Idx = "", (Idx + dL)
-    else List[ID] = List[ID]..Ch:sub(1,1) end; Idx = Idx + 1
-  end; return List
-end
-
-local function strImplode(tList,sDel)
-  local ID, Str = 1, ""
-  local Del = tostring(sDel or "")
-  while(tList and tList[ID]) do
-    Str = Str..tList[ID]; ID = ID + 1
-    if(tList[ID] and sDel ~= "") then Str = Str..Del end
-  end; return Str
-end
-
-local function stringTrim(sStr, sWhat)
-  local sWhat = (sWhat or "%s")
-  return sStr:match("^"..sWhat.."*(.-)"..sWhat.."*$") or sStr
-end
-
 lifelib.charAliv = function (sA)
-  if(not sA) then return Aliv end
+  if(not sA) then return metaData.__aliv end
   local sA = tostring(sA):sub(1,1)
-  if(sA ~= "" and sA ~= Dead) then Aliv = sA; return true end
+  if(sA ~= "" and sA ~= metaData.__dead) then
+    metaData.__aliv = sA; return true end
   return false
 end
 
 lifelib.charDead = function(sD)
-  if(not sD) then return Dead end
+  if(not sD) then return metaData.__dead end
   local sD = tostring(sD):sub(1,1)
-  if(sD ~= "" and sD ~= Aliv) then Dead = sD; return true end
+  if(sD ~= "" and sD ~= metaData.__aliv) then
+    metaData.__dead = sD; return true end
   return false
 end
 
 lifelib.shapesPath = function(sData)
-  if(not sData) then return ShapePath end
+  if(not sData) then return metaData.__path end
   local Typ = type(sData)
   if(Typ == "string" and sData ~= "") then
-    ShapePath = stringTrim(sData:gsub("\\","/"),"/")
-    return logStatus("Shapes location: "..ShapePath, true)
+    metaData.__path = stringTrim(sData:gsub("\\","/"),"/")
+    return logStatus("Shapes location: "..metaData.__path, true)
   end; return false
 end
 
 --------------------------- RULES -------------------------------
 
 lifelib.getDefaultRule = function() -- Conway
-  return { Name = "B3/S23", Data = { B = {3}, S = {2,3} } }
+  return {Name = "B3/S23", Data = {B = {3}, S = {2,3}}}
 end
 
 lifelib.getRuleBS = function(sStr)
@@ -284,16 +104,6 @@ lifelib.getRleSettings = function(sStr)
 end
 
 ------------------- SHAPE INIT --------------------
-
-local function copyShape(argShape,w,h)
-  if(not argShape) then return false end
-  if(not (w and h)) then return false end
-  if(not (w > 0 and h > 0)) then return false end
-  Rez = arMalloc2D(w,h)
-  for i = 0,h-1 do for j = 0,w-1 do
-      Rez[i+1][j+1] = tonumber(argShape[i*w+j+1]) or 0
-  end end; return Rez
-end
 
 local function initStruct(sName)
   local Shapes = {
@@ -358,20 +168,21 @@ local function initStruct(sName)
 end
 
 local function initStringText(sStr,sDel)
+  local sAlv = metaData.__aliv
   local sStr = tostring(sStr or "")
   local sDel = tostring(sDel or "\n"):sub(1,1)
   local Rows = strExplode(sStr,sDel)
   local Rall = StrImplode(Rows)
   local Shape = {w = Rows[1]:len(), h = #Rows}
   for k = 1,(Shape.w * Shape.h) do
-    Shape[k] = (Rall:sub(k,k) == Aliv) and 1 or 0
+    Shape[k] = (Rall:sub(k,k) == sAlv) and 1 or 0
   end; return Shape
 end
 
 local function initStringRle(sStr, sDel, sEnd)
   local nS, nE, Ch
   local Cnt, Ind, Lin = 1, 1, true
-  local Len = sStr:len()
+  local Len, sAlv = sStr:len(), metaData.__aliv
   local Num, toNum, isNum = 0, 0, false
   local Shape = {w = 0, h = 0}
   local sDel = tostring(sDel or "$"):sub(1,1)
@@ -391,13 +202,13 @@ local function initStringRle(sStr, sDel, sEnd)
     if(Num > 0) then
       if(Lin) then Shape.w = Shape.w + Num end
       while(Num > 0) do
-        Shape[Ind] = (((Ch == Aliv) and 1) or 0)
+        Shape[Ind] = (((Ch == sAlv) and 1) or 0)
         Ind = Ind + 1
         Num = Num - 1
       end;
     elseif(Ch ~= sDel and Ch ~= sEnd and not isNum) then
       if(Lin) then Shape.w = Shape.w + 1 end
-      Shape[Ind] = (((Ch == Aliv) and 1) or 0)
+      Shape[Ind] = (((Ch == sAlv) and 1) or 0)
       Ind = Ind + 1
     elseif(Ch == sDel) then Shape.h = Shape.h + 1; Lin = false end
     Cnt = Cnt + 1
@@ -405,9 +216,10 @@ local function initStringRle(sStr, sDel, sEnd)
 end
 
 local function initFileLif105(sName)
-  local N = ShapePath.."/lif/"..sName:lower().."_105.lif"; F = io.open(N,"rb")
-  if(not F) then return logStatus("initFileLif105: Invalid file: <"..N..">",nil) end
-  local Line, ID, CH, Data = "", 1, 1, {}
+  local N = metaData.__path.."/lif/"..sName:lower().."_105.lif"
+  local F = io.open(N,"rb"); if(not F) then
+    return logStatus("initFileLif105: Invalid file: <"..N..">",nil) end
+  local Line, ID, CH, Data, Alv = "", 1, 1, {}, metaData.__aliv
   local Shape = {w = 0, h = 0, Header = {}, Offset = {Cent = {}}}
   while(Line) do
     Line = F:read()
@@ -428,7 +240,7 @@ local function initFileLif105(sName)
       Shape.h = Shape.h + 1; Data[Shape.h] = {}
       if(leLine >= Shape.w) then Shape.w = leLine end
       for CH = 1, leLine do
-        Data[Shape.h][CH] = ((Line:sub(CH,CH) == Aliv) and 1 or 0) end
+        Data[Shape.h][CH] = ((Line:sub(CH,CH) == Alv) and 1 or 0) end
     end
   end; F:close()
   for ID = 1, Shape.h do
@@ -439,8 +251,9 @@ local function initFileLif105(sName)
 end
 
 local function initFileLif106(sName)
-  local N = ShapePath.."/lif/"..sName:lower().."_106.lif"; F = io.open(N,"rb")
-  if(not F) then return logStatus("initFileLif106: Invalid file: <"..N..">",nil) end
+  local N = metaData.__path.."/lif/"..sName:lower().."_106.lif"
+  local F = io.open(N,"rb"); if(not F) then
+    return logStatus("initFileLif106: Invalid file: <"..N..">",nil) end
   local Line, ID, CH, Data, Offset = "", 1, 1, {}, {}
   local MinX, MaxX, MinY, MaxY, x, y
   local Shape = {w = 0, h = 0, Header = {}}
@@ -488,14 +301,14 @@ local function initFileLif106(sName)
 end
 
 local function initFileRle(sName)
-  local N = ShapePath.."/rle/"..sName:lower()..".rle"; F = io.open(N,"rb")
-  if(not F) then
+  local N = metaData.__path.."/rle/"..sName:lower()..".rle"
+  local F = io.open(N,"rb"); if(not F) then
     return logStatus("initFileRle: Invalid file: <"..N..">",nil) end
   local FilePos, ChCnt, leLine
-  local Line, cFirst =  "",  ""
+  local Line, cFirst, sAlv =  "",  "", metaData.__aliv
   local nS, nE, Ind, Cel = 1, 1, 1, 1
   local Num, isNum, toNum = 0, false, nil
-  local Shape = {w = 0, h = 0, Rule = { Name = "", Data = {}}, Header = {}}
+  local Shape = {w = 0, h = 0, Rule = {Name = "", Data = {}}, Header = {}}
   while(Line) do
     Line = F:read()
     if(not Line) then break end
@@ -506,10 +319,10 @@ local function initFileRle(sName)
       Shape.Header[Ind] = Line:sub(2,leLine)
       Ind = Ind + 1
     elseif(cFirst == "x") then
-      local Settings = lifelib.getRleSettings(Line)
-      Shape.w = tonumber(Settings["x"])
-      Shape.h = tonumber(Settings["y"])
-      Shape.Rule.Name = Settings["rule"]
+      local tSet = lifelib.getRleSettings(Line)
+      Shape.w = tonumber(tSet["x"])
+      Shape.h = tonumber(tSet["y"])
+      Shape.Rule.Name = tSet["rule"]
       Shape.Rule.Data = lifelib.getRuleBS(Shape.Rule.Name)
     else
       nS, nE, ChCnt, leLine = 1, 1, 1, Line:len()
@@ -522,11 +335,11 @@ local function initFileRle(sName)
           Num = tonumber(Line:sub(nS,nE)) or 0 end
         if(Num > 0) then
           while(Num > 0) do
-            Shape[Cel] = (((cFirst == Aliv) and 1) or 0)
+            Shape[Cel] = (((cFirst == sAlv) and 1) or 0)
             Cel = Cel + 1; Num = Num - 1
           end
         elseif(cFirst ~= "$" and cFirst ~= "!" and not isNum ) then
-          Shape[Cel] = (((cFirst == Aliv) and 1) or 0); Cel = Cel + 1
+          Shape[Cel] = (((cFirst == sAlv) and 1) or 0); Cel = Cel + 1
         end; ChCnt = ChCnt + 1
       end
     end
@@ -534,10 +347,10 @@ local function initFileRle(sName)
 end
 
 local function initFileCells(sName)
-  local N = ShapePath.."/cells/"..sName:lower()..".cells"; F = io.open(N,"rb")
-  if(not F) then
+  local N = metaData.__path.."/cells/"..sName:lower()..".cells"
+  local F = io.open(N,"rb"); if(not F) then
     return logStatus("initFileCells: Invalid file: <"..N..">",nil) end
-  local x, y, Lenw = 0, 0, 0, 1
+  local x, y, Lenw, Alv = 0, 0, 0, metaData.__aliv
   local Line, ID, CH, Data = "", 1, 1, {}
   local Shape = {w = 0, h = 0, Header = {}}
   while(Line) do
@@ -550,7 +363,7 @@ local function initFileCells(sName)
       Shape.h = Shape.h + 1; Data[Shape.h] = {}
       if(Lenw >= Shape.w) then Shape.w = Lenw end
       for CH = 1, Lenw do
-        Data[Shape.h][CH] = ((Line:sub(CH,CH) == Aliv) and 1 or 0) end
+        Data[Shape.h][CH] = ((Line:sub(CH,CH) == Alv) and 1 or 0) end
     else
       Shape.Header[ID] = Line:sub(2,Lenw)
       ID = ID + 1
@@ -568,9 +381,9 @@ local function drawConsole(F)
   local fx   = F:getW()
   local fy   = F:getH()
   logStatus("Generation: "..(F:getGenerations() or "N/A"))
-  local Line=""
+  local Line, Alv, Ded = "", metaData.__aliv, metaData.__dead
   for y = 1, fy do for x = 1, fx do
-      Line = Line..(((tArr[y][x]~=0) and Aliv) or Dead)
+      Line = Line..(((tArr[y][x]~=0) and Alv) or Ded)
   end; logStatus(Line); Line = "" end
 end
 
@@ -631,7 +444,7 @@ lifelib.makeField = function(w,h,sRule)
     local Py = (Py or 1) % h
     if(Shape == nil) then
       return logStatus("Field.setShape(Shape,PosX,PosY): Shape: Not present !",nil) end
-    if(getmetatable(Shape) ~= metaShape.__type) then
+    if(getmetatable(Shape) ~= metaShape) then
       return logStatus("Field.setShape(Shape,PosX,PosY): Shape: SHAPE obj invalid !",nil) end
     if(Rule.Name ~= Shape:getRuleName()) then
       return logStatus("Field.setShape(Shape,PosX,PosY): Shape: Different kind of life !",nil) end
@@ -648,7 +461,7 @@ lifelib.makeField = function(w,h,sRule)
     end end; return self
   end
   --[[
-   * Calcolates the next generation
+   * Calculates the next generation
   ]]--
   function self:evoNext()
     local ym1, y, yp1, yi = (h - 1), h, 1, h
@@ -674,7 +487,7 @@ lifelib.makeField = function(w,h,sRule)
   end
 
   --[[
-   * Visualizates the field on the screen using the draw method given
+   * Visualizes the field on the screen using the draw method given
   ]]--
   function self:drwLife(sMode,...)
     local Mode = tostring(sMode or "text")
@@ -698,9 +511,9 @@ lifelib.makeField = function(w,h,sRule)
    * Exports a field to a non-delimited string format
   ]]--
   function self:toString()
-    local Line = ""
+    local Line, Alv, Ded = "", metaData.__aliv, metaData.__dead
     for i = 1,h do for j = 1,w do
-        Line = Line .. tostring((Old[i][j] ~= 0) and Aliv or Dead)
+        Line = Line .. tostring((Old[i][j] ~= 0) and Alv or Ded)
     end end; return Line
   end
 
@@ -720,42 +533,42 @@ lifelib.makeShape = function(sName, sSrc, sExt, ...)
     elseif(sExt == "cells" ) then tInit = initFileCells(sName)
     elseif(sExt == "lif105") then tInit = initFileLif105(sName)
     elseif(sExt == "lif106") then tInit = initFileLif106(sName)
-    else return logStatus("makeShape(sName, sSrc, sExt, tArg): Extension <"..sExt.."> not supported on the source <"..sSrc.."> for <"..sName..">",nil) end
+    else return logStatus("makeShape(sName, sSrc, sExt, ...): Extension <"..sExt.."> not supported on the source <"..sSrc.."> for <"..sName..">",nil) end
   elseif(sSrc == "string") then
     if    (sExt == "rle" ) then tInit = initStringRle(sName,tArg[1],tArg[2])
     elseif(sExt == "txt" ) then tInit = initStringText(sName,tArg[1])
-    else return logStatus("makeShape(sName, sSrc, sExt, tArg): Extension <"..sExt.."> not supported on the source <"..sSrc.."> for <"..sName">",nil) end
+    else return logStatus("makeShape(sName, sSrc, sExt, ...): Extension <"..sExt.."> not supported on the source <"..sSrc.."> for <"..sName">",nil) end
   elseif(sSrc == "strict") then tInit = initStruct(sName)
-  else return logStatus("makeShape(sName, sSrc, sExt, tArg): Source <"..sSrc.."> not suported for <"..sName..">",nil) end
+  else return logStatus("makeShape(sName, sSrc, sExt, ...): Source <"..sSrc.."> not suported for <"..sName..">",nil) end
 
   if(not tInit) then
-    return logStatus("makeShape(sName, sSrc, sExt, tArg): No initialization table",nil) end
+    return logStatus("makeShape(sName, sSrc, sExt, ...): No initialization table",nil) end
   if(not (tInit.w and tInit.h)) then
-    return logStatus("makeShape(sName, sSrc, sExt, tArg): Initialization table bad dimensions\n",nil) end
+    return logStatus("makeShape(sName, sSrc, sExt, ...): Initialization table bad dimensions\n",nil) end
   if(not (tInit.w > 0 and tInit.h > 0)) then
-    return logStatus("makeShape(sName, sSrc, sExt, tArg): Check Shape unit structure !\n",nil) end
+    return logStatus("makeShape(sName, sSrc, sExt, ...): Check Shape unit structure !\n",nil) end
 
   while(tInit[iCnt]) do
     if(tInit[iCnt] == 1) then isEmpty = false end; iCnt = iCnt + 1 end
   if(isEmpty) then
-    return logStatus("makeShape(sName, sSrc, sExt, tArg): Shape <"..sName.."> empty for <"..sExt.."> <"..sSrc..">",nil) end
+    return logStatus("makeShape(sName, sSrc, sExt, ...): Shape <"..sName.."> empty for <"..sExt.."> <"..sSrc..">",nil) end
   local self = {}
         self.Init = tInit
   local w    = tInit.w
   local h    = tInit.h
-  local Data = copyShape(tInit,w,h)
-  local Draw = { ["text"] = drawConsole }
+  local Data = arConvert2D(tInit,w,h)
+  local Draw = {["text"] = drawConsole}
   local Rule = ""
   if(type(sRule) == "string") then
     local Data = lifelib.getRuleBS(sRule)
     if(Data ~= nil) then Rule = sRule
-    else return logStatus("makeShape(sName, sSrc, sExt, tArg): Check creator's Rule !",nil) end
+    else return logStatus("makeShape(sName, sSrc, sExt, ...): Check creator's Rule !",nil) end
   elseif(type(tInit.Rule) == "table") then
     if(type(tInit.Rule.Name) == "string") then
       local Data = lifelib.getRuleBS(tInit.Rule.Name)
       if(Data ~= nil) then Rule = tInit.Rule.Name
       else Rule = lifelib.getDefaultRule().Name end
-    else return logStatus("makeShape(sName, sSrc, sExt, tArg): Check init Rule !",nil) end
+    else return logStatus("makeShape(sName, sSrc, sExt, ...): Check init Rule !",nil) end
   else Rule = lifelib.getDefaultRule().Name end
   --[[
    * Internal data primitives
@@ -779,7 +592,7 @@ lifelib.makeShape = function(sName, sSrc, sExt, ...)
     end; return self
   end
   --[[
-   * Visualizates the shape on the screen using the draw method given
+   * Visualizes the shape on the screen using the draw method given
   ]]--
   function self:drwLife(sMode,...)
     local Mode = sMode or "text"
@@ -801,9 +614,9 @@ lifelib.makeShape = function(sName, sSrc, sExt, ...)
    * Exports the shape in non-delimited string format
   ]]--
   function self:toString()
-    local Line = ""
+    local Line, Alv, Ded = "", metaData.__aliv, metaData.__dead
     for i = 1,h do for j = 1,w do
-        Line = Line .. tostring((Data[i][j] ~= 0) and Aliv or Dead)
+        Line = Line .. tostring((Data[i][j] ~= 0) and Alv or Ded)
     end end; return Line
   end
   --[[
@@ -811,11 +624,12 @@ lifelib.makeShape = function(sName, sSrc, sExt, ...)
   ]]--
   function self:toStringRle(sD, sE)
     local BaseCh, CurCh, Line, Cnt  = "", "", "", 0
+    local sAlv, sDed = metaData.__aliv, metaData.__dead
     local sD, sE = tostring(sD):sub(1,1), tostring(sE):sub(1,1)
     for i = 1,h do
-      BaseCh = tostring(((Data[i][1] ~= 0) and Aliv) or Dead); Cnt = 0
+      BaseCh = tostring(((Data[i][1] ~= 0) and sAlv) or sDed); Cnt = 0
       for j = 1,w do
-        CurCh = tostring(((Data[i][j] ~= 0) and Aliv) or Dead)
+        CurCh = tostring(((Data[i][j] ~= 0) and sAlv) or sDed)
         if(CurCh == BaseCh) then Cnt = Cnt + 1
         else
           if(Cnt > 1) then Line  = Line..Cnt..BaseCh
@@ -830,19 +644,20 @@ lifelib.makeShape = function(sName, sSrc, sExt, ...)
   end
   --[[
    * Exports the shape in text format
-   * sDel the delemiter for the lines
+   * sDel the delimiter for the lines
    * bAll Draw the shape to the end of the line
   ]]--
   function self:toStringText(sDel,bTrim)
-    if(sDel == Aliv) then
+    local sAlv, sDed = metaData.__aliv, metaData.__dead
+    if(sDel == sAlv) then
       return logStatus("Shape.toStringText(sMode,tArgs) Delimiter <"..sDel.."> matches alive","") end
-    if(sDel == Dead) then
+    if(sDel == sDed) then
       return logStatus("Shape.toStringText(sMode,tArgs) Delimiter <"..sDel.."> matches dead","")  end
     local Line, Len = ""
     for i = 1,h do Len = w
       if(bTrim) then while(Data[i][Len] == 0) do Len = Len - 1 end end
       for j = 1,Len do
-        Line = Line..tostring(((Data[i][j] ~= 0) and Aliv) or Dead)
+        Line = Line..tostring(((Data[i][j] ~= 0) and sAlv) or sDed)
       end; Line = Line..sDel
     end; return Line
   end

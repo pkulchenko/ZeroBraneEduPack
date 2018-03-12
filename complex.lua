@@ -25,15 +25,15 @@ metaComplex.__index = metaComplex
 
 metaData.__valre = 0
 metaData.__valre = 0
+metaData.__cactf = {}
 metaData.__valns = "X"
 metaData.__margn = 1e-10
+metaData.__getpi = math.pi
 metaData.__bords = {"{([<|/","})]>|/"}
 metaData.__ssyms = {"i", "I", "j", "J"}
+metaData.__radeg = (180 / metaData.__getpi)
 metaData.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
 metaData.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
-metaData.__getpi = math.pi
-metaData.__radeg = (180 / metaData.__getpi)
-metaData.__cactf = {}
 
 function complex.isValid(cNum)
   return (getmetatable(cNum) == metaComplex)

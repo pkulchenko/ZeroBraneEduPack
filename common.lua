@@ -388,6 +388,132 @@ function common.logTable(tT, sS, tP)
   logTableRec(tT, lS, lP); return lP
 end
 
+function common.arMalloc2D(w,h)
+  local tArr = {}
+  for y=1,h do tArr[y] = {}
+    for x=1,w do tArr[y][x] = 0 end
+  end; return tArr
+end
+
+--[[
+ * Converts linear array to a 2D array
+ * arLin -> Linear array in format {1,2,3,4,w=2,h=2}
+ * w,h   -> Custom array size
+]]
+function common.arConvert2D(arLin,w,h)
+  if(not arLin) then return false end
+  local nW, nH = (w or arLin.w), (h or arLin.h)
+  if(not (nW and nH)) then return false end
+  if(not (nW > 0 and nH > 0)) then return false end
+  arRez = common.arMalloc2D(nW, nH)
+  for i = 0, (nH-1) do for j = 0, (nW-1) do
+      arRez[i+1][j+1] = (tonumber(arLin[i*w+j+1]) or 0)
+  end end; return arRez
+end
+
+function common.arRotateR(tArr,sX,sY)
+  common.logTable(tArr)
+  local ii, jj, tTmp = 1, 1, common.arMalloc2D(sY,sX)
+  for j = 1, sX, 1 do for i = sY, 1, -1  do
+      if(jj > sY) then ii, jj = (ii + 1), 1 end
+      tTmp[ii][jj] = tArr[i][j]
+      tArr[i][j]   = nil; jj = (jj + 1)
+  end end
+  for i = 1, sX do tArr[i] = {}
+    for j = 1, sY do tArr[i][j] = tTmp[i][j] end
+  end
+end
+
+function common.arRotateL(tArr,sX,sY)
+  local ii, jj, tTmp = 1, 1, common.arMalloc2D(sY,sX)
+  for j = sX, 1, -1 do for i = 1, sY, 1  do
+      if(jj > sY) then ii, jj = (ii + 1), 1 end
+      tTmp[ii][jj] = tArr[i][j]
+      tArr[i][j]   = nil; jj = (jj + 1)
+  end end
+  for i = 1, sX do tArr[i] = {}
+    for j = 1, sY do tArr[i][j] = tTmp[i][j] end
+  end
+end
+
+-- Getting a start end and delta used in a for loop
+function common.getValuesSED(nVal,nMin,nMax)
+  local s = (nVal > 0) and nMin or nMax
+  local e = (nVal > 0) and nMax or nMin
+  local d = getSign(e - s)
+  return s, e, d
+end
+
+function common.arShift2D(tArr,sX,sY,nX,nY)
+  if(not (sX > 0 and sY > 0)) then return end
+  local x = math.floor(nX or 0)
+  local y = math.floor(nY or 0)
+  if(x ~= 0) then local M
+    local sx,ex,dx = common.getValuesSED(x,sX,1)
+    for i = 1,sY do for j = sx,ex,dx do
+        M = (j-x); if(M >= 1 and M <= sX) then
+          tArr[i][j] = tArr[i][M]
+        else tArr[i][j] = 0 end
+    end end
+  end
+  if(y ~= 0) then local M
+    local sy,ey,dy = common.getValuesSED(y,sY,1)
+    for i = sy,ey,dy do for j = 1,sX do
+        M = (i-y); if(M >= 1 and M <= sY) then
+          tArr[i][j] = tArr[M][j]
+        else tArr[i][j] = 0 end
+    end end
+  end
+end
+
+function common.arRoll2D(tArr,sX,sY,nX,nY)
+  if( not( sX > 0 and sY > 0) ) then return end
+  local x, y = math.floor(nX or 0), math.floor(nY or 0)
+  if(y ~= 0) then
+    local MaxY = (y > 0) and sY or 1
+    local MinY = (y > 0) and 1 or sY
+    local siY, y, arTmp  = getSign(y), (y * siY), {}
+    while(y > 0) do
+      for i = 1,sX do arTmp[i] = tArr[MaxY][i] end
+      common.arShift2D(tArr,sX,sY,0,siY)
+      for i = 1,sX do tArr[MinY][i] = arTmp[i] end
+      y = y - 1
+    end
+  end
+  if(x ~= 0) then
+    local MaxX = (x > 0) and sX or 1
+    local MinX = (x > 0) and 1 or sX
+    local siX, x, arTmp  = getSign(x), (x * siX), {}
+    while(x > 0) do
+      for i = 1,sY do arTmp[i] = tArr[i][MaxX] end
+      common.arShift2D(tArr,sX,sY,siX)
+      for i = 1,sY do tArr[i][MinX] = arTmp[i] end
+      x = x - 1
+    end
+  end
+end
+
+function common.arMirror2D(tArr,sX,sY,fX,fY)
+  local tTmp, s = 0, 1
+  if(fY) then local e = sY
+    while(s < e) do for k = 1,sX do
+      tTmp       = tArr[s][k]
+      tArr[s][k] = tArr[e][k]
+      tArr[e][k] = tTmp end
+      s, e = (s + 1), (e - 1)
+    end
+  end
+  if(fX) then local e = sX
+    while(s < e) do for k = 1,sY do
+      tTmp       = tArr[k][s]
+      tArr[k][s] = tArr[k][e]
+      tArr[k][e] = tTmp
+      end
+      s, e = (s + 1), (e - 1)
+    end
+  end
+end
+
 common.randomSetSeed()
 
 return common

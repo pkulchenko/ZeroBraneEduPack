@@ -25,9 +25,9 @@ local function TurtleDraw(F,...)
   end
 end
 
-local W, H = 500, 220
+local W, H = 800, 440
 
-local F = life.makeField(80,50):regDraw("turtle",TurtleDraw)
+local F = life.makeField(150,80):regDraw("turtle",TurtleDraw)
 
 open("Game Of Life"); size(W, H)
 updt(false); zero(0, 0)
@@ -44,8 +44,8 @@ if(gg1 and gg2) then
   local key1, key2, str = 10, 57, ""
   gg1:rotR():mirrorXY(true,true)
   gg2:rotR():mirrorXY(false,true)
-  F:setShape(gg1,1,1):setShape(gg2,50,1)
 
+  F:setShape(gg1,1,1):setShape(gg2,50,1)  
   F:drwLife("turtle", W, H, key1, key2, str)
 
   while true do str = char()
