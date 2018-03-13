@@ -97,7 +97,7 @@ metaData.__init = {
 
 --------------------------- ALIVE / DEAD / PATH -------------------------------
 
-lifelib.charAliv = function (sA)
+function lifelib.charAliv(sA)
   if(not sA) then return metaData.__aliv end
   local sA = tostring(sA):sub(1,1)
   if(sA ~= "" and sA ~= metaData.__dead) then
@@ -105,7 +105,7 @@ lifelib.charAliv = function (sA)
   return false
 end
 
-lifelib.charDead = function(sD)
+function lifelib.charDead(sD)
   if(not sD) then return metaData.__dead end
   local sD = tostring(sD):sub(1,1)
   if(sD ~= "" and sD ~= metaData.__aliv) then
@@ -113,7 +113,7 @@ lifelib.charDead = function(sD)
   return false
 end
 
-lifelib.shapesPath = function(sData)
+function lifelib.shapesPath(sData)
   if(not sData) then return metaData.__path end
   local Typ = type(sData)
   if(Typ == "string" and sData ~= "") then
@@ -124,11 +124,11 @@ end
 
 --------------------------- RULES -------------------------------
 
-lifelib.getDefaultRule = function() -- Conway
+function lifelib.getDefaultRule() -- Conway
   return {Name = "B3/S23", Data = {B = {3}, S = {2,3}}}
 end
 
-lifelib.getRuleBS = function(sStr)
+function lifelib.getRuleBS(sStr)
   local BS = {Name = tostring(sStr or "")}
   if(BS.Name == "") then
     return logStatus("lifelib.getRuleBS: Empty rule") end
@@ -150,7 +150,7 @@ lifelib.getRuleBS = function(sStr)
   return logStatus("lifelib.getRuleBS: Population fail <"..BS.Name..">")
 end
 
-lifelib.getRleSettings = function(sStr)
+function lifelib.getRleSettings(sStr)
   local Cpy = sStr..","
   local Len, Key = Cpy:len(), nil
   local Che, Exp, S, E = "", {}, 1, 1
@@ -415,7 +415,7 @@ end
 --[[
  * Creates a field object used for living environment for the shapes ( organisms )
 ]]--
-lifelib.newField = function(w,h,sRule)
+function lifelib.newField(w,h,sRule)
   local self  = {}
   local w = tonumber(w) or 0
         w = (w >= 1) and w or 1
@@ -533,7 +533,7 @@ end
 --[[
  * Crates a shape ( life form ) object
 ]]--
-lifelib.newStamp = function(sName, sSrc, sExt, ...)
+function lifelib.newStamp(sName, sSrc, sExt, ...)
   local sName = tostring(sName or "")
   local sSrc, sExt = tostring(sSrc  or ""), tostring(sExt  or "")
   local tArg, isEmpty, iCnt, tInit = {...}, true, 1, nil
