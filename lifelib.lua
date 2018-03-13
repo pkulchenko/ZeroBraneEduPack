@@ -16,6 +16,9 @@ metaData.__aliv  = "O"
 metaData.__dead  = "-"
 metaData.__path  = "game-of-life/shapes/"
 
+local isNil        = common.isNil
+local isString     = common.isString
+local isTable      = common.isTable
 local logStatus    = common.logStatus
 local getSign      = common.getSign
 local arMalloc2D   = common.arMalloc2D
@@ -29,6 +32,68 @@ local strImplode   = common.stringImplode
 local stringTrim   = common.stringTrim
 local copyItem     = common.copyItem
 local arConvert2D  = common.arConvert2D
+local getClamp     = common.getClamp
+
+metaData.__init = {
+  ["heart"]       = { 1,0,1,
+                      1,0,1,
+                      1,1,1;
+                      w = 3, h = 3 },
+  ["glider"]      = { 0,0,1,
+                      1,0,1,
+                      0,1,1;
+                      w = 3, h = 3 },
+  ["explode"]     = { 0,1,0,
+                      1,1,1,
+                      1,0,1,
+                      0,1,0;
+                      w = 3, h = 4 },
+  ["fish"]        = { 0,1,1,1,1,
+                      1,0,0,0,1,
+                      0,0,0,0,1,
+                      1,0,0,1,0;
+                      w = 5, h = 4 },
+  ["butterfly"]   = { 1,0,0,0,1,
+                      0,1,1,1,0,
+                      1,0,0,0,1,
+                      1,0,1,0,1,
+                      1,0,0,0,1;
+                      w = 5, h = 5 },
+  ["glidergun"]   = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
+                     0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
+                     1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     1,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0;
+                     w = 36,h = 9},
+  ["block"]       = {1,1,1,1;
+                     w = 2, h = 2},
+  ["blinker"]     = {1,1,1;
+                     w = 3, h = 1},
+  ["r_pentomino"] = {0,1,1,
+                     1,1,0,
+                     0,1,0;
+                     w = 3, h = 3},
+  ["pulsar"]      ={0,0,1,1,1,0,0,0,1,1,1,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    1,0,0,0,0,1,0,1,0,0,0,0,1,
+                    1,0,0,0,0,1,0,1,0,0,0,0,1,
+                    1,0,0,0,0,1,0,1,0,0,0,0,1,
+                    0,0,1,1,1,0,0,0,1,1,1,0,0,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,1,1,1,0,0,0,1,1,1,0,0,
+                    1,0,0,0,0,1,0,1,0,0,0,0,1,
+                    1,0,0,0,0,1,0,1,0,0,0,0,1,
+                    1,0,0,0,0,1,0,1,0,0,0,0,1,
+                    0,0,0,0,0,0,0,0,0,0,0,0,0,
+                    0,0,1,1,1,0,0,0,1,1,1,0,0;
+                    w = 13, h = 13}
+}
+
+
 
 --------------------------- ALIVE / DEAD / PATH -------------------------------
 
@@ -105,66 +170,19 @@ end
 
 ------------------- SHAPE INIT --------------------
 
-local function initStruct(sName)
-  local Shapes = {
-  ["heart"]       = { 1,0,1,
-                      1,0,1,
-                      1,1,1;
-                      w = 3, h = 3 },
-  ["glider"]      = { 0,0,1,
-                      1,0,1,
-                      0,1,1;
-                      w = 3, h = 3 },
-  ["explode"]     = { 0,1,0,
-                      1,1,1,
-                      1,0,1,
-                      0,1,0;
-                      w = 3, h = 4 },
-  ["fish"]        = { 0,1,1,1,1,
-                      1,0,0,0,1,
-                      0,0,0,0,1,
-                      1,0,0,1,0;
-                      w = 5, h = 4 },
-  ["butterfly"]   = { 1,0,0,0,1,
-                      0,1,1,1,0,
-                      1,0,0,0,1,
-                      1,0,1,0,1,
-                      1,0,0,0,1;
-                      w = 5, h = 5 },
-  ["glidergun"]   = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
-                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,
-                     0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
-                     0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,
-                     1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                     1,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,1,1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,
-                     0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
-                     0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                     0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0;
-                     w = 36,h = 9},
-  ["block"]       = {1,1,1,1;
-                     w = 2, h = 2},
-  ["blinker"]     = {1,1,1;
-                     w = 3, h = 1},
-  ["r_pentomino"] = {0,1,1,
-                     1,1,0,
-                     0,1,0;
-                     w = 3, h = 3},
-  ["pulsar"]      ={0,0,1,1,1,0,0,0,1,1,1,0,0,
-                    0,0,0,0,0,0,0,0,0,0,0,0,0,
-                    1,0,0,0,0,1,0,1,0,0,0,0,1,
-                    1,0,0,0,0,1,0,1,0,0,0,0,1,
-                    1,0,0,0,0,1,0,1,0,0,0,0,1,
-                    0,0,1,1,1,0,0,0,1,1,1,0,0,
-                    0,0,0,0,0,0,0,0,0,0,0,0,0,
-                    0,0,1,1,1,0,0,0,1,1,1,0,0,
-                    1,0,0,0,0,1,0,1,0,0,0,0,1,
-                    1,0,0,0,0,1,0,1,0,0,0,0,1,
-                    1,0,0,0,0,1,0,1,0,0,0,0,1,
-                    0,0,0,0,0,0,0,0,0,0,0,0,0,
-                    0,0,1,1,1,0,0,0,1,1,1,0,0;
-                    w = 13, h = 13}
-  }
-  return Shapes[sName:lower()]
+function lifelib.addStamp(sKey,tInit)
+  if(not isString(sKey)) then
+    return logStatus("lifelib.addStamp: Key <"..tostring(sKey).."> is "..type(sKey), false) end
+  if(not isTable(tInit)) then
+    return logStatus("lifelib.addStamp: Table missing <"..type(tInit)..">", false) end
+  if(not isNil(metaData.__init[sKey])) then
+    return logStatus("lifelib.addStamp: Key <"..sKey.."> populated !", false) end
+  local ID = 1; while(tInit[ID]) do tInit[ID] = math.floor(getClamp(tInit[ID],0,1)) ID = ID + 1 end
+  metaData.__init[sKey] = tInit; return true
+end
+
+local function initTable(sName)
+  return metaData.__init[tostring(sName or ""):lower()]
 end
 
 local function initStringText(sStr,sDel)
@@ -377,9 +395,7 @@ local function initFileCells(sName)
 end
 
 local function drawConsole(F)
-  local tArr = F:getArray()
-  local fx   = F:getW()
-  local fy   = F:getH()
+  local tArr, fx, fy = F:getArray(), F:getW(), F:getH()
   logStatus("Generation: "..(F:getGenerations() or "N/A"))
   local Line, Alv, Ded = "", metaData.__aliv, metaData.__dead
   for y = 1, fy do for x = 1, fx do
@@ -387,16 +403,13 @@ local function drawConsole(F)
   end; logStatus(Line); Line = "" end
 end
 
-local function getSumStatus(nStatus,nSum,tRule)
-  if(nStatus == 1) then -- Check survive
-    for _, v in ipairs(tRule.Data["S"]) do
-      if(v == nSum) then return 1 end
-    end; return 0
-  elseif(nStatus == 0) then -- Check born
-    for _, v in ipairs(tRule.Data["B"]) do
-      if(v == nSum) then return 1 end
-    end; return 0
-  end
+function lifelib.getSumStatus(nPrev,nSum,tRule)
+  local sTyp = (((nPrev == 0) and "B") or ((nPrev == 1) and "S") or nil)
+  if(isNil(sTyp)) then -- Check either the previous will be born and it will survive
+    return logStatus("life.getSumStatus: Undefined value <"..tostring(nPrev)..">", nil) end
+  for _, v in ipairs(tRule.Data[sTyp]) do
+    if(v == nSum) then return 1 end
+  end; return 0
 end
 
 --[[
@@ -427,7 +440,7 @@ lifelib.newField = function(w,h,sRule)
   function self:getW() return w end
   function self:getH() return h end
   function self:getSellCount() return (w * h) end
-  function self:getRuleName() return Rule.Name end
+  function self:getRule() return Rule.Name end
   function self:getRuleData() return Rule.Data end
   function self:shiftXY (nX,nY) arShift2D (Old,w,h,(tonumber(nX) or 0),(tonumber(nY) or 0)); return self end
   function self:rollXY  (nX,nY) arRoll2D  (Old,w,h,(tonumber(nX) or 0),(tonumber(nY) or 0)); return self end
@@ -437,22 +450,19 @@ lifelib.newField = function(w,h,sRule)
   function self:rotR() arRotateR(Old,w,h); h,w = w,h; return self end
   function self:rotL() arRotateL(Old,w,h); h,w = w,h; return self end
   --[[
-   * Give birth to a shape inside the field array
+   * Stamp a shape inside the field array
   ]]--
-  function self:setShape(Shape,Px,Py)
-    local Px = (Px or 1) % w
-    local Py = (Py or 1) % h
-    if(Shape == nil) then
-      return logStatus("lifelib.newField.setShape(Shape,PosX,PosY): Shape: Not present !",nil) end
-    if(getmetatable(Shape) ~= metaShape) then
-      return logStatus("lifelib.newField.setShape(Shape,PosX,PosY): Shape: SHAPE obj invalid !",nil) end
-    if(Rule.Name ~= Shape:getRuleName()) then
-      return logStatus("lifelib.newField.setShape(Shape,PosX,PosY): Shape: Different kind of life !",nil) end
-    local sw = Shape:getW()
-    local sh = Shape:getH()
-    local ar = Shape:getArray()
+  function self:setShape(Stamp,nPx,nPy)
+    local px, py = ((tonumber(nPx) or 1) % w), ((tonumber(nPy) or 1) % h)
+    if(Stamp == nil) then
+      return logStatus("lifelib.newField.setShape(Stamp,PosX,PosY): Stamp: Not present !",nil) end
+    if(getmetatable(Stamp) ~= metaShape) then
+      return logStatus("lifelib.newField.setShape(Stamp,PosX,PosY): Stamp: Object invalid !",nil) end
+    if(Rule.Name ~= Stamp:getRule()) then
+      return logStatus("lifelib.newField.setShape(Stamp,PosX,PosY): Stamp: Different kind of life !",nil) end
+    local sw, sh, ar = Stamp:getW(), Stamp:getH(), Stamp:getArray()
     for i = 1,sh do for j = 1,sw do
-      local x, y = Px+j-1, Py+i-1
+      local x, y = px+j-1, py+i-1
       if(x > w) then x = x-w end
       if(x < 1) then x = x+w end
       if(y > h) then y = y-h end
@@ -471,7 +481,7 @@ lifelib.newField = function(w,h,sRule)
         local sum = Old[ym1][xm1] + Old[ym1][x] + Old[ym1][xp1] +
                     Old[ y ][xm1]               + Old[ y ][xp1] +
                     Old[yp1][xm1] + Old[yp1][x] + Old[yp1][xp1]
-        New[y][x] = getSumStatus(Old[y][x],sum,Rule)
+        New[y][x] = lifelib.getSumStatus(Old[y][x],sum,Rule)
         xm1, x, xp1, xi = x, xp1, (xp1 + 1), (xi - 1)
       end; ym1, y, yp1, yi = y, yp1, (yp1 + 1), (yi - 1)
     end; Old, New, Gen = New, Old, (Gen + 1); return self
@@ -525,21 +535,24 @@ end
 ]]--
 lifelib.newStamp = function(sName, sSrc, sExt, ...)
   local sName = tostring(sName or "")
-  local sSrc  = tostring(sSrc  or "")
-  local sExt  = tostring(sExt  or "")
+  local sSrc, sExt = tostring(sSrc  or ""), tostring(sExt  or "")
   local tArg, isEmpty, iCnt, tInit = {...}, true, 1, nil
   if(sSrc == "file") then
     if    (sExt == "rle"   ) then tInit = initFileRle(sName)
     elseif(sExt == "cells" ) then tInit = initFileCells(sName)
     elseif(sExt == "lif105") then tInit = initFileLif105(sName)
     elseif(sExt == "lif106") then tInit = initFileLif106(sName)
-    else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Extension <"..sExt.."> not supported on the source <"..sSrc.."> for <"..sName..">",nil) end
+    else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Extension <"..
+      sExt.."> not supported on the source <"..sSrc.."> for <"..sName..">",nil) end
   elseif(sSrc == "string") then
     if    (sExt == "rle" ) then tInit = initStringRle(sName,tArg[1],tArg[2])
     elseif(sExt == "txt" ) then tInit = initStringText(sName,tArg[1])
-    else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Extension <"..sExt.."> not supported on the source <"..sSrc.."> for <"..sName">",nil) end
-  elseif(sSrc == "strict") then tInit = initStruct(sName)
-  else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Source <"..sSrc.."> not suported for <"..sName..">",nil) end
+    else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Extension <"..
+      sExt.."> not supported on the source <"..sSrc.."> for <"..sName">",nil) end
+  elseif(sSrc == "table") then tInit = initTable(sName)
+  else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Source <"..
+    sSrc.."> not supported for <"..sName..">",nil)
+  end
 
   if(not tInit) then
     return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): No initialization table",nil) end
@@ -551,25 +564,15 @@ lifelib.newStamp = function(sName, sSrc, sExt, ...)
   while(tInit[iCnt]) do
     if(tInit[iCnt] == 1) then isEmpty = false end; iCnt = iCnt + 1 end
   if(isEmpty) then
-    return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Shape <"..sName.."> empty for <"..sExt.."> <"..sSrc..">",nil) end
-  local self = {}
-        self.Init = tInit
+    return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Shape <"..
+      sName.."> empty for <"..sExt.."> <"..sSrc..">",nil) end
+  local self = {}; self.Init = tInit
   local w    = tInit.w
   local h    = tInit.h
   local Data = arConvert2D(tInit,w,h)
   local Draw = {["text"] = drawConsole}
   local Rule = ""
-  if(type(sRule) == "string") then
-    local Data = lifelib.getRuleBS(sRule)
-    if(Data ~= nil) then Rule = sRule
-    else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Check creator's Rule !",nil) end
-  elseif(type(tInit.Rule) == "table") then
-    if(type(tInit.Rule.Name) == "string") then
-      local Data = lifelib.getRuleBS(tInit.Rule.Name)
-      if(Data ~= nil) then Rule = tInit.Rule.Name
-      else Rule = lifelib.getDefaultRule().Name end
-    else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Check init Rule !",nil) end
-  else Rule = lifelib.getDefaultRule().Name end
+
   --[[
    * Internal data primitives
   ]]--
@@ -578,11 +581,33 @@ lifelib.newStamp = function(sName, sSrc, sExt, ...)
   function self:rotR() arRotateR(Data,w,h); h,w = w,h; return self end
   function self:rotL() arRotateL(Data,w,h); h,w = w,h; return self end
   function self:getArray() return Data end
-  function self:getRuleName() return Rule end
+  function self:getRule() return Rule end
   function self:getCellCount() return (w * h) end
   function self:getGenerations() return nil end
   function self:mirrorXY(bX,bY) arMirror2D(Data,w,h,bX,bY); return self end
   function self:rollXY(nX,nY) arRoll2D(Data,w,h,tonumber(nX) or 0,tonumber(nY) or 0); return self end
+
+  --[[
+   * Apply desired rule for the stamp by using a string
+   * the one provided with the initialization table.
+   * If no rule can be processed the default one is used
+  ]]--
+  function self:setRule(sRule)
+    local vRule = self.Init.Rule
+    if(type(sRule) == "string") then
+      local tTmp = lifelib.getRuleBS(sRule)
+      if(tTmp ~= nil) then Rule = sRule
+      else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Check user rule !",nil) end
+    elseif(type(vRule) == "table") then
+      if(type(vRule.Name) == "string") then
+        local tTmp = lifelib.getRuleBS(vRule.Name)
+        if(tTmp ~= nil) then Rule = vRule.Name
+        else Rule = lifelib.getDefaultRule().Name end
+      else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Check init rule !",nil) end
+    else Rule = lifelib.getDefaultRule().Name end
+    return self
+  end
+
   --[[
    * Registers a draw method under a particular key
   ]]--
@@ -661,7 +686,8 @@ lifelib.newStamp = function(sName, sSrc, sExt, ...)
       end; Line = Line..sDel
     end; return Line
   end
-  setmetatable(self, metaShape); return self
+
+  return setmetatable(self:setRule(), metaShape)
 end
 
 return lifelib

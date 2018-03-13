@@ -207,11 +207,8 @@ function common.stringToTable(sRc)
       if(sVal:find("{")) then aIN = aIN + 1 end
       if(sVal:find("}")) then aIN = aIN - 1 end
       if(not aAr[aID]) then aAr[aID] = "" end
-      if(aIN == 0) then
-        aAr[aID] = aAr[aID]..sVal; aID = (aID + 1)
-      else
-        aAr[aID] = aAr[aID]..sVal..sCh
-      end
+      if(aIN == 0) then aAr[aID] = aAr[aID]..sVal; aID = (aID + 1)
+      else aAr[aID] = aAr[aID]..sVal..sCh end
     end; return aAr
   end, {}, 1)
 end
