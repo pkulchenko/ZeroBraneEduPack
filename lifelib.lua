@@ -19,7 +19,7 @@ metaData.__path  = "game-of-life/shapes/"
 local isNil        = common.isNil
 local isString     = common.isString
 local isTable      = common.isTable
-local isAmong      = common.isAmong
+local isAmongEq    = common.isAmongEq
 local logStatus    = common.logStatus
 local getSign      = common.getSign
 local arMalloc2D   = common.arMalloc2D
@@ -151,7 +151,7 @@ function lifelib.getRuleBS(sStr)
   return logStatus("lifelib.getRuleBS: Population fail <"..BS.Name..">", nil)
 end
 
-function lifelib.getRuleName(tRule)
+function lifelib.getRuleName(tRule, bSoc)
   local tDat = (tRule.Data or tRule); if(isNil(tDat)) then
     return logStatus("lifelib.expRuleName: Rule invalid", nil) end
   local tB = tDat["B"]; if(isNil(tB)) then
@@ -161,8 +161,10 @@ function lifelib.getRuleName(tRule)
   local sNam, fNam = "", function(nN)
     local num = tonumber(nN)
     local flg = getPick(num, true, false)
-    if(flg) then flg = isAmong(num, 0, 9)
-      return getPick(flg, tostring(math.floor(num)), "")
+    if(flg) then flg =  isAmongEq(num, 0, 8)
+      local flr, cel = math.floor(num), math.ceil(num)
+      if(flr ~= cel) then logStatus("lifelib.getRuleName: Float detected") end
+      return getPick(flg, tostring(getPick(bSoc, cel, flr)), "")
     end; return ""
   end
   for ID = 1, #tB do sNam = sNam..fNam(tB[ID]) end; sNam = "B"..sNam.."/S"
@@ -187,6 +189,24 @@ function lifelib.getRleSettings(sStr)
   return Exp
 end
 
+local function convRuleInfo(vRule)
+ if(isString(vRule)) then
+    tTmp = lifelib.getRuleBS(vRule)
+  elseif(isTable(vRule)) then
+    if(vRule.Name and not vRule.Data) then
+      tTmp = lifelib.getRuleBS(vRule.Name)
+    elseif(vRule.Data and not vRule.Name) then
+      tTmp = {Name = lifelib.getRuleName(vRule.Data), Data = vRule.Data}
+    elseif(vRule.Name and vRule.Data) then
+      if(lifelib.getRuleName(vRule.Data) == vRule.Name) then
+        tTmp = {Name = vRule.Name, Data = vRule.Data}
+      end
+    end
+  else tTmp = lifelib.getDefaultRule() end
+  if(tTmp == nil) then
+    return logStatus("lifelib.newField: Incorrect life rule <"..tostring(vRule).."> !",nil) end
+  return tTmp.Name, tTmp.Data;
+end
 ------------------- SHAPE INIT --------------------
 
 function lifelib.addStamp(sKey,tInit)
@@ -460,24 +480,15 @@ function lifelib.newField(w,h,sRule)
   function self:rotR() arRotateR(Old,w,h); h,w = w,h; return self end
   function self:rotL() arRotateL(Old,w,h); h,w = w,h; return self end
 
-  function self:setRule(vRule) local tTmp
-    if(isString(vRule)) then
-      tTmp = lifelib.getRuleBS(vRule)
-    elseif(isTable(vRule)) then
-      if(vRule.Name and not vRule.Data) then
-        tTmp = lifelib.getRuleBS(vRule.Name)
-      elseif(vRule.Data and not vRule.Name) then
-        tTmp = {Name = lifelib.getRuleName(vRule.Data), Data = vRule.Data}
-      elseif(vRule.Name and vRule.Data) then
-        if(lifelib.getRuleName(vRule.Data) == vRule.Name) then
-          tTmp = {Name = vRule.Name, Data = vRule.Data}
-        end
-      end
-    else tTmp = lifelib.getDefaultRule() end
-    if(tTmp == nil) then
-      return logStatus("lifelib.newField: Incorrect life rule <"..tostring(vRule).."> !",nil) end
-    Rule.Name, Rule.Data = tTmp.Name, tTmp.Data; return self
+  --[[
+   * Apply desired rule for the stamp by using a string
+   * the one provided with the initialization table.
+   * If no rule can be processed the default one is used
+  ]]--
+  function self:setRule(vRule)
+    Rule.Name, Rule.Data = convRuleInfo(vRule); return self
   end
+
   --[[
    * Stamp a shape inside the field array
   ]]--
@@ -622,23 +633,8 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
    * the one provided with the initialization table.
    * If no rule can be processed the default one is used
   ]]--
-  function self:setRule(vRule) local tTmp
-    if(isString(vRule)) then
-      tTmp = lifelib.getRuleBS(vRule)
-    elseif(isTable(vRule)) then
-      if(vRule.Name and not vRule.Data) then
-        tTmp = lifelib.getRuleBS(vRule.Name)
-      elseif(vRule.Data and not vRule.Name) then
-        tTmp = {Name = lifelib.getRuleName(vRule.Data), Data = vRule.Data}
-      elseif(vRule.Name and vRule.Data) then
-        if(lifelib.getRuleName(vRule.Data) == vRule.Name) then
-          tTmp = {Name = vRule.Name, Data = vRule.Data}
-        end
-      end
-    else tTmp = lifelib.getDefaultRule() end
-    if(tTmp == nil) then
-      return logStatus("lifelib.newStamp: Incorrect life rule <"..tostring(vRule).."> !",nil) end
-    Rule.Name, Rule.Data = tTmp.Name, tTmp.Data; return self
+  function self:setRule(vRule)
+    Rule.Name, Rule.Data = convRuleInfo(vRule); return self
   end
 
   --[[

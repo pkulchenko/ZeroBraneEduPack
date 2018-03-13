@@ -280,6 +280,12 @@ function common.isAmong(nN, nL, nH)
   return true
 end
 
+function common.isAmongEq(nN, nL, nH)
+  if(nN <= nL) then return false end
+  if(nN >= nH) then return false end
+  return true
+end
+
 function common.getRound(nE, nF)
   local dF = nF * common.getSign(nE)
   if(dF == 0) then return dF end
