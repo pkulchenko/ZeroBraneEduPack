@@ -19,6 +19,7 @@ metaData.__path  = "game-of-life/shapes/"
 local isNil        = common.isNil
 local isString     = common.isString
 local isTable      = common.isTable
+local isAmong      = common.isAmong
 local logStatus    = common.logStatus
 local getSign      = common.getSign
 local arMalloc2D   = common.arMalloc2D
@@ -33,6 +34,7 @@ local stringTrim   = common.stringTrim
 local copyItem     = common.copyItem
 local arConvert2D  = common.arConvert2D
 local getClamp     = common.getClamp
+local getPick      = common.getPick
 
 metaData.__init = {
   ["heart"]       = { 1,0,1,
@@ -129,15 +131,14 @@ function lifelib.getDefaultRule() -- Conway
 end
 
 function lifelib.getRuleBS(sStr)
-  local BS = {Name = tostring(sStr or "")}
-  if(BS.Name == "") then
-    return logStatus("lifelib.getRuleBS: Empty rule") end
-  local expBS = strExplode(BS.Name,"/")
-  if(not (expBS[1] and expBS[2])) then
-    return logStatus("lifelib.getRuleBS: Rule invalid <"..BS.Name..">") end
-  local kB, kS = expBS[1]:sub(1,1)  , expBS[2]:sub(1,1)
-  if(kB ~= "B") then return logStatus("lifelib.getRuleBS: Born invalid <"..BS.Name..">") end
-  if(kS ~= "S") then return logStatus("lifelib.getRuleBS: Surv invalid <"..BS.Name..">") end
+  local BS = {Name = tostring(sStr or "")}; if(BS.Name == "") then
+    return logStatus("lifelib.getRuleBS: Empty rule", nil) end
+  local expBS = strExplode(BS.Name, "/"); if(not (expBS[1] and expBS[2])) then
+    return logStatus("lifelib.getRuleBS: Rule invalid <"..BS.Name..">", nil) end
+  local kB = expBS[1]:sub(1,1); if(kB ~= "B") then
+    return logStatus("lifelib.getRuleBS: Born invalid <"..BS.Name..">", nil) end
+  local kS = expBS[2]:sub(1,1); if(kS ~= "S") then
+    return logStatus("lifelib.getRuleBS: Surv invalid <"..BS.Name..">", nil) end
   local bI, sI = 2, 2; BS[kB], BS[kS] = {}, {}
   local cB, cS = expBS[1]:sub(bI,bI), expBS[2]:sub(sI,sI)
   while(cB ~= "" or cS ~= "") do
@@ -147,7 +148,25 @@ function lifelib.getRuleBS(sStr)
     bI, sI = (bI + 1), (sI + 1)
     cB, cS = expBS[1]:sub(bI,bI), expBS[2]:sub(sI,sI)
   end; if(BS[kB][1] and BS[kS][1]) then return BS end
-  return logStatus("lifelib.getRuleBS: Population fail <"..BS.Name..">")
+  return logStatus("lifelib.getRuleBS: Population fail <"..BS.Name..">", nil)
+end
+
+function lifelib.getRuleName(tRule)
+  local tDat = (tRule.Data or tRule); if(isNil(tDat)) then
+    return logStatus("lifelib.expRuleName: Rule invalid", nil) end
+  local tB = tDat["B"]; if(isNil(tB)) then
+    return logStatus("lifelib.expRuleName: No born", nil) end
+  local tS = tDat["S"]; if(isNil(tS)) then
+    return logStatus("lifelib.expRuleName: No surv", nil) end
+  local sNam, fNam = "", function(nN)
+    local num = tonumber(nN)
+    local flg = getPick(num, true, false)
+    if(flg) then flg = isAmong(num, 0, 9)
+      return getPick(flg, tostring(math.floor(num)), "")
+    end; return ""
+  end
+  for ID = 1, #tB do sNam = sNam..fNam(tB[ID]) end; sNam = "B"..sNam.."/S"
+  for ID = 1, #tS do sNam = sNam..fNam(tS[ID]) end; return sNam
 end
 
 function lifelib.getRleSettings(sStr)
@@ -421,26 +440,17 @@ function lifelib.newField(w,h,sRule)
         w = (w >= 1) and w or 1
   local h = tonumber(h) or 0
         h = (h >= 1) and h or 1
-  local Gen, Rule = 0
+  local Gen, Rule = 0, {}
   local Old = arMalloc2D(w,h)
   local New = arMalloc2D(w,h)
   local Draw = {["text"] = drawConsole}
-  if(type(sRule) ~= "string") then
-    Rule = lifelib.getDefaultRule()
-  else
-    Rule = {}
-    Rule.Name = sRule
-    Rule.Data = lifelib.getRuleBS(Rule.Name)
-    if(Rule.Data == nil) then
-      return logStatus("lifelib.newField: Please redefine your life rule !",nil) end
-  end
   --[[
    * Internal data primitives
   ]]--
   function self:getW() return w end
   function self:getH() return h end
   function self:getSellCount() return (w * h) end
-  function self:getRule() return Rule.Name end
+  function self:getRuleName() return Rule.Name end
   function self:getRuleData() return Rule.Data end
   function self:shiftXY (nX,nY) arShift2D (Old,w,h,(tonumber(nX) or 0),(tonumber(nY) or 0)); return self end
   function self:rollXY  (nX,nY) arRoll2D  (Old,w,h,(tonumber(nX) or 0),(tonumber(nY) or 0)); return self end
@@ -449,6 +459,25 @@ function lifelib.newField(w,h,sRule)
   function self:getGenerations() return Gen end
   function self:rotR() arRotateR(Old,w,h); h,w = w,h; return self end
   function self:rotL() arRotateL(Old,w,h); h,w = w,h; return self end
+
+  function self:setRule(vRule) local tTmp
+    if(isString(vRule)) then
+      tTmp = lifelib.getRuleBS(vRule)
+    elseif(isTable(vRule)) then
+      if(vRule.Name and not vRule.Data) then
+        tTmp = lifelib.getRuleBS(vRule.Name)
+      elseif(vRule.Data and not vRule.Name) then
+        tTmp = {Name = lifelib.getRuleName(vRule.Data), Data = vRule.Data}
+      elseif(vRule.Name and vRule.Data) then
+        if(lifelib.getRuleName(vRule.Data) == vRule.Name) then
+          tTmp = {Name = vRule.Name, Data = vRule.Data}
+        end
+      end
+    else tTmp = lifelib.getDefaultRule() end
+    if(tTmp == nil) then
+      return logStatus("lifelib.newField: Incorrect life rule <"..tostring(vRule).."> !",nil) end
+    Rule.Name, Rule.Data = tTmp.Name, tTmp.Data; return self
+  end
   --[[
    * Stamp a shape inside the field array
   ]]--
@@ -458,7 +487,7 @@ function lifelib.newField(w,h,sRule)
       return logStatus("lifelib.newField.setShape(Stamp,PosX,PosY): Stamp: Not present !",nil) end
     if(getmetatable(Stamp) ~= metaShape) then
       return logStatus("lifelib.newField.setShape(Stamp,PosX,PosY): Stamp: Object invalid !",nil) end
-    if(Rule.Name ~= Stamp:getRule()) then
+    if(Rule.Name ~= Stamp:getRuleName()) then
       return logStatus("lifelib.newField.setShape(Stamp,PosX,PosY): Stamp: Different kind of life !",nil) end
     local sw, sh, ar = Stamp:getW(), Stamp:getH(), Stamp:getArray()
     for i = 1,sh do for j = 1,sw do
@@ -527,7 +556,7 @@ function lifelib.newField(w,h,sRule)
     end end; return Line
   end
 
-  setmetatable(self, metaField); return self
+  return setmetatable(self:setRule(sRule), metaField)
 end
 
 --[[
@@ -571,7 +600,7 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
   local h    = tInit.h
   local Data = arConvert2D(tInit,w,h)
   local Draw = {["text"] = drawConsole}
-  local Rule = ""
+  local Rule = {}
 
   --[[
    * Internal data primitives
@@ -581,7 +610,8 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
   function self:rotR() arRotateR(Data,w,h); h,w = w,h; return self end
   function self:rotL() arRotateL(Data,w,h); h,w = w,h; return self end
   function self:getArray() return Data end
-  function self:getRule() return Rule end
+  function self:getRuleName() return Rule.Name end
+  function self:getRuleData() return Rule.Data end
   function self:getCellCount() return (w * h) end
   function self:getGenerations() return nil end
   function self:mirrorXY(bX,bY) arMirror2D(Data,w,h,bX,bY); return self end
@@ -592,20 +622,23 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
    * the one provided with the initialization table.
    * If no rule can be processed the default one is used
   ]]--
-  function self:setRule(sRule)
-    local vRule = self.Init.Rule
-    if(type(sRule) == "string") then
-      local tTmp = lifelib.getRuleBS(sRule)
-      if(tTmp ~= nil) then Rule = sRule
-      else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Check user rule !",nil) end
-    elseif(type(vRule) == "table") then
-      if(type(vRule.Name) == "string") then
-        local tTmp = lifelib.getRuleBS(vRule.Name)
-        if(tTmp ~= nil) then Rule = vRule.Name
-        else Rule = lifelib.getDefaultRule().Name end
-      else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Check init rule !",nil) end
-    else Rule = lifelib.getDefaultRule().Name end
-    return self
+  function self:setRule(vRule) local tTmp
+    if(isString(vRule)) then
+      tTmp = lifelib.getRuleBS(vRule)
+    elseif(isTable(vRule)) then
+      if(vRule.Name and not vRule.Data) then
+        tTmp = lifelib.getRuleBS(vRule.Name)
+      elseif(vRule.Data and not vRule.Name) then
+        tTmp = {Name = lifelib.getRuleName(vRule.Data), Data = vRule.Data}
+      elseif(vRule.Name and vRule.Data) then
+        if(lifelib.getRuleName(vRule.Data) == vRule.Name) then
+          tTmp = {Name = vRule.Name, Data = vRule.Data}
+        end
+      end
+    else tTmp = lifelib.getDefaultRule() end
+    if(tTmp == nil) then
+      return logStatus("lifelib.newStamp: Incorrect life rule <"..tostring(vRule).."> !",nil) end
+    Rule.Name, Rule.Data = tTmp.Name, tTmp.Data; return self
   end
 
   --[[
@@ -687,7 +720,7 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
     end; return Line
   end
 
-  return setmetatable(self:setRule(), metaShape)
+  return setmetatable(self:setRule(tInit.Rule), metaShape)
 end
 
 return lifelib
