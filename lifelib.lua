@@ -131,7 +131,7 @@ function lifelib.getDefaultRule() -- Conway
 end
 
 function lifelib.getRuleBS(sStr)
-  local BS = {Name = tostring(sStr or "")}; if(BS.Name == "") then
+  local BS = {Name = tostring(sStr or ""), Data = {}}; if(BS.Name == "") then
     return logStatus("lifelib.getRuleBS: Empty rule", nil) end
   local expBS = strExplode(BS.Name, "/"); if(not (expBS[1] and expBS[2])) then
     return logStatus("lifelib.getRuleBS: Rule invalid <"..BS.Name..">", nil) end
@@ -139,15 +139,15 @@ function lifelib.getRuleBS(sStr)
     return logStatus("lifelib.getRuleBS: Born invalid <"..BS.Name..">", nil) end
   local kS = expBS[2]:sub(1,1); if(kS ~= "S") then
     return logStatus("lifelib.getRuleBS: Surv invalid <"..BS.Name..">", nil) end
-  local bI, sI = 2, 2; BS[kB], BS[kS] = {}, {}
-  local cB, cS = expBS[1]:sub(bI,bI), expBS[2]:sub(sI,sI)
+  local bI, sI = 2, 2; BS.Data[kB], BS.Data[kS] = {}, {}
+  local cB, cS, tD = expBS[1]:sub(bI,bI), expBS[2]:sub(sI,sI), BS.Data
   while(cB ~= "" or cS ~= "") do
     local nB, nS = tonumber(cB), tonumber(cS)
-    if(nB) then BS[kB][#BS.B + 1] = nB end
-    if(nS) then BS[kS][#BS.S + 1] = nS end
+    if(nB) then tD[kB][#tD.B + 1] = nB end
+    if(nS) then tD[kS][#tD.S + 1] = nS end
     bI, sI = (bI + 1), (sI + 1)
     cB, cS = expBS[1]:sub(bI,bI), expBS[2]:sub(sI,sI)
-  end; if(BS[kB][1] and BS[kS][1]) then return BS end
+  end; if(tD[kB][1] and tD[kS][1]) then return BS end
   return logStatus("lifelib.getRuleBS: Population fail <"..BS.Name..">", nil)
 end
 
@@ -189,8 +189,8 @@ function lifelib.getRleSettings(sStr)
   return Exp
 end
 
-local function convRuleInfo(vRule)
- if(isString(vRule)) then
+function lifelib.convRule(vRule) local tTmp
+  if(isString(vRule)) then
     tTmp = lifelib.getRuleBS(vRule)
   elseif(isTable(vRule)) then
     if(vRule.Name and not vRule.Data) then
@@ -204,7 +204,7 @@ local function convRuleInfo(vRule)
     end
   else tTmp = lifelib.getDefaultRule() end
   if(tTmp == nil) then
-    return logStatus("lifelib.newField: Incorrect life rule <"..tostring(vRule).."> !",nil) end
+    return logStatus("lifelib.convRule: Incorrect life rule <"..tostring(vRule).."> !",nil) end
   return tTmp.Name, tTmp.Data;
 end
 ------------------- SHAPE INIT --------------------
@@ -486,7 +486,7 @@ function lifelib.newField(w,h,sRule)
    * If no rule can be processed the default one is used
   ]]--
   function self:setRule(vRule)
-    Rule.Name, Rule.Data = convRuleInfo(vRule); return self
+    Rule.Name, Rule.Data = lifelib.convRule(vRule); return self
   end
 
   --[[
@@ -634,7 +634,7 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
    * If no rule can be processed the default one is used
   ]]--
   function self:setRule(vRule)
-    Rule.Name, Rule.Data = convRuleInfo(vRule); return self
+    Rule.Name, Rule.Data = lifelib.convRule(vRule); return self
   end
 
   --[[
