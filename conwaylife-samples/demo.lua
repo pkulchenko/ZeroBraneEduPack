@@ -24,21 +24,35 @@ local function turtleDraw(F,...)
   end
 end
 
-local W, H = 1000, 500
+local W, H, ID = 1000, 500, 1
+
+local tParam = {
+  -- Init via structure
+  -- Init va string
+  {Sta = "ob", Arg = {    
+      "24bo11b$22bobo11b$12b2o6b2o12b2o$11bo3bo4b2o12b2o$2o8bo5bo3b2o14b$2o8bo3bob2o4bobo11b$10bo5bo7bo11b$11bo3bo20b$12b2o!",
+      "string","rle", }},
+  -- Init via file
+  {Sta = "O.", Arg = {"gosperglidergun","file","cells" }},
+  {Sta = "ob", Arg = {"gosperglidergun","file","rle"   }},
+  {Sta = "*.", Arg = {"gosperglidergun","file","lif105"}},
+  {Sta = "*.", Arg = {"gosperglidergun","file","lif106"}}
+}
 
 -- Create a field where shapes must be stamped inside.
 -- Register a graphic interpretator of the data inside
-local F = life.newField(150, 85):regDraw("turtle",turtleDraw)
+local F = life.newField(150, 85)
 
-if(F) then
+if(F) then F:regDraw("turtle",turtleDraw)
   -- Set our relative shapes location definitions
   life.shapesPath("conwaylife-samples/shapes")
 
   -- Set the alive and dead character for decoding the file
-  life.charAliv("o"); life.charDead("b")
+  life.charAliv(tParam[ID].Sta:sub(1,1))
+  life.charDead(tParam[ID].Sta:sub(2,2))
 
   -- Create a stamp using the desired shape
-  local S = life.newStamp("gosperglidergun","file","rle")
+  local S = life.newStamp(unpack(tParam[ID].Arg))
 
   if(S) then
     -- Open ourselves a lovely window

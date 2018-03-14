@@ -454,31 +454,32 @@ end
 --[[
  * Creates a field object used for living environment for the shapes ( organisms )
 ]]--
-function lifelib.newField(w,h,sRule)
-  local self  = {}
-  local w = tonumber(w) or 0
-        w = (w >= 1) and w or 1
-  local h = tonumber(h) or 0
-        h = (h >= 1) and h or 1
-  local Gen, Rule = 0, {}
-  local Old = arMalloc2D(w,h)
-  local New = arMalloc2D(w,h)
-  local Draw = {["text"] = drawConsole}
+function lifelib.newField(nW,nH,sRule)
+  local self = setmetatable({}, metaField)
+  local mnW = tonumber(nW) or 0
+        mnW = (mnW >= 1) and mnW or 1
+  local mnH = tonumber(nH) or 0
+        mnH = (mnH >= 1) and mnH or 1
+  local miGen, mtRule = 0, {}
+  local mtOld = arMalloc2D(mnW,mnH)
+  local mtNew = arMalloc2D(mnW,mnH)
+  local mtDraw = {["text"] = drawConsole}
+
   --[[
    * Internal data primitives
   ]]--
-  function self:getW() return w end
-  function self:getH() return h end
-  function self:getSellCount() return (w * h) end
-  function self:getRuleName() return Rule.Name end
-  function self:getRuleData() return Rule.Data end
-  function self:shiftXY (nX,nY) arShift2D (Old,w,h,(tonumber(nX) or 0),(tonumber(nY) or 0)); return self end
-  function self:rollXY  (nX,nY) arRoll2D  (Old,w,h,(tonumber(nX) or 0),(tonumber(nY) or 0)); return self end
-  function self:mirrorXY(bX,bY) arMirror2D(Old,w,h,bX,bY); return self end
-  function self:getArray()       return Old end
-  function self:getGenerations() return Gen end
-  function self:rotR() arRotateR(Old,w,h); h,w = w,h; return self end
-  function self:rotL() arRotateL(Old,w,h); h,w = w,h; return self end
+  function self:getW() return mnW end
+  function self:getH() return mnH end
+  function self:getSellCount() return (mnW * mnH) end
+  function self:getRuleName() return mtRule.Name end
+  function self:getRuleData() return mtRule.Data end
+  function self:shiftXY (nX,nY) arShift2D (mtOld,mnW,mnH,(tonumber(nX) or 0),(tonumber(nY) or 0)); return self end
+  function self:rollXY  (nX,nY) arRoll2D  (mtOld,mnW,mnH,(tonumber(nX) or 0),(tonumber(nY) or 0)); return self end
+  function self:mirrorXY(bX,bY) arMirror2D(mtOld,mnW,mnH,bX,bY); return self end
+  function self:getArray()       return mtOld end
+  function self:getGenerations() return miGen end
+  function self:rotR() arRotateR(mtOld,mnW,mnH); mnH,mnW = mnW,mnH; return self end
+  function self:rotL() arRotateL(mtOld,mnW,mnH); mnH,mnW = mnW,mnH; return self end
 
   --[[
    * Apply desired rule for the stamp by using a string
@@ -486,52 +487,54 @@ function lifelib.newField(w,h,sRule)
    * If no rule can be processed the default one is used
   ]]--
   function self:setRule(vRule)
-    Rule.Name, Rule.Data = lifelib.convRule(vRule); return self
+    local nam, dat = lifelib.convRule(vRule)
+    if(not (nam and dat)) then return nil end
+    mtRule.Name, mtRule.Data = nam, dat; return self
   end
 
   --[[
    * Stamp a shape inside the field array
   ]]--
   function self:setShape(Stamp,nPx,nPy)
-    local px, py = ((tonumber(nPx) or 1) % w), ((tonumber(nPy) or 1) % h)
+    local px, py = ((tonumber(nPx) or 1) % mnW), ((tonumber(nPy) or 1) % mnH)
     if(Stamp == nil) then
       return logStatus("lifelib.newField.setShape(Stamp,PosX,PosY): Stamp: Not present !",nil) end
     if(getmetatable(Stamp) ~= metaShape) then
       return logStatus("lifelib.newField.setShape(Stamp,PosX,PosY): Stamp: Object invalid !",nil) end
-    if(Rule.Name ~= Stamp:getRuleName()) then
+    if(mtRule.Name ~= Stamp:getRuleName()) then
       return logStatus("lifelib.newField.setShape(Stamp,PosX,PosY): Stamp: Different kind of life !",nil) end
     local sw, sh, ar = Stamp:getW(), Stamp:getH(), Stamp:getArray()
     for i = 1,sh do for j = 1,sw do
       local x, y = px+j-1, py+i-1
-      if(x > w) then x = x-w end
-      if(x < 1) then x = x+w end
-      if(y > h) then y = y-h end
-      if(y < 1) then y = y+h end
-      Old[y][x] = ar[i][j]
+      if(x > mnW) then x = x-mnW end
+      if(x < 1) then x = x+mnW end
+      if(y > mnH) then y = y-mnH end
+      if(y < 1) then y = y+mnH end
+      mtOld[y][x] = ar[i][j]
     end end; return self
   end
   --[[
    * Calculates the next generation
   ]]--
   function self:evoNext()
-    local ym1, y, yp1, yi = (h - 1), h, 1, h
+    local ym1, y, yp1, yi = (mnH - 1), mnH, 1, mnH
     while yi > 0 do
-      local xm1, x, xp1, xi = (w - 1), w, 1, w
+      local xm1, x, xp1, xi = (mnW - 1), mnW, 1, mnW
       while xi > 0 do
-        local sum = Old[ym1][xm1] + Old[ym1][x] + Old[ym1][xp1] +
-                    Old[ y ][xm1]               + Old[ y ][xp1] +
-                    Old[yp1][xm1] + Old[yp1][x] + Old[yp1][xp1]
-        New[y][x] = lifelib.getSumStatus(Old[y][x],sum,Rule)
+        local sum = mtOld[ym1][xm1] + mtOld[ym1][x] + mtOld[ym1][xp1] +
+                    mtOld[ y ][xm1]               + mtOld[ y ][xp1] +
+                    mtOld[yp1][xm1] + mtOld[yp1][x] + mtOld[yp1][xp1]
+        mtNew[y][x] = lifelib.getSumStatus(mtOld[y][x],sum,mtRule)
         xm1, x, xp1, xi = x, xp1, (xp1 + 1), (xi - 1)
       end; ym1, y, yp1, yi = y, yp1, (yp1 + 1), (yi - 1)
-    end; Old, New, Gen = New, Old, (Gen + 1); return self
+    end; mtOld, mtNew, miGen = mtNew, mtOld, (miGen + 1); return self
   end
 
   --[[
    * Registers a draw method under a particular key
   ]]--
   function self:regDraw(sKey,fFoo)
-    if(type(sKey) == "string" and type(fFoo) == "function") then Draw[sKey] = fFoo
+    if(type(sKey) == "string" and type(fFoo) == "function") then mtDraw[sKey] = fFoo
     else logStatus("lifelib.newField.regDraw(sKey,fFoo): Drawing method @"..tostring(sKey).." registration skipped !")
     end; return self
   end
@@ -541,7 +544,7 @@ function lifelib.newField(w,h,sRule)
   ]]--
   function self:drwLife(sMode,...)
     local Mode = tostring(sMode or "text")
-    if(Draw[Mode]) then Draw[Mode](self,...)
+    if(mtDraw[Mode]) then mtDraw[Mode](self,...)
     else logStatus("lifelib.newField.drwLife(sMode,...): Drawing mode <"..Mode.."> not found !")
     end; return self
   end
@@ -551,8 +554,8 @@ function lifelib.newField(w,h,sRule)
   ]]--
   function self:toNumber()
     local Pow, Num, Flg = 0, 0, 0
-    for i = h,1,-1 do for j = w,1,-1 do
-      Flg = (Old[i][j] ~= 0) and 1 or 0
+    for i = mnH,1,-1 do for j = mnW,1,-1 do
+      Flg = (mtOld[i][j] ~= 0) and 1 or 0
       Num = Num + Flg * 2 ^ Pow; Pow  = Pow + 1
     end end; return Num
   end
@@ -562,12 +565,12 @@ function lifelib.newField(w,h,sRule)
   ]]--
   function self:toString()
     local Line, Alv, Ded = "", metaData.__aliv, metaData.__dead
-    for i = 1,h do for j = 1,w do
-        Line = Line .. tostring((Old[i][j] ~= 0) and Alv or Ded)
+    for i = 1,mnH do for j = 1,mnW do
+        Line = Line .. tostring((mtOld[i][j] ~= 0) and Alv or Ded)
     end end; return Line
   end
 
-  return setmetatable(self:setRule(sRule), metaField)
+  return self:setRule(sRule)
 end
 
 --[[
@@ -606,27 +609,27 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
   if(isEmpty) then
     return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Shape <"..
       sName.."> empty for <"..sExt.."> <"..sSrc..">",nil) end
-  local self = {}; self.Init = tInit
-  local w    = tInit.w
-  local h    = tInit.h
-  local Data = arConvert2D(tInit,w,h)
-  local Draw = {["text"] = drawConsole}
-  local Rule = {}
+  local self = setmetatable({}, metaShape)
+  local mnW  = tInit.w
+  local mnH  = tInit.h
+  local mtData = arConvert2D(tInit,mnW,mnH)
+  local mtDraw = {["text"] = drawConsole}
+  local mtRule = {}
 
   --[[
    * Internal data primitives
   ]]--
-  function self:getW() return w end
-  function self:getH() return h end
-  function self:rotR() arRotateR(Data,w,h); h,w = w,h; return self end
-  function self:rotL() arRotateL(Data,w,h); h,w = w,h; return self end
-  function self:getArray() return Data end
-  function self:getRuleName() return Rule.Name end
-  function self:getRuleData() return Rule.Data end
-  function self:getCellCount() return (w * h) end
+  function self:getW() return mnW end
+  function self:getH() return mnH end
+  function self:rotR() arRotateR(mtData,mnW,mnH); mnH,mnW = mnW,mnH; return self end
+  function self:rotL() arRotateL(mtData,mnW,mnH); mnH,mnW = mnW,mnH; return self end
+  function self:getArray() return mtData end
+  function self:getRuleName() return mtRule.Name end
+  function self:getRuleData() return mtRule.Data end
+  function self:getCellCount() return (mnW * mnH) end
   function self:getGenerations() return nil end
-  function self:mirrorXY(bX,bY) arMirror2D(Data,w,h,bX,bY); return self end
-  function self:rollXY(nX,nY) arRoll2D(Data,w,h,tonumber(nX) or 0,tonumber(nY) or 0); return self end
+  function self:mirrorXY(bX,bY) arMirror2D(mtData,mnW,mnH,bX,bY); return self end
+  function self:rollXY(nX,nY) arRoll2D(mtData,mnW,mnH,tonumber(nX) or 0,tonumber(nY) or 0); return self end
 
   --[[
    * Apply desired rule for the stamp by using a string
@@ -634,14 +637,16 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
    * If no rule can be processed the default one is used
   ]]--
   function self:setRule(vRule)
-    Rule.Name, Rule.Data = lifelib.convRule(vRule); return self
+    local nam, dat = lifelib.convRule(vRule)
+    if(not (nam and dat)) then return nil end
+    mtRule.Name, mtRule.Data = nam, dat; return self
   end
 
   --[[
    * Registers a draw method under a particular key
   ]]--
   function self:regDraw(sKey,fFoo)
-    if(type(sKey) == "string" and type(fFoo) == "function") then Draw[sKey] = fFoo
+    if(type(sKey) == "string" and type(fFoo) == "function") then mtDraw[sKey] = fFoo
     else logStatus("lifelib.newStamp.regDraw(sKey,fFoo): Drawing method @"..tostring(sKey).." registration skipped !")
     end; return self
   end
@@ -650,7 +655,7 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
   ]]--
   function self:drwLife(sMode,...)
     local Mode = sMode or "text"
-    if(Draw[Mode]) then Draw[Mode](self, ...)
+    if(mtDraw[Mode]) then mtDraw[Mode](self, ...)
     else logStatus("lifelib.newStamp.drwLife(sMode,...): Drawing mode not found !\n")
     end; return self
   end
@@ -659,8 +664,8 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
   ]]--
   function self:toNumber()
     local Pow, Num = 0, 0
-    for i = h,1,-1 do for j = w,1,-1 do
-      Flg = (Data[i][j] ~= 0) and 1 or 0
+    for i = mnH,1,-1 do for j = mnW,1,-1 do
+      Flg = (mtData[i][j] ~= 0) and 1 or 0
       Num = Num + Flg * 2 ^ Pow; Pow = Pow + 1
     end end; return Num
   end
@@ -669,8 +674,8 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
   ]]--
   function self:toString()
     local Line, Alv, Ded = "", metaData.__aliv, metaData.__dead
-    for i = 1,h do for j = 1,w do
-        Line = Line .. tostring((Data[i][j] ~= 0) and Alv or Ded)
+    for i = 1,mnH do for j = 1,mnW do
+        Line = Line .. tostring((mtData[i][j] ~= 0) and Alv or Ded)
     end end; return Line
   end
   --[[
@@ -680,10 +685,10 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
     local BaseCh, CurCh, Line, Cnt  = "", "", "", 0
     local sAlv, sDed = metaData.__aliv, metaData.__dead
     local sD, sE = tostring(sD):sub(1,1), tostring(sE):sub(1,1)
-    for i = 1,h do
-      BaseCh = tostring(((Data[i][1] ~= 0) and sAlv) or sDed); Cnt = 0
-      for j = 1,w do
-        CurCh = tostring(((Data[i][j] ~= 0) and sAlv) or sDed)
+    for i = 1,mnH do
+      BaseCh = tostring(((mtData[i][1] ~= 0) and sAlv) or sDed); Cnt = 0
+      for j = 1,mnW do
+        CurCh = tostring(((mtData[i][j] ~= 0) and sAlv) or sDed)
         if(CurCh == BaseCh) then Cnt = Cnt + 1
         else
           if(Cnt > 1) then Line  = Line..Cnt..BaseCh
@@ -693,7 +698,7 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
       end
       if(Cnt > 1) then Line  = Line..Cnt..BaseCh
       else Line  = Line .. BaseCh end
-      if(i ~= h) then Line = Line..sD end
+      if(i ~= mnH) then Line = Line..sD end
     end; return Line..sE
   end
   --[[
@@ -708,15 +713,15 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
     if(sDel == sDed) then
       return logStatus("lifelib.newStamp.toStringText(sMode,tArgs) Delimiter <"..sDel.."> matches dead","")  end
     local Line, Len = ""
-    for i = 1,h do Len = w
-      if(bTrim) then while(Data[i][Len] == 0) do Len = Len - 1 end end
+    for i = 1,mnH do Len = mnW
+      if(bTrim) then while(mtData[i][Len] == 0) do Len = Len - 1 end end
       for j = 1,Len do
-        Line = Line..tostring(((Data[i][j] ~= 0) and sAlv) or sDed)
+        Line = Line..tostring(((mtData[i][j] ~= 0) and sAlv) or sDed)
       end; Line = Line..sDel
     end; return Line
   end
 
-  return setmetatable(self:setRule(tInit.Rule), metaShape)
+  return self:setRule(tInit.Rule)
 end
 
 return lifelib
