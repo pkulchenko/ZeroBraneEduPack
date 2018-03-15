@@ -4,7 +4,7 @@ require("turtle")
 
 local life   = require("lifelib")
 local common = require("common")
-local nTime  = 0.03
+local nTime  = 0.02
 io.stdout:setvbuf("no")
 
 local function turtleDraw(F,...)
@@ -22,6 +22,18 @@ local function turtleDraw(F,...)
     end
     y, i = (y + dy), (i + 1)
   end
+end
+
+--[[
+ * You can use the shape object to make a stamp
+ * of a certain shape over the field. In ths case
+ * I am inserting a glider gum in various
+ * orientations and locations, so I can make two stamps
+ * over the filed "F" using the gun current stamp. 
+]]
+function configInit(F, S)
+  F:setShape(S:rotR():mirrorXY(true,false),1,1)
+  F:setShape(S:mirrorXY(true,false),190,1)
 end
 
 local W, H, ID = 1000, 500, 1
@@ -59,15 +71,10 @@ if(F) then F:regDraw("turtle",turtleDraw)
     open("Game Of Life"); size(W, H)
     updt(false); zero(0, 0)
     
-    --[[
-     * You can use the shape object to make a stamp
-     * of a certain shape over the field. In ths case
-     * I am inserting a glider gum in various
-     * orientations and locations, so I can make two stamps
-     * over the filed "F" using the gun current stamp. 
-    ]]
-    F:setShape(S:rotR():mirrorXY(true,false),1,1)
-    F:setShape(S:mirrorXY(true,false),190,1)
+    configInit(F, S) -- Store the inititial configuration in a function
+    
+    -- Store a stamp for the fish to spawn on mouse click
+    local C = life.newStamp("fish","table")
     
     -- Draw the field using the graphic interpretator function
     F:drwLife("turtle", W, H, key1, key2, str)
@@ -75,12 +82,17 @@ if(F) then F:regDraw("turtle",turtleDraw)
     while true do
       local key = char()
       local lx, ly = clck('ld')
+      local rx, ry = clck('rd')
       if(key == 315) then nTime = common.getClamp(nTime + 0.01, 0, 0.5) end
       if(key == 317) then nTime = common.getClamp(nTime - 0.01, 0, 0.5) end
-      if(key == 32) then
-        S:Reset(); F:Reset()
-        F:setShape(S:rotR():mirrorXY(true,false),1,1)
-        F:setShape(S:mirrorXY(true,false),190,1)
+      if(key == 32) then S:Reset(); F:Reset(); configInit(F, S) end
+      if(lx and ly) then
+        local x, y = math.floor(lx/W*F:getW()), math.floor(ly/H*F:getH())
+        C:Reset() F:setShape(C:Reset():mirrorXY(true),x,y)
+      end
+      if(rx and ry) then
+        local x, y = math.floor(rx/W*F:getW()), math.floor(ry/H*F:getH())
+        C:Reset() F:setShape(C:Reset(),x,y)
       end
       F:drwLife("turtle", W, H, lx, ly, key, nTime):evoNext()
       updt(); if(nTime and nTime > 0) then wait(nTime) end
