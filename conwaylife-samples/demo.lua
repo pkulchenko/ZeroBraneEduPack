@@ -2,10 +2,28 @@ require("turtle")
 
 -- For more shapes please refer to: http://www.conwaylife.com/patterns/all.zip
 
+io.stdout:setvbuf("no")
+
 local life   = require("lifelib")
 local common = require("common")
 local nTime  = 0.02
-io.stdout:setvbuf("no")
+local W, H, ID = 1000, 500, 2
+
+local tParam = {
+  -- Init via structure
+  -- Init va string
+  {Sta = "ob", Arg = {    
+      "24bo11b$22bobo11b$12b2o6b2o12b2o$11bo3bo4b2o12b2o$2o8bo5bo3b2o14b$2o8bo3bob2o4bobo11b$10bo5bo7bo11b$11bo3bo20b$12b2o!",
+      "string","rle", }},
+  -- Init via file
+  {Sta = "O.", Arg = {"gosperglidergun","file","cells" }},
+  {Sta = "ob", Arg = {"gosperglidergun","file","rle"   }},
+  {Sta = "*.", Arg = {"gosperglidergun","file","lif105"}},
+  {Sta = "*.", Arg = {"gosperglidergun","file","lif106"}}
+}
+
+if(not tParam[ID]) then
+  return common.logStatus("No such parameter ID #"..tostring(ID)) end
 
 local function turtleDraw(F,...)
   local sx, sy, x, y, i = 0, 18, 0, 0, 1
@@ -31,35 +49,28 @@ end
  * orientations and locations, so I can make two stamps
  * over the filed "F" using the gun current stamp. 
 ]]
-function configInit(F, S)
+local function configInit(F, S)
+  S:Reset(); F:Reset()
   F:setShape(S:rotR():mirrorXY(true,false),1,1)
   F:setShape(S:mirrorXY(true,false),190,1)
 end
 
-local W, H, ID = 1000, 500, 1
-
-local tParam = {
-  -- Init via structure
-  -- Init va string
-  {Sta = "ob", Arg = {    
-      "24bo11b$22bobo11b$12b2o6b2o12b2o$11bo3bo4b2o12b2o$2o8bo5bo3b2o14b$2o8bo3bob2o4bobo11b$10bo5bo7bo11b$11bo3bo20b$12b2o!",
-      "string","rle", }},
-  -- Init via file
-  {Sta = "O.", Arg = {"gosperglidergun","file","cells" }},
-  {Sta = "ob", Arg = {"gosperglidergun","file","rle"   }},
-  {Sta = "*.", Arg = {"gosperglidergun","file","lif105"}},
-  {Sta = "*.", Arg = {"gosperglidergun","file","lif106"}}
-}
+local function spawnXY(F, C, x, y, m)
+  local px, py = math.floor(x/W*F:getW()), math.floor(y/H*F:getH())
+  C:Reset() F:setShape(C:Reset():mirrorXY(m),px, py)
+end
 
 -- Create a field where shapes must be stamped inside.
--- Register a graphic interpretator of the data inside
 local F = life.newField(200, 120)
 
-if(F) then F:regDraw("turtle",turtleDraw)
+if(F) then
+  -- Register graphical interpretator for the data inside
+  F:regDraw("turtle",turtleDraw)
+  
   -- Set our relative shapes location definitions
   life.shapesPath("conwaylife-samples/shapes")
 
-  -- Set the alive and dead character for decoding the file
+  -- Set the alive and dead character for decoding files
   life.charAliv(tParam[ID].Sta:sub(1,1))
   life.charDead(tParam[ID].Sta:sub(2,2))
 
@@ -85,15 +96,9 @@ if(F) then F:regDraw("turtle",turtleDraw)
       local rx, ry = clck('rd')
       if(key == 315) then nTime = common.getClamp(nTime + 0.01, 0, 0.5) end
       if(key == 317) then nTime = common.getClamp(nTime - 0.01, 0, 0.5) end
-      if(key == 32) then S:Reset(); F:Reset(); configInit(F, S) end
-      if(lx and ly) then
-        local x, y = math.floor(lx/W*F:getW()), math.floor(ly/H*F:getH())
-        C:Reset() F:setShape(C:Reset():mirrorXY(true),x,y)
-      end
-      if(rx and ry) then
-        local x, y = math.floor(rx/W*F:getW()), math.floor(ry/H*F:getH())
-        C:Reset() F:setShape(C:Reset(),x,y)
-      end
+      if(key == 32) then configInit(F, S) end
+      if(lx and ly) then spawnXY(F, C, lx, ly, true) end
+      if(rx and ry) then spawnXY(F, C, rx, ry, false) end
       F:drwLife("turtle", W, H, lx, ly, key, nTime):evoNext()
       updt(); if(nTime and nTime > 0) then wait(nTime) end
     end
