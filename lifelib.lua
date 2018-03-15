@@ -5,11 +5,11 @@ local tonumber  = tonumber
 local tostring  = tostring
 local type      = type
 local io        = io
-local metaShape = {}
+local metaStamp = {}
 local metaField = {}
 local metaData  = {}
 
-metaShape.__type = "lifelib.shape"
+metaStamp.__type = "lifelib.shape"
 metaField.__type = "lifelib.field"
 
 metaData.__aliv  = "O"
@@ -456,10 +456,8 @@ end
 ]]--
 function lifelib.newField(nW,nH,sRule)
   local self = setmetatable({}, metaField)
-  local mnW = tonumber(nW) or 0
-        mnW = (mnW >= 1) and mnW or 1
-  local mnH = tonumber(nH) or 0
-        mnH = (mnH >= 1) and mnH or 1
+  local mnW = getClamp(tonumber(nW) or 0, 1)
+  local mnH = getClamp(tonumber(nH) or 0, 1)
   local miGen, mtRule = 0, {}
   local mtOld = arMalloc2D(mnW,mnH)
   local mtNew = arMalloc2D(mnW,mnH)
@@ -492,24 +490,30 @@ function lifelib.newField(nW,nH,sRule)
     mtRule.Name, mtRule.Data = nam, dat; return self
   end
 
+  function self:Reset() miGen = 0
+    for y = 1, mnH do
+      for x = 1, mnW do
+        mtNew[y][x], mtOld[y][x] = 0, 0
+      end
+    end; return self
+  end
+
   --[[
    * Stamp a shape inside the field array
   ]]--
-  function self:setShape(Stamp,nPx,nPy)
+  function self:setShape(oStm,nPx,nPy)
     local px, py = ((tonumber(nPx) or 1) % mnW), ((tonumber(nPy) or 1) % mnH)
-    if(Stamp == nil) then
+    if(oStm == nil) then
       return logStatus("lifelib.newField.setShape(Stamp,PosX,PosY): Stamp: Not present !",nil) end
-    if(getmetatable(Stamp) ~= metaShape) then
+    if(getmetatable(oStm) ~= metaStamp) then
       return logStatus("lifelib.newField.setShape(Stamp,PosX,PosY): Stamp: Object invalid !",nil) end
-    if(mtRule.Name ~= Stamp:getRuleName()) then
+    if(mtRule.Name ~= oStm:getRuleName()) then
       return logStatus("lifelib.newField.setShape(Stamp,PosX,PosY): Stamp: Different kind of life !",nil) end
-    local sw, sh, ar = Stamp:getW(), Stamp:getH(), Stamp:getArray()
+    local sw, sh, ar = oStm:getW(), oStm:getH(), oStm:getArray()
     for i = 1,sh do for j = 1,sw do
-      local x, y = px+j-1, py+i-1
-      if(x > mnW) then x = x-mnW end
-      if(x < 1) then x = x+mnW end
-      if(y > mnH) then y = y-mnH end
-      if(y < 1) then y = y+mnH end
+      local x, y = (px + j - 1), (py + i - 1)
+      if(x > mnW) then x = x - mnW end; if(x < 1) then x = x + mnW end
+      if(y > mnH) then y = y - mnH end; if(y < 1) then y = y + mnH end
       mtOld[y][x] = ar[i][j]
     end end; return self
   end
@@ -518,11 +522,11 @@ function lifelib.newField(nW,nH,sRule)
   ]]--
   function self:evoNext()
     local ym1, y, yp1, yi = (mnH - 1), mnH, 1, mnH
-    while yi > 0 do
+    while(yi > 0) do
       local xm1, x, xp1, xi = (mnW - 1), mnW, 1, mnW
-      while xi > 0 do
+      while(xi > 0) do
         local sum = mtOld[ym1][xm1] + mtOld[ym1][x] + mtOld[ym1][xp1] +
-                    mtOld[ y ][xm1]               + mtOld[ y ][xp1] +
+                    mtOld[ y ][xm1]                 + mtOld[ y ][xp1] +
                     mtOld[yp1][xm1] + mtOld[yp1][x] + mtOld[yp1][xp1]
         mtNew[y][x] = lifelib.getSumStatus(mtOld[y][x],sum,mtRule)
         xm1, x, xp1, xi = x, xp1, (xp1 + 1), (xi - 1)
@@ -579,40 +583,39 @@ end
 function lifelib.newStamp(sName, sSrc, sExt, ...)
   local sName = tostring(sName or "")
   local sSrc, sExt = tostring(sSrc  or ""), tostring(sExt  or "")
-  local tArg, isEmpty, iCnt, tInit = {...}, true, 1, nil
+  local tArg, isEmpty, iCnt, mtInit = {...}, true, 1, nil
   if(sSrc == "file") then
-    if    (sExt == "rle"   ) then tInit = initFileRle(sName)
-    elseif(sExt == "cells" ) then tInit = initFileCells(sName)
-    elseif(sExt == "lif105") then tInit = initFileLif105(sName)
-    elseif(sExt == "lif106") then tInit = initFileLif106(sName)
+    if    (sExt == "rle"   ) then mtInit = initFileRle(sName)
+    elseif(sExt == "cells" ) then mtInit = initFileCells(sName)
+    elseif(sExt == "lif105") then mtInit = initFileLif105(sName)
+    elseif(sExt == "lif106") then mtInit = initFileLif106(sName)
     else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Extension <"..
       sExt.."> not supported on the source <"..sSrc.."> for <"..sName..">",nil) end
   elseif(sSrc == "string") then
-    if    (sExt == "rle" ) then tInit = initStringRle(sName,tArg[1],tArg[2])
-    elseif(sExt == "txt" ) then tInit = initStringText(sName,tArg[1])
+    if    (sExt == "rle" ) then mtInit = initStringRle(sName,tArg[1],tArg[2])
+    elseif(sExt == "txt" ) then mtInit = initStringText(sName,tArg[1])
     else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Extension <"..
       sExt.."> not supported on the source <"..sSrc.."> for <"..sName">",nil) end
-  elseif(sSrc == "table") then tInit = initTable(sName)
+  elseif(sSrc == "table") then mtInit = initTable(sName)
   else return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Source <"..
     sSrc.."> not supported for <"..sName..">",nil)
   end
 
-  if(not tInit) then
+  if(not mtInit) then
     return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): No initialization table",nil) end
-  if(not (tInit.w and tInit.h)) then
+  if(not (mtInit.w and mtInit.h)) then
     return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Initialization table bad dimensions\n",nil) end
-  if(not (tInit.w > 0 and tInit.h > 0)) then
+  if(not (mtInit.w > 0 and mtInit.h > 0)) then
     return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Check Shape unit structure !\n",nil) end
 
-  while(tInit[iCnt]) do
-    if(tInit[iCnt] == 1) then isEmpty = false end; iCnt = iCnt + 1 end
+  while(mtInit[iCnt]) do
+    if(mtInit[iCnt] == 1) then isEmpty = false end; iCnt = iCnt + 1 end
   if(isEmpty) then
     return logStatus("lifelib.newStamp(sName, sSrc, sExt, ...): Shape <"..
       sName.."> empty for <"..sExt.."> <"..sSrc..">",nil) end
-  local self = setmetatable({}, metaShape)
-  local mnW  = tInit.w
-  local mnH  = tInit.h
-  local mtData = arConvert2D(tInit,mnW,mnH)
+  local self = setmetatable({}, metaStamp)
+  local mnW, mnH  = mtInit.w, mtInit.h
+  local mtData = arConvert2D(mtInit,mnW,mnH)
   local mtDraw = {["text"] = drawConsole}
   local mtRule = {}
 
@@ -624,6 +627,7 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
   function self:rotR() arRotateR(mtData,mnW,mnH); mnH,mnW = mnW,mnH; return self end
   function self:rotL() arRotateL(mtData,mnW,mnH); mnH,mnW = mnW,mnH; return self end
   function self:getArray() return mtData end
+  function self:getInit() return mtInit end
   function self:getRuleName() return mtRule.Name end
   function self:getRuleData() return mtRule.Data end
   function self:getCellCount() return (mnW * mnH) end
@@ -640,6 +644,11 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
     local nam, dat = lifelib.convRule(vRule)
     if(not (nam and dat)) then return nil end
     mtRule.Name, mtRule.Data = nam, dat; return self
+  end
+
+  function self:Reset()
+    mnW, mnH  = mtInit.w, mtInit.h
+    mtData = arConvert2D(mtInit,mnW,mnH); return self
   end
 
   --[[
@@ -721,7 +730,7 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
     end; return Line
   end
 
-  return self:setRule(tInit.Rule)
+  return self:setRule(mtInit.Rule)
 end
 
 return lifelib

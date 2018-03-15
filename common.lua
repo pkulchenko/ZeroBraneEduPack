@@ -264,8 +264,8 @@ function common.getValueKeys(tTab, tKeys, aKey)
 end
 
 function common.getClamp(nN, nL, nH)
-  if(nN < nL) then return nL end
-  if(nN > nH) then return nH end; return nN
+  if(nL and nN < nL) then return nL end
+  if(nH and nN > nH) then return nH end; return nN
 end
 
 function common.getRoll(nN, nL, nH)
