@@ -75,7 +75,7 @@ local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup)
       S:Register("FUNCT",
         "mandelbrot", function (Z, C, R) Z:Pow(2); Z:Add(C); R[1] = Z:getAngRad(); end,
         "mandelbar", function (Z, C, R) Z:Pow(2); Z:NegIm(); Z:Add(C) end,
-        "julia1", function (Z, C, R) Z:Pow(2); Z:Add(compl.Convert("-0.8+0.156i")) end,
+        "julia1", function (Z, C, R) Z:Pow(2); Z:Add(compl.convNew("-0.8+0.156i")) end,
         "julia2", function (Z, C, R) Z:Set(cexp^(Z^3) - 0.621) end,
         "julia3", function (Z, C, R) Z:Set(cexp^Z) Z:Sub(0.65) end,
         "julia4", function (Z, C, R) Z:Pow(3) Z:Add(0.4)  end,

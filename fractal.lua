@@ -61,8 +61,8 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
     logStatus("PlaneZ.MoveCenter: {"..dX..","..dY.."}")
     self:SetCenter(imgCx + (tonumber(dX) or 0), imgCy + (tonumber(dY) or 0))
   end
-  function self:Zoom(nZoom)
-    local nZoom = tonumber(nZoom) or 0
+  function self:Zoom(nZ)
+    local nZoom = (tonumber(nZ) or 0)
     if(nZoom == 0) then logStatus("PlaneZ.Zoom("..tostring(nZoom).."): Skipped") return end
     local disRe = (maxRe - minRe) / 2
     local disIm = (maxIm - minIm) / 2

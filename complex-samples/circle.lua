@@ -9,11 +9,10 @@ io.stdout:setvbuf("no")
 
 local logStatus = com.logStatus
 local  W,  H = 400, 400
-local dX, dY =   1,   1
-local xySize = 3
 local greyLevel  = 200
 local minX, maxX = -20, 20
 local minY, maxY = -20, 20
+local dX, dY, xySize = 1, 1, 3
 local intX  = crt.New("interval","WinX", minX, maxX, 0, W)
 local intY  = crt.New("interval","WinY", minY, maxY, H, 0)
 local clBlu = colr(col.getColorBlueRGB())
