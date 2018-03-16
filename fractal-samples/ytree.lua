@@ -1,15 +1,12 @@
 require("turtle")
 local fractal = require("fractal")
 
-local D, W, H = 8, 1000,1000
+local D, W, H, T = 10, 900,900, 0
 local oTree = fractal.New("ytree", D, colr(100, 50, 255))
-if(oTree) then
+if(oTree) then -- disable auto updates
   open("Binary tree branching")
-  size(W,H)
-  zero(0, 0)
-  updt(true) -- disable auto updates
-  oTree:Allocate(oTree) 
-  oTree:Draw(oTree,W/2,0,W/4,H/4,wait,0.01)
+  size(W,H); zero(0, 0); updt(true)
+  oTree:Allocate():Draw(W/2,0,W/4,H/4,wait,T)
 end
 
 wait()

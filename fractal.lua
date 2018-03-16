@@ -126,7 +126,7 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
         pncl(colr(r, g, b)); pixl(x,y)
       end
       updt()
-    end
+    end; return self
   end
   return self
 end
@@ -136,27 +136,32 @@ local mtTreeY = {}
       mtTreeY.__index = mtTreeY
       mtTreeY.__metatable = mtTreeY.__type
 local function newTreeY(iMax, clDraw)
-  local draw = clDraw
-  local self = {Lev = 0, Max = (tonumber(iMax) or 0)}
-  if(self.Max <= 0) then return logStatus("YTree depth invalid <"..tostring(self.Max)..">") end
-  setmetatable(self, mtTreeY)
-  function self:Allocate(tBranch)
-    if(not  tBranch.Lev) then tBranch.Lev = self.Lev end
-    if(tBranch.Lev == 0) then tBranch.Max = self.Max end
-    if(tBranch.Lev < self.Max) then
-      tBranch["<"] = {Lev = (tBranch.Lev + 1)}
-      tBranch[">"] = {Lev = (tBranch.Lev + 1)}
-      self:Allocate(tBranch["<"])
-      self:Allocate(tBranch[">"])
+  local mnLev, mnMax, mcDrw = 1, (tonumber(iMax) or 0), clDraw
+  local self = setmetatable({__data = {}}, mtTreeY)
+  if(mnMax <= 0) then return logStatus("YTree depth invalid <"..tostring(mnMax)..">") end
+  function self:getMax() return mnMax end
+  function self:getLev() return mnLev end
+  function self:setColor(clDraw) mcDrw = clDraw; return self end
+  function self:Allocate(tBrn)
+    local tBranch = (tBrn or self.__data)
+    if(not tBranch.__lev) then tBranch.__lev = self:getLev() end
+    if(tBranch.__lev == 0) then tBranch.__max = self:getMax() end
+    if(tBranch.__lev <= self:getMax()) then
+      tBranch["<"] = {__lev = (tBranch.__lev + 1)}
+      tBranch[">"] = {__lev = (tBranch.__lev + 1)}
+      self:Allocate(tBranch["<"]):Allocate(tBranch[">"])
     end; return self
   end
-  function self:Draw(tBranch, oX, oY, dX, dY, fW, nW)
-    if(not draw) then return end
+  function self:Draw(oX, oY, dX, dY, fW, nW, tBrn)
+    if(not mcDrw) then return end
     if(fW and nW) then fW(nW) end
-    if(tBranch.Lev < self.Max) then
-      pncl(draw); line(oX, oY, oX, oY+dY)
-      line(oX, oY+dY, oX-dX, oY+dY+dY); self:Draw(tBranch["<"], oX-dX, oY+dY+dY, dX/2, dY/2, fW, nW)
-      line(oX, oY+dY, oX+dX, oY+dY+dY); self:Draw(tBranch[">"], oX+dX, oY+dY+dY, dX/2, dY/2, fW, nW)
+    local tBranch = (tBrn or self.__data)
+    if(tBranch.__lev <= self:getMax()) then
+      local o2Y, dX2, dY2 = (oY+dY+dY), dX/2, dY/2
+      local odY, opX, omX = (oY+dY), (oX+dX), (oX-dX)
+      pncl(mcDrw); line(oX, oY, oX, odY)
+      line(oX, odY, omX, o2Y); self:Draw(omX, o2Y, dX2, dY2, fW, nW, tBranch["<"])
+      line(oX, odY, opX, o2Y); self:Draw(opX, o2Y, dX2, dY2, fW, nW, tBranch[">"])
     end
   end; return self
 end
