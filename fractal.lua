@@ -27,6 +27,7 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
     conKeys.dirU, conKeys.dirD = (wx["WXK_UP"]   or -1), (wx["WXK_DOWN"]  or -1)
     conKeys.dirL, conKeys.dirR = (wx["WXK_LEFT"] or -1), (wx["WXK_RIGHT"] or -1)
     conKeys.zooP, conKeys.zooM = (wx["wxEVT_LEFT_DOWN"] or -1), (wx["wxEVT_LEFT_DOWN"] or -1)
+    conKeys.resS = (wx["WXK_ESCAPE"] or -1); return self
   end
   function self:GetKey(sKey) return conKeys[tostring(sKey)] end
   function self:SetArea(vminRe, vmaxRe, vminIm, vmaxIm)
@@ -35,6 +36,7 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
     uniCr, uniCi = (minRe + (maxRe - minRe) / 2), (minIm + (maxIm - minIm) / 2)
     reFac = (maxRe - minRe) / (imgW) -- Re units per pixel
     imFac = (maxIm - minIm) / (imgH) -- Im units per pixel
+    return self
   end
   function self:SetCenter(xCen,yCen,sMode)
     local xCen, yCen = tonumber(xCen), tonumber(yCen)
@@ -54,29 +56,26 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
       local disRe = (maxRe - minRe) / 2
       local disIm = (maxIm - minIm) / 2
       self:SetArea((xCen - disRe), (xCen + disRe), (yCen - disIm), (yCen + disIm))
-    else logStatus("PlaneZ.SetCenter: Mode <"..sMode.."> missing")
-    end
+    else logStatus("PlaneZ.SetCenter: Mode <"..sMode.."> missing") end
+    return self
   end
   function self:MoveCenter(dX, dY)
     logStatus("PlaneZ.MoveCenter: {"..dX..","..dY.."}")
-    self:SetCenter(imgCx + (tonumber(dX) or 0), imgCy + (tonumber(dY) or 0))
+    return self:SetCenter(imgCx + (tonumber(dX) or 0), imgCy + (tonumber(dY) or 0))
   end
   function self:Zoom(nZ)
     local nZoom = (tonumber(nZ) or 0)
     if(nZoom == 0) then logStatus("PlaneZ.Zoom("..tostring(nZoom).."): Skipped") return end
-    local disRe = (maxRe - minRe) / 2
-    local disIm = (maxIm - minIm) / 2
-    local midRe = minRe + disRe
-    local midIm = minIm + disIm
-    if(nZoom > 0) then
-      uZoom = uZoom * math.abs(nZoom)
+    local disRe, disIm = ((maxRe - minRe) / 2), ((maxIm - minIm) / 2)
+    local midRe, midIm = (minRe + disRe), (minIm + disIm)
+    if(nZoom > 0) then uZoom = uZoom * math.abs(nZoom)
       self:SetArea(midRe - disRe / nZoom, midRe + disRe / nZoom,
                    midIm - disIm / nZoom, midIm + disIm / nZoom)
     elseif(nZoom < 0) then
       self:SetArea(midRe + disRe * nZoom, midRe - disRe * nZoom,
                    midIm + disIm * nZoom, midIm - disIm * nZoom)
       uZoom = uZoom / math.abs(nZoom)
-    end
+    end; return self
   end
 
   function self:Register(...)
@@ -94,7 +93,7 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
         elseif(sMode == "PALET") then frcPalet[key] = foo
         else logStatus("PlaneZ.Register: Mode <"..sMode.."> skipped for <"..tostring(tArgs[1]).."> !"); return end
       end
-    end
+    end; return self
   end
 
   function self:Draw(sName,sPalet,maxItr)
@@ -149,7 +148,7 @@ local function newTreeY(iMax, clDraw)
       tBranch[">"] = {Lev = (tBranch.Lev + 1)}
       self:Allocate(tBranch["<"])
       self:Allocate(tBranch[">"])
-    end
+    end; return self
   end
   function self:Draw(tBranch, oX, oY, dX, dY, fW, nW)
     if(not draw) then return end
@@ -159,8 +158,7 @@ local function newTreeY(iMax, clDraw)
       line(oX, oY+dY, oX-dX, oY+dY+dY); self:Draw(tBranch["<"], oX-dX, oY+dY+dY, dX/2, dY/2, fW, nW)
       line(oX, oY+dY, oX+dX, oY+dY+dY); self:Draw(tBranch[">"], oX+dX, oY+dY+dY, dX/2, dY/2, fW, nW)
     end
-  end
-  return self
+  end; return self
 end
 
 function fractal.New(sType, ...)

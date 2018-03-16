@@ -70,8 +70,7 @@ S:SetArea(-0.75004543209877,-0.74996641975309,0.0031012345679011,0.0031802469135
 S:SetArea(-1.4576971634815,-1.4576968123155,-0.0014340916323731,-0.0014337404663923)
 ]]
 
-local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup)
-      S:SetControlWX(wx)
+local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup):SetControlWX(wx)
       S:Register("FUNCT",
         "mandelbrot", function (Z, C, R) Z:Pow(2); Z:Add(C); R[1] = Z:getAngRad(); end,
         "mandelbar", function (Z, C, R) Z:Pow(2); Z:NegIm(); Z:Add(C) end,
@@ -82,34 +81,35 @@ local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup)
         "julia5", function (Z, C, R) Z:Set((Z^4) * cexp^Z + 0.41 ) end,
         "julia6", function (Z, C, R) Z:Set((Z^3) * cexp^Z + 0.33 ) end)
       S:Register("PALET",
-        "default", function (Z, C, i) return (getClamp((64  * i) % maxCl)), (getClamp((128 * i) % maxCl)), (getClamp((192 * i) % maxCl)) end,
+        "default", function (Z, C, i)
+          return (getClamp((64  * i) % maxCl)), (getClamp((128 * i) % maxCl)), (getClamp((192 * i) % maxCl)) end,
         "rediter", function (Z, C, i) return getClamp((1-(i / iTer)) * maxCl), 0, 0 end,
-        "greenbl", function (Z, C, i, x, y) local it = i / iTer; return 0, getClamp((1 - it) * maxCl), getClamp(it * maxCl) end,
+        "greenbl", function (Z, C, i, x, y)
+          local it = i / iTer; return 0, getClamp((1 - it) * maxCl), getClamp(it * maxCl) end,
         "wikipedia", function (Z, C, i, x, y, R) return getColorMap("wikipedia",i) end,
         "region", function (Z, C, i, x, y) return getColorRegion(i,iTer,10) end,
         "hsl", function (Z, C, i, x, y) local it = i / iTer; return getColorHSL(it*360,it,it) end,
         "hsv", function (Z, C, i, x, y) local it = i / iTer; return getColorHSV(it*360,1,1) end,
-        "wikipedia_r", function (Z, C, i, x, y, R) return getColorMap("wikipedia",i * (R[1] and 1+math.floor(math.abs(R[1])) or 1)) end)
+        "wikipedia_r", function (Z, C, i, x, y, R)
+          return getColorMap("wikipedia",i * (R[1] and 1+math.floor(math.abs(R[1])) or 1)) end)
 
 S:Draw(sfrac,spale,iTer)
 
-while true do
-  wait(0.2)
+while true do local key = char(); wait(0.1)
   local lx, ly = clck('ld')
-  local key, rx, ry = char(), clck('rd')
+  local rx, ry = clck('rd')
   if(key or (lx and ly) or (rx and ry)) then
     logStatus("KEY: {"..tostring(key).."}")
     logStatus("LFT: {"..tostring(lx)..","..tostring(ly).."}")
     logStatus("RGH: {"..tostring(rx)..","..tostring(ry).."}")
-    if    (lx and ly) then
-      S:SetCenter(lx,ly); S:Zoom( nZoom)
-    elseif(rx and ry) then
-      S:SetCenter(rx,ry); S:Zoom(-nZoom)
-    end
+    if    (lx and ly) then S:SetCenter(lx,ly); S:Zoom( nZoom)
+    elseif(rx and ry) then S:SetCenter(rx,ry); S:Zoom(-nZoom) end
     if    (key == S:GetKey("dirU")) then S:MoveCenter(0,-nStep)
     elseif(key == S:GetKey("dirD")) then S:MoveCenter(0, nStep)
     elseif(key == S:GetKey("dirL")) then S:MoveCenter(-nStep,0)
-    elseif(key == S:GetKey("dirR")) then S:MoveCenter( nStep,0) end
+    elseif(key == S:GetKey("dirR")) then S:MoveCenter( nStep,0)
+    elseif(key == S:GetKey("resS")) then 
+      S:SetArea(-szRe,szRe,-szIm,szIm):SetCenter(0,0,"POS"):Zoom(1) end
     S:Draw(sfrac,spale,iTer)
   end
 end
