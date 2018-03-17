@@ -10,7 +10,7 @@ io.stdout:setvbuf("no")
 local tPar
 
 logStatus("\nMethods starting with upper letter make internal changes and return /self/ .")
-logStatus("\nMethods starting with lower return somethng and do not change internals .")
+logStatus("\nMethods starting with lower return something and do not change internals .")
 
 logStatus("\nCreating complex")
 local a = complex.getNew(7,7):Print("1: ","\n")
@@ -21,7 +21,7 @@ a:getNew(-7,nil):Print("4: ","\n")
 a:getNew(nil,-7):Print("5: ","\n")
 a:getNew(-7,-7):Print("6: ","\n")
 
-logStatus("\nConverting complex from somrthing else "..tostring(a))
+logStatus("\nConverting complex from something else "..tostring(a))
 logStatus("The type of the first argument is used to identify what is converted !")
 tPar = {}
 
@@ -38,7 +38,7 @@ tPar[2] = {
 }
 
 tPar[3] = {
-  Name = "Table with viriety of key storage",
+  Name = "Table with variety of key storage",
   {Typ="string j", Arg={"7+j7"},Out="{7,7}"},
   {Typ="string j", Arg={"7+j7"},Out="{7,7}"},
   {Typ="string i", Arg={"7+7i"},Out="{7,7}"},
@@ -47,7 +47,7 @@ tPar[3] = {
 }
 
 tPar[3] = {
-  Name = "Table with viriety of key storage",
+  Name = "Table with variety of key storage",
   {Typ="default format", Arg={"7,7"},Out="{7,7}"},
   {Typ="default format", Arg={"7,-7"},Out="{7,-7}"},
   {Typ="default format", Arg={"-7,7"},Out="{-7,7}"},
@@ -74,7 +74,7 @@ tPar[4] = {
 }
 
 tPar[5] = {
-  Name = "Booleans and non-existent",
+  Name = "Boolean and non-existent",
   {Typ="boolean", Arg={true, true  },Out="{1,1}"},
   {Typ="boolean", Arg={true, false },Out="{1,0}"},
   {Typ="boolean", Arg={true,  nil  },Out="{1,0}"},
@@ -201,16 +201,18 @@ rd:getNew():Round(-0.1):Print("Round towards negative float  :","\n")
 logStatus("\nComparison operators")
 logStatus("Compare less            : "..tostring(complex.getNew(1,2) <  complex.getNew(2,3)))
 logStatus("Compare less or equal   : "..tostring(complex.getNew(1,2) <= complex.getNew(2,3)))
-logStatus("Compare geater          : "..tostring(complex.getNew(5,6) >  complex.getNew(2,3)))
+logStatus("Compare grater          : "..tostring(complex.getNew(5,6) >  complex.getNew(2,3)))
 logStatus("Compare greater or equal: "..tostring(complex.getNew(2,4) >= complex.getNew(2,3)))
 logStatus("Compare equal           : "..tostring(complex.getNew(1,2) == complex.getNew(1,2)))
 
 logStatus("\nComplex number call using the \"__call\" method "..tostring(a))
--- When calling the complex number as a function
--- the first argument is the method you want to call given as string,
--- the next are var-args, which are the parameters of the method.
--- The call will always return a status and varargs representing the result of the call.
--- For example let's set the complex number's real and imaginery parts via complex call.
+--[[
+  When calling the complex number as a function
+  the first argument is the method you want to call given as string,
+  the next are var-args, which are the parameters of the method.
+  The call will always return a status and varargs representing the result of the call.
+  For example let's set the complex number's real and imaginery parts via complex call.
+]]
 local bSuccess, cNum = a:getNew()("Set",1,1)
 if(bSuccess) then
   logStatus("The complex call was successful. The result is "..tostring(cNum).."\n")
@@ -242,12 +244,12 @@ for id = 1, #tTrig do
     logStatus(tTrig[id][1]..((rez == com) and "OK" or "FAIL").." >> "..com)
   else
     logStatus("There was a problem executing method <"..tTrig[id][1].."> at index #"..id)
-    logStatus("Error recieved: "..tostring(rez))
+    logStatus("Error received: "..tostring(rez))
   end
 end; logStatus("")
 
 local W, H   = 800, 800 -- Window size
-local dX, dY = 1, 1     -- Coordiante system step
+local dX, dY = 1, 1     -- Coordinate system step
 local gAlp   = 200      -- Coordinate system grey alpha level
 local R = 5             -- Roots base
 
@@ -256,19 +258,19 @@ size(W, H)
 zero(0, 0)
 updt(false) -- disable auto updates
 
--- Adjust the mapping intervals accrding to the number rooted
+-- Adjust the mapping intervals according to the number rooted
 local re, im = a:getParts()
 local intX = chartmap.New("interval","WinX", -re/2, re/2, 0, W)
 local intY = chartmap.New("interval","WinY", -im/2, im/2, H, 0)
 local _x0, _y0 = intX:Convert(0):getValue(), intY:Convert(0):getValue()
 
--- Allocate colors
+-- Allocate colours
 local clGrn = colr(colormap.getColorGreenRGB())
 local clRed = colr(colormap.getColorRedRGB())
 local clBlk = colr(colormap.getColorBlackRGB())
 local clGry = colr(colormap.getColorPadRGB(gAlp))
 
--- This is used to properly draw the coordiante system
+-- This is used to properly draw the coordinate system
 local function drawCoordinateSystem(w, h, dx, dy, mx, my)
   local xe, ye = 0, 0, 200
   for x = 0, mx, dx do
@@ -288,10 +290,10 @@ end
 
 --[[
   Custom function for drawing a number on the complex plane
-  The the first argument must always be the complex mumber
-  tat you are gonna draw a.k.a. SELF. The other parameters are
-  VARARG, which means you can use a bunch of then in the stack
-  In this example all athe arguments are local for this file
+  The the first argument must always be the complex number
+  that you are gonna draw a.k.a. SELF. The other parameters are
+  VARARG, which means you can use a bunch of them in the stack.
+  In this example all the arguments are local for this file
   so there is no point of extending the vararg on the stack
   Prototype: drawFunction(SELF, ...)
 ]]
