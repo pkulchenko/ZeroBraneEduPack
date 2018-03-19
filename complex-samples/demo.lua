@@ -12,17 +12,21 @@ size(W,H)
 zero(0, 0)
 updt(false) -- disable auto updates
 
-local drgCoef = 1
+local drgCoef = 2
 local nMarg   = 30
 local drwText = true
-local V0 = cmp.getNew(200,200):Print("Initial velocity: ","\n")
-local P  = cmp.convNew("0+j0"):Print("Position        : ","\n")
-local G  = cmp.convNew({0,-9.8}):Print("Gravity         : ","\n")
-local V  = cmp.convNew(V0):Print("Moment velocity : ","\n")
+local V0 = cmp.getNew(200,200):Print("Initial velocity : ","\n")
+local P  = cmp.convNew("0+j0"):Print("Position         : ","\n")
+local G  = cmp.convNew({0,-9.8}):Print("Gravity          : ","\n")
+local V  = cmp.convNew(V0):Print("Moment velocity  : ","\n")
+local Wv = cmp.convNew(-4,2):Print("Wind velocity    : ","\n")
 local minX, maxX, minY, maxY, traJ = 0, 0, 0, 0, {cmp.getNew(P)}
 
 while(P:getImag() >= 0) do
-  V:Add(G); P:Add(V:Sub(V:getUnit():Mul(-drgCoef)))
+  V:Add(G)                         -- Apply gravity
+  V:Add(V:getUnit():Mul(-drgCoef)) -- Calculate drag
+  V:Add(Wv)                        -- Add wind velocity
+  P:Add(V)                         -- Calcilate position
   traJ[#traJ+1] = P:getNew()
   local xP, yP = P:getParts()
   if(xP >= maxX) then maxX = xP end
