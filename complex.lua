@@ -213,35 +213,16 @@ function metaComplex:getCross(R, I)
   return (C*I - D*R)
 end
 
-function metaComplex:Sign()
+function metaComplex:Sign(bE, bC, bN)
+  if(bE) then return self:Apply(getSign) end
+  if(bC) then local R, I = self:getParts()
+    return ((R ~= 0) and getSign(R) or getSign(I)) end
+  if(bN) then return self:Apply(getSignNon) end
   return self:Unit()
 end
 
-function metaComplex:getSign()
-  return self:getNew():Sign()
-end
-
-function metaComplex:getCsgn()
-  local R, I = self:getParts()
-  if(R > 0) then return 1 end
-  if(R < 0) then return -1 end
-  return getSign(I)
-end
-
-function metaComplex:Sgnu()
-  return self:Apply(getSign)
-end
-
-function metaComplex:getSgnu()
-  return self:getNew():Sgnu()
-end
-
-function metaComplex:SgNon()
-  return self:Apply(getSignNon)
-end
-
-function metaComplex:getSgNon()
-  return self:getNew():SgNon()
+function metaComplex:getSign(bE, bC, bN)
+  return self:getNew():Sign(bE, bC, bN)
 end
 
 function metaComplex:Swap()

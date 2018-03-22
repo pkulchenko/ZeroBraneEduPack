@@ -8,6 +8,22 @@ local logStatus = common.logStatus
 io.stdout:setvbuf("no")
 
 local tPar
+local function makeTastCase(fCompl)
+  for ID = 1, #tPar do
+    local test = tPar[ID]
+    logStatus("Status: "..test.Name)
+    for IR = 1, #test do
+      local row = test[IR]
+      local num = tostring(fCompl(unpack(row.Arg)))
+      if(num ~= row.Out) then
+        logStatus("  FAIL: ("..row.Typ..") <"..num.."> = <"..row.Out..">")
+        logStatus("     Converting complex test #"..ID.." found mistmatch at index #"..IR)
+      else
+        logStatus("  OK: ("..row.Typ..") <"..num..">")
+      end
+    end
+  end
+end
 
 logStatus("\nMethods starting with upper letter make internal changes and return /self/ .")
 logStatus("\nMethods starting with lower return something and do not change internals .")
@@ -21,8 +37,10 @@ a:getNew(-7,nil):Print("4: ","\n")
 a:getNew(nil,-7):Print("5: ","\n")
 a:getNew(-7,-7):Print("6: ","\n")
 
+--------------------------------------------------------------------------
 logStatus("\nConverting complex from something else "..tostring(a))
 logStatus("The type of the first argument is used to identify what is converted !")
+
 tPar = {}
 
 tPar[1] = {
@@ -84,20 +102,22 @@ tPar[5] = {
   {Typ="non-existent", Arg={nil  , nil  },Out="{0,0}"}
 }
 
-for ID = 1, #tPar do
-  local test = tPar[ID]
-  logStatus("Status: "..test.Name)
-  for IR = 1, #test do
-    local row = test[IR]
-    local num = tostring(complex.convNew(unpack(row.Arg)))
-    if(num ~= row.Out) then
-      logStatus("  FAIL: ("..row.Typ..") <"..num.."> = <"..row.Out..">")
-      logStatus("     Converting complex test #"..ID.." found mistmatch at index #"..IR)
-    else
-      logStatus("  OK: ("..row.Typ..") <"..num..">")
-    end
-  end
-end
+makeTastCase(complex.convNew)
+-------------------------------------------------------------------------------------------------------
+logStatus("\nComplex signum "..tostring(a))
+
+tPar = {}
+
+tPar[1] = {
+  Name = "Test different flags for chosing the corrct sign function",
+  {Typ="element-wise", Arg={a, true, false, false}, Out="{1,1}"},
+  {Typ="c-sign"      , Arg={a, false, true, false}, Out=  "1"  },
+  {Typ="n-sign"      , Arg={a, false, false, true}, Out="{1,1}"},
+  {Typ="unit-sign"   , Arg={a}, Out="{0.70710678118655,0.70710678118655}"}
+}
+
+makeTastCase(a.getSign)
+-------------------------------------------------------------------------------------------------------
 
 logStatus("\nConverting to string. Variety of outputs "..tostring(a))
 logStatus("Export n/a 1: "..tostring(a))
