@@ -14,7 +14,8 @@ local function makeTastCase(fCompl)
     logStatus("Status: "..test.Name)
     for IR = 1, #test do
       local row = test[IR]
-      local num = tostring(fCompl(unpack(row.Arg)))
+      local fun = (row.Foo or fCompl)
+      local num = tostring(fun(unpack(row.Arg)))
       if(num ~= row.Out) then
         logStatus("  FAIL: ("..row.Typ..") <"..num.."> = <"..row.Out..">")
         logStatus("     Converting complex test #"..ID.." found mistmatch at index #"..IR)
@@ -39,9 +40,7 @@ a:getNew(-7,-7):Print("6: ","\n")
 
 --------------------------------------------------------------------------
 logStatus("\nConverting complex from something else "..tostring(a))
-logStatus("The type of the first argument is used to identify what is converted !")
-
-tPar = {}
+logStatus("The type of the first argument is used to identify what is converted !"); tPar = {}
 
 tPar[1] = {
   Name = "Directly using a complex with copy-constructor",
@@ -104,9 +103,7 @@ tPar[5] = {
 
 makeTastCase(complex.convNew)
 -------------------------------------------------------------------------------------------------------
-logStatus("\nComplex signum "..tostring(a))
-
-tPar = {}
+logStatus("\nComplex signum "..tostring(a)); tPar = {}
 
 tPar[1] = {
   Name = "Test different flags for chosing the corrct sign function",
@@ -118,22 +115,35 @@ tPar[1] = {
 
 makeTastCase(a.getSign)
 -------------------------------------------------------------------------------------------------------
+logStatus("\nConverting to string. Variety of outputs "..tostring(a)); tPar = {}
 
-logStatus("\nConverting to string. Variety of outputs "..tostring(a))
 logStatus("Export n/a 1: "..tostring(a))
-logStatus("Export n/s 2: "..a:getFormat())
-logStatus("Export table 3: "..a:getFormat("table"))
-logStatus("Export table 4: "..a:getFormat("table",1,"%f",1))
-logStatus("Export table 5: "..a:getFormat("table",3,"%5.2f",4))
-logStatus("Export table 6: "..a:getFormat("table",3,"%5.2f",4,"asd","fgh"))
-logStatus("Export string 1: "..a:getFormat("string"))
-logStatus("Export string 2: "..a:getFormat("string",1))
-logStatus("Export string 3: "..a:getFormat("string",1,false))
-logStatus("Export string 4: "..a:getFormat("string",1,true))
-logStatus("Export string 5: "..a:getFormat("string",2,true))
-logStatus("Export string 6: "..a:getFormat("string",3,true))
-logStatus("Export string 7: "..a:getFormat("string",4,true))
-logStatus("Export string 8: "..a:getFormat("string",4,true,"$"))
+tPar[1] = {
+  Name = "Simple export",
+  {Typ="Export n/s 2", Arg={a}, Out="{7,7}"}
+}
+
+tPar[2] = {
+  Name = "Table export",
+  {Typ="Export table 1", Arg={a,"table"}, Out="{[\"1\"]=7.000000,[\"2\"]=7.000000}"},
+  {Typ="Export table 2", Arg={a,"table",1,"%f",1}, Out="{[\"1\"]=7.000000,[\"2\"]=7.000000}"},
+  {Typ="Export table 3", Arg={a,"table",3,"%5.2f",4}, Out="<[\"real\"]= 7.00,[\"imag\"]= 7.00>"},
+  {Typ="Export table 4", Arg={a,"table",3,"%5.2f",4,"asd","fgh"}, Out="<[\"asd\"]= 7.00,[\"fgh\"]= 7.00>"}
+}
+
+tPar[3] = {
+  Name = "String export",
+  {Typ="Export string 1", Arg={a,"string"}           , Out="7+7i"},
+  {Typ="Export string 2", Arg={a,"string",1}         , Out="7+7i"},
+  {Typ="Export string 3", Arg={a,"string",1,false}   , Out="7+7i"},
+  {Typ="Export string 4", Arg={a,"string",1,true}    , Out="7+i7"},
+  {Typ="Export string 5", Arg={a,"string",2,true}    , Out="7+I7"},
+  {Typ="Export string 6", Arg={a,"string",3,true}    , Out="7+j7"},
+  {Typ="Export string 7", Arg={a,"string",4,true}    , Out="7+J7"},
+  {Typ="Export string 8", Arg={a,"string",4,true,"$"}, Out="7+$7"}
+}
+
+makeTastCase(a.getFormat)
 
 logStatus("\nConverting to polar coordinates and back "..tostring(a))
 local r, p = a:getPolar(); logStatus("1: "..r.."e^"..p.."i")
@@ -144,79 +154,118 @@ local r, d = a:getAngRad(), a:getAngDeg()
 logStatus("1: Angle in radian "..r.." is "..complex.toDegree(r).." in degrees")
 logStatus("2: Angle in degree "..d.." is "..complex.toRadian(d).." in radians")
 
-logStatus("\nClass methods "..tostring(a))
-local t = complex.getNew(a)
+--------------------------------------------------------
+logStatus("\nClass methods test"..tostring(a)); tPar= {}
 
-logStatus("\nAddition "..tostring(a))
-logStatus("Add 1: "..(a+1))
-logStatus("Add 2: "..(a+2):Round(0.01))
-logStatus("Add 3: "..t:Add(2):Round(0.01)); t:Set(a)
-t:Add(.7,.7):Round(0.01):Print("Add 4: "," >> a+(0.7+0.7i) \n"); t:Set(a)
-t:Add(a/10):Round(0.01):Print("Add 5: "," >> a+(0.7+0.7i) \n"); t:Set(a)
+tPar[1] ={
+  Name = "Addition "..tostring(a),
+  {Typ="Add 1" , Arg={a, 1}     ,Foo=a.__add , Out="{8,7}"},
+  {Typ="Add 2" , Arg={a, 2}     ,Foo=a.__add , Out="{9,7}"},
+  {Typ="Add 3" , Arg={a, 2}     ,Foo=a.getAdd, Out="{9,7}"},
+  {Typ="Add F1", Arg={a, .7, .7},Foo=a.getAdd, Out="{7.7,7.7}"},
+  {Typ="Add F2", Arg={a, a/10}  ,Foo=a.getAdd, Out="{7.7,7.7}"}
+}
 
-logStatus("\nSubstract "..tostring(a))
-logStatus("Sub 1: "..(a-1))
-logStatus("Sub 2: "..(a-2):Round(0.01))
-logStatus("Sub 3: "..t:Sub(2):Round(0.01)); t:Set(a)
-t:Sub(.7,.7):Round(0.01):Print("Add 4: "," >> a-(0.7+0.7i) \n"); t:Set(a)
-t:Sub(a/10):Round(0.01):Print("Add 5: "," >> a-(0.7+0.7i) \n"); t:Set(a)
+tPar[2] ={
+  Name = "Subtraction "..tostring(a),
+  {Typ="Sub 1" , Arg={a, 1}     ,Foo=a.__sub , Out="{6,7}"},
+  {Typ="Sub 2" , Arg={a, 2}     ,Foo=a.__sub , Out="{5,7}"},
+  {Typ="Sub 3" , Arg={a, 2}     ,Foo=a.getSub, Out="{5,7}"},
+  {Typ="Sub F1", Arg={a, .7, .7},Foo=a.getSub, Out="{6.3,6.3}"},
+  {Typ="Sub F2", Arg={a, a/10}  ,Foo=a.getSub, Out="{6.3,6.3}"}
+}
 
-logStatus("\nMultiplication "..tostring(a))
-logStatus("Mul 1: "..(a*1))
-logStatus("Mul 2: "..(a*2):Round(0.01))
-logStatus("Mul 3: "..t:Mul(2):Round(0.01)); t:Set(a)
-t:Mul(.7,.7):Round(0.01):Print("Mul 4: "," >> a*(0.7+0.7i) \n"); t:Set(a)
-t:Mul(a/10):Round(0.01):Print("Mul 5: "," >> a*(0.7+0.7i) \n"); t:Set(a)
+tPar[3] ={
+  Name = "Multiplication "..tostring(a),
+  {Typ="Mul 1" , Arg={a, 1}     ,Foo=a.__mul , Out="{7,7}"},
+  {Typ="Mul 2" , Arg={a, 2}     ,Foo=a.__mul , Out="{14,14}"},
+  {Typ="Mul 3" , Arg={a, 2}     ,Foo=a.getMul, Out="{14,14}"},
+  {Typ="Mul F1", Arg={a, .7, .7},Foo=a.getMul, Out="{0,9.8}"},
+  {Typ="Mul F2", Arg={a, a/10}  ,Foo=a.getMul, Out="{0,9.8}"}
+}
 
-logStatus("\nDivision "..tostring(a))
-logStatus("Div 1: "..(a/1))
-logStatus("Div 2: "..(a/2):Round(0.01))
-logStatus("Div 3: "..t:Div(2):Round(0.01)); t:Set(a)
-t:Div(.7,.7):Round(0.0001):Print("Div 4: "," >> a/(0.7+0.7i) \n"); t:Set(a)
-t:Div(a/10):Round(0.0001):Print("Div 5: "," >> a/(0.7+0.7i) \n"); t:Set(a)
+tPar[4] ={
+  Name = "Division "..tostring(a),
+  {Typ="Div 1" , Arg={a, 1}     ,Foo=a.__div , Out="{7,7}"},
+  {Typ="Div 2" , Arg={a, 2}     ,Foo=a.__div , Out="{3.5,3.5}"},
+  {Typ="Div 3" , Arg={a, 2}     ,Foo=a.getDiv, Out="{3.5,3.5}"},
+  {Typ="Div F1", Arg={a, .7, .7},Foo=a.getDiv, Out="{10,0}"},
+  {Typ="Div F2", Arg={a, a/10}  ,Foo=a.getDiv, Out="{10,0}"}
+}
 
-logStatus("\nPower "..tostring(a))
-logStatus("Pow 1: "..(a^1))
-logStatus("Pow 2: "..(a^2):Round(0.01))
-logStatus("Pow 3: "..t:Pow(2):Round(0.01)); t:Set(a)
-t:Pow(.7,.7):Round(0.0001):Print("Pow 4: "," >> a^(0.7+0.7i) \n"); t:Set(a) -- {-1.5828,2.3963}
-t:Pow(a/10):Round(0.0001):Print("Pow 5: "," >> a^(0.7+0.7i) \n"); t:Set(a)  -- {-1.5828,2.3963}
+tPar[5] ={
+  Name = "Power "..tostring(a),
+  {Typ="Pow 1" , Arg={a, 1}     ,Foo=a.__pow , Out="{7,7}"},
+  {Typ="Pow 2" , Arg={a, 2}     ,Foo=a.__pow , Out="{6.0005711337296e-015,98}"},
+  {Typ="Pow 3" , Arg={a, 2}     ,Foo=a.getPow, Out="{6.0005711337296e-015,98}"},
+  {Typ="Pow F1", Arg={a, .7, .7},Foo=a.getPow, Out="{-1.5827757183203,2.3963307116848}"},
+  {Typ="Pow F2", Arg={a, a/10}  ,Foo=a.getPow, Out="{-1.5827757183203,2.3963307116848}"}
+}
 
-logStatus("\nFlooring "..tostring(a))
-local f = (complex.getNew(a) + complex.convNew("0.5+0.5i")); t:Set(f)
-t:Floor():Print("Floor 1: "," >> floor(f)     << "..f.."\n"); t:Set(f)
-t:getFloor():Print("Floor 2: "," >> new floor(f) << "..f.."\n"); t:Set(f)
+local t = a:getNew():Add(complex.convNew("0.5+0.5i"))
 
-logStatus("\nCeiling "..tostring(a))
-local c = complex.getNew(a) + complex.convNew("0.5+0.5i"); t:Set(c)
-c:Ceil():Print("Floor 1: "," >> ceil(c)      << "..f.."\n"); t:Set(c)
-c:getCeil():Print("Floor 2: "," >> new ceil(c)  << "..f.."\n"); t:Set(c)
+tPar[6] ={
+  Name = "Floor "..tostring(a),
+  {Typ="Nude"   , Arg={t}              ,Foo=t.getFloor, Out="{7,7}"},
+  {Typ="ApplyFF", Arg={t, false, false},Foo=t.getFloor, Out="{7.5,7.5}"},
+  {Typ="ApplyFT", Arg={t, false, true },Foo=t.getFloor, Out="{7.5,7}"},
+  {Typ="ApplyTF", Arg={t, true, false },Foo=t.getFloor, Out="{7,7.5}"},
+  {Typ="ApplyTT", Arg={t, true,  true },Foo=t.getFloor, Out="{7,7}"}
+}
 
-logStatus("\nNegate "..tostring(a))
-local n = complex.getNew(a)
-complex.getNew(-n):Print("Neg 1: ","\n"); n:Set(a)
-complex.getNew(n:Neg()):Print("Neg 2: ","\n"); n:Set(a)
-complex.getNew(n:NegRe()):Print("Neg 3: ","\n"); n:Set(a)
-complex.getNew(n:NegIm()):Print("Neg 4: ","\n"); n:Set(a)
-complex.getNew(n:Conj()):Print("Neg 5: ","\n"); n:Set(a)
-n:getNeg():Print("new Neg 1: ","\n"); n:Set(a)
-n:getNegRe():Print("new Neg 2: ","\n"); n:Set(a)
-n:getNegIm():Print("new Neg 3: ","\n"); n:Set(a)
-n:getConj():Print("new Neg 4: ","\n"); n:Set(a)
+tPar[7] ={
+  Name = "Ceil "..tostring(a),
+  {Typ="Nude"   , Arg={t}              ,Foo=t.getCeil, Out="{8,8}"},
+  {Typ="ApplyFF", Arg={t, false, false},Foo=t.getCeil, Out="{7.5,7.5}"},
+  {Typ="ApplyFT", Arg={t, false, true },Foo=t.getCeil, Out="{7.5,8}"},
+  {Typ="ApplyTF", Arg={t, true, false },Foo=t.getCeil, Out="{8,7.5}"},
+  {Typ="ApplyTT", Arg={t, true,  true },Foo=t.getCeil, Out="{8,8}"}
+}
 
-logStatus("\nRound "..tostring(a))
-logStatus("Positive away from zero "..tostring(a))
+tPar[8] ={
+  Name = "Ceil "..tostring(a),
+  {Typ="Neg"  , Arg={a}              ,Foo=t.getNeg  , Out="{-7,-7}"},
+  {Typ="NegRe", Arg={a, false, false},Foo=t.getNegRe, Out="{-7,7}"},
+  {Typ="NegIm", Arg={a, false, true },Foo=t.getNegIm, Out="{7,-7}"},
+  {Typ="Conj" , Arg={a, true, false },Foo=t.getConj , Out="{7,-7}"},
+}
+
 local ru = ( a:getNew() * 10 + complex.convNew(" 0.36+0.36j")):Print("Positive : ","\n")
 local rd = (-a:getNew() * 10 + complex.convNew("-0.36-0.36j")):Print("Negative : ","\n")
-ru:getNew():Round(0 or nil):Print("Zero     :","\n")
-ru:getNew():Round(1):Print("Round away positive integer   :","\n")
-ru:getNew():Round(0.1):Print("Round away positive float     :","\n")
-ru:getNew():Round(-1):Print("Round towards positive integer:","\n")
-ru:getNew():Round(-0.1):Print("Round towards positive float  :","\n")
-rd:getNew():Round(1):Print("Round away negative integer   :","\n")
-rd:getNew():Round(0.1):Print("Round away negative float     :","\n")
-rd:getNew():Round(-1):Print("Round towards negative integer:","\n")
-rd:getNew():Round(-0.1):Print("Round towards negative float  :","\n")
+
+tPar[9] ={
+  Name = "Round positive "..tostring(a),
+  {Typ="Nude"                          , Arg={nil}    ,Foo=t.getRound, Out="{0,0}"},
+  {Typ="Zero"                          , Arg={0}      ,Foo=t.getRound, Out="{0,0}"},
+  {Typ="Round away positive integer"   , Arg={t,  1  },Foo=t.getRound, Out="{70,70}"},
+  {Typ="Round away positive float"     , Arg={t,  0.1},Foo=t.getRound, Out="{70.4,70.4}"},
+  {Typ="Round towards positive integer", Arg={t, -1  },Foo=t.getRound, Out="{70,70}"},
+  {Typ="Round towards positive float"  , Arg={t, -0.1},Foo=t.getRound, Out="{70.3,70.3}"}
+}
+
+tPar[9] ={
+  Name = "Round negative "..tostring(a),
+  -- {Typ="Nil (ERROR)"          , Arg={ru, nil },Foo=t.getRound, Out="{0,0}"},
+  {Typ="Zero"                 , Arg={ru,  0  },Foo=t.getRound, Out="{0,0}"},
+  {Typ="Round away integer"   , Arg={ru,  1  },Foo=t.getRound, Out="{70,70}"},
+  {Typ="Round away float"     , Arg={ru,  0.1},Foo=t.getRound, Out="{70.4,70.4}"},
+  {Typ="Round towards integer", Arg={ru, -1  },Foo=t.getRound, Out="{70,70}"},
+  {Typ="Round towards float"  , Arg={ru, -0.1},Foo=t.getRound, Out="{70.3,70.3}"}
+}
+
+tPar[10] ={
+  Name = "Round negative "..tostring(a),
+  -- {Typ="Nil (ERROR)"          , Arg={rd, nil },Foo=t.getRound, Out="{0,0}"},
+  {Typ="Zero"                 , Arg={rd,  0  },Foo=t.getRound, Out="{-0,-0}"},
+  {Typ="Round away integer"   , Arg={rd,  1  },Foo=t.getRound, Out="{-70,-70}"},
+  {Typ="Round away float"     , Arg={rd,  0.1},Foo=t.getRound, Out="{-70.4,-70.4}"},
+  {Typ="Round towards integer", Arg={rd, -1  },Foo=t.getRound, Out="{-70,-70}"},
+  {Typ="Round towards float"  , Arg={rd, -0.1},Foo=t.getRound, Out="{-70.3,-70.3}"}
+}
+
+
+makeTastCase()
+--------------------------------------------------------
 
 logStatus("\nComparison operators")
 logStatus("Compare less            : "..tostring(complex.getNew(1,2) <  complex.getNew(2,3)))

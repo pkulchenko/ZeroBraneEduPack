@@ -383,16 +383,16 @@ function metaComplex:Floor(bR, bI)
   return self:Apply(math.floor, bR, bI)
 end
 
-function metaComplex:getFloor()
-  return self:getNew():Floor()
+function metaComplex:getFloor(bR, bI)
+  return self:getNew():Floor(bR, bI)
 end
 
-function metaComplex:Ceil()
+function metaComplex:Ceil(bR, bI)
   return self:Apply(math.ceil, bR, bI)
 end
 
-function metaComplex:getCeil()
-  return self:getNew():Ceil()
+function metaComplex:getCeil(bR, bI)
+  return self:getNew():Ceil(bR, bI)
 end
 
 function metaComplex:getNorm2()
