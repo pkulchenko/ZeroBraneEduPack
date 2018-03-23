@@ -223,7 +223,7 @@ tPar[7] ={
 }
 
 tPar[8] ={
-  Name = "Ceil "..tostring(a),
+  Name = "Negate "..tostring(a),
   {Typ="Neg"  , Arg={a}              ,Foo=t.getNeg  , Out="{-7,-7}"},
   {Typ="NegRe", Arg={a, false, false},Foo=t.getNegRe, Out="{-7,7}"},
   {Typ="NegIm", Arg={a, false, true },Foo=t.getNegIm, Out="{7,-7}"},
@@ -244,7 +244,7 @@ tPar[9] ={
 }
 
 tPar[9] ={
-  Name = "Round negative "..tostring(a),
+  Name = "Round positive "..tostring(ru),
   -- {Typ="Nil (ERROR)"          , Arg={ru, nil },Foo=t.getRound, Out="{0,0}"},
   {Typ="Zero"                 , Arg={ru,  0  },Foo=t.getRound, Out="{0,0}"},
   {Typ="Round away integer"   , Arg={ru,  1  },Foo=t.getRound, Out="{70,70}"},
@@ -254,7 +254,7 @@ tPar[9] ={
 }
 
 tPar[10] ={
-  Name = "Round negative "..tostring(a),
+  Name = "Round negative "..tostring(rd),
   -- {Typ="Nil (ERROR)"          , Arg={rd, nil },Foo=t.getRound, Out="{0,0}"},
   {Typ="Zero"                 , Arg={rd,  0  },Foo=t.getRound, Out="{-0,-0}"},
   {Typ="Round away integer"   , Arg={rd,  1  },Foo=t.getRound, Out="{-70,-70}"},
@@ -390,7 +390,7 @@ if(r) then
   for id = 1, #r do
     logStatus(r[id].."^"..R.." = "..(r[id]^R))
     r[id]:Action("This your action key !"); updt()
-    wait(0.3)
+    wait(0.1)
   end
 end
 
