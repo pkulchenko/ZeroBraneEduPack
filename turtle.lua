@@ -81,13 +81,13 @@ local function showTurtle(turtle)
   mdc:SetPen(pen)
 
   local angle = turtle.angle
-  local dist = 10
-  local x1 = round(turtle.x + dist * math.cos(angle * math.pi/180))
-  local y1 = round(turtle.y + dist * math.sin(angle * math.pi/180))
-  local x2 = round(turtle.x + dist * math.cos((angle +120) * math.pi/180))
-  local y2 = round(turtle.y + dist * math.sin((angle +120) * math.pi/180))
-  local x3 = round(turtle.x + dist * math.cos((angle -120) * math.pi/180))
-  local y3 = round(turtle.y + dist * math.sin((angle -120) * math.pi/180))
+  local dist, rad = 10, (math.pi / 180)
+  local x1 = round(turtle.x + dist * math.cos(angle * rad))
+  local y1 = round(turtle.y + dist * math.sin(angle * rad))
+  local x2 = round(turtle.x + dist * math.cos((angle + 120) * rad))
+  local y2 = round(turtle.y + dist * math.sin((angle + 120) * rad))
+  local x3 = round(turtle.x + dist * math.cos((angle - 120) * rad))
+  local y3 = round(turtle.y + dist * math.sin((angle - 120) * rad))
 
   mdc:DrawLine(x1, y1, x2, y2)
   mdc:DrawLine(x2, y2, x3, y3)

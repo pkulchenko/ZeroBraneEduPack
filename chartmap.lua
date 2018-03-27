@@ -1,3 +1,6 @@
+-- Copyright (C) 2017-2018 Deyan Dobromirov
+-- A chart mapping functoinalities library
+
 local common       = require("common")
 local type         = type
 local tonumber     = tonumber
@@ -6,6 +9,11 @@ local setmetatable = setmetatable
 local math         = math
 local logStatus    = common.logStatus
 local chartmap     = {}
+
+if not debug.getinfo(3) then
+  print("This is a module to load with `local chartmap = require('chartmap')`.")
+  os.exit(1)
+end
 
 --[[
  * newInterval: Class that maps one interval onto another

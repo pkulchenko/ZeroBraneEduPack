@@ -1,3 +1,6 @@
+-- Copyright (C) 2017-2018 Deyan Dobromirov
+-- A complex functoinalities library
+
 local common       = require("common")
 local type         = type
 local math         = math
@@ -19,6 +22,11 @@ local getValueKeys = common.getValueKeys
 local isString     = common.isString
 local isNil        = common.isNil
 local getPick      = common.getPick
+
+if not debug.getinfo(3) then
+  print("This is a module to load with `local complex = require('complex')`.")
+  os.exit(1)
+end
 
 metaComplex.__type  = "complex.complex"
 metaComplex.__index = metaComplex

@@ -1,3 +1,6 @@
+-- Copyright (C) 2017-2018 Deyan Dobromirov
+-- A common functoinalities library
+
 local os           = os
 local math         = math
 local type         = type
@@ -9,6 +12,12 @@ local tostring     = tostring
 local getmetatable = getmetatable
 local common       = {}
 local metaCommon   = {}
+
+if not debug.getinfo(3) then
+  print("This is a module to load with `local common = require('common')`.")
+  os.exit(1)
+end
+
 metaCommon.__time = 0
 metaCommon.__func = {}
 metaCommon.__type = {"number", "boolean", "string", "function", "table"}
@@ -166,7 +175,31 @@ end
 
 function common.stringTrim(sStr, sCh)
   local sCh = tostring(sCh or "%s")
-	return sStr:match("^"..sCh.."*(.-)"..sCh.."*$" ) or sStr
+  return sStr:match("^"..sCh.."*(.-)"..sCh.."*$" ) or sStr
+end
+
+function common.stringGetExtension(src)
+  return src:match("%.([^%.]+)$")
+end
+
+function common.stringStripExtension(src)
+  local pos = src:match(".+()%.%w+$")
+  if(pos) then return src:sub(1, pos-1) end
+  return src
+end
+
+function common.stringGetFilePath(src)
+  return (src:match("^(.*[/\\])[^/\\]-$") or "")
+end
+
+function common.stringGetFileName(src)
+  if (not (src:find("\\") or src:find("/"))) then return src end
+  return (src:match("[\\/]([^/\\]+)$") or "")
+end
+
+function common.stringGetChunkPath()
+  local src = debug.getinfo(2).source
+  return common.stringGetFilePath(src:gsub("@","",1))
 end
 
 local function stringParseTableRec(sRc, fCnv, tInfo, nStg)

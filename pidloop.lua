@@ -1,3 +1,6 @@
+-- Copyright (C) 2017-2018 Deyan Dobromirov
+-- Control theory and PID controllers loop
+
 local common       = require("common")
 local type         = type
 local tonumber     = tonumber
@@ -8,6 +11,11 @@ local logStatus    = common.logStatus
 local toBool       = common.toBool
 local getSign      = common.getSign
 local pidloop      = {}
+
+if not debug.getinfo(3) then
+  print("This is a module to load with `local pidloop = require('pidloop')`.")
+  os.exit(1)
+end
 
 --[[
 * newControl: Class state processing manager

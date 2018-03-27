@@ -15,6 +15,7 @@ local getClamp    = clmap.getClamp
 local getColorMap = clmap.getColorMap
 local getColorHSL = clmap.getColorHSL
 local getColorHSV = clmap.getColorHSV
+local getChunkLoc = commn.stringGetChunkPath
 
 -- https://upload.wikimedia.org/wikipedia/commons/b/b3/Mandel_zoom_07_satellite.jpg
 clmap.setColorMap("wikipedia",{
@@ -48,20 +49,19 @@ local szIm  = 2
 local nStep = 35
 local nZoom = 15
 local iTer  = 1000
-local sfrac = "mandelbrot"
-local spale = "wikipedia"
+local sfrac = "julia4"
+local spale = "wikipedia" 
 local brdcl = nil -- colr(0, 250, 100)
 local brdup = nil -- true
+local sTitl = "Fractal plot 2D"
 
 --- Dinamic parameters and constants
 local cexp   = compl.getNew(math.exp(1))
 local w2, h2 = W/2, H/2
 local gr     = 1.681
 
-open("Fractal plot 2D")
-size(W,H)
-zero(0, 0)
-updt(false) -- disable auto updates
+open(sTitl); size(W,H)
+zero(0, 0); updt(false) -- disable auto updates
 
 --[[
 Some interesing places ( Mandelbrot )
@@ -108,9 +108,10 @@ while true do local key = char(); wait(0.1)
     elseif(key == S:GetKey("dirD")) then S:MoveCenter(0, nStep)
     elseif(key == S:GetKey("dirL")) then S:MoveCenter(-nStep,0)
     elseif(key == S:GetKey("dirR")) then S:MoveCenter( nStep,0)
+    elseif(key == S:GetKey("savE")) then save(getChunkLoc().."snapshot")
     elseif(key == S:GetKey("resS")) then 
-      S:SetArea(-szRe,szRe,-szIm,szIm):SetCenter(0,0,"POS"):Zoom(1) end
-    S:Draw(sfrac,spale,iTer)
+      S:SetArea(-szRe,szRe,-szIm,szIm):SetCenter(0,0,"POS"):Zoom(1)
+    end; S:Draw(sfrac,spale,iTer)
   end
 end
 

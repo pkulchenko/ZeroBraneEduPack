@@ -1,3 +1,6 @@
+-- Copyright (C) 2017-2018 Deyan Dobromirov
+-- A general fractals calculation library
+
 local complex      = require("complex")
 local common       = require("common")
 local type         = type
@@ -8,6 +11,11 @@ local tostring     = tostring
 local setmetatable = setmetatable
 local logStatus    = common.logStatus
 local fractal      = {}
+
+if not debug.getinfo(3) then
+  print("This is a module to load with `local fractal = require('fractal')`.")
+  os.exit(1)
+end
 
 local mtPlaneZ     = {}
 mtPlaneZ.__type    = "fractal.z-plane"
@@ -27,7 +35,7 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
     conKeys.dirU, conKeys.dirD = (wx["WXK_UP"]   or -1), (wx["WXK_DOWN"]  or -1)
     conKeys.dirL, conKeys.dirR = (wx["WXK_LEFT"] or -1), (wx["WXK_RIGHT"] or -1)
     conKeys.zooP, conKeys.zooM = (wx["wxEVT_LEFT_DOWN"] or -1), (wx["wxEVT_LEFT_DOWN"] or -1)
-    conKeys.resS = (wx["WXK_ESCAPE"] or -1); return self
+    conKeys.resS, conKeys.savE = (wx["WXK_ESCAPE"] or -1), (wx["WXK_TAB"] or -1); return self
   end
   function self:GetKey(sKey) return conKeys[tostring(sKey)] end
   function self:SetArea(vminRe, vmaxRe, vminIm, vmaxIm)
