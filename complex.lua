@@ -36,6 +36,7 @@ metaData.__valre = 0
 metaData.__cactf = {}
 metaData.__valns = "X"
 metaData.__margn = 1e-10
+metaData.__splin = 0.01
 metaData.__getpi = math.pi
 metaData.__bords = {"{([<|/","})]>|/"}
 metaData.__ssyms = {"i", "I", "j", "J"}
@@ -757,6 +758,25 @@ function complex.convNew(vIn, ...)
     else return stringToComplex(Str, S, E, tArg[1]) end
   end
   return logStatus("complex.convNew: Type <"..tyIn.."> not supported",nil)
+end
+
+local function getBezierCurveVertexRec(nS, tV)
+  local tD, tP, nD = {}, {}, (#tV-1)
+  for ID = 1, nD do tD[ID] = tV[ID+1]:getNew():Sub(tV[ID]) end
+  for ID = 1, nD do tP[ID] = tV[ID]:getAdd(tD[ID]:getRsz(nS)) end
+  if(nD > 1) then return getBezierCurveVertexRec(nS, tP) end
+  return tP[1], tD[1]
+end
+
+function metaComplex:getBezierCurve(...)
+  local tV, dT, nT = {self, ...}, metaData.__splin, 0
+  if(not tV[1]) then return nil end
+  if(not complex.isValid(tV[1])) then return nil end
+  local tS, ID = {}, 1
+  while(nT < 1) do nT = nT + dT
+    local vP, vD = getBezierCurveVertexRec(nT, tV)
+    tS[ID] = vP; ID = ID + 1
+  end; return tS
 end
 
 return complex
