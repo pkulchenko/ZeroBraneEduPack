@@ -549,6 +549,19 @@ function common.arMirror2D(tArr,sX,sY,fX,fY)
   end
 end
 
+function common.logStackTB(sMsg, ...)
+  local iLev = 1; if(sMsg) then
+    common.logStatus(tostring(sMsg)) end
+  while(true) do
+    local tInf = debug.getinfo(iLev)
+    if(not tInf)then break end
+    if tInf.what ~= "C" then
+      common.logStatus(("[%s]:%d {%s} [%d]<%s>[%s]"):format(
+        tInf.source, tInf.currentline, tInf.what, tInf.linedefined, tInf.namewhat, tInf.name))
+    end; iLev = iLev + 1
+  end; return ...
+end
+
 common.randomSetSeed()
 
 return common
