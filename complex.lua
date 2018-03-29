@@ -788,11 +788,11 @@ function complex.getBezierCurve(...)
   if(not complex.isValid(tV[2])) then
     return logStatus("complex.getBezierCurve: Second vertex invalid <"..type(tV[2])..">",nil) end
   local ID, cT, dT, tS = 1, 0, (1/nT), {}
-  tS[ID] = {tV[ID]:getNew(), tV[ID+1]:getSub(tV[ID]):Unit(), 0}
+  tS[ID] = {tV[ID]:getNew(), tV[ID+1]:getSub(tV[ID]), 0}
   cT, ID = (cT + dT), (ID + 1); while(cT < 1) do
     local vP, vD = getBezierCurveVertexRec(cT, tV)
     tS[ID] = {vP, vD, cT}; cT, ID = (cT + dT), (ID + 1)
-  end; tS[ID] = {tV[nV]:getNew(), tV[nV]:getSub(tV[nV-1]):Unit(), 1}; return tS
+  end; tS[ID] = {tV[nV]:getNew(), tV[nV]:getSub(tV[nV-1]), 1}; return tS
 end
 
 return complex
