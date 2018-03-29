@@ -20,6 +20,8 @@ local roundValue   = common.getRound
 local getClamp     = common.getClamp
 local getValueKeys = common.getValueKeys
 local isString     = common.isString
+local isNumber     = common.isNumber
+local isTable      = common.isTable
 local isNil        = common.isNil
 local getPick      = common.getPick
 
@@ -36,7 +38,8 @@ metaData.__valre = 0
 metaData.__cactf = {}
 metaData.__valns = "X"
 metaData.__margn = 1e-10
-metaData.__splin = 0.01
+metaData.__curve = 100
+metaData.__kurve = {"n","N","cnt","Cnt"}
 metaData.__getpi = math.pi
 metaData.__bords = {"{([<|/","})]>|/"}
 metaData.__ssyms = {"i", "I", "j", "J"}
@@ -768,15 +771,28 @@ local function getBezierCurveVertexRec(nS, tV)
   return tP[1], tD[1]
 end
 
-function metaComplex:getBezierCurve(...)
-  local tV, dT, nT = {self, ...}, metaData.__splin, 0
-  if(not tV[1]) then return nil end
-  if(not complex.isValid(tV[1])) then return nil end
-  local tS, ID = {}, 1
-  while(nT < 1) do nT = nT + dT
-    local vP, vD = getBezierCurveVertexRec(nT, tV)
-    tS[ID] = vP; ID = ID + 1
-  end; return tS
+function complex.getBezierCurve(...)
+  local tV = {...}; local nV, nT = #tV, 0
+  local tK, nC = metaData.__kurve, metaData.__curve
+  if(complex.isValid(tV[1])) then local nN = tonumber(tV[nV])
+    nT = getPick(nN, nN, nC); if(nN) then tV[nV] = nil end; nV = #tV
+  else local kN = getValueKeys(tV[1], tK)
+    nT = getPick(tonumber(kN), tonumber(kN), nC)
+    if(tonumber(tV[2])) then nT = tonumber(tV[2]) end; tV = tV[1]; nV = #tV
+  end; nT = math.floor(nT); if(nT < 2) then
+    return logStatus("complex.getBezierCurve: Curve samples not enough ",nil) end
+  if(not (tV[1] and tV[2])) then
+    return logStatus("complex.getBezierCurve: Two vertexes are needed ",nil) end
+  if(not complex.isValid(tV[1])) then
+    return logStatus("complex.getBezierCurve: First vertex invalid <"..type(tV[1])..">",nil) end
+  if(not complex.isValid(tV[2])) then
+    return logStatus("complex.getBezierCurve: Second vertex invalid <"..type(tV[2])..">",nil) end
+  local ID, cT, dT, tS = 1, 0, (1/nT), {}
+  tS[ID] = {tV[ID]:getNew(), tV[ID+1]:getSub(tV[ID]):Unit(), 0}
+  cT, ID = (cT + dT), (ID + 1); while(cT < 1) do
+    local vP, vD = getBezierCurveVertexRec(cT, tV)
+    tS[ID] = {vP, vD, cT}; cT, ID = (cT + dT), (ID + 1)
+  end; tS[ID] = {tV[nV]:getNew(), tV[nV]:getSub(tV[nV-1]):Unit(), 1}; return tS
 end
 
 return complex
