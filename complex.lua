@@ -628,8 +628,8 @@ function complex.getIntersectRayCircle(cO, cD, cC, nR)
   local nA = cD:getNorm2(); if(nA <= metaData.__margn) then
     return logStatus("complex.getIntersectRayCircle: Norm less than margin", nil) end
   local cR = cO:getNew():Sub(cC)
-  local nB, nC = 2*cD:getDot(cR), (cR:getNorm2() - nR^2)
-  local nD = nB^2-4*nA*nC; if(nD < 0) then
+  local nB, nC = 2 * cD:getDot(cR), (cR:getNorm2() - nR^2)
+  local nD = (nB^2 - 4*nA*nC); if(nD < 0) then
     return logStatus("complex.getIntersectRayCircle: Irrational roots", nil) end
   local dA = (1/(2*nA)); nD, nB = dA*math.sqrt(nD), -nB*dA
   local xF = cD:getNew():Mul(nB + nD):Add(cO)

@@ -23,6 +23,7 @@ metaCommon.__func = {}
 metaCommon.__type = {"number", "boolean", "string", "function", "table"}
 metaCommon.__syms = "1234567890abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ"
 metaCommon.__metatable = "common.lib"
+metaCommon.__nlog = {__top = 0}
 
 metaCommon.__func["pi"] = {}
 metaCommon.__func["pi"].foo = function (itr, top)
@@ -53,12 +54,42 @@ metaCommon.__func["phi"].out = function(itr)
   return metaCommon.__func["phi"].foo(0, itr)
 end
 
-function common.logStatus(anyMsg, ...)
-  io.write(tostring(anyMsg).."\n"); return ...
+function common.logSkipAdd(...)
+  local tArg, tNlg = {...}, metaCommon.__nlog
+  for key, val in pairs(tArg) do
+    table.insert(tNlg, tostring(val))
+    tNlg.__top = tNlg.__top + 1
+  end
+end
+
+function common.logSkipClear(...)
+  local tNlg = metaCommon.__nlog
+  if(common.isDryTable(tNlg)) then tNlg.__top = 0
+    for key, val in pairs(tNlg) do tNlg[key] = nil end
+  else local tArg = {...}
+    for key, val in pairs(tArg) do
+      local sVal = tostring(val); for ind, now in pairs(tNlg) do
+        if(tostring(now):find(sVal)) then tNlg[ind] = nil end
+      end
+    end
+  end; local nTop = tNlg.__top
+  while(not tNlg[nTop]) do nTop = nTop - 1 end
+  tNlg.__top = nTop; collectgarbage(); print(nTop)
 end
 
 function common.logString(anyMsg, ...)
-  io.write(tostring(anyMsg)); return ...
+  local tNlg = metaCommon.__nlog
+  local nB, nT, sM = 1, tNlg.__top, tostring(anyMsg)
+  while(nB <= nT) do
+    local vB, vT = tNlg[nB], tNlg[nT]
+    if(vB and sM:find(vB)) then return ... end
+    if(vT and sM:find(vT)) then return ... end
+    nB, nT = (nB + 1), (nT - 1)
+  end; io.write(sM); return ...
+end
+
+function common.logStatus(anyMsg, ...)
+  return common.logString(tostring(anyMsg).."\n")
 end
 
 function common.isNil(nVal)
