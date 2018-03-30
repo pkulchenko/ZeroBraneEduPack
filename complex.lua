@@ -649,6 +649,19 @@ function complex.getReflectRayCircle(cO, cD, cC, nR, xF)
   return complex.getReflectRayLine(cO, cD, xN, cE)
 end
 
+function complex.getIntersectCircleCircle(cO1, nR1, cO2, nR2)
+  local cS, cA = cO2:getSub(cO1), cO2:getAdd(cO1)
+  local nD, nRA, nRS = cS:getNorm2(), (nR1 + nR2), (nR1 - nR2)
+  if(nRA^2 < nD) then return nil end
+  local dR = (nRA^2 - nD) * (nD - nRS^2)
+  if(dR < 0) then return nil end
+  local nK = 0.25 * math.sqrt(dR)
+  local cV = cS:getSwap():Mul(2, -2, true):Rsz(nK / nD)
+  local mR = (0.5 * (nR1^2 - nR2^2)) / nD
+  local xB = cA:getRsz(0.5):Add(cS:getRsz(mR))
+  return xB:getAdd(cV), xB:getSub(cV)
+end
+
 function complex.getEuler(vRm, vPh)
   local nRm, nPh = (tonumber(vRm) or 0), (tonumber(vPh) or 0)
   return self:getNew(math.cos(nPh),math.sin(nPh)):Rsz(nRm)

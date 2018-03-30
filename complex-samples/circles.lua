@@ -81,7 +81,7 @@ updt(false) -- disable auto updates
 
 drawCoordinateSystem(W, H, dX, dY, maxX, maxY)
 
-cRay1, cRay2, drw, rad = {}, {}, true, 0
+cRay1, cRay2, drw, R1, R2 = {}, {}, true, 0, 0
 
 while true do
   wait(0.2)
@@ -89,17 +89,24 @@ while true do
   local lx, ly = clck('ld')
   local rx, ry = clck('rd')
   if(lx and ly and #cRay1 < 2) then -- Reverse the interval conversion polarity
-    lx = intX:Convert(lx,true):getValue() -- It helps by converting x,y from positive integers to the interval above
+    lx = intX:Convert(lx,true):getValue()
     ly = intY:Convert(ly,true):getValue()
-    local C = cmp.getNew(lx, ly)
-    cRay1[#cRay1+1] = C; C:Action("xy", clBlu)
-    if(#cRay1 == 2) then cRay1[1]:Action("ab", cRay1[2], clBlu) end
+    local C = cmp.getNew(lx, ly); C:Action("xy", clBlu); cRay1[#cRay1+1] = C
+    if(#cRay1 == 2) then cRay1[1]:Action("ab", cRay1[2], clBlu)
+      R1 = (cRay1[2] - cRay1[1]):getNorm()
+      local b1, v1 = cRay1[2]:Action("conv")
+      local b2, v2 = cRay1[1]:Action("conv")
+      local vr = (v2 - v1):getNorm()
+      local cx = intX:Convert(cRay1[1]:getReal()):getValue()
+      local cy = intY:Convert(cRay1[1]:getImag()):getValue()
+      pncl(clBlu); crcl(cx, cy, vr)
+    end
   elseif(rx and ry and #cRay2 < 2) then -- Reverse-convert x, y position to a complex number
     rx = intX:Convert(rx,true):getValue()
     ry = intY:Convert(ry,true):getValue()
     local C = cmp.getNew(rx, ry); C:Action("xy", clRed); cRay2[#cRay2+1] = C
     if(#cRay2 == 2) then cRay2[1]:Action("ab", cRay2[2], clRed)
-      rad = (cRay2[2] - cRay2[1]):getNorm()
+      R2 = (cRay2[2] - cRay2[1]):getNorm()
       local b1, v1 = cRay2[2]:Action("conv")
       local b2, v2 = cRay2[1]:Action("conv")
       local vr = (v2 - v1):getNorm()
@@ -109,21 +116,12 @@ while true do
     end
   end
   if(drw and #cRay1 == 2 and #cRay2 == 2) then
-    local cD = (cRay1[2]-cRay1[1])
-    local xN, xF = cmp.getIntersectRayCircle(cRay1[1], cD, cRay2[1], rad)
-    if(xN) then xN:Action("xy", clMgn); xF:Action("xy", clBlk)
-      local cR, cN = cmp.getReflectRayCircle(cRay1[1], cD, cRay2[1], rad)
-      logStatus("The ray has intersected the circle at "..xN.."/"..xF)
-      if(cN) then local nL = cD:getNorm()
-        cN:Mul(nL / 2):Add(xN); cR:Mul(cD:getNorm()):Add(xN)
-        cN:Action("ab", xN, clMgn); cR:Action("ab", xN, clMgn)
-        logStatus("Reflected ray from the circle is "..cR)
-        cmp.getNew():ProjectCircle(cRay2[1], rad):Action("xy", clMgn, 6)
-        local cV = xN:getSub(cRay2[1])
-        cV:getRight():Add(xN):Action("ab", xN, clGrn)
-        cV:getLeft():Add(xN):Action("ab", xN, clBlk)
-        xN:Action("ab", cRay2[1], clCya)
-      end
+    local xR, xL = cmp.getIntersectCircleCircle(cRay1[1], R1, cRay2[1], R2)
+    if(xR) then
+      xR:Action("ab", xL, clMgn); cRay1[1]:Action("ab", cRay2[1], clMgn)
+      xR:Action("xy", clGrn); xL:Action("xy", clBlk)
+      logStatus("Intersection add (right) is "..xR)
+      logStatus("Intersection sub (left)  is "..xL)
     else
       logStatus("The needed conditions are not met for the intersection to happen")
     end; drw = false
