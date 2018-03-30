@@ -645,8 +645,9 @@ function complex.getReflectRayLine(cO, cD, cS, cE)
 end
 
 function complex.getReflectRayCircle(cO, cD, cC, nR, xF)
-  local xN = (xF and xF or complex.getIntersectRayCircle(cO, cD, cC, nR)); if(not xN) then
-    return logStatus("complex.getReflectRayCircle: Intersection missing", nil) end
+  local xN = (xF and xF or complex.getIntersectRayCircle(cO, cD, cC, nR))
+  if(not complex.isValid(xN)) then return logStatus("complex.getReflectRayCircle: "..
+    "Intersection invalid {"..type(xN).."}["..tostring(xN).."]", nil) end
   local cE = xN:getNew():Sub(cC):Right():Add(xN)
   return complex.getReflectRayLine(cO, cD, xN, cE)
 end

@@ -1,5 +1,5 @@
 -- Copyright (C) 2017-2018 Deyan Dobromirov
--- A common functoinalities library
+-- A common functionalities library
 
 local os           = os
 local math         = math
