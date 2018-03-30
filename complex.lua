@@ -618,19 +618,20 @@ end
 
 function complex.getIntersectRayRay(cO1, cD1, cO2, cD2)
   local dD = cD1:getCross(cD2); if(dD == 0) then
-    return nil end; local dO = cO2:getNew():Sub(cO1)
+    return logStatus("complex.getIntersectRayRay: Rays parallel", nil) end
+  local dO = cO2:getNew():Sub(cO1)
   local nT, nU = (dO:getCross(cD2) / dD), (dO:getCross(cD1) / dD)
   return dO:Set(cO1):Add(cD1:getRsz(nT)), nT, nU
 end
 
 function complex.getIntersectRayCircle(cO, cD, cC, nR)
-  local nA = cD:getNorm2()
-  if(nA <= metaData.__margn) then return nil end
+  local nA = cD:getNorm2(); if(nA <= metaData.__margn) then
+    return logStatus("complex.getIntersectRayCircle: Norm less than margin", nil) end
   local cR = cO:getNew():Sub(cC)
   local nB, nC = 2*cD:getDot(cR), (cR:getNorm2() - nR^2)
   local nD = nB^2-4*nA*nC; if(nD < 0) then
-    return nil end; local dA = (1/(2*nA))
-  nD, nB = dA*math.sqrt(nD), -nB*dA
+    return logStatus("complex.getIntersectRayCircle: Irrational roots", nil) end
+  local dA = (1/(2*nA)); nD, nB = dA*math.sqrt(nD), -nB*dA
   local xF = cD:getNew():Mul(nB + nD):Add(cO)
   local xN = cD:getNew():Mul(nB - nD):Add(cO)
   return xN, xF
@@ -644,17 +645,18 @@ function complex.getReflectRayLine(cO, cD, cS, cE)
 end
 
 function complex.getReflectRayCircle(cO, cD, cC, nR, xF)
-  local xN = (xF and xF or complex.getIntersectRayCircle(cO, cD, cC, nR))
-  if(not xN) then return nil end; local cE = xN:getNew():Sub(cC):Right():Add(xN)
+  local xN = (xF and xF or complex.getIntersectRayCircle(cO, cD, cC, nR)); if(not xN) then
+    return logStatus("complex.getReflectRayCircle: Intersection missing", nil) end
+  local cE = xN:getNew():Sub(cC):Right():Add(xN)
   return complex.getReflectRayLine(cO, cD, xN, cE)
 end
 
 function complex.getIntersectCircleCircle(cO1, nR1, cO2, nR2)
   local cS, cA = cO2:getSub(cO1), cO2:getAdd(cO1)
-  local nD, nRA, nRS = cS:getNorm2(), (nR1 + nR2), (nR1 - nR2)
-  if(nRA^2 < nD) then return nil end
-  local dR = (nRA^2 - nD) * (nD - nRS^2)
-  if(dR < 0) then return nil end
+  local nD, nRA, nRS = cS:getNorm2(), (nR1 + nR2), (nR1 - nR2); if(nRA^2 < nD) then
+    return logStatus("complex.getIntersectCircleCircle: Intersection missing", nil) end
+  local dR = (nRA^2 - nD) * (nD - nRS^2); if(dR < 0) then
+    return logStatus("complex.getIntersectCircleCircle: Irrational area", nil) end
   local nK = 0.25 * math.sqrt(dR)
   local cV = cS:getSwap():Mul(2, -2, true):Rsz(nK / nD)
   local mR = (0.5 * (nR1^2 - nR2^2)) / nD
@@ -746,7 +748,8 @@ local function stringToComplexI(sStr, nS, nE, nI)
 end
 
 local function tableToComplex(tTab, kRe, kIm)
-  if(not tTab) then return nil end
+  if(not tTab) then
+    return logStatus("tableToComplex: Table missing", nil) end
   local R = getValueKeys(tTab, metaData.__kreal, kRe)
   local I = getValueKeys(tTab, metaData.__kimag, kIm)
   if(R or I) then

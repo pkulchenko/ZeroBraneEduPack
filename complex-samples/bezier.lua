@@ -5,7 +5,7 @@ local col     = require("colormap")
 local crt     = require("chartmap")
 
 local dX,dY = 1,1
-local W , H = 300, 300
+local W , H = 600, 400
 local minX, maxX = -4, 8
 local minY, maxY = 0, 8
 local greyLevel  = 200
@@ -26,6 +26,9 @@ local ik = 3 -- 1..#tK
 -- local tS = complex.getBezierCurve(p1,p2,p3,p4)
 -- local tS = complex.getBezierCurve(p1,p2,p3,p4,100)
 local tS = complex.getBezierCurve({[tK[ik]]=100,p1,p2,p3,p4})
+
+common.logStatus("The distance between every grey line on X is: "..tostring(dX))
+common.logStatus("The distance between every grey line on Y is: "..tostring(dY))
 
 if(tS) then
   local function drawComplexLine(S, E, Cl)
