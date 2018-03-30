@@ -1,5 +1,5 @@
 -- Copyright (C) 2017-2018 Deyan Dobromirov
--- A chart mapping functoinalities library
+-- A chart mapping functionalities library
 
 local common       = require("common")
 local type         = type

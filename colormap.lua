@@ -1,5 +1,5 @@
 -- Copyright (C) 2017-2018 Deyan Dobromirov
--- A colour mapping functoinalities library
+-- A color mapping functionalities library
 
 local common    = require("common")
 local math      = math
