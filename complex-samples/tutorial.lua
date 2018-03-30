@@ -328,9 +328,9 @@ zero(0, 0)
 updt(false) -- disable auto updates
 
 -- Adjust the mapping intervals according to the number rooted
-local re, im = a:getParts()
-local intX = chartmap.New("interval","WinX", -re/2, re/2, 0, W)
-local intY = chartmap.New("interval","WinY", -im/2, im/2, H, 0)
+local nRe, nIm = a:getParts()
+local intX = chartmap.New("interval","WinX", -nRe/2, nRe/2, 0, W)
+local intY = chartmap.New("interval","WinY", -nIm/2, nIm/2, H, 0)
 local _x0, _y0 = intX:Convert(0):getValue(), intY:Convert(0):getValue()
 
 -- Allocate colours
@@ -382,7 +382,7 @@ end
 ]]
 complex.setAction("This your action key !" ,drawComplexFunction) -- This is how you register a drawing method
 
-drawCoordinateSystem(W, H, dX, dY, re/2, im/2)
+drawCoordinateSystem(W, H, dX, dY, nRe, nIm)
 
 logStatus("Complex roots returns a table of complex numbers being the roots of the base number "..tostring(a))
 local r = a:getRoots(R)
