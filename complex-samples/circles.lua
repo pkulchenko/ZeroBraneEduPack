@@ -116,10 +116,10 @@ while true do
     end
   end
   if(drw and #cRay1 == 2 and #cRay2 == 2) then
-    local xR, xL = cmp.getIntersectCircleCircle(cRay1[1], R1, cRay2[1], R2)
+    local xR, xL, xX = cmp.getIntersectCircleCircle(cRay1[1], R1, cRay2[1], R2)
     if(xR) then
       xR:Action("ab", xL, clMgn); cRay1[1]:Action("ab", cRay2[1], clMgn)
-      xR:Action("xy", clGrn); xL:Action("xy", clBlk)
+      xR:Action("xy", clGrn); xL:Action("xy", clBlk); xX:Action("xy", clMgn)
       logStatus("Intersection add (right) is "..xR)
       logStatus("Intersection sub (left)  is "..xL)
     else

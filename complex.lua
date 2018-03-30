@@ -659,7 +659,7 @@ function complex.getIntersectCircleCircle(cO1, nR1, cO2, nR2)
   local cV = cS:getSwap():Mul(2, -2, true):Rsz(nK / nD)
   local mR = (0.5 * (nR1^2 - nR2^2)) / nD
   local xB = cA:getRsz(0.5):Add(cS:getRsz(mR))
-  return xB:getAdd(cV), xB:getSub(cV)
+  return xB:getAdd(cV), xB:getSub(cV), xB
 end
 
 function complex.getEuler(vRm, vPh)
