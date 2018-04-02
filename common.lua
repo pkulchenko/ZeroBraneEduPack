@@ -289,7 +289,7 @@ function common.stringToTable(sRc)
   end, {}, 1)
 end
 
-function common.fileRead(pF, sM)
+function common.fileRead(pF, sM, bT)
   if(not pF) then
     return common.logStatus("common.fileGetLine: No file", "", true) end
   local tMd, nM = metaCommon.__rmod, tonumber(sM)
@@ -303,9 +303,9 @@ function common.fileRead(pF, sM)
     end; sEr = sEr..("\n  "..common.stringPadR("[N]", 9).." > Reads up to N characters")
     return common.logStatus(sEr, "", true) end
   local sLn, bEf = pF:read(vMd), false
-  if(common.isDryString(sLn) and vMd == tMd[1][1]) then
-    return "", true end
+  if(common.isDryString(sLn) and vMd == tMd[1][1]) then return "", true end
   if(common.isNil(sLn)) then return "", true end
+  if(bT) then return common.stringTrim(sLn), bEf end
   return sLn, bEf
 end
 
