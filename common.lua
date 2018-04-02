@@ -24,6 +24,10 @@ metaCommon.__type = {"number", "boolean", "string", "function", "table"}
 metaCommon.__syms = "1234567890abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ"
 metaCommon.__metatable = "common.lib"
 metaCommon.__nlog = {__top = 0}
+metaCommon.__rmod = {{"*all"   , "Reads the whole file"},
+                     {"*line"  , "Reads the next line (default)"},
+                     {"*number", "Reads a number"},
+                     ["*all"]=true,["*line"]=true,["*number"]=true}
 
 metaCommon.__func["pi"] = {}
 metaCommon.__func["pi"].foo = function (itr, top)
@@ -89,7 +93,7 @@ function common.logString(anyMsg, ...)
 end
 
 function common.logStatus(anyMsg, ...)
-  return common.logString(tostring(anyMsg).."\n")
+  return common.logString(tostring(anyMsg).."\n", ...)
 end
 
 function common.isNil(nVal)
@@ -209,6 +213,14 @@ function common.stringTrim(sStr, sCh)
   return sStr:match("^"..sCh.."*(.-)"..sCh.."*$" ) or sStr
 end
 
+function common.stringPadR(sS, nL, sC)
+  return sS..tostring(sC or " "):rep(nL - sS:len())
+end
+
+function common.stringPadL(sS, nL, sC)
+  return tostring(sC or " "):rep(nL - sS:len())..sS
+end
+
 function common.stringGetExtension(src)
   return src:match("%.([^%.]+)$")
 end
@@ -277,12 +289,24 @@ function common.stringToTable(sRc)
   end, {}, 1)
 end
 
-function common.fileGetLine(pF)
-  if(not pF) then return common.logStatus("common.fileGetLine: No file", ""), true end
-  local sCh, sLn = "X", "" -- Use a value to start cycle with
-  while(sCh) do sCh = pF:read(1); if(not sCh) then break end
-    if(sCh == "\n") then return common.stringTrim(sLn), false else sLn = sLn..sCh end
-  end; return common.stringTrim(sLn), true -- EOF has been reached. Return the last data
+function common.fileRead(pF, sM)
+  if(not pF) then
+    return common.logStatus("common.fileGetLine: No file", "", true) end
+  local tMd, nM = metaCommon.__rmod, tonumber(sM)
+  local vMd = common.getPick(nM, nM, tostring(sM or tMd[2][1]))
+  if(common.isNil(tMd[vMd]) and not nM) then
+    local sEr = "common.fileRead: Mode missed <"..tostring(vMd)..">"; nM = 1
+    while(tMd[nM]) do sEr = sEr .."\n"
+      local com, desc = tMd[nM][1], tMd[nM][2]
+            com = common.stringPadR("["..com.."]", 9).." > "
+            sEr = sEr..("  "..com..desc); nM = nM + 1
+    end; sEr = sEr..("\n  "..common.stringPadR("[N]", 9).." > Reads up to N characters")
+    return common.logStatus(sEr, "", true) end
+  local sLn, bEf = pF:read(vMd), false
+  if(common.isDryString(sLn) and vMd == tMd[1][1]) then
+    return "", true end
+  if(common.isNil(sLn)) then return "", true end
+  return sLn, bEf
 end
 
 function common.getSign(nVal)
