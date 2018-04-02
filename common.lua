@@ -214,10 +214,14 @@ function common.stringTrim(sStr, sCh)
 end
 
 function common.stringPadR(sS, nL, sC)
+  local sS =  tostring(sS or "")
+  local sC, nL =  tostring(sC or ""), (tonumber(nL) or 0)
   return sS..tostring(sC or " "):rep(nL - sS:len())
 end
 
 function common.stringPadL(sS, nL, sC)
+  local sS =  tostring(sS or "")
+  local sC, nL =  tostring(sC or ""), (tonumber(nL) or 0)
   return tostring(sC or " "):rep(nL - sS:len())..sS
 end
 
