@@ -200,53 +200,49 @@ function common.stringImplode(tLst,sDel)
 end
 
 function common.stringExplode(sStr,sDel)
-  local tLst, sCh, iDx, ID, dL = {""}, "", 1, 1, (sDel:len()-1)
-  while(sCh) do sCh = sStr:sub(iDx,iDx+dL)
-    if    (sCh ==  "" ) then return tLst
-    elseif(sCh == sDel) then ID = ID + 1; tLst[ID], iDx = "", (iDx + dL)
-    else tLst[ID] = tLst[ID]..sCh:sub(1,1) end; iDx = iDx + 1
+  local tLst, sC, iDx, ID, dL = {""}, "", 1, 1, (sDel:len()-1)
+  while(sC) do sC = sStr:sub(iDx,iDx+dL)
+    if    (sC ==  "" ) then return tLst
+    elseif(sC == sDel) then ID = ID + 1; tLst[ID], iDx = "", (iDx + dL)
+    else tLst[ID] = tLst[ID]..sC:sub(1,1) end; iDx = iDx + 1
   end; return tLst
 end
 
-function common.stringTrim(sStr, sCh)
-  local sCh = tostring(sCh or "%s")
-  return sStr:match("^"..sCh.."*(.-)"..sCh.."*$" ) or sStr
+function common.stringTrim(sStr, sC)
+  local sC = tostring(sC or "%s")
+  return (sStr:match("^"..sC.."*(.-)"..sC.."*$" ) or sStr)
 end
 
 function common.stringPadR(sS, nL, sC)
-  local sS =  tostring(sS or "")
-  local sC, nL =  tostring(sC or ""), (tonumber(nL) or 0)
   return sS..tostring(sC or " "):rep(nL - sS:len())
 end
 
 function common.stringPadL(sS, nL, sC)
-  local sS =  tostring(sS or "")
-  local sC, nL =  tostring(sC or ""), (tonumber(nL) or 0)
   return tostring(sC or " "):rep(nL - sS:len())..sS
 end
 
-function common.stringGetExtension(src)
-  return src:match("%.([^%.]+)$")
+function common.stringGetExtension(sSrc)
+  return sSrc:match("%.([^%.]+)$")
 end
 
-function common.stringStripExtension(src)
-  local pos = src:match(".+()%.%w+$")
-  if(pos) then return src:sub(1, pos-1) end
-  return src
+function common.stringStripExtension(sSrc)
+  local nP = sSrc:match(".+()%.%w+$")
+  if(nP) then return sSrc:sub(1, nP-1) end
+  return sSrc
 end
 
-function common.stringGetFilePath(src)
-  return (src:match("^(.*[/\\])[^/\\]-$") or "")
+function common.stringGetFilePath(sSrc)
+  return (sSrc:match("^(.*[/\\])[^/\\]-$") or "")
 end
 
-function common.stringGetFileName(src)
-  if (not (src:find("\\") or src:find("/"))) then return src end
-  return (src:match("[\\/]([^/\\]+)$") or "")
+function common.stringGetFileName(sSrc)
+  if(not (sSrc:find("\\") or sSrc:find("/"))) then return sSrc end
+  return (sSrc:match("[\\/]([^/\\]+)$") or "")
 end
 
 function common.stringGetChunkPath()
-  local src = debug.getinfo(2).source
-  return common.stringGetFilePath(src:gsub("@","",1))
+  local sSrc = debug.getinfo(2).source
+  return common.stringGetFilePath(sSrc:gsub("@","",1))
 end
 
 local function stringParseTableRec(sRc, fCnv, tInfo, nStg)

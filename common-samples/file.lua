@@ -3,7 +3,15 @@ local cmn = require("common")
 local fNam = "common-samples/data.txt"
 
 local f = io.open(fNam, "wb")
-local m = "*line"
+--[[
+  * http://www.lua.org/pil/21.1.html
+  * Here the user can give the function a bunch of read methods
+  * [*all]    > Reads the whole file
+  * [*line]   > Reads the next line (default)
+  * [*number] > Reads a number
+  * [N]       > Reads up to N characters
+]]
+local m
 
 if(f) then local I
   
@@ -12,7 +20,7 @@ if(f) then local I
     "bbbbbbbbbbb    ",
     "    ccccccccccc",
     "ddddddddddd",
-  }
+  } -- Write a bunch of values in the file
   
   I = 1; while(tD[I]) do
     f:write(tD[I].."\n"); I = I + 1
@@ -22,7 +30,14 @@ if(f) then local I
   
   if(f) then
     local l, e = cmn.fileRead(f, m)
-
+    --[[
+      * The read function takes a stream (file) as first
+      * argument and mode for the second
+      * The default mode is line by line if a value is not given
+      * If a wrong mode is given, an error will be produced
+      * The function will always return string for the first argument
+      * and EOF flag for the second.
+    ]]
     while(not e) do
       cmn.logStatus("Result: "..cmn.stringPadL("<"..l..">", 22).." : "..tostring(e))
       l, e = cmn.fileRead(f, m)
