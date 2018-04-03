@@ -7,6 +7,7 @@ local type         = type
 local next         = next
 local pcall        = pcall
 local pairs        = pairs
+local select       = select
 local tonumber     = tonumber
 local tostring     = tostring
 local getmetatable = getmetatable
@@ -427,38 +428,51 @@ function common.copyItem(obj, ccpy, seen)
   return res
 end
 
-local function logTableRec(tT,sS,tP)
+local function logTableRec(tT,sS,tP,tD)
+  local tY = metaCommon.__type
   local sS, tP = tostring(sS or "Data"), (tP or {})
   local vS, vT, vK = type(sS), type(tT), ""
-  if(vT ~= "table") then
+  if(vT ~= tY[5]) then
     return common.logStatus("{"..vT.."}["..tostring(sS or "Data").."] = <"..tostring(tT)..">",nil) end
   if(next(tT) == nil) then
     return common.logStatus(sS.." = {}") end; common.logStatus(sS.." = {}",nil)
   for k,v in pairs(tT) do
-    if(type(k) == "string") then
+    if(type(k) == tY[3]) then
       vK = sS.."[\""..k.."\"]"
     else sK = tostring(k)
       if(tP[k]) then sK = tostring(tP[k]) end
       vK = sS.."["..sK.."]"
     end
-    if(type(v) ~= "table") then
-      if(type(v) == "string") then
+    if(type(v) ~= tY[5]) then
+      if(type(v) == tY[3]) then
         common.logStatus(vK.." = \""..v.."\"")
       else sK = tostring(v)
         if(tP[v]) then sK = tostring(tP[v]) end
         common.logStatus(vK.." = "..sK)
       end
-    else
+    else local cT, mT = common.getType(v), getmetatable(v)
       if(v == tT) then
         common.logStatus(vK.." = "..sS)
       elseif(tP[v]) then
         common.logStatus(vK.." = "..tostring(tP[v]))
+      elseif(type(tD) == tY[5] and
+        (type(tD[cT]) == tY[4] or tD[mT] == tY[4])) then
+          local vF = common.getPick(tD[cT], tD[cT], tD[mT])
+          common.logStatus(vK.." = "..vF(v))
       else
         if(not tP[v]) then tP[v] = vK end
-        logTableRec(v,vK,tP)
+        logTableRec(v,vK,tP,tD)
       end
     end
   end
+end
+
+function common.logTable(tT, sS, tP, tD)
+  local lS, lP = tostring(sS or "Data")
+  if(tT ~= nil) then lP = {[tT] = lS} end
+  if(type(tP) == "table" and lP) then
+    for ptr, abr in pairs(tP) do lP[ptr] = abr end end
+  logTableRec(tT, lS, lP, tD); return lP
 end
 
 function common.addPathLibrary(sB, sE)
@@ -471,15 +485,7 @@ function common.addPathLibrary(sB, sE)
   package.path = package.path..";"..pad
 end
 
-function common.logTable(tT, sS, tP)
-  local lS, lP = tostring(sS or "Data")
-  if(tT ~= nil) then lP = {[tT] = lS} end
-  if(type(tP) == "table" and lP) then
-    for ptr, abr in pairs(tP) do lP[ptr] = abr end end
-  logTableRec(tT, lS, lP); return lP
-end
-
-function common.arMalloc2D(w,h)
+function common.tableArrMalloc2D(w,h)
   local tArr = {}
   for y=1,h do tArr[y] = {}
     for x=1,w do tArr[y][x] = 0 end
@@ -491,19 +497,19 @@ end
  * arLin -> Linear array in format {1,2,3,4,w=2,h=2}
  * w,h   -> Custom array size
 ]]
-function common.arConvert2D(arLin,w,h)
+function common.tableArrConvert2D(arLin,w,h)
   if(not arLin) then return false end
   local nW, nH = (w or arLin.w), (h or arLin.h)
   if(not (nW and nH)) then return false end
   if(not (nW > 0 and nH > 0)) then return false end
-  arRez = common.arMalloc2D(nW, nH)
+  arRez = common.tableArrMalloc2D(nW, nH)
   for i = 0, (nH-1) do for j = 0, (nW-1) do
       arRez[i+1][j+1] = (tonumber(arLin[i*w+j+1]) or 0)
   end end; return arRez
 end
 
-function common.arRotateR(tArr,sX,sY)
-  local ii, jj, tTmp = 1, 1, common.arMalloc2D(sY,sX)
+function common.tableArrRotateR(tArr,sX,sY)
+  local ii, jj, tTmp = 1, 1, common.tableArrMalloc2D(sY,sX)
   for j = 1, sX, 1 do for i = sY, 1, -1  do
       if(jj > sY) then ii, jj = (ii + 1), 1 end
       tTmp[ii][jj] = tArr[i][j]
@@ -514,8 +520,8 @@ function common.arRotateR(tArr,sX,sY)
   end
 end
 
-function common.arRotateL(tArr,sX,sY)
-  local ii, jj, tTmp = 1, 1, common.arMalloc2D(sY,sX)
+function common.tableArrRotateL(tArr,sX,sY)
+  local ii, jj, tTmp = 1, 1, common.tableArrMalloc2D(sY,sX)
   for j = sX, 1, -1 do for i = 1, sY, 1  do
       if(jj > sY) then ii, jj = (ii + 1), 1 end
       tTmp[ii][jj] = tArr[i][j]
@@ -534,7 +540,7 @@ function common.getValuesSED(nVal,nMin,nMax)
   return s, e, d
 end
 
-function common.arShift2D(tArr,sX,sY,nX,nY)
+function common.tableArrShift2D(tArr,sX,sY,nX,nY)
   if(not (sX > 0 and sY > 0)) then return end
   local x = math.floor(nX or 0)
   local y = math.floor(nY or 0)
@@ -556,7 +562,7 @@ function common.arShift2D(tArr,sX,sY,nX,nY)
   end
 end
 
-function common.arRoll2D(tArr,sX,sY,nX,nY)
+function common.tableArrRoll2D(tArr,sX,sY,nX,nY)
   if( not( sX > 0 and sY > 0) ) then return end
   local x, y = math.floor(nX or 0), math.floor(nY or 0)
   if(y ~= 0) then
@@ -565,7 +571,7 @@ function common.arRoll2D(tArr,sX,sY,nX,nY)
     local siY, y, arTmp  = getSign(y), (y * siY), {}
     while(y > 0) do
       for i = 1,sX do arTmp[i] = tArr[MaxY][i] end
-      common.arShift2D(tArr,sX,sY,0,siY)
+      common.tableArrShift2D(tArr,sX,sY,0,siY)
       for i = 1,sX do tArr[MinY][i] = arTmp[i] end
       y = y - 1
     end
@@ -576,14 +582,14 @@ function common.arRoll2D(tArr,sX,sY,nX,nY)
     local siX, x, arTmp  = getSign(x), (x * siX), {}
     while(x > 0) do
       for i = 1,sY do arTmp[i] = tArr[i][MaxX] end
-      common.arShift2D(tArr,sX,sY,siX)
+      common.tableArrShift2D(tArr,sX,sY,siX)
       for i = 1,sY do tArr[i][MinX] = arTmp[i] end
       x = x - 1
     end
   end
 end
 
-function common.arMirror2D(tArr,sX,sY,fX,fY)
+function common.tableArrMirror2D(tArr,sX,sY,fX,fY)
   local tTmp, s = 0, 1
   if(fY) then local e = sY
     while(s < e) do for k = 1,sX do
@@ -601,6 +607,28 @@ function common.arMirror2D(tArr,sX,sY,fX,fY)
       end
       s, e = (s + 1), (e - 1)
     end
+  end
+end
+
+-- Concatenates the array elements (...) and gives new array
+function common.tableArrConcat(...)
+  local tO, IK = {}, 1
+  for J = 1, select("#",...) do
+    local ID, tTab = 1, select(J,...)
+    if(not common.isNil(tTab)) then
+      while(tTab[ID]) do tO[IK] = tTab[ID]
+        IK, ID = (IK + 1), (ID + 1) end
+    end
+  end; return tO
+end
+
+function common.tableArrReverse(tA)
+  local nS, nE = 1, 1
+  while(tA[nE]) do nE = nE + 1 end
+  nS, nE = 1, (nE - 1)
+  while(nE > nS) do
+    tA[nE], tA[nS] = tA[nS], tA[nE]
+    nS, nE = (nS + 1), (nE - 1)
   end
 end
 

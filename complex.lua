@@ -481,6 +481,23 @@ function metaComplex:getLayMargin(cS, cE)
   return cS:getSub(self):getCross(cE:getSub(self))
 end
 
+function metaComplex:MirrorRay(cO, cD)
+  local cP = self:getNew():ProjectRay(cO, cD)
+  return self:Add(cP:Sub(self):Rsz(2))
+end
+
+function metaComplex:getMirrorRay(cO, cD)
+  return self:getNew():MirrorRay(cO, cD)
+end
+
+function metaComplex:MirrorLine(cS, cE)
+  return self:MirrorRay(cS, cE:getSub(cS))
+end
+
+function metaComplex:getMirrorLine(cS, cE)
+  return self:getNew():MirrorLine(cS, cE)
+end
+
 function metaComplex:isAmongLine(cS, cE, bF)
   local nM = metaData.__margn
   if(math.abs(self:getLayMargin(cS, cE)) < nM) then
