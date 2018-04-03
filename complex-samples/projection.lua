@@ -90,6 +90,8 @@ while true do
     local XX = cPnt:getProjectLine(cRay1[1], cRay1[2])
     XX:Action("xy", clMgn); cPnt:Action("xy", clRel); cPnt:Action("ab", XX, clMgn)
     local bSegm = XX:isAmongLine(cRay1[1], cRay1[2])
+    local MM = cPnt:getMirrorLine(cRay1[1], cRay1[2])
+    MM:Action("xy", clOrg); MM:Action("ab", XX, clMgn)
     logStatus("The complex projection "..tostring(XX).." is "..(bSegm and "ON" or "OFF").." the line"); drw = false
   end
   if(key == 27) then -- The user hits esc

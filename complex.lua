@@ -454,7 +454,7 @@ end
 function metaComplex:ProjectRay(cO, cD)
   local cV = self:getNew():Sub(cO)
   local nK = cV:getCross(cD) / cD:getNorm2()
-  return self:Add(cD:Mul(nK, -nK, true):Swap())
+  return self:Add(cD:getMul(nK, -nK, true):Swap())
 end
 
 function metaComplex:getProjectRay(cO, cD)
