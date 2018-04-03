@@ -498,6 +498,17 @@ function metaComplex:getMirrorLine(cS, cE)
   return self:getNew():MirrorLine(cS, cE)
 end
 
+function metaComplex:getAreaShoelace(...)
+  local tV = {self, ...}
+  local nE = #tV; tV[nE+1] = self
+  local nP, nN = 0, 0
+  for ID = 1, nE do
+    local cB, cN = tV[ID], tV[ID+1]
+    nP = nP + (cB:getReal()*cN:getImag())
+    nN = nN + (cB:getImag()*cN:getReal())
+  end; return (0.5 * (nP - nN))
+end
+
 function metaComplex:isAmongLine(cS, cE, bF)
   local nM = metaData.__margn
   if(math.abs(self:getLayMargin(cS, cE)) < nM) then
