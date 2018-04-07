@@ -63,7 +63,7 @@ tPar[3] = {
   {Typ="string I", Arg={"7+7J"},Out="{7,7}"}
 }
 
-tPar[3] = {
+tPar[4] = {
   Name = "Table with variety of key storage",
   {Typ="default format", Arg={"7,7"},Out="{7,7}"},
   {Typ="default format", Arg={"7,-7"},Out="{7,-7}"},
@@ -82,7 +82,7 @@ tPar[3] = {
   {Typ="string", Arg={"-i"},Out="{0,-1}"},
 }
 
-tPar[4] = {
+tPar[5] = {
   Name = "Numbers",
   {Typ="number", Arg={7,7},Out="{7,7}"},
   {Typ="number", Arg={-7,7},Out="{-7,7}"},
@@ -90,7 +90,7 @@ tPar[4] = {
   {Typ="number", Arg={-7,-7},Out="{-7,-7}"}
 }
 
-tPar[5] = {
+tPar[6] = {
   Name = "Boolean and non-existent",
   {Typ="boolean", Arg={true, true  },Out="{1,1}"},
   {Typ="boolean", Arg={true, false },Out="{1,0}"},
