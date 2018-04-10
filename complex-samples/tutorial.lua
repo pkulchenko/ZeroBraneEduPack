@@ -329,8 +329,8 @@ updt(false) -- disable auto updates
 
 -- Adjust the mapping intervals according to the number rooted
 local nRe, nIm = a:getParts()
-local intX = chartmap.New("interval","WinX", -nRe/2, nRe/2, 0, W)
-local intY = chartmap.New("interval","WinY", -nIm/2, nIm/2, H, 0)
+local intX = chartmap.New("interval","WinX", -nRe/3.5, nRe/3.5, 0, W)
+local intY = chartmap.New("interval","WinY", -nIm/3.5, nIm/3.5, H, 0)
 local _x0, _y0 = intX:Convert(0):getValue(), intY:Convert(0):getValue()
 
 -- Allocate colours
