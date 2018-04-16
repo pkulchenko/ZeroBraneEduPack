@@ -12,18 +12,19 @@ local setmetatable = setmetatable
 local complex      = {}
 local metaComplex  = {}
 local metaData     = {}
-local logStatus    = common.logStatus
-local logString    = common.logString
-local getSign      = common.getSign
-local getSignNon   = common.getSignNon
-local roundValue   = common.getRound
-local getClamp     = common.getClamp
-local getValueKeys = common.getValueKeys
-local isString     = common.isString
-local isNumber     = common.isNumber
-local isTable      = common.isTable
-local isNil        = common.isNil
-local getPick      = common.getPick
+local isNil           = common.isNil
+local getPick         = common.getPick
+local getSign         = common.getSign
+local isTable         = common.isTable
+local roundValue      = common.getRound
+local getClamp        = common.getClamp
+local isString        = common.isString
+local isNumber        = common.isNumber
+local logStatus       = common.logStatus
+local logString       = common.logString
+local getSignNon      = common.getSignNon
+local getValueKeys    = common.getValueKeys
+local randomGetNumber = common.randomGetNumber
 
 if not debug.getinfo(3) then
   print("This is a module to load with `local complex = require('complex')`.")
@@ -163,6 +164,16 @@ function metaComplex:getNew(nR, nI)
   local N = complex.getNew(self); if(nR or nI) then
     local R, I = complex.getUnpack(nR, nI); N:Set(R, I)
   end; return N
+end
+
+function metaComplex:Random(nL, nU, vC)
+  local R = randomGetNumber(nL, nU, vC)
+  local I = randomGetNumber(nL, nU, vC)
+  return self:setReal(R):setImag(I)
+end
+
+function metaComplex:getRandom(nL, nU, vC)
+  return self:getNew():Random(nL, nU, vC)
 end
 
 function metaComplex:Apply(fF, bR, bI)
@@ -785,6 +796,12 @@ local function tableToComplex(tTab, kRe, kIm)
     return complex.getNew(tonumber(R) or metaData.__valre,
                           tonumber(I) or metaData.__valre) end
   return logStatus("tableToComplex: Table format not supported", complex.getNew())
+end
+
+function complex.getRandom(nL, nU, vC)
+  local R = randomGetNumber(nL, nU, vC)
+  local I = randomGetNumber(nL, nU, vC)
+  return complex.getNew(R, I)
 end
 
 function complex.convNew(vIn, ...)
