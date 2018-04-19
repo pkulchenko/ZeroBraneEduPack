@@ -19,8 +19,8 @@ local p1 = complex.getNew(-3,0)
 local p2 = complex.getNew(-2,5) 
 local p3 = complex.getNew(7,0)
 local p4 = complex.getNew(7,7)
-local crSys = crt.New("coordsys"):setDelta(dX, dY):setBorder(minX, maxX, minY, maxY)
-      crSys:setSize(W, H):setColor(clBlk, clGry):setInterval(intX, intY)
+local crSys = crt.New("coordsys"):setInterval(intX, intY):setBorder(minX, maxX, minY, maxY)
+      crSys:setSize(W, H):setColor(clBlk, clGry):setDelta(dX, dY)
 
 local tK = {"n","N","cnt","Cnt"}
 local ik = 3 -- 1..#tK

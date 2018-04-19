@@ -365,8 +365,8 @@ end
 ]]
 complex.setAction("This your action key !" ,drawComplexFunction) -- This is how you register a drawing method
 
-local crSys = chartmap.New("coordsys"):setInterval(intX, intY):setDelta(dX, dY):setBorder()
-      crSys:setSize():setColor():Draw(true, true, true)
+local crSys = chartmap.New("coordsys"):setInterval(intX, intY):setBorder()
+      crSys:setSize():setColor():setDelta(dX, dY):Draw(true, true, true)
 
 logStatus("Complex roots returns a table of complex numbers being the roots of the base number "..tostring(a))
 local r = a:getRoots(R)
