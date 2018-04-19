@@ -263,7 +263,6 @@ tPar[10] ={
   {Typ="Round towards float"  , Arg={rd, -0.1},Foo=t.getRound, Out="{-70.3,-70.3}"}
 }
 
-
 makeTastCase()
 --------------------------------------------------------
 
@@ -365,8 +364,8 @@ end
 ]]
 complex.setAction("This your action key !" ,drawComplexFunction) -- This is how you register a drawing method
 
-local crSys = chartmap.New("coordsys"):setInterval(intX, intY):setBorder()
-      crSys:setSize():setColor():setDelta(dX, dY):Draw(true, true, true)
+local crSys = chartmap.New("coordsys"):setInterval(intX, intY):setSize():setBorder()
+      crSys:setColor():setDelta(dX, dY):Draw(true, true, true)
 
 logStatus("Complex roots returns a table of complex numbers being the roots of the base number "..tostring(a))
 local r = a:getRoots(R)

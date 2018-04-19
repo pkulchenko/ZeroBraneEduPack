@@ -125,15 +125,13 @@ local function newCoordSys(sName)
   function self:setDelta(nX, nY)
     mdX, mdY = (tonumber(nX) or 0), (tonumber(nY) or 0)
     if(isNil(minX) and isNil(maxX) and isNil(minY) and isNil(maxY)) then
-      return logStatus("newCoordSys.setDelta: Call /setBorder/ before /setDelta/ "
-              .."Pixel scaling initialization fail", nil)
+      return logStatus("newCoordSys.setDelta: Call /setBorder/ before /setDelta/", nil)
     else
       if(isNil(mnW) or isNil(mnH)) then
-        return logStatus("newCoordSys.setDelta: Call /setSize/ before /setDelta/ "
-              .."Pixel scaling initialization fail", nil)
+        return logStatus("newCoordSys.setDelta: Call /setSize/ before /setDelta/", nil)
       else
-        pxX = mnW / ((maxX - minX) / mdX)
-        pxY = mnH / ((maxY - minY) / mdY)
+        pxX = mnW / (math.abs(maxX - minX) / mdX)
+        pxY = mnH / (math.abs(maxY - minY) / mdY)
       end
     end
     return self
@@ -144,8 +142,7 @@ local function newCoordSys(sName)
     if(isNil(nX) and isNil(xX) and isNil(nY) and isNil(xY)) then
       logStatus("newCoordSys.setBorder: Using intervals")
       if(isNil(moiX) or isNil(moiY)) then
-        return logStatus("newCoordSys.setBorder: Call /setInterval/ before /setBorder/ "
-              .."Pixel scaling initialization fail", nil)
+        return logStatus("newCoordSys.setBorder: Call /setInterval/ before /setBorder/", nil)
       else
         minX, maxX = moiX:getBorderIn()
         minY, maxY = moiY:getBorderIn()
@@ -158,8 +155,12 @@ local function newCoordSys(sName)
     mnW, mnH = (tonumber(nW) or 0), (tonumber(nH) or 0)
     if(isNil(nW) and isNil(nH)) then
       logStatus("newCoordSys.setSize: Using intervals")
-      mnW = math.max(moiX:getBorderOut())
-      mnH = math.max(moiY:getBorderOut())
+      if(isNil(moiX) or isNil(moiY)) then
+        return logStatus("newCoordSys.setSize: Call /setInterval/ before /setSize/", nil)
+      else
+        mnW = math.max(moiX:getBorderOut())
+        mnH = math.max(moiY:getBorderOut())
+      end
     end; return self
   end
   function self:setInterval(intX, intY)
@@ -211,17 +212,17 @@ local function newCoordSys(sName)
     if(bTx) then pncl(mclDir);
       local nA = xyP:getSub(xyO):getAngDeg()+90
       text(tostring(xyP:getRound(0.001)),nA,px,py)
-    end
-    return self;
+    end return self
   end
   function self:drawPoint(xyP)
     local sz, px, py = 2, xyP:getParts()
     px = moiX:Convert(px):getValue()
     py = moiY:Convert(py):getValue()
     pncl(mclPos); rect(px-sz,py-sz,2*sz+1,2*sz+1)
+    return self
   end
   function self:drawLine(xyS, xyE)
-    self:drawComplex(xyS, xyE)
+    self:drawComplex(xyS, xyE); return self
   end
   function self:drawOval(xyP, rX, rY)
     local sz, px, py = 2, xyP:getParts()
@@ -230,10 +231,10 @@ local function newCoordSys(sName)
     local rx, ry = (tonumber(rX) or 0), (tonumber(rY) or 0)
           rx, ry = (rX * (pxX / mdX)), (rY * (pxY / mdY))
     pncl(mclOrg); rect(px-sz,py-sz,2*sz+1,2*sz+1)
-    pncl(mclDir); oval(px, py, rx, ry)
+    pncl(mclDir); oval(px, py, rx, ry); return self
   end
   function self:drawCircle(xyP, rR)
-    self:drawOval(xyP, rR, rR)
+    return self:drawOval(xyP, rR, rR)
   end
   function self:getString() return "["..metaCoordSys.__type.."] "..mName end
   return self
