@@ -22,23 +22,8 @@ local clRed = colr(col.getColorRedRGB())
 local clBlk = colr(col.getColorBlackRGB())
 local clGry = colr(greyLevel,greyLevel,greyLevel)
 local cmRan, cmZ = cmp.getNew(), cmp.getNew()
-
-local function drawCoordinateSystem(w, h, dx, dy, mx, my)
-  local xe, ye = 0, 0
-  for x = 0, mx, dx do
-    local xp = intX:Convert( x):getValue()
-    local xm = intX:Convert(-x):getValue()
-    if(x == 0) then xe = xp
-    else  pncl(clGry); line(xp, 0, xp, h); line(xm, 0, xm, h) end
-  end
-  for y = 0, my, dx do
-    local yp = intY:Convert( y):getValue()
-    local ym = intY:Convert(-y):getValue()
-    if(y == 0) then ye = yp
-    else  pncl(clGry); line(0, yp, w, yp); line(0, ym, w, ym) end
-  end; pncl(clBlk)
-  line(xe, 0, xe, h); line(0, ye, w, ye)
-end
+local crSys = crt.New("coordsys"):setDelta(dX, dY):setBorder(minX, maxX, minY, maxY)
+      crSys:setSize(W, H):setColor(clBlk, clGry):setInterval(intX, intY)
 
 local function drawComplex(C, Cl)
   local x = intX:Convert(C:getReal()):getValue()
@@ -68,7 +53,7 @@ zero(0, 0)
 updt(false) -- disable auto updates
 
 while(true) do wipe()
-  drawCoordinateSystem(W, H, dX, dY, maxX, maxY)
+  crSys:Draw(true, true, true)
   for ID = 1, mxNum do
     cmRan:Random():Sub(0.5,0.5):Mul(40):Action("xy", clRed)
   end; updt(); wait(0.01); com.randomSetSeed()

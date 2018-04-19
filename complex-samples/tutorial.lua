@@ -331,31 +331,12 @@ updt(false) -- disable auto updates
 local nRe, nIm = a:getParts()
 local intX = chartmap.New("interval","WinX", -nRe/3.5, nRe/3.5, 0, W)
 local intY = chartmap.New("interval","WinY", -nIm/3.5, nIm/3.5, H, 0)
-local _x0, _y0 = intX:Convert(0):getValue(), intY:Convert(0):getValue()
 
 -- Allocate colours
 local clGrn = colr(colormap.getColorGreenRGB())
 local clRed = colr(colormap.getColorRedRGB())
 local clBlk = colr(colormap.getColorBlackRGB())
 local clGry = colr(colormap.getColorPadRGB(gAlp))
-
--- This is used to properly draw the coordinate system
-local function drawCoordinateSystem(w, h, dx, dy, mx, my)
-  local xe, ye = 0, 0, 200
-  for x = 0, mx, dx do
-    local xp = intX:Convert( x):getValue()
-    local xm = intX:Convert(-x):getValue()
-    if(x == 0) then xe = xp
-    else  pncl(clGry); line(xp, 0, xp, h); line(xm, 0, xm, h) end
-  end
-  for y = 0, my, dx do
-    local yp = intY:Convert( y):getValue()
-    local ym = intY:Convert(-y):getValue()
-    if(y == 0) then ye = yp
-    else  pncl(clGry); line(0, yp, w, yp); line(0, ym, w, ym) end
-  end; pncl(clBlk)
-  line(xe, 0, xe, h); line(0, ye, w, ye)
-end
 
 --[[
   Custom function for drawing a number on the complex plane
@@ -370,7 +351,9 @@ local function drawComplexFunction(C)
   local r = C:getRound(0.001)
   local x = intX:Convert(r:getReal()):getValue()
   local y = intY:Convert(r:getImag()):getValue()
-  pncl(clGrn); line(_x0, _y0, x, y)
+  local ox = intX:Convert(0):getValue()
+  local oy = intY:Convert(0):getValue()
+  pncl(clGrn); line(ox, oy, x, y)
   pncl(clRed); rect(x-2,y-2,5,5)
   pncl(clBlk); text(tostring(r),r:getAngDeg()+90,x,y)
 end
@@ -382,15 +365,17 @@ end
 ]]
 complex.setAction("This your action key !" ,drawComplexFunction) -- This is how you register a drawing method
 
-drawCoordinateSystem(W, H, dX, dY, nRe, nIm)
+local crSys = chartmap.New("coordsys"):setInterval(intX, intY):setDelta(dX, dY):setBorder()
+      crSys:setSize():setColor():Draw(true, true, true)
 
 logStatus("Complex roots returns a table of complex numbers being the roots of the base number "..tostring(a))
 local r = a:getRoots(R)
 if(r) then
   for id = 1, #r do
     logStatus(r[id].."^"..R.." = "..(r[id]^R))
-    r[id]:Action("This your action key !"); updt()
-    wait(0.1)
+    r[id]:Action("This your action key !")
+    -- crSys:drawComplex(r[id], nil, true) -- This is the same as above
+    updt(); wait(0.1)
   end
 end
 

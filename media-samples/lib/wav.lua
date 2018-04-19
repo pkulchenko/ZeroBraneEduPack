@@ -45,9 +45,7 @@ local dataTS = {
 
 local function applyEndian(tB, sT, bB)
   if(bB) then -- Little endian / big endian ( def: little when true )
-    if(sT == "uint" or sT == "ushort") then 
-      revArr(tB)
-    end 
+    if(sT == "uint" or sT == "ushort") then  revArr(tB) end 
   end
 end
 
@@ -80,9 +78,17 @@ function wav.read(sN)
   
   local smpData = {}
   local smpByte = (wData["FORMAT"]["dwBitsPerSample"] / 8)
+  local smpAll  = wData["DATA"]["dwChunkSize"] / (smpByte * wData["FORMAT"]["wChannels"])
   local totCnan = wData["FORMAT"]["wChannels"]
   local curChan, isEOF = 1, false
-  while(not isEOF) do
+  
+  wData["FORMAT"]["fDuration"] = smpAll / wData["FORMAT"]["dwSamplesPerSec"]
+  wData["FORMAT"]["fBitRate"]  = smpAll * totCnan * wData["FORMAT"]["dwBitsPerSample"]
+  wData["FORMAT"]["fBitRate"]  = wData["FORMAT"]["fBitRate"] / wData["FORMAT"]["fDuration"]
+  wData["FORMAT"]["fDataFill"] = 100 * (wData["DATA"]["dwChunkSize"] / wData["HEADER"]["dwFileLength"])
+  wData["DATA"]["dwSamplesPerChan"] = smpAll
+  
+  while(not isEOF and smpAll > 0) do
     if(curChan > totCnan) then curChan = 1 end
     if(not smpData[curChan]) then smpData[curChan] = {__top = 1} end
     local arrChan = smpData[curChan]
@@ -97,21 +103,19 @@ function wav.read(sN)
       smpTop[K] = smp:byte()
     end
     if(not isEOF) then
-      if(smpByte == 2) then -- Two bytes per sample
-        applyEndian(smpTop, "uint", true)
+      if(smpByte == 1) then
+        arrChan[arrChan.__top] = (byteUINT(smpTop, smpByte) - 128) / 128
+      elseif(smpByte == 2) then -- Two bytes per sample
         arrChan[arrChan.__top] = (byteUINT(smpTop, smpByte) - 32768) / 32768
       end
+      if(curChan == 1) then smpAll  = smpAll  - 1 end
       arrChan.__top = arrChan.__top + 1
       curChan = curChan + 1
+    else
+      common.logStatus("wav.read: Reached EOF before chunk size <"..smpAll..">")
+      smpAll = -1
     end
-  end
-  
-  wData["FORMAT"]["fDuration"] = smpData[1].__top / wData["FORMAT"]["dwSamplesPerSec"]
-  wData["FORMAT"]["fBlockAlign"] = totCnan * smpByte
-  wData["FORMAT"]["fBitRate"] = smpData[1].__top * totCnan * wData["FORMAT"]["dwBitsPerSample"]
-  wData["FORMAT"]["fBitRate"] = wData["FORMAT"]["fBitRate"] / (wData["FORMAT"]["fDuration"])
-    
-  W:close()
+  end; W:close()
   return wData, smpData
 end
 
