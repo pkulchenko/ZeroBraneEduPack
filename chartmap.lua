@@ -1,4 +1,4 @@
--- Copyright (C) 2017-2018 Deyan Dobromirov
+-- Copyright (C) 2017 Deyan Dobromirov
 -- A chart mapping functionalities library
 
 local common       = require("common")

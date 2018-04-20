@@ -1,4 +1,4 @@
--- Copyright (C) 2017-2018 Deyan Dobromirov
+-- Copyright (C) 2017 Deyan Dobromirov
 -- A general fractals calculation library
 
 local complex      = require("complex")

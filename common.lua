@@ -1,4 +1,4 @@
--- Copyright (C) 2017-2018 Deyan Dobromirov
+-- Copyright (C) 2017 Deyan Dobromirov
 -- A common functionalities library
 
 local os           = os
@@ -59,44 +59,6 @@ metaCommon.__func["phi"].out = function(itr)
   return metaCommon.__func["phi"].foo(0, itr)
 end
 
-function common.logSkipAdd(...)
-  local tArg, tNlg = {...}, metaCommon.__nlog
-  for key, val in pairs(tArg) do
-    table.insert(tNlg, tostring(val))
-    tNlg.__top = tNlg.__top + 1
-  end
-end
-
-function common.logSkipClear(...)
-  local tNlg = metaCommon.__nlog
-  if(common.isDryTable(tNlg)) then tNlg.__top = 0
-    for key, val in pairs(tNlg) do tNlg[key] = nil end
-  else local tArg = {...}
-    for key, val in pairs(tArg) do
-      local sVal = tostring(val); for ind, now in pairs(tNlg) do
-        if(tostring(now):find(sVal)) then tNlg[ind] = nil end
-      end
-    end
-  end; local nTop = tNlg.__top
-  while(not tNlg[nTop]) do nTop = nTop - 1 end
-  tNlg.__top = nTop; collectgarbage(); print(nTop)
-end
-
-function common.logString(anyMsg, ...)
-  local tNlg = metaCommon.__nlog
-  local nB, nT, sM = 1, tNlg.__top, tostring(anyMsg)
-  while(nB <= nT) do
-    local vB, vT = tNlg[nB], tNlg[nT]
-    if(vB and sM:find(vB)) then return ... end
-    if(vT and sM:find(vT)) then return ... end
-    nB, nT = (nB + 1), (nT - 1)
-  end; io.write(sM); return ...
-end
-
-function common.logStatus(anyMsg, ...)
-  return common.logString(tostring(anyMsg).."\n", ...)
-end
-
 function common.isNil(nVal)
   return (nVal == nil)
 end
@@ -144,6 +106,57 @@ function common.isBool(bVal)
   if(bVal == true ) then return true end
   if(bVal == false) then return true end
   return false
+end
+
+function common.logSkipAdd(...)
+  local tArg, tNlg = {...}, metaCommon.__nlog
+  for key, val in pairs(tArg) do
+    table.insert(tNlg, tostring(val))
+    tNlg.__top = tNlg.__top + 1
+  end
+end
+
+function common.logSkipClear(...)
+  local tNlg = metaCommon.__nlog
+  if(common.isDryTable(tNlg)) then tNlg.__top = 0
+    for key, val in pairs(tNlg) do tNlg[key] = nil end
+  else local tArg = {...}
+    for key, val in pairs(tArg) do
+      local sVal = tostring(val); for ind, now in pairs(tNlg) do
+        if(tostring(now):find(sVal)) then tNlg[ind] = nil end
+      end
+    end
+  end; local nTop = tNlg.__top
+  while(not tNlg[nTop]) do nTop = nTop - 1 end
+  tNlg.__top = nTop; collectgarbage(); print(nTop)
+end
+
+function common.logString(anyMsg, ...)
+  local tNlg = metaCommon.__nlog
+  local nB, nT, sM = 1, tNlg.__top, tostring(anyMsg)
+  while(nB <= nT) do
+    local vB, vT = tNlg[nB], tNlg[nT]
+    if(vB and sM:find(vB)) then return ... end
+    if(vT and sM:find(vT)) then return ... end
+    nB, nT = (nB + 1), (nT - 1)
+  end; io.write(sM); return ...
+end
+
+function common.logStatus(anyMsg, ...)
+  return common.logString(tostring(anyMsg).."\n", ...)
+end
+
+function common.logStackTB(sMsg, ...)
+  local iLev = 1; if(sMsg) then
+    common.logStatus(tostring(sMsg)) end
+  while(true) do
+    local tInf = debug.getinfo(iLev)
+    if(not tInf)then break end
+    if tInf.what ~= "C" then
+      common.logStatus(("[%s]:%d {%s} [%d]<%s>[%s]"):format(
+        tInf.source, tInf.currentline, tInf.what, tInf.linedefined, tInf.namewhat, tInf.name))
+    end; iLev = iLev + 1
+  end; return ...
 end
 
 function common.logConcat(anyMsg,aDel, ...)
@@ -196,14 +209,14 @@ end
 function common.stringImplode(tLst,sDel)
   local ID, sStr, sDel = 1, "", tostring(sDel or "")
   while(tLst and tLst[ID]) do sStr = sStr..tLst[ID]; ID = ID + 1
-    if(tLst[ID] and sDel ~= "") then sStr = sStr..sDel end
+    if(tLst[ID] and not common.isDryString(sDel)) then sStr = sStr..sDel end
   end; return sStr
 end
 
 function common.stringExplode(sStr,sDel)
   local tLst, sC, iDx, ID, dL = {""}, "", 1, 1, (sDel:len()-1)
   while(sC) do sC = sStr:sub(iDx,iDx+dL)
-    if    (sC ==  "" ) then return tLst
+    if(common.isDryString(sC)) then return tLst
     elseif(sC == sDel) then ID = ID + 1; tLst[ID], iDx = "", (iDx + dL)
     else tLst[ID] = tLst[ID]..sC:sub(1,1) end; iDx = iDx + 1
   end; return tLst
@@ -252,7 +265,7 @@ local function stringParseTableRec(sRc, fCnv, tInfo, nStg)
     return common.logStatus("common.stringTable: Table format invalid <"..sIn..">", false) end
   local tIn, tOut = fCnv(common.stringExplode(sIn:sub(2,-2),","), ","), {}
   for ID = 1, #tIn do local sVal = common.stringTrim(tIn[ID])
-    if(sVal ~= "") then
+    if(not common.isDryString(sVal)) then
       local tVal = fCnv(common.stringExplode(sVal,"="), "=")
       local kVal, vVal = tVal[1], tVal[2]
       if(not vVal) then -- If no key is provided but just value use default integer keys
@@ -261,12 +274,13 @@ local function stringParseTableRec(sRc, fCnv, tInfo, nStg)
         kVal, vVal = tInfo[nStg], kVal
       end
       -- Handle keys
-      if(kVal == "") then return common.logStatus("common.stringTable: Table key fail at <"..vVal..">", false) end
+      if(common.isDryString(kVal)) then
+        return common.logStatus("common.stringTable: Table key fail at <"..vVal..">", false) end
       if(tostring(kVal):sub(1,1)..tostring(kVal):sub(-1,-1) == "\"\"") then kVal = tostring(kVal):sub(2,-2)
       elseif(tonumber(kVal)) then kVal = tonumber(kVal)
       else kVal = tostring(kVal) end
       -- Handle values
-      if(vVal == "") then vVal = nil
+      if(common.isDryString(vVal)) then vVal = nil
       elseif(vVal:sub(1,1)..vVal:sub(-1,-1) == "\"\"") then vVal = vVal:sub(2,-2)
       elseif(vVal:sub(1,1)..vVal:sub(-1,-1) == "{}")   then vVal = stringParseTableRec(vVal, fCnv, tInfo, nStg + 1)
       else vVal = (tonumber(vVal) or 0) end
@@ -477,10 +491,12 @@ end
 
 function common.addPathLibrary(sB, sE)
   local bas = tostring(sB or "")
-  if(bas == "") then common.logStatus("common.addPathLibrary: Missing path") return end
+  if(common.isDryString(bas)) then
+    common.logStatus("common.addPathLibrary: Missing path") return end
   bas = ((bas:sub(-1,-1) == "/") and bas or (bas.."/"))
   local ext = tostring(sE or ""):gsub("%*",""):gsub("%.","")
-  if(ext == "") then common.logStatus("common.addPathLibrary: Missing extension") return end
+  if(common.isDryString(ext)) then
+    common.logStatus("common.addPathLibrary: Missing extension") return end
   local pad = (bas.."*."..ext):match("(.-)[^\\/]+$").."?."..ext
   package.path = package.path..";"..pad
 end
@@ -630,19 +646,6 @@ function common.tableArrReverse(tA)
     tA[nE], tA[nS] = tA[nS], tA[nE]
     nS, nE = (nS + 1), (nE - 1)
   end
-end
-
-function common.logStackTB(sMsg, ...)
-  local iLev = 1; if(sMsg) then
-    common.logStatus(tostring(sMsg)) end
-  while(true) do
-    local tInf = debug.getinfo(iLev)
-    if(not tInf)then break end
-    if tInf.what ~= "C" then
-      common.logStatus(("[%s]:%d {%s} [%d]<%s>[%s]"):format(
-        tInf.source, tInf.currentline, tInf.what, tInf.linedefined, tInf.namewhat, tInf.name))
-    end; iLev = iLev + 1
-  end; return ...
 end
 
 common.randomSetSeed()
