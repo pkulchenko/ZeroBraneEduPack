@@ -111,8 +111,20 @@ function signals.readWave(sN)
   return wData, smpData
 end
 
-function signals.FFT(tS)
+function signals.extLenBaseTwo(tS)
+  local nL = #tS; if(bit.band(nL - 1, nL) == 0) then
+    return common.logStatus("signals.extLenBaseTwo: Already extended", nil) end
+  local nP = (math.floor(math.log(nL, 2)) + 1)
+  local nT, tO = ((2 ^ nP) - nL), {}
+  for iD = 1, (nL + nT) do local vS = tS[iD]
+    if(vS) then tO[iD] = vS else tO[iD] = 0 end end; return tO
+end
 
+function signals.getDFT(tS)
+  local tF  = signals.extLenBaseTwo(tS)
+  local nN  = #tF
+  local nN2 = math.floor(nN / 2)
+  local tA  = common.tableArrMalloc2D(8, 1)
 end
 
 return signals

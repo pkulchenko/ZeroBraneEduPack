@@ -496,16 +496,26 @@ function common.addPathLibrary(sB, sE)
   bas = ((bas:sub(-1,-1) == "/") and bas or (bas.."/"))
   local ext = tostring(sE or ""):gsub("%*",""):gsub("%.","")
   if(common.isDryString(ext)) then
-    common.logStatus("common.addPathLibrary: Missing extension") return end
+    return common.logStatus("common.addPathLibrary: Missing extension") end
   local pad = (bas.."*."..ext):match("(.-)[^\\/]+$").."?."..ext
   package.path = package.path..";"..pad
 end
 
+function common.tableArrMallocDim(vT, ...)
+  local vA, tA = common.getPick(vT,vT,0), {...}
+  local nD, tO = table.remove(tA, 1), {}
+  if(common.isNil(nD)) then return vA end
+  for iD = 1, nD do
+    tO[iD] = common.tableArrMallocDim(vA, unpack(tA))
+  end; return tO
+end
+
+function common.tableArrMalloc(vT, nL)
+  return common.tableArrMallocDim(vT, nL)
+end
+
 function common.tableArrMalloc2D(w,h)
-  local tArr = {}
-  for y=1,h do tArr[y] = {}
-    for x=1,w do tArr[y][x] = 0 end
-  end; return tArr
+  return common.tableArrMallocDim(vT, h, w)
 end
 
 --[[

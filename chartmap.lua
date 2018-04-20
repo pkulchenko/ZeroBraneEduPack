@@ -220,7 +220,7 @@ local function newCoordSys(sName)
       text(tostring(xyP:getRound(0.001)),nA,px,py)
     end return self
   end
-  function self:plotGraph(tX, tY)
+  function self:drawGraph(tX, tY)
     local trA = newTracer("plotGraph"):setInterval(moiX, moiY)
     local ntX, ntY, toP = #tX, #tY; if(ntX ~= ntY) then
       logStatus("newCoordSys.plotGraph: Shorter <" ..ntX..","..ntY..">")
