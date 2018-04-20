@@ -481,6 +481,12 @@ local function logTableRec(tT,sS,tP,tD)
   end
 end
 
+--[[ The non-recursive (this) function must be called
+  tT -> The table to export/printout/log
+  sS -> A meaningful name for the exported log
+  tP -> A list of already met values to log correctly pointer to itself
+  tD -> A string converter to use when a meta table or type is met
+]]--
 function common.logTable(tT, sS, tP, tD)
   local lS, lP = tostring(sS or "Data")
   if(tT ~= nil) then lP = {[tT] = lS} end
@@ -502,7 +508,7 @@ function common.addPathLibrary(sB, sE)
 end
 
 function common.tableArrMallocDim(vT, ...)
-  local vA, tA = common.getPick(vT,vT,0), {...}
+  local vA, tA = common.getPick(vT,common.copyItem(vT),0), {...}
   local nD, tO = table.remove(tA, 1), {}
   if(common.isNil(nD)) then return vA end
   for iD = 1, nD do
@@ -516,6 +522,12 @@ end
 
 function common.tableArrMalloc2D(w,h)
   return common.tableArrMallocDim(vT, h, w)
+end
+
+-- Transfer array data from source to destination
+function common.tableArrTransfer(tD, tS)
+  local iD = 1; while(not common.isNil(tS[iD]))do
+    tD[iD] = tS[iD]; iD = iD + 1 end
 end
 
 --[[

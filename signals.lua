@@ -42,6 +42,8 @@ metaSignals["WAVE_HEADER"] = {
     {"dwChunkSize" , 4, byteUINT, "uint"  }
   }
 }
+metaSignals["IMAGINE_UNIT"] = complex.getNew(0, 1)
+metaSignals["COMPLEX_VEXP"] = complex.getNew(math.exp(1))
 
 function signals.readWave(sN)
   local sNam = tostring(sN)
@@ -111,20 +113,45 @@ function signals.readWave(sN)
   return wData, smpData
 end
 
-function signals.extLenBaseTwo(tS)
-  local nL = #tS; if(bit.band(nL - 1, nL) == 0) then
-    return common.logStatus("signals.extLenBaseTwo: Already extended", nil) end
+function signals.getExtendBaseTwo(tS)
+  local nL, tO = #tS, {}; if(bit.band(nL - 1, nL) == 0) then
+    common.tableArrTransfer(tO, tS); return tO end
   local nP = (math.floor(math.log(nL, 2)) + 1)
-  local nT, tO = ((2 ^ nP) - nL), {}
+  local nT = ((2 ^ nP) - nL)
   for iD = 1, (nL + nT) do local vS = tS[iD]
     if(vS) then tO[iD] = vS else tO[iD] = 0 end end; return tO
 end
 
+function signals.getPhaseFactorDFT(nK, nN)
+  local cE = metaSignals["COMPLEX_VEXP"]
+  local cI = metaSignals["IMAGINE_UNIT"]
+  local cK = cI:getNew(-2 * math.pi * nK, 0):Mul(cI):Div(nN, 0)
+  return cE:getPow(cK)
+end
+
 function signals.getDFT(tS)
-  local tF  = signals.extLenBaseTwo(tS)
-  local nN  = #tF
+  local cZ = complex.getNew()
+  local tF = signals.getExtendBaseTwo(tS)
+  for iD = 1, #tF do tF[iD] = cZ:getNew(tF[iD], 0) end
+  local nN, iM = #tF, 1
   local nN2 = math.floor(nN / 2)
-  local tA  = common.tableArrMalloc2D(8, 1)
+  local tA = common.tableArrMallocDim(cZ, nN)
+  local tT = common.tableArrMallocDim(cZ, nN)
+  local nR = common.binaryNeededBits(nN-1)
+  local getW = signals.getPhaseFactorDFT
+  for iD = 1, nN do tA[iD] = tF[common.binaryMirror(iD-1, nR) + 1] end
+  for iP = 1, nR do
+    for iK = 1, nN do -- Generation of T in phase iP
+      local iF = bit.band(iK-1, iM-1)
+      local cW = getW(iF, 2^iP)
+      if(bit.band(iM, iK-1) ~= 0) then local iL = iK - iM;
+        tT[iK] = tA[iL] - cW * tA[iK]
+      else local iL = iK + iM;
+        tT[iK] = tA[iK] + cW * tA[iL]
+      end
+    end; common.tableArrTransfer(tA, tT)
+    iM = bit.lshift(iM, 1); 
+  end; return tA
 end
 
 return signals
