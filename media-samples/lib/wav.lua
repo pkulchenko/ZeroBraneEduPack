@@ -1,21 +1,10 @@
 local wav    = {}
 local common = require("common")
 
-local revArr = common.tableArrReverse -- Reverse the array in case of little endian
-
--- This converts internal strings from table of bytes
-function byteSTR(tB, nB)
-  local out = {}; for ID = 1, #tB do
-    out[ID] = string.char(tB[ID]) end
-  return table.concat(out)
-end
-
--- This converts internal integers from table of bytes
-function byteUINT(tB, nB)
-  local out = 0
-  for ID = 1, nB do out = out * 256
-    out = out + tB[ID] end; return out
-end
+local revArr   = common.tableArrReverse -- Reverse the array in case of little endian
+local byteSTR  = common.bytesGetString
+local byteUINT = common.bytesGetNumber
+local byteMirr = common.binaryMirror
 
 -- This holds header and format definition location
 local dataTS = {

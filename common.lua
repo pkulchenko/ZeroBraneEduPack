@@ -655,6 +655,18 @@ function common.binaryMirror(nN, nB)
   end; return nO
 end
 
+function common.bytesGetString(tB)
+  local tO = {}; for iD = 1, #tB do
+    tO[iD] = string.char(tB[iD]) end
+  return table.concat(tO)
+end
+
+function common.bytesGetNumber(tB)
+  local nO = 0; for iD = 1, #tB do
+    nO = nO * 256; nO = nO + tB[iD]
+  end; return nO
+end
+
 common.randomSetSeed()
 
 return common
