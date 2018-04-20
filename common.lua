@@ -648,6 +648,13 @@ function common.tableArrReverse(tA)
   end
 end
 
+function common.binaryMirror(nN, nB)
+  local nO, nS = 0, nN
+  for iD = 1, nB do local nM = bit.band(nS, 1)
+    nS = bit.rshift(nS, 1); nO = bit.lshift(nO, 1); nO = bit.bor(nO, nM)
+  end; return nO
+end
+
 common.randomSetSeed()
 
 return common
