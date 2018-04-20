@@ -2,11 +2,11 @@ require("turtle")
 local common = require("common")
 local col = require("colormap")
 local crt = require("chartmap")
-local wav = require("media-samples/lib/wav")
+local sig = require("signals")
 
 -- https://blogs.msdn.microsoft.com/dawate/2009/06/23/intro-to-audio-programming-part-2-demystifying-the-wav-format/
 
-local wData, smpData = wav.read("media-samples/crickets.wav")
+local wData, smpData = sig.readWave("media-samples/crickets.wav")
 
 common.logTable(wData)
 common.logStatus("Array  samples: <"..(smpData[1].__top-1)..">")
