@@ -145,9 +145,9 @@ function signals.getDFT(tS)
       local iF = bit.band(iK-1, iM-1)
       local cW = getW(iF, 2^iP)
       if(bit.band(iM, iK-1) ~= 0) then local iL = iK - iM;
-        tT[iK] = tA[iL] - cW * tA[iK]
+        tT[iK] = tA[iL]:getSub(cW:Mul(tA[iK]))
       else local iL = iK + iM;
-        tT[iK] = tA[iK] + cW * tA[iL]
+        tT[iK] = tA[iK]:getAdd(cW:Mul(tA[iL]))
       end
     end; common.tableArrTransfer(tA, tT)
     iM = bit.lshift(iM, 1); 

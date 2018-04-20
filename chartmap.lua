@@ -176,6 +176,11 @@ local function newCoordSys(sName)
       return logStatus("newCoordSys.setInterval: Y object invalid", nil) end
     return self
   end
+  function self:setColorAxis(clMid) mclMid = (clMid or colr(0,0,0)); return self end
+  function self:setColorDXY(clDXY) mcldXY = (clDXY or colr(200,200,200)); return self end
+  function self:setColorPos(clPos) mclPos = (clPos or colr(255,0,0)); return self end
+  function self:setColorOrg(clOrg) mclOrg = (clOrg or colr(0,255,0)); return self end
+  function self:setColorDir(clDir) mclDir = (clDir or colr(0,0,255)); return self end
   function self:setColor(clMid, clDXY, clPos, clOrg, clDir)
     mclMid, mcldXY = (clMid or colr(0,0,0)), (clDXY or colr(200,200,200))
     mclPos = (clPos or colr(255,0,0))

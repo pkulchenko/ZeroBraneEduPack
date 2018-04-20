@@ -525,9 +525,14 @@ function common.tableArrMalloc2D(w,h)
 end
 
 -- Transfer array data from source to destination
-function common.tableArrTransfer(tD, tS)
+--[[
+  tD -> Destination array
+  tS -> Source Array
+  tC -> Array containing copy methods
+]]
+function common.tableArrTransfer(tD, tS, tC)
   local iD = 1; while(not common.isNil(tS[iD]))do
-    tD[iD] = tS[iD]; iD = iD + 1 end
+    tD[iD] = common.copyItem(tS[iD]); iD = iD + 1 end
 end
 
 --[[
