@@ -649,10 +649,17 @@ function common.tableArrReverse(tA)
 end
 
 function common.binaryMirror(nN, nB)
-  local nO, nS = 0, nN
-  for iD = 1, nB do local nM = bit.band(nS, 1)
-    nS = bit.rshift(nS, 1); nO = bit.lshift(nO, 1); nO = bit.bor(nO, nM)
+  local nO = 0; for iD = 1, nB do local nM = bit.band(nN, 1)
+    nN = bit.rshift(nN, 1); nO = bit.lshift(nO, 1); nO = bit.bor(nO, nM)
   end; return nO
+end
+
+function common.binaryNeededBits(nN, bE)
+  local nC = 0; while(nN ~= 0) do
+    if(bE) then nN = bit.lshift(nN, 1)
+    else nN = bit.rshift(nN, 1) end
+    nC = nC + 1
+  end; return nC
 end
 
 function common.bytesGetString(tB)

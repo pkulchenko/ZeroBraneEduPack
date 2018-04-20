@@ -1,7 +1,17 @@
+-- Copyright (C) 2017 Deyan Dobromirov
+-- A common functionalities library
+
+if not debug.getinfo(3) then
+  print("This is a module to load with `local signals = require('signals')`.")
+  os.exit(1)
+end
+
+local tonumber    = tonumber
+local tostring    = tostring
 local signals     = {}
 local metaSignals = {}
 local common      = require("common")
-
+local complex     = require("complex")
 local revArr      = common.tableArrReverse
 local byteSTR     = common.bytesGetString
 local byteUINT    = common.bytesGetNumber
@@ -45,7 +55,7 @@ function signals.readWave(sN)
       local nam, arr, foo, typ = par[1], par[2], par[3], par[4]
       curChunk[nam] = {}; local arrChunk = curChunk[nam]
       for K = 1, arr do arrChunk[K] = W:read(1):byte() end
-      if(typ == "uint" or typ == "ushort") then  revArr(arrChunk) end 
+      if(typ == "uint" or typ == "ushort") then  revArr(arrChunk) end
       if(foo) then curChunk[nam] = foo(arrChunk, arr) end
     end
   end; local gID
@@ -57,25 +67,25 @@ function signals.readWave(sN)
   if(gID ~= "fmt ") then return common.logStatus("signals.readWave: Format invalid <"..gID..">") end
   gID = wData["DATA"]["sGroupID"]
   if(gID ~= "data") then return common.logStatus("signals.readWave: Data invalid <"..gID..">") end
-  
+
   local smpData = {}
   local smpByte = (wData["FORMAT"]["dwBitsPerSample"] / 8)
   local smpAll  = wData["DATA"]["dwChunkSize"] / (smpByte * wData["FORMAT"]["wChannels"])
   local totCnan = wData["FORMAT"]["wChannels"]
   local curChan, isEOF = 1, false
-  
+
   wData["FORMAT"]["fDuration"] = smpAll / wData["FORMAT"]["dwSamplesPerSec"]
   wData["FORMAT"]["fBitRate"]  = smpAll * totCnan * wData["FORMAT"]["dwBitsPerSample"]
   wData["FORMAT"]["fBitRate"]  = wData["FORMAT"]["fBitRate"] / wData["FORMAT"]["fDuration"]
   wData["FORMAT"]["fDataFill"] = 100 * (wData["DATA"]["dwChunkSize"] / wData["HEADER"]["dwFileLength"])
   wData["DATA"]["dwSamplesPerChan"] = smpAll
-  
+
   while(not isEOF and smpAll > 0) do
     if(curChan > totCnan) then curChan = 1 end
     if(not smpData[curChan]) then smpData[curChan] = {__top = 1} end
     local arrChan = smpData[curChan]
           arrChan[arrChan.__top] = {}
-    local smpTop = arrChan[arrChan.__top] 
+    local smpTop = arrChan[arrChan.__top]
     for K = 1, smpByte do
       local smp = W:read(1)
       if(not smp) then
@@ -99,6 +109,10 @@ function signals.readWave(sN)
     end
   end; W:close()
   return wData, smpData
+end
+
+function signals.FFT(tS)
+
 end
 
 return signals

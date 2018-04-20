@@ -1,6 +1,11 @@
 -- Copyright (C) 2017 Deyan Dobromirov
 -- A chart mapping functionalities library
 
+if not debug.getinfo(3) then
+  print("This is a module to load with `local chartmap = require('chartmap')`.")
+  os.exit(1)
+end
+
 local common       = require("common")
 local type         = type
 local tonumber     = tonumber
@@ -10,11 +15,6 @@ local math         = math
 local logStatus    = common.logStatus
 local isNil        = common.isNil
 local chartmap     = {}
-
-if not debug.getinfo(3) then
-  print("This is a module to load with `local chartmap = require('chartmap')`.")
-  os.exit(1)
-end
 
 --[[
  * newInterval: Class that maps one interval onto another
@@ -134,6 +134,8 @@ local function newCoordSys(sName)
         pxY = mnH / (math.abs(maxY - minY) / mdY)
       end
     end
+    if(mdX == 0 or mdY == 0) then
+      return logStatus("newCoordSys.setDelta: Delta invalid", nil) end
     return self
   end
   function self:setBorder(nX, xX, nY, xY)
@@ -148,6 +150,8 @@ local function newCoordSys(sName)
         minY, maxY = moiY:getBorderIn()
       end
     end
+    if(minX == maxX or minY == maxY) then
+      return logStatus("newCoordSys.setBorder: Border invalid", nil) end
     midX, midY = (minX + ((maxX - minX) / 2)), (minY + ((maxY - minY) / 2))
     return self
   end
@@ -161,13 +165,15 @@ local function newCoordSys(sName)
         mnW = math.max(moiX:getBorderOut())
         mnH = math.max(moiY:getBorderOut())
       end
-    end; return self
+    end
+    if(mnW <= 0 or mnH <= 0) then
+      return logStatus("newCoordSys.setSize: Size invalid", nil) end; return self
   end
   function self:setInterval(intX, intY)
     moiX = intX; if(getmetatable(moiX) ~= metaInterval) then
-      return logStatus("newCoordSys.setInterval: X object invalid", self) end
+      return logStatus("newCoordSys.setInterval: X object invalid", nil) end
     moiY = intY; if(getmetatable(moiY) ~= metaInterval) then
-      return logStatus("newCoordSys.setInterval: Y object invalid", self) end
+      return logStatus("newCoordSys.setInterval: Y object invalid", nil) end
     return self
   end
   function self:setColor(clMid, clDXY, clPos, clOrg, clDir)
@@ -180,22 +186,22 @@ local function newCoordSys(sName)
   function self:Draw(bMx, bMy, bGrd)
     local xe = moiX:Convert(midX):getValue()
     local ye = moiY:Convert(midY):getValue()
-    if(bGrd) then local nK
+    if(bGrd) then pncl(mcldXY); local nK
       nK = 0; for x = midX, maxX, mdX do
         local xp = moiX:Convert(midX + nK * mdX):getValue()
         local xm = moiX:Convert(midX - nK * mdX):getValue()
-        nK = nK + 1; if(x ~= midX) then
-          pncl(mcldXY); line(xp, 0, xp, mnH); line(xm, 0, xm, mnH) end
+        nK = nK + 1; if(not bMy or x ~= midX) then
+          line(xp, 0, xp, mnH); line(xm, 0, xm, mnH) end
       end
       nK = 0; for y = midY, maxY, mdY do
         local yp = moiY:Convert(midY + nK * mdY):getValue()
         local ym = moiY:Convert(midY - nK * mdY):getValue()
-        nK = nK + 1; if(y ~= midY) then
+        nK = nK + 1; if(not bMx or y ~= midY) then
           pncl(mcldXY); line(0, yp, mnW, yp); line(0, ym, mnW, ym) end
       end
     end
-    if(xe and bMx) then pncl(mclMid); line(xe, 0, xe, mnH) end
-    if(ye and bMy) then pncl(mclMid); line(0, ye, mnW, ye) end
+    if(xe and bMx) then pncl(mclMid); line(0, ye, mnW, ye) end
+    if(ye and bMy) then pncl(mclMid); line(xe, 0, xe, mnH) end
     return self
   end
   function self:drawComplex(xyP, xyO, bTx)
@@ -213,6 +219,14 @@ local function newCoordSys(sName)
       local nA = xyP:getSub(xyO):getAngDeg()+90
       text(tostring(xyP:getRound(0.001)),nA,px,py)
     end return self
+  end
+  function self:plotGraph(tX, tY)
+    local trA = newTracer("plotGraph"):setInterval(moiX, moiY)
+    local ntX, ntY, toP = #tX, #tY; if(ntX ~= ntY) then
+      logStatus("newCoordSys.plotGraph: Shorter <" ..ntX..","..ntY..">")
+      toP = math.min(ntX, ntY) else toP = ntX end
+    for iD = 1, toP do trA:putValue(tX[iD], tY[iD]):Draw(mclDir) end
+    return self
   end
   function self:drawPoint(xyP)
     local sz, px, py = 2, xyP:getParts()

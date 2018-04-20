@@ -1,6 +1,11 @@
 -- Copyright (C) 2017 Deyan Dobromirov
 -- Conway's game of life core library
 
+if not debug.getinfo(3) then
+  print("This is a module to load with `local lifelib = require('lifelib')`.")
+  os.exit(1)
+end
+
 local common    = require("common")
 local lifelib   = {}
 local pairs     = pairs
@@ -11,11 +16,6 @@ local io        = io
 local metaStamp = {}
 local metaField = {}
 local metaData  = {}
-
-if not debug.getinfo(3) then
-  print("This is a module to load with `local lifelib = require('lifelib')`.")
-  os.exit(1)
-end
 
 metaStamp.__type = "lifelib.shape"
 metaField.__type = "lifelib.field"

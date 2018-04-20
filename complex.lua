@@ -1,6 +1,11 @@
 -- Copyright (C) 2017 Deyan Dobromirov
 -- A complex functionalities library
 
+if not debug.getinfo(3) then
+  print("This is a module to load with `local complex = require('complex')`.")
+  os.exit(1)
+end
+
 local common       = require("common")
 local type         = type
 local math         = math
@@ -25,11 +30,6 @@ local logString       = common.logString
 local getSignNon      = common.getSignNon
 local getValueKeys    = common.getValueKeys
 local randomGetNumber = common.randomGetNumber
-
-if not debug.getinfo(3) then
-  print("This is a module to load with `local complex = require('complex')`.")
-  os.exit(1)
-end
 
 metaComplex.__type  = "complex.complex"
 metaComplex.__index = metaComplex

@@ -1,5 +1,5 @@
 require("turtle")
-local common = require("common")
+local com = require("common")
 local col = require("colormap")
 local crt = require("chartmap")
 local sig = require("signals")
@@ -8,9 +8,9 @@ local sig = require("signals")
 
 local wData, smpData = sig.readWave("media-samples/crickets.wav")
 
-common.logTable(wData)
-common.logStatus("Array  samples: <"..(smpData[1].__top-1)..">")
-common.logStatus("Record samples: <"..wData["DATA"]["dwSamplesPerChan"]..">")
+com.logTable(wData)
+com.logStatus("Array  samples: <"..(smpData[1].__top-1)..">")
+com.logStatus("Record samples: <"..wData["DATA"]["dwSamplesPerChan"]..">")
 local smpFrac = math.floor(wData["DATA"]["dwSamplesPerChan"]/800)
 local tData, iTop = smpData[1], smpFrac
 local dX,dY = smpFrac/40, 0.1

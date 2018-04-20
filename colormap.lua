@@ -1,6 +1,11 @@
 -- Copyright (C) 2017 Deyan Dobromirov
 -- A color mapping functionalities library
 
+if not debug.getinfo(3) then
+  print("This is a module to load with `local colormap = require('colormap')`.")
+  os.exit(1)
+end
+
 local common    = require("common")
 local math      = math
 local colormap  = {}
@@ -17,11 +22,6 @@ local getValueKeys    = common.getValueKeys
 local stringExplode   = common.stringExplode
 local getClamp        = common.getClamp
 local getRound        = common.getRound
-
-if not debug.getinfo(3) then
-  print("This is a module to load with `local colormap = require('colormap')`.")
-  os.exit(1)
-end
 
 --[[ https://en.wikipedia.org/wiki/HSL_and_HSV ]]
 local function projectColorHC(h,c)

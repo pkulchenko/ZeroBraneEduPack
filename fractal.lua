@@ -1,6 +1,11 @@
 -- Copyright (C) 2017 Deyan Dobromirov
 -- A general fractals calculation library
 
+if not debug.getinfo(3) then
+  print("This is a module to load with `local fractal = require('fractal')`.")
+  os.exit(1)
+end
+
 local complex      = require("complex")
 local common       = require("common")
 local type         = type
@@ -11,11 +16,6 @@ local tostring     = tostring
 local setmetatable = setmetatable
 local logStatus    = common.logStatus
 local fractal      = {}
-
-if not debug.getinfo(3) then
-  print("This is a module to load with `local fractal = require('fractal')`.")
-  os.exit(1)
-end
 
 local mtPlaneZ     = {}
 mtPlaneZ.__type    = "fractal.z-plane"
