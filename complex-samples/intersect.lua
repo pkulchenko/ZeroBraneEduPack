@@ -21,8 +21,8 @@ local clRel = colr(col.getColorRedRGB())
 local clBlk = colr(col.getColorBlackRGB())
 local clGry = colr(greyLevel,greyLevel,greyLevel)
 local clMgn = colr(col.getColorMagenRGB())
-local crSys = crt.New("coordsys"):setBorder(minX, maxX, minY, maxY)
-      crSys:setSize(W, H):setColor(clBlk, clGry):setInterval(intX, intY):setDelta(dX, dY)
+local scOpe = crt.New("scope"):setBorder(minX, maxX, minY, maxY)
+      scOpe:setSize(W, H):setColor(clBlk, clGry):setInterval(intX, intY):setDelta(dX, dY)
 
 local function drawComplex(C, Cl)
   local x = intX:Convert(C:getReal()):getValue()
@@ -54,7 +54,7 @@ size(W,H)
 zero(0, 0)
 updt(false) -- disable auto updates
 
-crSys:Draw(true, true, true)
+scOpe:Draw(true, true, true)
 
 cRay1, cRay2, drw = {}, {}, true
 
@@ -102,7 +102,7 @@ while true do
     wipe(); drw = true
     cRay1[1], cRay1[2] = nil, nil
     cRay2[1], cRay2[2] = nil, nil; collectgarbage()
-    crSys:Draw(true, true, true)
+    scOpe:Draw(true, true, true)
   end
   updt()
 end

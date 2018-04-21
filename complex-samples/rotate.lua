@@ -19,8 +19,8 @@ local clGrn = colr(col.getColorGreenRGB())
 local clRed = colr(col.getColorRedRGB())
 local clBlk = colr(col.getColorBlackRGB())
 local clGry = colr(col.getColorPadRGB(gAlp))
-local crSys = crt.New("coordsys"):setInterval(intX, intY):setBorder()
-      crSys:setSize(W, H):setColor(clBlk, clGry):setDelta(dX, dY)
+local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder()
+      scOpe:setSize(W, H):setColor(clBlk, clGry):setDelta(dX, dY)
 
 local function drawComplex(C,A,T)
   local r = C:getRound(0.1)
@@ -39,7 +39,7 @@ open("Complex rotation")
 size(W, H); zero(0, 0)
 updt(false) -- disable auto updates
 
-crSys:Draw(true, true, true); updt()
+scOpe:Draw(true, true, true); updt()
 
 while(aAng < 360) do
   C:getRotRad(cmp.toRadian(aAng)):Action("ang",aAng,true)

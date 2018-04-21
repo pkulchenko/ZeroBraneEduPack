@@ -19,8 +19,8 @@ local p1 = complex.getNew(-3,0)
 local p2 = complex.getNew(-2,5) 
 local p3 = complex.getNew(7,0)
 local p4 = complex.getNew(7,7)
-local crSys = crt.New("coordsys"):setInterval(intX, intY):setBorder(minX, maxX, minY, maxY)
-      crSys:setSize(W, H):setColor(clBlk, clGry):setDelta(dX, dY)
+local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, minY, maxY)
+      scOpe:setSize(W, H):setColor(clBlk, clGry):setDelta(dX, dY)
 
 local tK = {"n","N","cnt","Cnt"}
 local ik = 3 -- 1..#tK
@@ -44,7 +44,7 @@ if(tS) then
   open("Complex Bezier curve")
   size(W,H); zero(0, 0); updt(false) -- disable auto updates
 
-  crSys:Draw(true, true, true)
+  scOpe:Draw(true, true, true)
 
   p1:Action("ab", p2, clB)
   p2:Action("ab", p3, clB)

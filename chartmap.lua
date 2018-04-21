@@ -112,13 +112,13 @@ end
  * CoordSys: Class that plots coordinate axises by scale
  * sName > A proper name to be identified as
 ]]--
-local metaCoordSys = {}
-      metaCoordSys.__index = metaCoordSys
-      metaCoordSys.__type  = "chartmap.coordsys"
-      metaCoordSys.__tostring = function(oCoordSys) return CoordSys:getString() end
-local function newCoordSys(sName)
+local metaScope = {}
+      metaScope.__index = metaScope
+      metaScope.__type  = "chartmap.scope"
+      metaScope.__tostring = function(oCoordSys) return CoordSys:getString() end
+local function newScope(sName)
   local mName = tostring(sName or "")
-  local self = {}; setmetatable(self, metaCoordSys)
+  local self = {}; setmetatable(self, metaScope)
   local mdX, mdY, mnW, mnH, minX, maxX, minY, maxY, midX, midY, moiX, moiY
   local mclMid, mcldXY, pxX, pxY = colr(0,0,0), colr(200,200,200)
   local mclPos, mclOrg, mclDir = colr(255,0,0), colr(0,255,0), colr(0,0,255)
@@ -268,7 +268,7 @@ local function newCoordSys(sName)
   function self:drawCircle(xyP, rR)
     return self:drawOval(xyP, rR, rR)
   end
-  function self:getString() return "["..metaCoordSys.__type.."] "..mName end
+  function self:getString() return "["..metaScope.__type.."] "..mName end
   return self
 end
 
@@ -276,7 +276,7 @@ function chartmap.New(sType, ...)
   local sType = "chartmap."..tostring(sType or "")
   if(sType == metaInterval.__type) then return newInterval(...) end
   if(sType == metaTracer.__type) then return newTracer(...) end
-  if(sType == metaCoordSys.__type) then return newCoordSys(...) end
+  if(sType == metaScope.__type) then return newScope(...) end
   return logStatus("chartmap.New: Object invalid <"..sType..">",nil)
 end
 

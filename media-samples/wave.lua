@@ -25,13 +25,13 @@ local clGry = colr(greyLevel,greyLevel,greyLevel)
 local clBlu = colr(col.getColorBlueRGB())
 local clRed = colr(col.getColorRedRGB())
 local clBlk = colr(col.getColorBlackRGB())
-local crWAV = crt.New("coordsys"):setInterval(intX, intY):setBorder(minX, maxX, minY, maxY)
-      crWAV:setSize(W, H):setDelta(dX, dY):setColor(clBlk, clGry)
+local scWAV = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, minY, maxY)
+      scWAV:setSize(W, H):setDelta(dX, dY):setColor(clBlk, clGry)
  
 open("Wave file plotter")
 size(W,H); zero(0, 0); updt(false) -- disable auto updates
 
-crWAV:Draw(true, true, true)
+scWAV:Draw(true, true, true)
 
 for i = 1, iTop do
   trWAV:putValue(i, tData[i]):Draw(clBlu); updt()

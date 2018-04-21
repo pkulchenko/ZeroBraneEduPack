@@ -129,7 +129,7 @@ function signals.getPhaseFactorDFT(nK, nN)
   return cE:getPow(cK)
 end
 
-function signals.getDFT(tS)
+function signals.getForwardDFT(tS)
   local cZ = complex.getNew()
   local tF = signals.getExtendBaseTwo(tS)
   for iD = 1, #tF do tF[iD] = cZ:getNew(tF[iD], 0) end

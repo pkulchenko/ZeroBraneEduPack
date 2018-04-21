@@ -22,8 +22,8 @@ local clRed = colr(col.getColorRedRGB())
 local clBlk = colr(col.getColorBlackRGB())
 local clGry = colr(greyLevel,greyLevel,greyLevel)
 local cmRan, cmZ = cmp.getNew(), cmp.getNew()
-local crSys = crt.New("coordsys"):setBorder(minX, maxX, minY, maxY)
-      crSys:setSize(W, H):setColor(clBlk, clGry):setInterval(intX, intY):setDelta(dX, dY)
+local scOpe = crt.New("scope"):setBorder(minX, maxX, minY, maxY)
+      scOpe:setSize(W, H):setColor(clBlk, clGry):setInterval(intX, intY):setDelta(dX, dY)
 
 local function drawComplex(C, Cl)
   local x = intX:Convert(C:getReal()):getValue()
@@ -53,7 +53,7 @@ zero(0, 0)
 updt(false) -- disable auto updates
 
 while(true) do wipe()
-  crSys:Draw(true, true, true)
+  scOpe:Draw(true, true, true)
   for ID = 1, mxNum do
     cmRan:Random():Sub(0.5,0.5):Mul(40):Action("xy", clRed)
   end; updt(); wait(0.01); com.randomSetSeed()
