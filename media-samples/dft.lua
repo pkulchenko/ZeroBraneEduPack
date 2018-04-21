@@ -22,15 +22,15 @@ local W, H = 1000, 600
 local intX  = chartmap.New("interval","WinX", 0, et, 0, W)
 local intY  = chartmap.New("interval","WinY", -1, 1, H, 0)
 
-local crSys = chartmap.New("coordsys"):setInterval(intX, intY):setBorder()
-      crSys:setSize():setColor():setDelta(et / 10, 0.1)
+local crSys = chartmap.New("coordsys"):setInterval(intX, intY)
+      crSys:setUpdate():setColor():setDelta(et / 10, 0.1)
 
-open("Discrete Fourier Transform (DFT) graph (blue) and sampled signal (red)")
+open("Discrete Fourier Transform (DFT) graph (red) and sampled signal (blue)")
 size(W, H); zero(0, 0)
 updt(false) -- disable auto updates
 
 crSys:Draw(true, false, true)
-crSys:drawGraph(t, s)
+crSys:drawGraph(s, t)
 
 local dft = signals.getDFT(s)
 local xft, mft = {}, 0
@@ -39,11 +39,10 @@ for i = 1, #dft do
 end
 for i = 1, #dft do
   xft[i] = (dft[i]:getNorm() / mft) * 2 - 1
-  t[i] = i
 end
 
 intX:setBorderIn(1, #dft)
-crSys:setInterval(intX, intY):setBorder():setSize()
-crSys:setColorDir(colr(colormap.getColorRedRGB())):drawGraph(t, xft)
+crSys:setInterval(intX, intY):setUpdate()
+crSys:setColorDir(colr(colormap.getColorRedRGB())):drawGraph(xft); updt()
 
 wait()

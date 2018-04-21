@@ -141,7 +141,7 @@ function signals.getDFT(tS)
   local getW = signals.getPhaseFactorDFT
   for iD = 1, nN do tA[iD] = tF[common.binaryMirror(iD-1, nR) + 1] end
   for iP = 1, nR do
-    for iK = 1, nN do -- Generation of T in phase iP
+    for iK = 1, nN do -- Generation of tT in phase iP
       local iF = bit.band(iK-1, iM-1)
       local cW = getW(iF, 2^iP)
       if(bit.band(iM, iK-1) ~= 0) then local iL = iK - iM;

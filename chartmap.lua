@@ -169,6 +169,11 @@ local function newCoordSys(sName)
     if(mnW <= 0 or mnH <= 0) then
       return logStatus("newCoordSys.setSize: Size invalid", nil) end; return self
   end
+  function self:setUpdate()
+    if(isNil(moiX) or isNil(moiY)) then
+      return logStatus("newCoordSys.UpdateInt: Skip", nil) end
+    return self:setBorder():setSize()
+  end
   function self:setInterval(intX, intY)
     moiX = intX; if(getmetatable(moiX) ~= metaInterval) then
       return logStatus("newCoordSys.setInterval: X object invalid", nil) end
@@ -225,12 +230,20 @@ local function newCoordSys(sName)
       text(tostring(xyP:getRound(0.001)),nA,px,py)
     end return self
   end
-  function self:drawGraph(tX, tY)
+  function self:drawGraph(tY, tX)
+    if(not common.isTable(tY)) then
+      logStatus("newCoordSys.plotGraph: Skip", self) end
+    local ntY, bX, ntX, toP = #tY, false
+    if(common.isTable(tX)) then ntX, bX = #tX, true
+      if(ntX ~= ntY) then
+        logStatus("newCoordSys.plotGraph: Shorter <" ..ntX..","..ntY..">")
+        toP = math.min(ntX, ntY) else toP = ntY end
+    else toP, bX = ntY, false end
     local trA = newTracer("plotGraph"):setInterval(moiX, moiY)
-    local ntX, ntY, toP = #tX, #tY; if(ntX ~= ntY) then
-      logStatus("newCoordSys.plotGraph: Shorter <" ..ntX..","..ntY..">")
-      toP = math.min(ntX, ntY) else toP = ntX end
-    for iD = 1, toP do trA:putValue(tX[iD], tY[iD]):Draw(mclDir) end
+    for iD = 1, toP do
+      local vX = common.getPick(bX, tX and tX[iD], iD) 
+      trA:putValue(vX, tY[iD]):Draw(mclDir)
+    end
     return self
   end
   function self:drawPoint(xyP)
