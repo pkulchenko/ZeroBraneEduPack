@@ -499,7 +499,7 @@ function common.addPathLibrary(sB, sE)
   local bas = tostring(sB or "")
   if(common.isDryString(bas)) then
     common.logStatus("common.addPathLibrary: Missing path") return end
-  bas = ((bas:sub(-1,-1) == "/") and bas or (bas.."/"))
+  bas = common.getPick(bas:sub(-1,-1) == "/", bas, bas.."/")
   local ext = tostring(sE or ""):gsub("%*",""):gsub("%.","")
   if(common.isDryString(ext)) then
     return common.logStatus("common.addPathLibrary: Missing extension") end
@@ -507,8 +507,8 @@ function common.addPathLibrary(sB, sE)
   package.path = package.path..";"..pad
 end
 
-function common.tableArrMallocDim(vT, ...)
-  local vA, tA = common.getPick(vT,common.copyItem(vT),0), {...}
+function common.tableArrMallocDim(vV, ...)
+  local vA, tA = common.getPick(vV,common.copyItem(vV),0), {...}
   local nD, tO = table.remove(tA, 1), {}
   if(common.isNil(nD)) then return vA end
   for iD = 1, nD do
@@ -516,12 +516,12 @@ function common.tableArrMallocDim(vT, ...)
   end; return tO
 end
 
-function common.tableArrMalloc(vT, nL)
-  return common.tableArrMallocDim(vT, nL)
+function common.tableArrMalloc(nL)
+  return common.tableArrMallocDim(0, nL)
 end
 
-function common.tableArrMalloc2D(w,h)
-  return common.tableArrMallocDim(vT, h, w)
+function common.tableArrMalloc2D(nW, nH)
+  return common.tableArrMallocDim(0, nH, nW)
 end
 
 -- Transfer array data from source to destination
@@ -540,14 +540,14 @@ end
  * arLin -> Linear array in format {1,2,3,4,w=2,h=2}
  * w,h   -> Custom array size
 ]]
-function common.tableArrConvert2D(arLin,w,h)
+function common.tableArrConvert2D(arLin, vW, vH)
   if(not arLin) then return false end
-  local nW, nH = (w or arLin.w), (h or arLin.h)
+  local nW, nH = (vW or arLin.w), (vH or arLin.h)
   if(not (nW and nH)) then return false end
   if(not (nW > 0 and nH > 0)) then return false end
   arRez = common.tableArrMalloc2D(nW, nH)
   for i = 0, (nH-1) do for j = 0, (nW-1) do
-      arRez[i+1][j+1] = (tonumber(arLin[i*w+j+1]) or 0)
+      arRez[i+1][j+1] = (tonumber(arLin[i*nW+j+1]) or 0)
   end end; return arRez
 end
 

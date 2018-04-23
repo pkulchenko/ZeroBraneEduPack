@@ -125,32 +125,34 @@ end
 function signals.getPhaseFactorDFT(nK, nN)
   local cE = metaSignals["COMPLEX_VEXP"]
   local cI = metaSignals["IMAGINE_UNIT"]
-  local cK = cI:getNew(-2 * math.pi * nK, 0):Mul(cI):Div(nN, 0)
-  return cE:getPow(cK)
+  local cK = cI:getNew(-2 * math.pi * nK, 0)
+  return cE:getPow(cK:Mul(cI):Div(nN, 0))
 end
 
 function signals.getForwardDFT(tS)
   local cZ = complex.getNew()
   local tF = signals.getExtendBaseTwo(tS)
-  for iD = 1, #tF do tF[iD] = cZ:getNew(tF[iD], 0) end
-  local nN, iM = #tF, 1
+  local nN, iM, tA, tT = #tF, 1, {}, {}
+  for iD = 1, nN do tF[iD] = cZ:getNew(tF[iD]) end
   local nN2 = math.floor(nN / 2)
-  local tA = common.tableArrMallocDim(cZ, nN)
-  local tT = common.tableArrMallocDim(cZ, nN)
   local nR = common.binaryNeededBits(nN-1)
   local getW = signals.getPhaseFactorDFT
-  for iD = 1, nN do tA[iD] = tF[common.binaryMirror(iD-1, nR) + 1] end
+  for iD = 1, nN do
+    tA[iD], tT[iD] = cZ:getNew(), cZ:getNew()
+    local mID = (common.binaryMirror(iD-1, nR) + 1)
+    tA[iD]:Set(tF[mID])
+  end
   for iP = 1, nR do
     for iK = 1, nN do -- Generation of tT in phase iP
-      local iF = bit.band(iK-1, iM-1)
-      local cW = getW(iF, 2^iP)
+      local cW = getW(bit.band(iK-1, iM-1), 2^iP)
       if(bit.band(iM, iK-1) ~= 0) then local iL = iK - iM;
-        tT[iK] = tA[iL]:getSub(cW:Mul(tA[iK]))
+        tT[iK]:Set(tA[iL]):Sub(cW:Mul(tA[iK]))
       else local iL = iK + iM;
-        tT[iK] = tA[iK]:getAdd(cW:Mul(tA[iL]))
-      end
-    end; common.tableArrTransfer(tA, tT)
-    iM = bit.lshift(iM, 1); 
+        tT[iK]:Set(tA[iK]):Add(cW:Mul(tA[iL]))
+      end -- One butterfly is completed
+    end
+    for iD = 1, nN do tA[iD]:Set(tT[iD]) end
+    iM = bit.lshift(iM, 1)
   end; return tA
 end
 

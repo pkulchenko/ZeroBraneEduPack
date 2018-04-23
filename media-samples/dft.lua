@@ -41,7 +41,7 @@ for i = 1, #dft do
   xft[i] = (dft[i]:getNorm() / mft) * 2 - 1
 end
 
-common.logStatus("DFT scale uses "..(fs/2)/(#xft/2).."hertz per division")
+common.logStatus("DFT scale uses "..(fs/#xft).." Hz per division")
 
 intX:setBorderIn(1, #dft)
 scOpe:setInterval(intX, intY):setUpdate()
