@@ -11,7 +11,7 @@ local wData, smpData = sig.readWave("media-samples/crickets.wav")
 com.logTable(wData)
 com.logStatus("Array  samples: <"..(smpData[1].__top-1)..">")
 com.logStatus("Record samples: <"..wData["DATA"]["dwSamplesPerChan"]..">")
-local smpFrac = math.floor(wData["DATA"]["dwSamplesPerChan"]/800)
+local smpFrac = math.floor(wData["DATA"]["dwSamplesPerChan"]/2)
 local tData, iTop = smpData[1], smpFrac
 local dX,dY = smpFrac/40, 0.1
 local W , H = 800, 500
@@ -31,7 +31,7 @@ local scWAV = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, min
 open("Wave file plotter")
 size(W,H); zero(0, 0); updt(false) -- disable auto updates
 
-scWAV:Draw(true, true, true)
+scWAV:Draw(true, false, true)
 
 for i = 1, iTop do
   trWAV:putValue(i, tData[i]):Draw(clBlu); updt()

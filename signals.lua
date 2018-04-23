@@ -34,7 +34,7 @@ metaSignals["WAVE_HEADER"] = {
     {"dwSamplesPerSec" , 4, byteUINT, "uint"   },
     {"dwAvgBytesPerSec", 4, byteUINT, "uint"   }, -- sampleRate * blockAlign
     {"wBlockAlign"     , 2, byteUINT, "ushort" },
-    {"dwBitsPerSample" , 4, byteUINT, "uint"   }
+    {"dwBitsPerSample" , 2, byteUINT, "uint"   }
   },
   {
     Name = "DATA",
