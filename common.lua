@@ -532,7 +532,7 @@ end
 ]]
 function common.tableArrTransfer(tD, tS, tC)
   local iD = 1; while(not common.isNil(tS[iD]))do
-    tD[iD] = common.copyItem(tS[iD]); iD = iD + 1 end
+    tD[iD] = common.copyItem(tS[iD], tC); iD = iD + 1 end
 end
 
 --[[

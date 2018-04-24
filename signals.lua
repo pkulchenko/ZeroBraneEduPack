@@ -16,6 +16,7 @@ local revArr      = common.tableArrReverse
 local byteSTR     = common.bytesGetString
 local byteUINT    = common.bytesGetNumber
 local byteMirr    = common.binaryMirror
+local isNil       = common.isNil
 
 -- This holds header and format definition location
 metaSignals["WAVE_HEADER"] = {
@@ -132,23 +133,27 @@ end
 function signals.getForwardDFT(tS)
   local cZ = complex.getNew()
   local tF = signals.getExtendBaseTwo(tS)
-  local nN, iM, tA, tT = #tF, 1, {}, {}
+  local nN, iM, tA, tT, tW = #tF, 1, {}, {}, {}
   for iD = 1, nN do tF[iD] = cZ:getNew(tF[iD]) end
-  local nN2 = math.floor(nN / 2)
   local nR = common.binaryNeededBits(nN-1)
   local getW = signals.getPhaseFactorDFT
   for iD = 1, nN do
     tA[iD], tT[iD] = cZ:getNew(), cZ:getNew()
     local mID = (common.binaryMirror(iD-1, nR) + 1)
     tA[iD]:Set(tF[mID])
-  end
+  end; local cT = cZ:getNew()
   for iP = 1, nR do
     for iK = 1, nN do -- Generation of tT in phase iP
-      local cW = getW(bit.band(iK-1, iM-1), 2^iP)
-      if(bit.band(iM, iK-1) ~= 0) then local iL = iK - iM;
-        tT[iK]:Set(tA[iL]):Sub(cW:Mul(tA[iK]))
-      else local iL = iK + iM;
-        tT[iK]:Set(tA[iK]):Add(cW:Mul(tA[iL]))
+      local pA = (bit.band(iK-1, iM-1) + 1)
+      if(isNil(tW[iP])) then tW[iP] = {} end
+      local cW = tW[iP][pA] -- Retrieve the needed factor
+      if(isNil(cW)) then -- Check if there is a factor calculated
+        cW = getW(pA-1, 2^iP); tW[iP][pA] = cW -- Calculate factor
+      end; cT:Set(cW) -- Write down the calculated phase factor
+      if(bit.band(iM, iK-1) ~= 0) then local iL = iK - iM
+        tT[iK]:Set(tA[iL]):Sub(cT:Mul(tA[iK]))
+      else local iL = iK + iM
+        tT[iK]:Set(tA[iK]):Add(cT:Mul(tA[iL]))
       end -- One butterfly is completed
     end
     for iD = 1, nN do tA[iD]:Set(tT[iD]) end
