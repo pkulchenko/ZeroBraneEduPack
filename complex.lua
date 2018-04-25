@@ -568,12 +568,11 @@ function metaComplex:getFormat(...)
     local eS = math.floor((#tkR + #tkI)/2)
           iD = getClamp((tonumber(tArg[2]) or 1), 1, eS)
     local sF, sB = tvB[1]:sub(iB,iB), tvB[2]:sub(iB,iB)
-    local kR = tostring(tArg[5] or tkR[iD])
-    local kI = tostring(tArg[6] or tkI[iD])
+    local kR, kI = (tArg[5] or tkR[iD]), (tArg[6] or tkI[iD])
     if(not (kR and kI)) then return tostring(self) end
     local qR, qI = isString(kR), isString(kI)
-          kR = qR and ("\""..kR.."\"") or kR
-          kI = qI and ("\""..kI.."\"") or kI
+          kR = qR and ("\""..kR.."\"") or tostring(kR)
+          kI = qI and ("\""..kI.."\"") or tostring(kI)
     return (sF.."["..kR.."]="..sN:format(R)..
                ",["..kI.."]="..sN:format(I)..sB)
   elseif(sMod == "string") then

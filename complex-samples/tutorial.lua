@@ -55,12 +55,15 @@ tPar[2] = {
 }
 
 tPar[3] = {
-  Name = "Table with variety of key storage",
-  {Typ="string j", Arg={"7+j7"},Out="{7,7}"},
-  {Typ="string j", Arg={"7+j7"},Out="{7,7}"},
-  {Typ="string i", Arg={"7+7i"},Out="{7,7}"},
-  {Typ="string J", Arg={"7+J7"},Out="{7,7}"},
-  {Typ="string I", Arg={"7+7J"},Out="{7,7}"}
+  Name = "String with variety of outputs",
+  {Typ="string +i", Arg={"7+i7"},Out="{7,7}"},
+  {Typ="string +j", Arg={"7+j7"},Out="{7,7}"},
+  {Typ="string i+", Arg={"7+7i"},Out="{7,7}"},
+  {Typ="string j+", Arg={"7+7j"},Out="{7,7}"},
+  {Typ="string +I", Arg={"7+I7"},Out="{7,7}"},
+  {Typ="string +J", Arg={"7+J7"},Out="{7,7}"},
+  {Typ="string I+", Arg={"7+7I"},Out="{7,7}"},
+  {Typ="string J+", Arg={"7+7J"},Out="{7,7}"}
 }
 
 tPar[4] = {
@@ -125,8 +128,8 @@ tPar[1] = {
 
 tPar[2] = {
   Name = "Table export",
-  {Typ="Export table 1", Arg={a,"table"}, Out="{[\"1\"]=7.000000,[\"2\"]=7.000000}"},
-  {Typ="Export table 2", Arg={a,"table",1,"%f",1}, Out="{[\"1\"]=7.000000,[\"2\"]=7.000000}"},
+  {Typ="Export table 1", Arg={a,"table"}, Out="{[1]=7.000000,[2]=7.000000}"},
+  {Typ="Export table 2", Arg={a,"table",1,"%f",1}, Out="{[1]=7.000000,[2]=7.000000}"},
   {Typ="Export table 3", Arg={a,"table",3,"%5.2f",4}, Out="<[\"real\"]= 7.00,[\"imag\"]= 7.00>"},
   {Typ="Export table 4", Arg={a,"table",3,"%5.2f",4,"asd","fgh"}, Out="<[\"asd\"]= 7.00,[\"fgh\"]= 7.00>"}
 }

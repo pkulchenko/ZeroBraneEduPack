@@ -43,6 +43,7 @@ metaSignals["WAVE_HEADER"] = {
     {"dwChunkSize" , 4, byteUINT, "uint"  }
   }
 }
+metaSignals["REALNUM_UNIT"] = complex.getNew(1, 0)
 metaSignals["IMAGINE_UNIT"] = complex.getNew(0, 1)
 metaSignals["COMPLEX_VEXP"] = complex.getNew(math.exp(1))
 
@@ -124,6 +125,8 @@ function signals.getExtendBaseTwo(tS)
 end
 
 function signals.getPhaseFactorDFT(nK, nN)
+  if(nK == 0) then
+    return metaSignals["REALNUM_UNIT"]:getNew() end
   local cE = metaSignals["COMPLEX_VEXP"]
   local cI = metaSignals["IMAGINE_UNIT"]
   local cK = cI:getNew(-2 * math.pi * nK, 0)
