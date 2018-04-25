@@ -531,6 +531,18 @@ function metaComplex:isAmongLine(cS, cE, bF)
   end; return false
 end
 
+function metaComplex:isRealZero()
+  return (math.abs(self:getReal()) < metaData.__margn)
+end
+
+function metaComplex:isImagZero()
+  return (math.abs(self:getImag()) < metaData.__margn)
+end
+
+function metaComplex:isZero()
+  return (self:isRealZero() and self:isImagZero())
+end
+
 function metaComplex:isAmongRay(cO, cD, bF)
   local nM = metaData.__margn
   local cE = cO:getNew():Add(cD)
