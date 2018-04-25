@@ -125,12 +125,10 @@ function signals.getExtendBaseTwo(tS)
 end
 
 function signals.getPhaseFactorDFT(nK, nN)
-  if(nK == 0) then
-    return metaSignals["REALNUM_UNIT"]:getNew() end
   local cE = metaSignals["COMPLEX_VEXP"]
   local cI = metaSignals["IMAGINE_UNIT"]
   local cK = cI:getNew(-2 * math.pi * nK, 0)
-  return cE:getPow(cK:Mul(cI):Div(nN, 0))
+  return cE:getPow(cK:Mul(cI):Div(2^nN, 0))
 end
 
 function signals.getForwardDFT(tS)
@@ -147,12 +145,8 @@ function signals.getForwardDFT(tS)
   end; local cT = cZ:getNew()
   for iP = 1, nR do
     for iK = 1, nN do -- Generation of tT in phase iP
-      local pA = (bit.band(iK-1, iM-1) + 1)
-      if(isNil(tW[iP])) then tW[iP] = {} end
-      local cW = tW[iP][pA] -- Retrieve the needed factor
-      if(isNil(cW)) then -- Check if there is a factor calculated
-        cW = getW(pA-1, 2^iP); tW[iP][pA] = cW -- Calculate factor
-      end; cT:Set(cW) -- Write down the calculated phase factor
+      -- Write down the calculated phase factor
+      cT:Set(getW(bit.band(iK-1, iM-1), iP))
       if(bit.band(iM, iK-1) ~= 0) then local iL = iK - iM
         tT[iK]:Set(tA[iL]):Sub(cT:Mul(tA[iK]))
       else local iL = iK + iM
