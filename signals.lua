@@ -50,6 +50,7 @@ metaSignals["REALNUM_UNIT"] = complex.getNew(1, 0)
 metaSignals["IMAGINE_UNIT"] = complex.getNew(0, 1)
 metaSignals["COMPLEX_VEXP"] = complex.getNew(math.exp(1))
 metaSignals["WIN_FLATTOP"] = {0.21557895, 0.41663158, 0.277263158, 0.083578947, 0.006947368}
+metaSignals["WIN_NUTTALL"] = {0.3635819,  0.4891775, 0.1365995, 0.0106411}
 
 function signals.readWave(sN)
   local sNam = tostring(sN)
@@ -179,17 +180,19 @@ end
 -- Flattop window of length N
 function signals.winFlattop(nN,...)
   local tP, tA = {...}, metaSignals["WIN_FLATTOP"]
-  for iD = 1, 5 do
-    tP[iD] = common.getPick(tP[iD], tP[iD], tA[iD]) end
+  for iD = 1, 5 do local vP = tP[iD]
+    tP[iD] = common.getPick(vP, vP, tA[iD]) end
   local nN, tW = (nN - 1), {}
-  local nK, nS = ((2 * math.pi) / nN), 1
-  for iD = 1, (nN+1) do local nM = tP[1]
+  local nK = ((2 * math.pi) / nN)
+  for iD = 1, (nN+1) do
+    local nM, nS = tP[1], 1
     for iK = 2, 5 do nS = -nS
       nM = nM + nS * tP[iK] * math.cos(nK * (iK-1) * (iD-1))
     end; tW[iD] = nM
   end; return tW
 end
 
+-- Triangle window of length N
 function signals.winTriangle(nN)
   local tW, nK, nS, nE = {}, 2/(nN-1), 1, nN
   tW[nS], tW[nE] = 0, 0
@@ -198,6 +201,21 @@ function signals.winTriangle(nN)
     tW[nS] = tW[nS-1] + nK
     tW[nE] = tW[nE+1] + nK
     nS, nE = (nS + 1), (nE - 1)  
+  end; return tW
+end
+
+-- Nuttall window of length N
+function signals.winNuttall(nN,...)
+  local tP, tA = {...}, metaSignals["WIN_NUTTALL"]
+  for iD = 1, 4 do local vP = tP[iD]
+    tP[iD] = common.getPick(vP, vP, tA[iD]) end
+  local nN, tW = (nN - 1), {}
+  local nK = ((2 * math.pi) / nN)
+  for iD = 1, (nN+1) do
+    local nM, nS = tP[1], 1
+    for iK = 2, 4 do nS = -nS
+      nM = nM + nS * tP[iK] * math.cos(nK * (iK-1) * (iD-1))
+    end; tW[iD] = nM
   end; return tW
 end
 

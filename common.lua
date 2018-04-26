@@ -328,11 +328,11 @@ function common.isEven(nV)
   return ((nV % 2) == 0)
 end
 
-function common.getSign(nVal)
+function common.getSign(nV)
   return ((nV > 0 and 1) or (nV < 0 and -1) or 0)
 end
 
-function common.getSignNon(nVal)
+function common.getSignNon(nV)
   return ((nV >= 0 and 1) or -1)
 end
 
