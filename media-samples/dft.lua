@@ -16,11 +16,12 @@ for d = 0, et, pr do
   t[i], s[i] = d, math.sin(w * d)
   i = i + 1
 end
+local tW = signals.winHamming(#s)
+for i = 1, #s do s[i] = s[i] * tW[i] end
 
 local W, H = 1000, 600
 local intX  = chartmap.New("interval","WinX", 0, et, 0, W)
 local intY  = chartmap.New("interval","WinY", -1, 1, H, 0)
-
 local scOpe = chartmap.New("scope"):setInterval(intX, intY)
       scOpe:setUpdate():setColor():setDelta(et / 10, 0.1)
 

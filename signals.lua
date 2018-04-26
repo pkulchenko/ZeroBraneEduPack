@@ -49,6 +49,7 @@ metaSignals["WAVE_HEADER"] = {
 metaSignals["REALNUM_UNIT"] = complex.getNew(1, 0)
 metaSignals["IMAGINE_UNIT"] = complex.getNew(0, 1)
 metaSignals["COMPLEX_VEXP"] = complex.getNew(math.exp(1))
+metaSignals["WIN_FLATTOP"] = {0.21557895, 0.41663158, 0.277263158, 0.083578947, 0.006947368}
 
 function signals.readWave(sN)
   local sNam = tostring(sN)
@@ -125,6 +126,68 @@ function signals.getExtendBaseTwo(tS)
   local nT = ((2 ^ nP) - nL)
   for iD = 1, (nL + nT) do local vS = tS[iD]
     if(vS) then tO[iD] = vS else tO[iD] = 0 end end; return tO
+end
+
+-- Blackman window of length N
+function signals.winBlackman(nN)
+  local nK = (2 * math.pi / (nN-1))
+  local tW, nN = {}, (nN-1)
+  for iD = 1, (nN+1) do local nP = nK*(iD-1)
+    tW[iD] = 0.42 - 0.5*math.cos(nP) + 0.08*math.cos(2*nP)
+  end; return tW
+end
+
+-- Hamming window of length N
+function signals.winHamming(nN)
+  local tW, nN = {}, (nN-1)
+  local nK = (2 * math.pi / nN)
+  for iD = 1, (nN+1) do
+    tW[iD] = 0.54 - 0.46 * math.cos(nK * (iD - 1))
+  end; return tW
+end
+
+-- Gauss window of length N
+function signals.winGauss(nN, vA)
+  local nA = common.getPick(vA, vA, 2.5)
+  local tW, nN = {}, (nN - 1)
+  local N2, nK = (nN / 2), (2*nA / (nN-1))
+  for iD = 1, (nN+1) do
+    local pN = nK*(iD - N2 - 1)
+    tW[iD] = math.exp(-0.5 * pN^2)
+  end; return tW
+end
+
+-- Barthann window of length N
+function signals.winBarthann(nN)
+  local tW, nN = {}, (nN-1)
+  for iD = 1, (nN+1) do
+    local pN = (((iD-1) / nN) - 0.5)
+    tW[iD] = 0.62 - 0.48*math.abs(pN) + 0.38*math.cos(2*math.pi*pN)
+  end; return tW
+end
+
+-- Barthann window of length N
+function signals.winHann(nN)
+  local tW, nN = {}, (nN - 1)
+  local nK = (2 * math.pi / nN)
+  for iD = 1, (nN+1) do
+    local pN = (((iD-1) / nN) - 0.5)
+    tW[iD] = 0.5*(1-math.cos(nK*(iD-1))) 
+  end; return tW
+end
+
+-- Flattop window of length N
+function signals.winFlattop(nN,...)
+  local tP, tA = {...}, metaSignals["WIN_FLATTOP"]
+  for iD = 1, 5 do
+    tP[iD] = common.getPick(tP[iD], tP[iD], tA[iD]) end
+  local nN, tW = (nN - 1), {}
+  local nK, nS = ((2 * math.pi) / nN), 1
+  for iD = 1, (nN+1) do local nM = tP[1]
+    for iK = 2, 5 do nS = -nS
+      nM = nM + nS * tP[iK] * math.cos(nK * (iK-1) * (iD-1))
+    end; tW[iD] = nM
+  end; return tW
 end
 
 function signals.getPhaseFactorDFT(nK, nN)

@@ -230,6 +230,19 @@ local function newScope(sName)
       text(tostring(xyP:getRound(0.001)),nA,px,py)
     end return self
   end
+  function self:drawPoint(xyP, clNew)
+    local sz, px, py = 2, xyP:getParts()
+    px = moiX:Convert(px):getValue()
+    py = moiY:Convert(py):getValue()
+    pncl(clNew or mclPos); rect(px-sz,py-sz,2*sz+1,2*sz+1)
+    return self
+  end
+  function self:drawPointXY(nX, nY, clNew) local sz = 2
+    local px = moiX:Convert(nX):getValue()
+    local py = moiY:Convert(nY):getValue()
+    pncl(clNew or mclPos); rect(px-sz,py-sz,2*sz+1,2*sz+1)
+    return self
+  end
   function self:drawGraph(tY, tX)
     if(not common.isTable(tY)) then
       logStatus("newCoordSys.plotGraph: Skip", self) end
@@ -239,18 +252,11 @@ local function newScope(sName)
         logStatus("newCoordSys.plotGraph: Shorter <" ..ntX..","..ntY..">")
         toP = math.min(ntX, ntY) else toP = ntY end
     else toP, bX = ntY, false end
-    local trA = newTracer("plotGraph"):setInterval(moiX, moiY)
+    local trA, vX = newTracer("plotGraph"):setInterval(moiX, moiY)
     for iD = 1, toP do
-      local vX = common.getPick(bX, tX and tX[iD], iD) 
+      vX = common.getPick(bX, tX and tX[iD], iD) 
       trA:putValue(vX, tY[iD]):Draw(mclDir)
-    end
-    return self
-  end
-  function self:drawPoint(xyP)
-    local sz, px, py = 2, xyP:getParts()
-    px = moiX:Convert(px):getValue()
-    py = moiY:Convert(py):getValue()
-    pncl(mclPos); rect(px-sz,py-sz,2*sz+1,2*sz+1)
+    end; self:drawPointXY(vX, tY[toP], mclDir)
     return self
   end
   function self:drawLine(xyS, xyE)
