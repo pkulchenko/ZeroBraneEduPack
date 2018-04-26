@@ -5,7 +5,7 @@ local chartmap = require("chartmap")
 local signals  = require("signals")
 local colormap = require("colormap")
 
-local ws = 50                -- Signal frequency
+local ws = 200               -- Signal frequency
 local fs = 2500              -- Sampling rate
 local et = 1/10              -- End time (seconds)
 local es = et * fs           -- Total samples

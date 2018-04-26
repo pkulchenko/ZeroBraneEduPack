@@ -8,6 +8,9 @@ end
 
 local tonumber    = tonumber
 local tostring    = tostring
+local type        = type
+local math        = math
+local bit         = bit
 local signals     = {}
 local metaSignals = {}
 local common      = require("common")
@@ -131,22 +134,28 @@ function signals.getPhaseFactorDFT(nK, nN)
   return cE:getPow(cK:Mul(cI):Div(2^nN, 0))
 end
 
+local function convIndexDFT(iP, iA, N2)
+  local nT = (2^(iP - 1))
+  local nI = ((iA / nT) * N2)
+  return (math.floor(nI % N2) + 1)
+end
+
 function signals.getForwardDFT(tS)
   local cZ = complex.getNew()
   local tF = signals.getExtendBaseTwo(tS)
   local nN, iM, tA, tT, tW = #tF, 1, {}, {}, {}
   for iD = 1, nN do tF[iD] = cZ:getNew(tF[iD]) end
-  local nR = common.binaryNeededBits(nN-1)
-  local getW = signals.getPhaseFactorDFT
+  local nR, N2 = common.binaryNeededBits(nN-1), (nN / 2)
   for iD = 1, nN do
     tA[iD], tT[iD] = cZ:getNew(), cZ:getNew()
     local mID = (common.binaryMirror(iD-1, nR) + 1)
-    tA[iD]:Set(tF[mID])
+    tA[iD]:Set(tF[mID]); if(iD <= N2) then
+      tW[iD] = signals.getPhaseFactorDFT(iD-1, nR) end
   end; local cT = cZ:getNew()
   for iP = 1, nR do
     for iK = 1, nN do -- Generation of tT in phase iP
-      -- Write down the calculated phase factor
-      cT:Set(getW(bit.band(iK-1, iM-1), iP))
+      -- Write down the cached phase factor
+      cT:Set(tW[convIndexDFT(iP, bit.band(iK-1, iM-1), N2)])
       if(bit.band(iM, iK-1) ~= 0) then local iL = iK - iM
         tT[iK]:Set(tA[iL]):Sub(cT:Mul(tA[iK]))
       else local iL = iK + iM
