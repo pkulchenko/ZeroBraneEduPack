@@ -96,12 +96,11 @@ local function newTracer(sName)
   end
 
   function self:Draw(cCol, vSz)
-    if(enDraw) then
-      local nSz = (tonumber(vSz) or 2)
-            nSz = (nSz < 2) and 2 or nSz
-      local nsE = ((2 * nSz) + 1); pncl(cCol)
+    if(enDraw) then pncl(cCol)
+      local nSz = math.floor(tonumber(vSz) or 2)
       line(mPntO.x,mPntO.y,mPntN.x,mPntN.y)
-      rect(mPntO.x-nSz,mPntO.y-nSz,nsE,nsE)
+      if(nSz > 0) then local nsE = ((2 * nSz) + 1)
+        rect(mPntO.x-nSz,mPntO.y-nSz,nsE,nsE) end
     else enDraw = true end; return self
   end
 
@@ -117,11 +116,15 @@ local metaScope = {}
       metaScope.__type  = "chartmap.scope"
       metaScope.__tostring = function(oCoordSys) return CoordSys:getString() end
 local function newScope(sName)
-  local mName = tostring(sName or "")
+  local mName, mnPs = tostring(sName or ""), 2
   local self = {}; setmetatable(self, metaScope)
   local mdX, mdY, mnW, mnH, minX, maxX, minY, maxY, midX, midY, moiX, moiY
   local mclMid, mcldXY, pxX, pxY = colr(0,0,0), colr(200,200,200)
   local mclPos, mclOrg, mclDir = colr(255,0,0), colr(0,255,0), colr(0,0,255)
+  function self:setSizeVtx(vS)
+    mnPs = math.floor(tonumber(vS) or 0); print(mnPs)
+    if(mnPs <= 0) then mnPs = 0 end; return self
+  end
   function self:setDelta(nX, nY)
     mdX, mdY = (tonumber(nX) or 0), (tonumber(nY) or 0)
     if(isNil(minX) and isNil(maxX) and isNil(minY) and isNil(maxY)) then
@@ -215,15 +218,17 @@ local function newScope(sName)
     return self
   end
   function self:drawComplex(xyP, xyO, bTx)
-    local ox, oy, px, py, sz = 0, 0, 0, 0, 2
+    local ox, oy, px, py = 0, 0, 0, 0
     if(xyO) then ox, oy = xyO:getParts() end
     px, py = xyP:getParts()
     ox = moiX:Convert(ox):getValue()
     oy = moiY:Convert(oy):getValue()
     px = moiX:Convert(px):getValue()
     py = moiY:Convert(py):getValue()
-    pncl(mclPos); rect(px-sz,py-sz,2*sz+1,2*sz+1)
-    pncl(mclOrg); rect(ox-sz,oy-sz,2*sz+1,2*sz+1)
+    if(mnPs > 0) then
+      pncl(mclPos); rect(px-mnPs,py-mnPs,2*mnPs+1,2*mnPs+1)
+      pncl(mclOrg); rect(ox-mnPs,oy-mnPs,2*mnPs+1,2*mnPs+1)
+    end
     pncl(mclDir); line(px, py, ox, oy)
     if(bTx) then pncl(mclDir);
       local nA = xyP:getSub(xyO):getAngDeg()+90
@@ -231,16 +236,18 @@ local function newScope(sName)
     end return self
   end
   function self:drawPoint(xyP, clNew)
-    local sz, px, py = 2, xyP:getParts()
+    local px, py = xyP:getParts()
     px = moiX:Convert(px):getValue()
     py = moiY:Convert(py):getValue()
-    pncl(clNew or mclPos); rect(px-sz,py-sz,2*sz+1,2*sz+1)
+    if(mnPs > 0) then pncl(clNew or mclPos)
+      rect(px-mnPs,py-mnPs,2*mnPs+1,2*mnPs+1) end
     return self
   end
-  function self:drawPointXY(nX, nY, clNew) local sz = 2
+  function self:drawPointXY(nX, nY, clNew)
     local px = moiX:Convert(nX):getValue()
     local py = moiY:Convert(nY):getValue()
-    pncl(clNew or mclPos); rect(px-sz,py-sz,2*sz+1,2*sz+1)
+    if(mnPs > 0) then pncl(clNew or mclPos)
+      rect(px-mnPs,py-mnPs,2*mnPs+1,2*mnPs+1) end
     return self
   end
   function self:drawGraph(tY, tX)
@@ -254,8 +261,8 @@ local function newScope(sName)
     else toP, bX = ntY, false end
     local trA, vX = newTracer("plotGraph"):setInterval(moiX, moiY)
     for iD = 1, toP do
-      vX = common.getPick(bX, tX and tX[iD], iD) 
-      trA:putValue(vX, tY[iD]):Draw(mclDir)
+      vX = common.getPick(bX, tX and tX[iD], iD)
+      trA:putValue(vX, tY[iD]):Draw(mclDir, mnPs)
     end; self:drawPointXY(vX, tY[toP], mclDir)
     return self
   end
@@ -263,12 +270,13 @@ local function newScope(sName)
     self:drawComplex(xyS, xyE); return self
   end
   function self:drawOval(xyP, rX, rY)
-    local sz, px, py = 2, xyP:getParts()
+    local px, py = xyP:getParts()
     px = moiX:Convert(px):getValue()
     py = moiY:Convert(py):getValue()
     local rx, ry = (tonumber(rX) or 0), (tonumber(rY) or 0)
           rx, ry = (rX * (pxX / mdX)), (rY * (pxY / mdY))
-    pncl(mclOrg); rect(px-sz,py-sz,2*sz+1,2*sz+1)
+    if(mnPs > 0) then pncl(mclOrg)
+      rect(px-mnPs,py-mnPs,2*mnPs+1,2*mnPs+1) end
     pncl(mclDir); oval(px, py, rx, ry); return self
   end
   function self:drawCircle(xyP, rR)
