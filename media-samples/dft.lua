@@ -13,8 +13,7 @@ local pr = 1 / fs            -- Time per sample
 local w = (2 * math.pi * ws) -- Signal angular frequency
 local s, t, i = {}, {}, 1    -- Arry containing samples and time
 for d = 0, et, pr do
-  t[i] = d
-  s[i] = math.sin(w * t[i])
+  t[i], s[i] = d, math.sin(w * d)
   i = i + 1
 end
 
