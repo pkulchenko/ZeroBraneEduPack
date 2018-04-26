@@ -190,6 +190,17 @@ function signals.winFlattop(nN,...)
   end; return tW
 end
 
+function signals.winTriangle(nN)
+  local tW, nK, nS, nE = {}, 2/(nN-1), 1, nN
+  tW[nS], tW[nE] = 0, 0
+  nS, nE = (nS + 1), (nE - 1)
+  while(nS <= nE) do
+    tW[nS] = tW[nS-1] + nK
+    tW[nE] = tW[nE+1] + nK
+    nS, nE = (nS + 1), (nE - 1)  
+  end; return tW
+end
+
 function signals.getPhaseFactorDFT(nK, nN)
   local cE = metaSignals["COMPLEX_VEXP"]
   local cI = metaSignals["IMAGINE_UNIT"]

@@ -324,12 +324,16 @@ function common.fileRead(pF, sM, bT)
   return sLn, bEf
 end
 
+function common.isEven(nV)
+  return ((nV % 2) == 0)
+end
+
 function common.getSign(nVal)
-  return ((nVal > 0 and 1) or (nVal < 0 and -1) or 0)
+  return ((nV > 0 and 1) or (nV < 0 and -1) or 0)
 end
 
 function common.getSignNon(nVal)
-  return ((nVal >= 0 and 1) or -1)
+  return ((nV >= 0 and 1) or -1)
 end
 
 function common.getType(o)

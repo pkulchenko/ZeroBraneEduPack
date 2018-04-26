@@ -6,7 +6,7 @@ local signals  = require("signals")
 local colormap = require("colormap")
 
 local ws = 200               -- Signal frequency
-local fs = 2500              -- Sampling rate
+local fs = 2000              -- Sampling rate
 local et = 1/10              -- End time (seconds)
 local es = et * fs           -- Total samples
 local pr = 1 / fs            -- Time per sample
@@ -19,7 +19,7 @@ end
 local tW = signals.winHamming(#s)
 for i = 1, #s do s[i] = s[i] * tW[i] end
 
-local W, H = 1000, 600
+local W, H = 1800, 900
 local intX  = chartmap.New("interval","WinX", 0, et, 0, W)
 local intY  = chartmap.New("interval","WinY", -1, 1, H, 0)
 local scOpe = chartmap.New("scope"):setInterval(intX, intY)
