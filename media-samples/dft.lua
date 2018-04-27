@@ -54,13 +54,14 @@ end
 
 for i = 1, aft do
   local nrm = dft[i]:getNorm()
-  xft[i] = (nrm / mft) * 2 - 1
+  xft[i] = (nrm / mft)
 end
-local dhz = (fs/(#xft-1))
 
-intX:setBorderIn(1, #dft)
+local dhz = (fs/(#xft-1))
+print(mft)
+intX:setBorderIn(1, #dft); intY:setBorderIn(0, 1)
 scOpe:setInterval(intX, intY):setUpdate():setSizeVtx(2)
-scOpe:setColorDir(colr(colormap.getColorRedRGB())):drawGraph(xft); updt()
+scOpe:setColorDir(colr(colormap.getColorRedRGB())):drawStem(xft); updt()
 
 common.logStatus("DFT Input signal sample array size is "..#s)
 common.logStatus("DFT Main frequency is at "..(tft-1)*dhz.. " of "..ws)

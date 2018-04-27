@@ -235,6 +235,9 @@ local function newScope(sName)
       text(tostring(xyP:getRound(0.001)),nA,px,py)
     end return self
   end
+  function self:drawComplexLine(xyS, xyE)
+    self:drawComplex(xyS, xyE); return self
+  end
   function self:drawPoint(xyP, clNew)
     local px, py = xyP:getParts()
     px = moiX:Convert(px):getValue()
@@ -266,8 +269,25 @@ local function newScope(sName)
     end; self:drawPointXY(vX, tY[toP], mclDir)
     return self
   end
-  function self:drawLine(xyS, xyE)
-    self:drawComplex(xyS, xyE); return self
+  function self:drawStem(tY, tX)
+    if(not common.isTable(tY)) then
+      logStatus("newCoordSys.plotGraph: Skip", self) end
+    local ntY, bX, ntX, toP = #tY, false
+    if(common.isTable(tX)) then ntX, bX = #tX, true
+      if(ntX ~= ntY) then
+        logStatus("newCoordSys.plotGraph: Shorter <" ..ntX..","..ntY..">")
+        toP = math.min(ntX, ntY) else toP = ntY end
+    else toP, bX = ntY, false end; local vX
+    local zY = moiY:Convert(0):getValue()
+    for iD = 1, toP do
+      vX = common.getPick(bX, tX and tX[iD], iD)
+      local nX = moiX:Convert(vX):getValue()
+      local nY = moiY:Convert(tY[iD]):getValue()
+      pncl(mclDir); line(nX, nY, nX, zY)
+      if(mnPs > 0) then pncl(mclPos)
+        rect(nX-mnPs,nY-mnPs,2*mnPs+1,2*mnPs+1) end
+    end; self:drawPointXY(vX, tY[toP], mclPos)
+    return self
   end
   function self:drawOval(xyP, rX, rY)
     local px, py = xyP:getParts()
