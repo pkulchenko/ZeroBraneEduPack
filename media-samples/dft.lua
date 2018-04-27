@@ -47,9 +47,7 @@ scOpe:setColorDir(colr(colormap.getColorBlueRGB())):drawGraph(s, t); updt()
 local xft, mft, tft, aft = {}, 0, 0, #dft
 for i = 1, aft/2 do
   local nrm = dft[i]:getNorm()
-  if(nrm > mft) then
-    mft, tft = nrm, i
-  end
+  if(nrm > mft) then mft, tft = nrm, i end
 end
 
 for i = 1, aft do

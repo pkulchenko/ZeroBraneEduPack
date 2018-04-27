@@ -51,6 +51,7 @@ metaSignals["IMAGINE_UNIT"] = complex.getNew(0, 1)
 metaSignals["COMPLEX_VEXP"] = complex.getNew(math.exp(1))
 metaSignals["WIN_FLATTOP"]  = {0.21557895, 0.41663158, 0.277263158, 0.083578947, 0.006947368}
 metaSignals["WIN_NUTTALL"]  = {0.36358190, 0.48917750, 0.136599500, 0.010641100}
+metaSignals["WIN_BLKHARR"]  = {0.35875000, 0.48829000, 0.141280000, 0.011680000}
 metaSignals["DFT_PHASEFCT"] = {__top = 0}
 
 -- Read an audio WAVE file giving the path /sN/
@@ -224,6 +225,30 @@ function signals.winNuttall(nN,...)
     for iK = 2, 4 do nS = -nS
       nM = nM + nS * tP[iK] * math.cos(nK * (iK-1) * (iD-1))
     end; tW[iD] = nM
+  end; return tW
+end
+
+-- Blackman-Harris window of length N
+function signals.winBlackHarris(nN,...)
+  local tP, tA = {...}, metaSignals["WIN_BLKHARR"]
+  for iD = 1, 4 do local vP = tP[iD]
+    tP[iD] = common.getPick(vP, vP, tA[iD]) end
+  local nN, tW = (nN - 1), {}
+  local nK = ((2 * math.pi) / nN)
+  for iD = 1, (nN+1) do
+    local nM, nS = tP[1], 1
+    for iK = 2, 4 do nS = -nS
+      nM = nM + nS * tP[iK] * math.cos(nK * (iK-1) * (iD-1))
+    end; tW[iD] = nM
+  end; return tW
+end
+
+-- Exponential/Poisson window of length N
+function signals.winPoisson(nN, nD)
+  local nD, tW = (nD or 8.69), {}
+  local nT, nN = (2*nD)/(8.69*nN), (nN-1)
+  local N2 = (nN/2); for iD = 1, (nN+1) do
+    tW[iD] = math.exp(-nT*math.abs((iD-1)-N2))
   end; return tW
 end
 
