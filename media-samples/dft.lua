@@ -5,41 +5,44 @@ local chartmap = require("chartmap")
 local signals  = require("signals")
 local colormap = require("colormap")
 
-local ws = 200               -- Signal frequency
+local ws = 125                -- Signal frequency
 local fs = 2000              -- Sampling rate
 local et = 1/10              -- End time (seconds)
 local es = et * fs           -- Total samples
 local pr = 1 / fs            -- Time per sample
 local w = (2 * math.pi * ws) -- Signal angular frequency
-local s, t, i = {}, {}, 1    -- Arry containing samples and time
-for d = 0, et, pr do
-  t[i], s[i] = d, math.sin(w * d)
-  i = i + 1
-end
-local tW = signals.winNuttall(#s)
-for i = 1, #s do s[i] = s[i] * tW[i] end
-
+local s, t, g, i = {}, {}, {}, 1 -- Arry containing samples and time
 local W, H = 1000, 600
 local intX  = chartmap.New("interval","WinX", 0, et, 0, W)
 local intY  = chartmap.New("interval","WinY", -1, 1, H, 0)
 local scOpe = chartmap.New("scope"):setInterval(intX, intY)
       scOpe:setUpdate():setColor():setDelta(et / 10, 0.1)
 
+for d = 0, et, pr do
+  t[i], s[i] = d, math.sin(w * d)
+  i = i + 1
+end
+
+local tw = signals.winNuttall(#s)
+for i = 1, #s do g[i] = s[i] * tw[i] end
+
 -- Try commenting this line to remove the phase factor cashe
--- signals.setPhaseFactorDFT(common.binaryNextBase(#s))
+signals.setPhaseFactorDFT(common.binaryNextBaseTwo(#s))
 
 local tim, dft = os.clock()
 for i = 1, 100 do
-  dft = signals.getForwardDFT(s)
+  dft = signals.getForwardDFT(g)
   common.logString(".")
 end; common.logString("\n")
 tim = ((os.clock()-tim) * 1000)
-open("Discrete Fourier Transform (DFT) graph (red) and sampled signal (blue)")
+
+open("Discrete Fourier Transform (DFT) graph (red), sampled signal (blue) and weighted (green)")
 size(W, H); zero(0, 0)
 updt(false) -- disable auto updates
 
-scOpe:Draw(true, false, true)
-scOpe:drawGraph(s, t)
+scOpe:Draw(true, false, true):setSizeVtx(0)
+scOpe:setColorDir(colr(colormap.getColorGreenRGB())):drawGraph(g, t); updt()
+scOpe:setColorDir(colr(colormap.getColorBlueRGB())):drawGraph(s, t); updt()
 
 local xft, mft, tft, aft = {}, 0, 0, #dft
 for i = 1, aft/2 do
@@ -56,7 +59,7 @@ end
 local dhz = (fs/(#xft-1))
 
 intX:setBorderIn(1, #dft)
-scOpe:setInterval(intX, intY):setUpdate()
+scOpe:setInterval(intX, intY):setUpdate():setSizeVtx(2)
 scOpe:setColorDir(colr(colormap.getColorRedRGB())):drawGraph(xft); updt()
 
 common.logStatus("DFT Input signal sample array size is "..#s)

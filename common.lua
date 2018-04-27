@@ -695,8 +695,8 @@ function common.binaryNeededBits(nN, bE)
 end
 
 -- Calculate the next binary power based on nN
-function common.binaryNextBase(nN)
-  return (nN+((2^(math.floor(math.log(nN,2))+1))-nN))
+function common.binaryNextBaseTwo(nN)
+  return (2^(math.floor(math.log(nN,2))+1))
 end
 -- Check if the number is a binary power
 function common.binaryIsPower(nN)

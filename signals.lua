@@ -53,6 +53,7 @@ metaSignals["WIN_FLATTOP"]  = {0.21557895, 0.41663158, 0.277263158, 0.083578947,
 metaSignals["WIN_NUTTALL"]  = {0.36358190, 0.48917750, 0.136599500, 0.010641100}
 metaSignals["DFT_PHASEFCT"] = {__top = 0}
 
+-- Read an audio WAVE file giving the path /sN/
 function signals.readWave(sN)
   local sNam = tostring(sN)
   local W = io.open(sNam, "rb")
@@ -120,20 +121,23 @@ function signals.readWave(sN)
   end; W:close()
   return wData, smpData
 end
+
 -- Extend the signal by making a copy
 function signals.getExtendBaseTwo(tS)
   local nL, tO = #tS, {}; if(common.binaryIsPower(nL)) then
     common.tableArrTransfer(tO, tS); return tO end
-  local nT = common.binaryNextBase(nL)
+  local nT = common.binaryNextBaseTwo(nL)
   for iD = 1, nT do local vS = tS[iD]
     if(vS) then tO[iD] = vS else tO[iD] = 0 end end; return tO
 end
+
 -- Extend the signal without making a copy
 function signals.setExtendBaseTwo(tS) local nL = #tS
   if(common.binaryIsPower(nL)) then return tS end
-  local nS, nE = (nL+1), common.binaryNextBase(nL)
+  local nS, nE = (nL+1), common.binaryNextBaseTwo(nL)
   for iD = nS, nE do tS[iD] = 0 end; return tS
 end
+
 -- Blackman window of length N
 function signals.winBlackman(nN)
   local nK = (2 * math.pi / (nN-1))
@@ -270,9 +274,8 @@ function signals.getForwardDFT(tS)
     tA[iD]:Set(tF[mID]); if(not bW and iD <= N2) then
       tW[iD] = signals.getPhaseFactorDFT(iD-1, nR) end
   end; local cT = cZ:getNew()
-  for iP = 1, nR do
-    for iK = 1, nN do -- Generation of tF in phase iP
-      -- Write down the cached phase factor
+  for iP = 1, nR do -- Generation of tF in phase iP
+    for iK = 1, nN do -- Write down the cached phase factor
       cT:Set(tW[convIndexDFT(iP, bit.band(iK-1, iM-1), N2)])
       if(bit.band(iM, iK-1) ~= 0) then local iL = iK - iM
         tF[iK]:Set(tA[iL]):Sub(cT:Mul(tA[iK]))
