@@ -178,6 +178,24 @@ function signals.winBarthann(nN)
 end
 
 -- Barthann window of length N
+function signals.winSine(nN)
+  local tW, nN = {}, (nN-1)
+  local nK = math.pi/nN
+  for iD = 1, (nN+1) do
+    tW[iD] = math.sin(nK*(iD-1))
+  end; return tW
+end
+
+-- Barthann window of length N
+function signals.winParabolic(nN)
+  local tW, nN = {}, (nN-1)
+  local nK = nN/2
+  for iD = 1, (nN+1) do
+    tW[iD] = 1-(((iD-1)-nK)/nK)^2
+  end; return tW
+end
+
+-- Barthann window of length N
 function signals.winHann(nN)
   local tW, nN = {}, (nN - 1)
   local nK = (2 * math.pi / nN)
