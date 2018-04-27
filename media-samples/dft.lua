@@ -5,26 +5,26 @@ local chartmap = require("chartmap")
 local signals  = require("signals")
 local colormap = require("colormap")
 
-local ws = 125                -- Signal frequency
+local ws = 125               -- Signal frequency
 local fs = 2000              -- Sampling rate
 local et = 1/10              -- End time (seconds)
-local es = et * fs           -- Total samples
 local pr = 1 / fs            -- Time per sample
-local w = (2 * math.pi * ws) -- Signal angular frequency
-local s, t, g, i = {}, {}, {}, 1 -- Arry containing samples and time
+local s, g, i = {}, {}, 1    -- Arry containing samples and time
 local W, H = 1000, 600
 local intX  = chartmap.New("interval","WinX", 0, et, 0, W)
 local intY  = chartmap.New("interval","WinY", -1, 1, H, 0)
 local scOpe = chartmap.New("scope"):setInterval(intX, intY)
       scOpe:setUpdate():setColor():setDelta(et / 10, 0.1)
 
-for d = 0, et, pr do
-  t[i], s[i] = d, math.sin(w * d)
-  i = i + 1
-end
+local t = signals.getRamp(0, et, pr)
+signals.setSine(s, t, signals.convLineToCircleFrq(ws))
+
+-- Remove the comment from the line below to see the change in the spectrum
+-- It simply adds one sinewave with double the frequency to the output signal
+-- signals.setSine(s, t, signals.convLineToCircleFrq(2*ws),0,s)
 
 local tw = signals.winNuttall(#s)
-for i = 1, #s do g[i] = s[i] * tw[i] end
+signals.setWeight(g,s,tw)
 
 -- Try commenting this line to remove the phase factor cashe
 signals.setPhaseFactorDFT(common.binaryNextBaseTwo(#s))
@@ -56,7 +56,7 @@ for i = 1, aft do
 end
 
 local dhz = (fs/(#xft-1))
-print(mft)
+
 intX:setBorderIn(1, #dft); intY:setBorderIn(0, 1)
 scOpe:setInterval(intX, intY):setUpdate():setSizeVtx(2)
 scOpe:setColorDir(colr(colormap.getColorRedRGB())):drawStem(xft); updt()

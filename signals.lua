@@ -123,6 +123,43 @@ function signals.readWave(sN)
   return wData, smpData
 end
 
+-- Generate ramp signal
+function signals.getRamp(nS, nE, nD)
+  local tS, iD = {}, 1; for dD = nS, nE, nD do
+    tS[iD] = dD; iD = iD + 1 end; return tS
+end
+
+-- Generate periodical signal
+function signals.setSine(tD, tT, nW, nT, tS)
+  local nT, iD = (tonumber(nT) or 0), 1; while(tT[iD]) do
+    local vS = (tS and tS[iD]); vS = vS and tS[iD] or 0
+    tD[iD] = vS + math.sin(nW * tT[iD] + nT); iD = (iD+1)
+  end; return tD
+end
+
+-- Weights the signal trough the given window
+function signals.setWeight(tD, tS, tW)
+  local iD = 1; while(tS[iD] and tW[iD]) do
+    tD[iD] = tS[iD] * tW[iD]; iD = (iD+1)
+  end; return tD
+end
+
+function signals.convCircleToLineFrq(nW)
+  return (nW / (2 * math.pi))
+end
+
+function signals.convLineToCircleFrq(nF)
+  return (2 * math.pi * nF)
+end
+
+function signals.convPeriodToLineFrq(nT)
+  return (1 / nT)
+end
+
+function signals.convLineFrqToPeriod(nF)
+  return (1 / nF)
+end
+
 -- Extend the signal by making a copy
 function signals.getExtendBaseTwo(tS)
   local nL, tO = #tS, {}; if(common.binaryIsPower(nL)) then
@@ -177,7 +214,7 @@ function signals.winBarthann(nN)
   end; return tW
 end
 
--- Barthann window of length N
+-- Sinewave window of length N
 function signals.winSine(nN)
   local tW, nN = {}, (nN-1)
   local nK = math.pi/nN
@@ -186,7 +223,7 @@ function signals.winSine(nN)
   end; return tW
 end
 
--- Barthann window of length N
+-- Parabolic window of length N
 function signals.winParabolic(nN)
   local tW, nN = {}, (nN-1)
   local nK = nN/2
@@ -195,7 +232,7 @@ function signals.winParabolic(nN)
   end; return tW
 end
 
--- Barthann window of length N
+-- Hanning window of length N
 function signals.winHann(nN)
   local tW, nN = {}, (nN - 1)
   local nK = (2 * math.pi / nN)
