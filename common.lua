@@ -685,12 +685,22 @@ function common.binaryMirror(nN, nB)
   end; return nO
 end
 
+-- How many bits are needed to represent /nN/
 function common.binaryNeededBits(nN, bE)
   local nC = 0; while(nN ~= 0) do
     if(bE) then nN = bit.lshift(nN, 1)
     else nN = bit.rshift(nN, 1) end
     nC = nC + 1
   end; return nC
+end
+
+-- Calculate the next binary power based on nN
+function common.binaryNextBase(nN)
+  return (nN+((2^(math.floor(math.log(nN,2))+1))-nN))
+end
+-- Check if the number is a binary power
+function common.binaryIsPower(nN)
+  return (bit.band(nN-1,nN) == 0)
 end
 
 function common.bytesGetString(tB)

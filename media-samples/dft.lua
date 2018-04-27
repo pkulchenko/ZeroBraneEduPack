@@ -25,9 +25,15 @@ local intY  = chartmap.New("interval","WinY", -1, 1, H, 0)
 local scOpe = chartmap.New("scope"):setInterval(intX, intY)
       scOpe:setUpdate():setColor():setDelta(et / 10, 0.1)
 
-local tim = os.clock()
-local dft = signals.getForwardDFT(s); tim = ((os.clock()-tim) * 1000)
+-- Try commenting this line to remove the phase factor cashe
+-- signals.setPhaseFactorDFT(common.binaryNextBase(#s))
 
+local tim, dft = os.clock()
+for i = 1, 100 do
+  dft = signals.getForwardDFT(s)
+  common.logString(".")
+end; common.logString("\n")
+tim = ((os.clock()-tim) * 1000)
 open("Discrete Fourier Transform (DFT) graph (red) and sampled signal (blue)")
 size(W, H); zero(0, 0)
 updt(false) -- disable auto updates
@@ -53,7 +59,9 @@ intX:setBorderIn(1, #dft)
 scOpe:setInterval(intX, intY):setUpdate()
 scOpe:setColorDir(colr(colormap.getColorRedRGB())):drawGraph(xft); updt()
 
-common.logStatus("DFT scale uses "..dhz.." Hz per division. Main frequency is at "..(tft-1)*dhz.. " of "..ws)
-common.logStatus("DFT was calculated for "..tim.." milliseconds")
+common.logStatus("DFT Input signal sample array size is "..#s)
+common.logStatus("DFT Main frequency is at "..(tft-1)*dhz.. " of "..ws)
+common.logStatus("DFT scale uses "..dhz.." Hz per division.")
+common.logStatus("DFT was calculated for "..tim.." milliseconds and "..#xft.." points")
 
 wait()

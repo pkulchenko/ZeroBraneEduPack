@@ -49,8 +49,9 @@ metaSignals["WAVE_HEADER"] = {
 metaSignals["REALNUM_UNIT"] = complex.getNew(1, 0)
 metaSignals["IMAGINE_UNIT"] = complex.getNew(0, 1)
 metaSignals["COMPLEX_VEXP"] = complex.getNew(math.exp(1))
-metaSignals["WIN_FLATTOP"] = {0.21557895, 0.41663158, 0.277263158, 0.083578947, 0.006947368}
-metaSignals["WIN_NUTTALL"] = {0.3635819,  0.4891775, 0.1365995, 0.0106411}
+metaSignals["WIN_FLATTOP"]  = {0.21557895, 0.41663158, 0.277263158, 0.083578947, 0.006947368}
+metaSignals["WIN_NUTTALL"]  = {0.36358190, 0.48917750, 0.136599500, 0.010641100}
+metaSignals["DFT_PHASEFCT"] = {__top = 0}
 
 function signals.readWave(sN)
   local sNam = tostring(sN)
@@ -119,16 +120,20 @@ function signals.readWave(sN)
   end; W:close()
   return wData, smpData
 end
-
+-- Extend the signal by making a copy
 function signals.getExtendBaseTwo(tS)
-  local nL, tO = #tS, {}; if(bit.band(nL - 1, nL) == 0) then
+  local nL, tO = #tS, {}; if(common.binaryIsPower(nL)) then
     common.tableArrTransfer(tO, tS); return tO end
-  local nP = (math.floor(math.log(nL, 2)) + 1)
-  local nT = ((2 ^ nP) - nL)
-  for iD = 1, (nL + nT) do local vS = tS[iD]
+  local nT = common.binaryNextBase(nL)
+  for iD = 1, nT do local vS = tS[iD]
     if(vS) then tO[iD] = vS else tO[iD] = 0 end end; return tO
 end
-
+-- Extend the signal without making a copy
+function signals.setExtendBaseTwo(tS) local nL = #tS
+  if(common.binaryIsPower(nL)) then return tS end
+  local nS, nE = (nL+1), common.binaryNextBase(nL)
+  for iD = nS, nE do tS[iD] = 0 end; return tS
+end
 -- Blackman window of length N
 function signals.winBlackman(nN)
   local nK = (2 * math.pi / (nN-1))
@@ -173,7 +178,7 @@ function signals.winHann(nN)
   local nK = (2 * math.pi / nN)
   for iD = 1, (nN+1) do
     local pN = (((iD-1) / nN) - 0.5)
-    tW[iD] = 0.5*(1-math.cos(nK*(iD-1))) 
+    tW[iD] = 0.5*(1-math.cos(nK*(iD-1)))
   end; return tW
 end
 
@@ -184,8 +189,7 @@ function signals.winFlattop(nN,...)
     tP[iD] = common.getPick(vP, vP, tA[iD]) end
   local nN, tW = (nN - 1), {}
   local nK = ((2 * math.pi) / nN)
-  for iD = 1, (nN+1) do
-    local nM, nS = tP[1], 1
+  for iD = 1, (nN+1) do local nM, nS = tP[1], 1
     for iK = 2, 5 do nS = -nS
       nM = nM + nS * tP[iK] * math.cos(nK * (iK-1) * (iD-1))
     end; tW[iD] = nM
@@ -200,7 +204,7 @@ function signals.winTriangle(nN)
   while(nS <= nE) do
     tW[nS] = tW[nS-1] + nK
     tW[nE] = tW[nE+1] + nK
-    nS, nE = (nS + 1), (nE - 1)  
+    nS, nE = (nS + 1), (nE - 1)
   end; return tW
 end
 
@@ -219,13 +223,34 @@ function signals.winNuttall(nN,...)
   end; return tW
 end
 
+-- Calculates the DFT phase factor single time
 function signals.getPhaseFactorDFT(nK, nN)
+  if(nK == 0) then
+    return metaSignals["REALNUM_UNIT"]:getNew() end
   local cE = metaSignals["COMPLEX_VEXP"]
   local cI = metaSignals["IMAGINE_UNIT"]
   local cK = cI:getNew(-2 * math.pi * nK, 0)
   return cE:getPow(cK:Mul(cI):Div(2^nN, 0))
 end
 
+-- Removes the DFT phase factor for realtime
+function signals.remPhaseFactorDFT(bG)
+  local tW = metaSignals["DFT_PHASEFCT"]
+  for iK, vV in pairs(tW) do tW[iK] = nil end
+  tW.__top = 0; if(bG) then
+    collectgarbage() end; return tW
+end
+
+-- Caches the DFT phase factor for realtime
+function signals.setPhaseFactorDFT(nN)
+  local tW = signals.remPhaseFactorDFT()
+  local gW = signals.getPhaseFactorDFT
+  local nR = common.binaryNeededBits(nN-1)
+  for iD = 1, (nN/2) do tW[iD] = gW(iD-1, nR) end
+  tW.__top = #tW; return tW
+end
+
+-- Converts from phase number and butterfly count to index
 local function convIndexDFT(iP, iA, N2)
   local nT = (2^(iP - 1))
   local nI = ((iA / nT) * N2)
@@ -234,13 +259,15 @@ end
 
 function signals.getForwardDFT(tS)
   local cZ = complex.getNew()
+  local aW = metaSignals["DFT_PHASEFCT"]
   local tF = signals.getExtendBaseTwo(tS)
-  local nN, iM, tA, tW = #tF, 1, {}, {}
+  local nN, iM, tA, bW = #tF, 1, {}, (aW.__top > 0)
+  local tW = common.getPick(bW, aW, {})
   for iD = 1, nN do tF[iD] = cZ:getNew(tF[iD]) end
   local nR, N2 = common.binaryNeededBits(nN-1), (nN / 2)
   for iD = 1, nN do tA[iD] = cZ:getNew()
     local mID = (common.binaryMirror(iD-1, nR) + 1)
-    tA[iD]:Set(tF[mID]); if(iD <= N2) then
+    tA[iD]:Set(tF[mID]); if(not bW and iD <= N2) then
       tW[iD] = signals.getPhaseFactorDFT(iD-1, nR) end
   end; local cT = cZ:getNew()
   for iP = 1, nR do
@@ -252,8 +279,7 @@ function signals.getForwardDFT(tS)
       else local iL = iK + iM
         tF[iK]:Set(tA[iK]):Add(cT:Mul(tA[iL]))
       end -- One butterfly is completed
-    end
-    for iD = 1, nN do tA[iD]:Set(tF[iD]) end
+    end; for iD = 1, nN do tA[iD]:Set(tF[iD]) end
     iM = bit.lshift(iM, 1)
   end; return tA
 end

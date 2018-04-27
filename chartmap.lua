@@ -122,7 +122,7 @@ local function newScope(sName)
   local mclMid, mcldXY, pxX, pxY = colr(0,0,0), colr(200,200,200)
   local mclPos, mclOrg, mclDir = colr(255,0,0), colr(0,255,0), colr(0,0,255)
   function self:setSizeVtx(vS)
-    mnPs = math.floor(tonumber(vS) or 0); print(mnPs)
+    mnPs = math.floor(tonumber(vS) or 0)
     if(mnPs <= 0) then mnPs = 0 end; return self
   end
   function self:setDelta(nX, nY)
