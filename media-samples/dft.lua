@@ -6,6 +6,7 @@ local signals  = require("signals")
 local colormap = require("colormap")
 
 local ws = 125               -- Signal frequency
+local rt = 100               -- Te amount of times to cal DFT
 local fs = 2000              -- Sampling rate
 local et = 1/10              -- End time (seconds)
 local pr = 1 / fs            -- Time per sample
@@ -30,7 +31,7 @@ signals.setWeight(g,s,tw)
 signals.setPhaseFactorDFT(common.binaryNextBaseTwo(#s))
 
 local tim, dft = os.clock()
-for i = 1, 100 do
+for i = 1, rt do
   dft = signals.getForwardDFT(g)
   common.logString(".")
 end; common.logString("\n")
@@ -64,6 +65,6 @@ scOpe:setColorDir(colr(colormap.getColorRedRGB())):drawStem(xft); updt()
 common.logStatus("DFT Input signal sample array size is "..#s)
 common.logStatus("DFT Main frequency is at "..(tft-1)*dhz.. " of "..ws)
 common.logStatus("DFT scale uses "..dhz.." Hz per division.")
-common.logStatus("DFT was calculated for "..tim.." milliseconds and "..#xft.." points")
+common.logStatus("DFT was calculated "..rt.." times for "..tim.." milliseconds and "..#xft.." points")
 
 wait()
