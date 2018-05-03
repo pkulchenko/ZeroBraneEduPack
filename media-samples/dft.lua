@@ -17,8 +17,9 @@ local intY  = chartmap.New("interval","WinY", -1, 1, H, 0)
 local scOpe = chartmap.New("scope"):setInterval(intX, intY)
       scOpe:setUpdate():setColor():setDelta(et / 10, 0.1)
 
-local t = signals.getRamp(0, et, pr)
-signals.setSine(s, t, signals.convLineToCircleFrq(ws))
+local t  = signals.getRamp(0, et, pr)
+local ww = signals.convLineToCircleFrq(ws)
+signals.setWave(s, math.sin, ww, t)
 
 -- Remove the comment from the line below to see the change in the spectrum
 -- It simply adds one sinewave with double the frequency to the output signal

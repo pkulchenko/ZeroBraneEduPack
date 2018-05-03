@@ -14,8 +14,10 @@ local scOpe = chartmap.New("scope"):setInterval(intX, intY)
       scOpe:setUpdate():setColor():setDelta(d, d)
 local s, g = {}, {}
 local tm = signals.getRamp(0,0.1,1/fs)
-signals.setSine(s, tm, signals.convLineToCircleFrq(ff*2))
-signals.setSine(g, tm, signals.convLineToCircleFrq(ff*5),math.pi/2)
+local w1 = signals.convLineToCircleFrq(ff*2)
+local w2 = signals.convLineToCircleFrq(ff*5)
+signals.setWave(s, math.sin, w1, tm)
+signals.setWave(g, math.sin, w2, tm, math.pi/2)
 
 open("Lissajous curve")
 size(W, H); zero(0, 0)

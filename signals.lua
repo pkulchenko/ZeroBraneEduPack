@@ -130,10 +130,10 @@ function signals.getRamp(nS, nE, nD)
 end
 
 -- Generate periodical signal
-function signals.setSine(tD, tT, nW, nT, tS)
+function signals.setWave(tD, fW, nW, tT, nT, tS)
   local nT, iD = (tonumber(nT) or 0), 1; while(tT[iD]) do
     local vS = (tS and tS[iD]); vS = vS and tS[iD] or 0
-    tD[iD] = vS + math.sin(nW * tT[iD] + nT); iD = (iD+1)
+    tD[iD] = vS + fW(nW * tT[iD] + nT); iD = (iD+1)
   end; return tD
 end
 
