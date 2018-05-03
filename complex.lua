@@ -543,6 +543,32 @@ function metaComplex:isZero()
   return (self:isRealZero() and self:isImagZero())
 end
 
+function metaComplex:isRealInf(bR)
+  if(bR) then return (self:getReal() == -math.huge) end
+  return (self:getReal() == math.huge)
+end
+
+function metaComplex:isImagInf(bI)
+  if(bI) then return (self:getImag() == -math.huge) end
+  return (self:getImag() == math.huge)
+end
+
+function metaComplex:isInf(bR, bI)
+  return (self:isRealInf(bR) and self:isImagInf(bI))
+end
+
+function metaComplex:isRealNan()
+  local nR = self:getReal(); return (nR ~= nR)
+end
+
+function metaComplex:isImagNan()
+  local nI = self:getImag(); return (nI ~= nI)
+end
+
+function metaComplex:isNan()
+  return (self:isRealNan() and self:isImagNan())
+end
+
 function metaComplex:isAmongRay(cO, cD, bF)
   local nM = metaData.__margn
   local cE = cO:getNew():Add(cD)

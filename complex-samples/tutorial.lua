@@ -266,6 +266,25 @@ tPar[10] ={
   {Typ="Round towards float"  , Arg={rd, -0.1},Foo=t.getRound, Out="{-70.3,-70.3}"}
 }
 
+local z = a:getNew(0,0)
+local n = a:getNew(1/0, -1/0)
+local g = a:getNew(0/0, 0/0)
+tPar[11]={
+  Name = "Boolean checks "..tostring(rd),
+  {Typ="Zero  ", Arg={z},Foo=z.isZero         , Out="true"},
+  {Typ="ZeroRe", Arg={z},Foo=z.isRealZero     , Out="true"},
+  {Typ="ZeroIm", Arg={z},Foo=z.isImagZero     , Out="true"},
+  {Typ="Inf   ", Arg={n,false, true},Foo=n.isInf, Out="true"},
+  {Typ="InfRe ", Arg={n},Foo=n.isRealInf      , Out="true"},
+  {Typ="InfRe ", Arg={n,true} ,Foo=n.isRealInf, Out="false"},
+  {Typ="InfRe ", Arg={n,false},Foo=n.isRealInf, Out="true"},
+  {Typ="InfIm ", Arg={n,true} ,Foo=n.isImagInf, Out="true"},
+  {Typ="InfIm ", Arg={n,false},Foo=n.isImagInf, Out="false"},
+  {Typ="Nan   ", Arg={g},Foo=g.isNan          , Out="true"},
+  {Typ="NanRe ", Arg={g},Foo=g.isRealNan      , Out="true"},
+  {Typ="NanIm ", Arg={g},Foo=g.isImagNan      , Out="true"}
+}
+
 makeTastCase()
 --------------------------------------------------------
 
@@ -291,7 +310,7 @@ else
   logStatus("The complex call was not successful.\n")
 end
 
-local tTrig = {
+local tCall = {
   {"Sine          : ","getSin  ","{1.0137832978161,0.885986829195}      "},
   {"Cosine        : ","getCos  ","{1.1633319692207,-0.7720914350223}    "},
   {"Tangent       : ","getTang ","{0.25407140331504,0.93021872707887}   "},
@@ -303,16 +322,12 @@ local tTrig = {
   {"Logarithm     : ","getLog  ","{1.9560115027141,0.14189705460416}    "}
 }
 
-local function trim(s)
-  return (s:gsub("^%s*(.-)%s*$", "%1"))
-end
-
 local b = complex.getNew(7,1)
-for id = 1, #tTrig do
-  local suc, rez = b(trim(tTrig[id][2]))
+for id = 1, #tCall do
+  local suc, rez = b(common.stringTrim(tCall[id][2]))
   if(suc) then rez = tostring(rez)
-    local com = trim(tTrig[id][3])
-    logStatus(tTrig[id][1]..((rez == com) and "OK" or "FAIL").." >> "..com)
+    local com = common.stringTrim(tCall[id][3])
+    logStatus(tCall[id][1]..((rez == com) and "OK" or "FAIL").." >> "..com)
   else
     logStatus("There was a problem executing method <"..tTrig[id][1].."> at index #"..id)
     logStatus("Error received: "..tostring(rez))
