@@ -581,6 +581,14 @@ function metaComplex:isAmongRay(cO, cD, bF)
   end; return false
 end
 
+function metaComplex:isOrthogonal(vC)
+  return (math.abs(self:getDot(vC)) < metaData.__margn)
+end
+
+function metaComplex:isCollinear(vC)
+  return (math.abs(self:getCross(vC)) < metaData.__margn)
+end
+
 function metaComplex:getRoots(nNm)
   local nN = math.floor(tonumber(nNm) or 0)
   if(nN > 0) then local tRt = {}
