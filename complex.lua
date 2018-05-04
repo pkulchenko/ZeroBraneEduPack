@@ -531,42 +531,42 @@ function metaComplex:isAmongLine(cS, cE, bF)
   end; return false
 end
 
-function metaComplex:isRealZero()
+function metaComplex:isZeroReal()
   return (math.abs(self:getReal()) < metaData.__margn)
 end
 
-function metaComplex:isImagZero()
+function metaComplex:isZeroImag()
   return (math.abs(self:getImag()) < metaData.__margn)
 end
 
 function metaComplex:isZero()
-  return (self:isRealZero() and self:isImagZero())
+  return (self:isZeroReal() and self:isZeroImag())
 end
 
-function metaComplex:isRealInf(bR)
+function metaComplex:isInfReal(bR)
   if(bR) then return (self:getReal() == -math.huge) end
   return (self:getReal() == math.huge)
 end
 
-function metaComplex:isImagInf(bI)
+function metaComplex:isInfImag(bI)
   if(bI) then return (self:getImag() == -math.huge) end
   return (self:getImag() == math.huge)
 end
 
 function metaComplex:isInf(bR, bI)
-  return (self:isRealInf(bR) and self:isImagInf(bI))
+  return (self:isInfReal(bR) and self:isInfImag(bI))
 end
 
-function metaComplex:isRealNan()
+function metaComplex:isNanReal()
   local nR = self:getReal(); return (nR ~= nR)
 end
 
-function metaComplex:isImagNan()
+function metaComplex:isNanImag()
   local nI = self:getImag(); return (nI ~= nI)
 end
 
 function metaComplex:isNan()
-  return (self:isRealNan() and self:isImagNan())
+  return (self:isNanReal() and self:isNanImag())
 end
 
 function metaComplex:isAmongRay(cO, cD, bF)
