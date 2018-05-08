@@ -272,17 +272,17 @@ local function stringParseTableRec(sRc, fCnv, tInfo, nStg)
         if(not tInfo[nStg]) then tInfo[nStg] = 0 end
         tInfo[nStg] = tInfo[nStg] + 1
         kVal, vVal = tInfo[nStg], kVal
-      end
-      -- Handle keys
+      end; local skVal = tostring(kVal) -- Handle keys
+      if(skVal:sub(1,1)..skVal:sub(-1,-1) == "[]") then skVal = skVal:sub(2,-2) end
       if(common.isDryString(kVal)) then
         return common.logStatus("common.stringTable: Table key fail at <"..vVal..">", false) end
-      if(tostring(kVal):sub(1,1)..tostring(kVal):sub(-1,-1) == "\"\"") then kVal = tostring(kVal):sub(2,-2)
-      elseif(tonumber(kVal)) then kVal = tonumber(kVal)
-      else kVal = tostring(kVal) end
-      -- Handle values
+      if(skVal:sub(1,1)..skVal:sub(-1,-1) == "\"\"") then kVal = skVal:sub(2,-2)
+      elseif(tonumber(skVal)) then kVal = tonumber(skVal)
+      else kVal = skVal end -- Handle values
       if(common.isDryString(vVal)) then vVal = nil
       elseif(vVal:sub(1,1)..vVal:sub(-1,-1) == "\"\"") then vVal = vVal:sub(2,-2)
       elseif(vVal:sub(1,1)..vVal:sub(-1,-1) == "{}")   then vVal = stringParseTableRec(vVal, fCnv, tInfo, nStg + 1)
+      elseif(vVal == "true" or vVal == "false") then vVal = common.toBool(vVal)
       else vVal = (tonumber(vVal) or 0) end
       -- Write stuff
       tOut[kVal] = vVal

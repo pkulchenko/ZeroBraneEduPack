@@ -1,5 +1,5 @@
 -- Copyright (C) 2017 Deyan Dobromirov
--- A common functionalities library
+-- Signal processing functionalities library
 
 if not debug.getinfo(3) then
   print("This is a module to load with `local signals = require('signals')`.")
