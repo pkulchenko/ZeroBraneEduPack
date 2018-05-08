@@ -316,8 +316,8 @@ function common.fileRead(pF, sM, bT)
             com = common.stringPadR("["..com.."]", 9).." > "
             sEr = sEr..("  "..com..desc); nM = nM + 1
     end; sEr = sEr..("\n  "..common.stringPadR("[N]", 9).." > Reads up to N characters")
-    return common.logStatus(sEr, "", true) end
-  local sLn, bEf = pF:read(vMd), false
+    return common.logStatus(sEr, "", true)
+  end; local sLn, bEf = pF:read(vMd), false
   if(common.isDryString(sLn) and vMd == tMd[1][1]) then return "", true end
   if(common.isNil(sLn)) then return "", true end
   if(bT) then return common.stringTrim(sLn), bEf end
