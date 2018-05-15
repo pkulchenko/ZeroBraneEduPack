@@ -511,6 +511,12 @@ function common.addPathLibrary(sB, sE)
   package.path = package.path..";"..pad
 end
 
+function common.tableGetLinearSpace(nS, nE, nN)
+  local tO, nI, nD = {}, 1, (nE-nS)
+  for nK = nS, nE, (nD/(nN-1)) do
+    tO[nI], nI = nK, (nI+1); end; return tO
+end
+
 function common.tableArrMallocDim(vV, ...)
   local vA, tA = common.getPick(vV,common.copyItem(vV),0), {...}
   local nD, tO = table.remove(tA, 1), {}
