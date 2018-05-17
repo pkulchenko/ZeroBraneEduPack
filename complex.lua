@@ -911,19 +911,18 @@ local function catmullromTangent(nT, cS, cE, nA)
 end
 
 local function catmullromSegment(cP0, cP1, cP2, cP3, nN, nA)
-  local nT0 = 0 -- Start point is always zero
+  local nT0, tC = 0, {} -- Start point is always zero
   local nT1 = catmullromTangent(nT0, cP0, cP1, nA)
   local nT2 = catmullromTangent(nT1, cP1, cP2, nA)
   local nT3 = catmullromTangent(nT2, cP2, cP3, nA)
   local tTN = common.tableGetLinearSpace(nT1, nT2, nN)
-  local tA1, tA2, tA3, tB1, tB2, tC = {}, {}, {}, {}, {}, {}
   for iD = 1, #tTN do
-    tA1[iD] = cP0:getNew():Mul((nT1-tTN[iD])/(nT1-nT0)):Add(cP1:getMul((tTN[iD]-nT0)/(nT1-nT0)))
-    tA2[iD] = cP1:getNew():Mul((nT2-tTN[iD])/(nT2-nT1)):Add(cP2:getMul((tTN[iD]-nT1)/(nT2-nT1)))
-    tA3[iD] = cP2:getNew():Mul((nT3-tTN[iD])/(nT3-nT2)):Add(cP3:getMul((tTN[iD]-nT2)/(nT3-nT2)))
-    tB1[iD] = tA1[iD]:getNew():Mul((nT2-tTN[iD])/(nT2-nT0)):Add(tA2[iD]:getMul((tTN[iD]-nT0)/(nT2-nT0)))
-    tB2[iD] = tA2[iD]:getNew():Mul((nT3-tTN[iD])/(nT3-nT1)):Add(tA3[iD]:getMul((tTN[iD]-nT1)/(nT3-nT1)))
-    tC [iD] = tB1[iD]:getNew():Mul((nT2-tTN[iD])/(nT2-nT1)):Add(tB2[iD]:getMul((tTN[iD]-nT1)/(nT2-nT1)))
+    local tA1 = cP0:getNew():Mul((nT1-tTN[iD])/(nT1-nT0)):Add(cP1:getMul((tTN[iD]-nT0)/(nT1-nT0)))
+    local tA2 = cP1:getNew():Mul((nT2-tTN[iD])/(nT2-nT1)):Add(cP2:getMul((tTN[iD]-nT1)/(nT2-nT1)))
+    local tA3 = cP2:getNew():Mul((nT3-tTN[iD])/(nT3-nT2)):Add(cP3:getMul((tTN[iD]-nT2)/(nT3-nT2)))
+    local tB1 = tA1:getNew():Mul((nT2-tTN[iD])/(nT2-nT0)):Add(tA2:getMul((tTN[iD]-nT0)/(nT2-nT0)))
+    local tB2 = tA2:getNew():Mul((nT3-tTN[iD])/(nT3-nT1)):Add(tA3:getMul((tTN[iD]-nT1)/(nT3-nT1)))
+       tC[iD] = tB1:Mul((nT2-tTN[iD])/(nT2-nT1)):Add(tB2:Mul((tTN[iD]-nT1)/(nT2-nT1)))
   end; return tC
 end
 
