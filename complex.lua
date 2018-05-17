@@ -40,7 +40,7 @@ metaData.__cactf = {}
 metaData.__valns = "X"
 metaData.__margn = 1e-10
 metaData.__curve = 100
-metaData.__kurve = {"n","N","cnt","Cnt"}
+metaData.__kurve = {"n","N","cnt","Cnt","*"}
 metaData.__getpi = math.pi
 metaData.__bords = {"{([<|/","})]>|/"}
 metaData.__ssyms = {"i", "I", "j", "J"}
@@ -50,6 +50,10 @@ metaData.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
 
 function complex.isValid(cNum)
   return (getmetatable(cNum) == metaComplex)
+end
+
+function complex.getType(cNum)
+  return metaComplex.__type
 end
 
 function complex.setMargin(nM)
@@ -900,6 +904,59 @@ function complex.getBezierCurve(...)
     local vP, vD = getBezierCurveVertexRec(cT, tV)
     tS[ID] = {vP, vD, cT}; cT, ID = (cT + dT), (ID + 1)
   end; tS[ID] = {tV[nV]:getNew(), tV[nV]:getSub(tV[nV-1]), 1}; return tS
+end
+
+local function catmullromTangent(nT, cS, cE, nA)
+  return ((cE:getNew():Sub(cS):getNorm()^(tonumber(nA) or 0.5))+nT)
+end
+
+local function catmullromSegment(cP0, cP1, cP2, cP3, nN, nA)
+  local nT0 = 0 -- Start point is always zero
+  local nT1 = catmullromTangent(nT0, cP0, cP1, nA)
+  local nT2 = catmullromTangent(nT1, cP1, cP2, nA)
+  local nT3 = catmullromTangent(nT2, cP2, cP3, nA)
+  local tTN = common.tableGetLinearSpace(nT1, nT2, nN)
+  local tA1, tA2, tA3, tB1, tB2, tC = {}, {}, {}, {}, {}, {}
+  for iD = 1, #tTN do
+    tA1[iD] = cP0:getNew():Mul((nT1-tTN[iD])/(nT1-nT0)):Add(cP1:getMul((tTN[iD]-nT0)/(nT1-nT0)))
+    tA2[iD] = cP1:getNew():Mul((nT2-tTN[iD])/(nT2-nT1)):Add(cP2:getMul((tTN[iD]-nT1)/(nT2-nT1)))
+    tA3[iD] = cP2:getNew():Mul((nT3-tTN[iD])/(nT3-nT2)):Add(cP3:getMul((tTN[iD]-nT2)/(nT3-nT2)))
+    tB1[iD] = tA1[iD]:getNew():Mul((nT2-tTN[iD])/(nT2-nT0)):Add(tA2[iD]:getMul((tTN[iD]-nT0)/(nT2-nT0)))
+    tB2[iD] = tA2[iD]:getNew():Mul((nT3-tTN[iD])/(nT3-nT1)):Add(tA3[iD]:getMul((tTN[iD]-nT1)/(nT3-nT1)))
+    tC [iD] = tB1[iD]:getNew():Mul((nT2-tTN[iD])/(nT2-nT1)):Add(tB2[iD]:getMul((tTN[iD]-nT1)/(nT2-nT1)))
+  end; return tC
+end
+
+function complex.getCatmullRomCurve(...)
+  local tV = {...}; local nV, nT, nA = #tV, 0, 0
+  local tK, nC = metaData.__kurve, metaData.__curve
+  if(complex.isValid(tV[1])) then local iL = nV
+    while(getmetatable(tV[iL]) ~= metaComplex) do
+      iL = (iL - 1) end; iL = iL + 1 -- First non-complex
+    nT, nA = tonumber(tV[iL]), tonumber(tV[iL+1])
+    while(tV[iL]) do tV[iL] = nil; iL = (iL + 1) end
+  else local kN = getValueKeys(tV[1], tK)
+    if(kN) then nA = tonumber(tV[2])
+      nT = getPick(tonumber(kN), tonumber(kN), nC)
+    else nT, nA = tonumber(tV[2]), tonumber(tV[3]) end
+    for iL = 2, nV do tV[iL] = nil end; tV = tV[1]; nV = #tV
+  end; nT = math.floor(nT); if(nT < 2) then
+    return logStatus("complex.getBezierCurve: Curve samples not enough ",nil) end
+  if(not (tV[1] and tV[2])) then
+    return logStatus("complex.getBezierCurve: Two vertexes are needed ",nil) end
+  if(not complex.isValid(tV[1])) then
+    return logStatus("complex.getBezierCurve: First vertex invalid <"..type(tV[1])..">",nil) end
+  if(not complex.isValid(tV[2])) then
+    return logStatus("complex.getBezierCurve: Second vertex invalid <"..type(tV[2])..">",nil) end
+  local vM = metaData.__margn
+  local cS, tC = tV[1]:getNew():Unit():Mul(vM):Add(tV[1]), {}
+  local cE, iC = tV[nV]:getNew():Unit():Mul(vM):Add(tV[nV]), 1
+  table.insert(tV, 1, cS); table.insert(tV, cE); nV = #tV;
+  for iD = 1, (nV-3) do tC[iC] = tV[iD+1]:getNew(); iC = (iC + 1)
+    local tS = catmullromSegment(tV[iD], tV[iD+1], tV[iD+2], tV[iD+3], nT, nA)
+    for iK = 1, #tS do tC[iC] = tS[iK]; iC = (iC + 1) end
+  end; tC[iC] = tV[nV-1]:getNew()
+  table.remove(tV, 1); table.remove(tV); return tC
 end
 
 return complex
