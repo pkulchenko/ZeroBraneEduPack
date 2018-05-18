@@ -15,24 +15,29 @@ local clGry = colr(greyLevel,greyLevel,greyLevel)
 local clB = colr(col.getColorBlueRGB())
 local clR = colr(col.getColorRedRGB())
 local clBlk = colr(col.getColorBlackRGB())
-local p1 = complex.getNew(-3,0) 
-local p2 = complex.getNew(-2,5) 
-local p3 = complex.getNew(7,0)
-local p4 = complex.getNew(7,7)
+local p1 = complex.getNew(-3, 0) 
+local p2 = complex.getNew(-2, 5) 
+local p3 = complex.getNew( 7, 0)
+local p4 = complex.getNew( 7, 7)
 local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, minY, maxY)
       scOpe:setSize(W, H):setColor(clBlk, clGry):setDelta(dX, dY)
 
-local tK = {"n","N","cnt","Cnt"}
-local ik = 3 -- 1..#tK
--- These are all the same
--- local tS = complex.getBezierCurve(p1,p2,p3,p4)
--- local tS = complex.getBezierCurve(p1,p2,p3,p4,100)
-local tS = complex.getBezierCurve({[tK[ik]]=100,p1,p2,p3,p4})
-
-common.logStatus("The distance between every grey line on X is: "..tostring(dX))
-common.logStatus("The distance between every grey line on Y is: "..tostring(dY))
+-- These calls produce the same curve for interpolation length <n-samples>
+-- The key <kK> can be any of these {"n","N","cnt","Cnt","*"}.
+-- The default curve interpolation sample count is 100
+-- local tS = complex.getBezierCurve( p1, p2, ..., pn) < Uses the default interpolation length
+-- local tS = complex.getBezierCurve( p1, p2, ..., pn,n-samples)
+-- local tS = complex.getBezierCurve({p1, p2, ..., pn},n-samples)
+-- local tS = complex.getBezierCurve({p1, p2, ..., pn,[kK]=n-samples})
+-- local tS = complex.getBezierCurve({p1, p2, ..., pn,[kK]=7},n-samples)
+-- local tS = complex.getBezierCurve({p1, p2, ..., pn,[banana]=7},nil) < Uses the default interpolation length
+local tp = {p1,p2,p3,p4}
+local tS = complex.getBezierCurve(tp,20)
 
 if(tS) then
+  common.logStatus("The distance between every grey line on X is: "..tostring(dX))
+  common.logStatus("The distance between every grey line on Y is: "..tostring(dY))
+  
   local function drawComplexLine(S, E, Cl)
     local x1 = intX:Convert(S:getReal()):getValue()
     local y1 = intY:Convert(S:getImag()):getValue()
@@ -57,5 +62,5 @@ if(tS) then
 
   wait()
 else
-  common.logStatus("Your curve parameter are invalid !")
+  common.logStatus("Your curve parameters are invalid !")
 end

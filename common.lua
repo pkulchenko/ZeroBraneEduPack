@@ -21,7 +21,7 @@ end
 
 metaCommon.__time = 0
 metaCommon.__func = {}
-metaCommon.__type = {"number", "boolean", "string", "function", "table"}
+metaCommon.__type = {"number", "boolean", "string", "function", "table", "nil", "userdata"}
 metaCommon.__syms = "1234567890abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ"
 metaCommon.__metatable = "common.lib"
 metaCommon.__nlog = {__top = 0}
@@ -106,6 +106,10 @@ function common.isBool(bVal)
   if(bVal == true ) then return true end
   if(bVal == false) then return true end
   return false
+end
+
+function common.isType(sT, iD)
+  return (sT == metaCommon.__type[iD])
 end
 
 function common.logSkipAdd(...)
@@ -336,6 +340,18 @@ function common.getSignNon(nV)
   return ((nV >= 0 and 1) or -1)
 end
 
+function common.getSignString(nV)
+  if(not common.isNumber(nV)) then
+    return common.logStatus("common.getSignString: Not number",nil) end
+  return (nV < 0 and "-" or "+")
+end
+
+function common.convSignString(nV)
+  local sS, sV = common.getSignString(nV), tostring(nV)
+  if(common.isDryString(sS)) then return nil end
+  return common.getPick(nV > 0, sS..sV, sV)
+end
+
 function common.getType(o)
   local mt = getmetatable(o)
   if(mt and mt.__type) then
@@ -509,6 +525,11 @@ function common.addPathLibrary(sB, sE)
     return common.logStatus("common.addPathLibrary: Missing extension") end
   local pad = (bas.."*."..ext):match("(.-)[^\\/]+$").."?."..ext
   package.path = package.path..";"..pad
+end
+
+function common.tableClear(tT)
+  if(not common.isTable(tT)) then return end
+  for k,v in pairs(tT) do tT[k] = nil end
 end
 
 function common.tableGetLinearSpace(nS, nE, nN)

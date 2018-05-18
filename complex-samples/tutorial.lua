@@ -7,7 +7,7 @@ local logStatus = common.logStatus
 
 io.stdout:setvbuf("no")
 
-local tPar
+local tPar = {}
 local function makeTastCase(fCompl)
   for ID = 1, #tPar do
     local test = tPar[ID]
@@ -23,7 +23,7 @@ local function makeTastCase(fCompl)
         logStatus("  OK: ("..row.Typ..") <"..num..">")
       end
     end
-  end
+  end; common.tableClear(tPar); collectgarbage()
 end
 
 logStatus("\nMethods starting with upper letter make internal changes and return /self/ .")
@@ -47,14 +47,22 @@ tPar[1] = {
   {Typ="copy-constructor", Arg={a}, Out="{7,7}"}
 }
 
+local function testTranslate(na, nb)
+  return common.convSignString(na)..common.convSignString(nb).."i"
+end
 tPar[2] = {
+  Name = "Translator function",
+  {Typ="function result", Arg={testTranslate,7,7}, Out="{7,7}"}
+}
+
+tPar[3] = {
   Name = "Converting tables to a complex number. Convert form a table with given keys",
   {Typ="table number keys 1,2", Arg={{a:getReal(),a.getImag()}},Out="{7,7}"},
   {Typ="table predefined keys", Arg={{["r"] = a:getReal(), ["i"]=a.getImag()}},Out="{7,7}"},
   {Typ="table custom key data", Arg={{["asd"] = a:getReal(), ["fgh"]=a.getImag()},"asd","fgh"},Out="{7,7}"},
 }
 
-tPar[3] = {
+tPar[4] = {
   Name = "String with variety of outputs",
   {Typ="string +i", Arg={"7+i7"},Out="{7,7}"},
   {Typ="string +j", Arg={"7+j7"},Out="{7,7}"},
@@ -66,7 +74,7 @@ tPar[3] = {
   {Typ="string J+", Arg={"7+7J"},Out="{7,7}"}
 }
 
-tPar[4] = {
+tPar[5] = {
   Name = "Table with variety of key storage",
   {Typ="default format", Arg={"7,7"},Out="{7,7}"},
   {Typ="default format", Arg={"7,-7"},Out="{7,-7}"},
@@ -85,7 +93,7 @@ tPar[4] = {
   {Typ="string", Arg={"-i"},Out="{0,-1}"},
 }
 
-tPar[5] = {
+tPar[6] = {
   Name = "Numbers",
   {Typ="number", Arg={7,7},Out="{7,7}"},
   {Typ="number", Arg={-7,7},Out="{-7,7}"},
@@ -93,7 +101,7 @@ tPar[5] = {
   {Typ="number", Arg={-7,-7},Out="{-7,-7}"}
 }
 
-tPar[6] = {
+tPar[7] = {
   Name = "Boolean and non-existent",
   {Typ="boolean", Arg={true, true  },Out="{1,1}"},
   {Typ="boolean", Arg={true, false },Out="{1,0}"},

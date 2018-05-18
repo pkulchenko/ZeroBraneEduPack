@@ -24,29 +24,41 @@ local scOpe = chartmap.New("scope"):setBorder(minX, maxX, minY, maxY)
 
 local c1 = complex.getNew(-15,-15)
 local c2 = complex.getNew( -5,  5)
-local c3 = complex.getNew( -1, 8)
+local c3 = complex.getNew( -1,  8)
 local c4 = complex.getNew(  1, -8)
 local c5 = complex.getNew(  5, -5)
 local c6 = complex.getNew( 15, 15)
-local tc = {c1,c2,c3,c4,c5,c6,["*"]=25}
 
-local tC = complex.getCatmullRomCurve(tc,0.1)
+-- These calls produce the same curve for interpolation length <n-samples> and power <alpha>
+-- The key <kK> can be any of these {"n","N","cnt","CNT","count", "","*"}
+-- The default curve interpolation sample count is 100
+-- The default curve power interpolation coefficient <alpha> is 0.5
+-- local tC = complex.getCatmullRomCurve( p1, p2, ..., pn) < Uses the default interpolation length and power
+-- local tC = complex.getCatmullRomCurve( p1, p2, ..., pn, n-samples) < Uses the default power
+-- local tC = complex.getCatmullRomCurve( p1, p2, ..., pn, n-samples, alpha)
+-- local tC = complex.getCatmullRomCurve({p1, p2, ..., pn}, n-samples, alpha)
+-- local tC = complex.getCatmullRomCurve({p1, p2, ..., pn,[kK]=n-samples}, alpha)
+-- local tC = complex.getCatmullRomCurve({p1, p2, ..., pn,["banana"]=7}, n-samples, alpha)
 
-open("Complex Catmull Rom curve demo")
-size(W, H)
-zero(0, 0)
-updt(false) -- disable auto updates
+local tc = {c1,c2,c3,c4,c5,c6}
+local tC = complex.getCatmullRomCurve(tc,15,0.1)
 
-scOpe:Draw(true, true, true):setSizeVtx(5)
-for i = 1, #tc do
-  scOpe:drawComplexText(tc[i], "   {"..i.."}", true)
-  scOpe:drawComplexPoint(tc[i], clMgn)
+if(tC) then
+  open("Complex Catmull Rom curve demo")
+  size(W, H)
+  zero(0, 0)
+  updt(false) -- disable auto updates
+
+  scOpe:Draw(true, true, true):setSizeVtx(5)
+  for i = 1, #tc do
+    scOpe:drawComplexText(tc[i], "   {"..i.."}", true)
+    scOpe:drawComplexPoint(tc[i], clMgn)
+  end
+
+  scOpe:setSizeVtx(2)
+  for i = 1, (#tC-1) do
+    scOpe:drawComplexLine(tC[i+1],tC[i])
+    updt(); wait(0.02)
+  end
+  wait()
 end
-
-scOpe:setSizeVtx(2)
-for i = 1, (#tC-1) do
-  scOpe:drawComplexLine(tC[i+1],tC[i])
-  updt(); wait(0.03)
-end
-
-wait()

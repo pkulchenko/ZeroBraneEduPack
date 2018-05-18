@@ -24,6 +24,7 @@ local isTable         = common.isTable
 local roundValue      = common.getRound
 local getClamp        = common.getClamp
 local isString        = common.isString
+local isType          = common.isType
 local isNumber        = common.isNumber
 local logStatus       = common.logStatus
 local logString       = common.logString
@@ -609,7 +610,7 @@ end
 function metaComplex:getFormat(...)
   local tArg = {...}
   local sMod = tostring(tArg[1] or "")
-  if(sMod == "table") then
+  if(isType(sMod, 5)) then
     local tvB = metaData.__bords
     local tkR, tkI = metaData.__kreal, metaData.__kimag
     local sN, R, I = tostring(tArg[3] or "%f"), self:getParts()
@@ -625,7 +626,7 @@ function metaComplex:getFormat(...)
           kI = qI and ("\""..kI.."\"") or tostring(kI)
     return (sF.."["..kR.."]="..sN:format(R)..
                ",["..kI.."]="..sN:format(I)..sB)
-  elseif(sMod == "string") then
+  elseif(isType(sMod, 3)) then
     local R, I = self:getParts()
     local mI, bS = (getSign(I) * I), tArg[3]
     local iD, eS = (tonumber(tArg[2]) or 1), #metaData.__ssyms
@@ -788,8 +789,7 @@ end
 
 function complex.setAction(aK, fD)
   if(not aK) then return logStatus("complex.setAction: Miss-key", false) end
-  if(type(fD) == "function") then
-    metaData.__cactf[aK] = fD; return true end
+  if(isType(type(fD), 4)) then metaData.__cactf[aK] = fD; return true end
   return logStatus("complex.setAction: Non-function", false)
 end
 
@@ -854,14 +854,16 @@ function complex.getRandom(nL, nU, vC)
 end
 
 function complex.convNew(vIn, ...)
-  if(getmetatable(vIn) == metaComplex) then return vIn:getNew() end
+  if(complex.isValid(vIn)) then return vIn:getNew() end
   local tyIn, tArg = type(vIn), {...}
-  if(tyIn =="boolean") then
-    return complex.getNew(vIn and 1 or 0,tArg[1] and 1 or 0)
-  elseif(tyIn ==  "table") then return tableToComplex(vIn, tArg[1], tArg[2])
-  elseif(tyIn == "number") then return complex.getNew(vIn,tArg[1])
-  elseif(tyIn ==    "nil") then return complex.getNew(0,0)
-  elseif(tyIn == "string") then -- Remove brackets and leave the values
+  if(isType(tyIn, 2)) then return complex.getNew(vIn and 1 or 0,tArg[1] and 1 or 0)
+  elseif(isType(tyIn, 5)) then return tableToComplex(vIn, tArg[1], tArg[2])
+  elseif(isType(tyIn, 1)) then return complex.getNew(vIn,tArg[1])
+  elseif(isType(tyIn, 6)) then return complex.getNew(0,0)
+  elseif(isType(tyIn, 4)) then local bS, vR, vI = pcall(vIn, ...)
+    if(not bS) then return logStatus("complex.convNew: Function: "..vR,nil) end
+    return complex.convNew(vR, vI) -- Translator function generating converter format
+  elseif(isType(tyIn, 3)) then -- Remove brackets and leave the values
     local Str, S, E = stringValidComplex(vIn:gsub("*","")); if(not Str) then
       return logStatus("complex.convNew: Failed to validate <"..tostring(vIn)..">",nil) end
     Str = Str:sub(S, E); E = E-S+1; S = 1 -- Refresh string indexes
@@ -883,17 +885,22 @@ local function getBezierCurveVertexRec(nS, tV)
 end
 
 function complex.getBezierCurve(...)
-  local tV = {...}; local nV, nT = #tV, 0
-  local tK, nC = metaData.__kurve, metaData.__curve
-  if(complex.isValid(tV[1])) then local nN = tonumber(tV[nV])
-    nT = getPick(nN, nN, nC); if(nN) then tV[nV] = nil end; nV = #tV
-  else local kN = getValueKeys(tV[1], tK)
-    nT = getPick(tonumber(kN), tonumber(kN), nC)
-    if(tonumber(tV[2])) then nT = tonumber(tV[2]) end; tV = tV[1]; nV = #tV
+  local tV = {...}; local nV, nT, nC = #tV, 0, metaData.__curve
+  if(complex.isValid(tV[1])) then local iL = nV
+    while(not complex.isValid(tV[iL])) do
+      iL = (iL - 1) end; iL = iL + 1 -- First non-complex
+    nT = tonumber(tV[iL]); nT = getPick(nT, nT, nC)
+    for iK = iL, nV do tV[iK] = nil end; nV = #tV
+  else if(not isType(type(tV[1]), 5)) then
+    return logStatus("complex.getBezierCurve: Argument not table or complex",nil) end
+    local kN = getValueKeys(tV[1], metaData.__kurve)
+    local nI, nO = tonumber(kN), tonumber(tV[2])
+    nT = getPick(nO, nO, getPick(nI, nI, nC))
+    for iK = 2, nV do tV[iK] = nil end; tV = tV[1]; nV = #tV
   end; nT = math.floor(nT); if(nT < 2) then
-    return logStatus("complex.getBezierCurve: Curve samples not enough ",nil) end
+    return logStatus("complex.getBezierCurve: Curve samples not enough",nil) end
   if(not (tV[1] and tV[2])) then
-    return logStatus("complex.getBezierCurve: Two vertexes are needed ",nil) end
+    return logStatus("complex.getBezierCurve: Two vertexes are needed",nil) end
   if(not complex.isValid(tV[1])) then
     return logStatus("complex.getBezierCurve: First vertex invalid <"..type(tV[1])..">",nil) end
   if(not complex.isValid(tV[2])) then
@@ -927,26 +934,27 @@ local function catmullromSegment(cP0, cP1, cP2, cP3, nN, nA)
 end
 
 function complex.getCatmullRomCurve(...)
-  local tV = {...}; local nV, nT, nA = #tV, 0, 0
-  local tK, nC = metaData.__kurve, metaData.__curve
+  local tV = {...}; local nV, nT, nA, nC = #tV, 0, 0, metaData.__curve
   if(complex.isValid(tV[1])) then local iL = nV
-    while(getmetatable(tV[iL]) ~= metaComplex) do
+    while(not complex.isValid(tV[iL])) do
       iL = (iL - 1) end; iL = iL + 1 -- First non-complex
-    nT, nA = tonumber(tV[iL]), tonumber(tV[iL+1])
+    nT = tonumber(tV[iL])  ; nT = getPick(nT, nT, nC)
+    nA = tonumber(tV[iL+1]); nT = getPick(nA, nA, nil)
     while(tV[iL]) do tV[iL] = nil; iL = (iL + 1) end
-  else local kN = getValueKeys(tV[1], tK)
-    if(kN) then nA = tonumber(tV[2])
-      nT = getPick(tonumber(kN), tonumber(kN), nC)
-    else nT, nA = tonumber(tV[2]), tonumber(tV[3]) end
+  else if(not isType(type(tV[1]), 5)) then
+    return logStatus("complex.getCatmullRomCurve: Argument not table or complex",nil) end
+    local kN = getValueKeys(tV[1], metaData.__kurve); if(kN) then
+      nT, nA = tonumber(kN), tonumber(tV[2]); nT = getPick(nT, nT, nC)
+    else nT, nA = tonumber(tV[2]), tonumber(tV[3]); nT = getPick(nT, nT, nC) end
     for iL = 2, nV do tV[iL] = nil end; tV = tV[1]; nV = #tV
   end; nT = math.floor(nT); if(nT < 2) then
-    return logStatus("complex.getBezierCurve: Curve samples not enough ",nil) end
+    return logStatus("complex.getCatmullRomCurve: Curve samples not enough",nil) end
   if(not (tV[1] and tV[2])) then
-    return logStatus("complex.getBezierCurve: Two vertexes are needed ",nil) end
+    return logStatus("complex.getCatmullRomCurve: Two vertexes are needed",nil) end
   if(not complex.isValid(tV[1])) then
-    return logStatus("complex.getBezierCurve: First vertex invalid <"..type(tV[1])..">",nil) end
+    return logStatus("complex.getCatmullRomCurve: First vertex invalid <"..type(tV[1])..">",nil) end
   if(not complex.isValid(tV[2])) then
-    return logStatus("complex.getBezierCurve: Second vertex invalid <"..type(tV[2])..">",nil) end
+    return logStatus("complex.getCatmullRomCurve: Second vertex invalid <"..type(tV[2])..">",nil) end
   local vM = metaData.__margn
   local cS, tC = tV[1]:getNew():Unit():Mul(vM):Add(tV[1]), {}
   local cE, iC = tV[nV]:getNew():Unit():Mul(vM):Add(tV[nV]), 1
