@@ -378,6 +378,14 @@ function common.getPick(bC, vT, vF)
   if(bC) then return vT end; return vF
 end
 
+function common.getDecode(vC, nM, ...)
+  local tV, vO = {...}, nil
+  local nV, nD = (tonumber(nM) or #tV), nil
+  if(nV % 2 ~= 0) then nD = tV[nV]; nV = (nV-1) end
+  for iD = 1, (nV-1), 2 do if(vC == tV[iD]) then
+    return tV[iD+1] end; end; return nD
+end
+
 function common.getValueKeys(tTab, tKeys, aKey)
   if(aKey) then return tTab[aKey] end
   local out; for ID = 1, #tKeys do

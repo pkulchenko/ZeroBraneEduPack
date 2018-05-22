@@ -274,26 +274,45 @@ tPar[10] ={
   {Typ="Round towards float"  , Arg={rd, -0.1},Foo=t.getRound, Out="{-70.3,-70.3}"}
 }
 
+tPar[11] ={
+  Name = "Inf and NaN convert "..tostring(a),
+  {Typ="Nan(n,n)", Arg={a}            ,Foo=a.getNan, Out="{7,7}"},
+  {Typ="Nan(t,t)", Arg={a,true ,true },Foo=a.getNan, Out="{nan,nan}"},
+  {Typ="Nan(f,f)", Arg={a,false,false},Foo=a.getNan, Out="{7,7}"},
+  {Typ="Nan(t,f)", Arg={a,true ,false},Foo=a.getNan, Out="{nan,7}"},
+  {Typ="Nan(f,t)", Arg={a,false,true },Foo=a.getNan, Out="{7,nan}"},
+  {Typ="Inf(n,n)", Arg={a}            ,Foo=a.getInf, Out="{7,7}"},
+  {Typ="Inf(t,t)", Arg={a,true ,true },Foo=a.getInf, Out="{-inf,-inf}"},
+  {Typ="Inf(f,f)", Arg={a,false,false},Foo=a.getInf, Out="{inf,inf}"},
+  {Typ="Inf(t,f)", Arg={a,true ,false},Foo=a.getInf, Out="{-inf,inf}"},
+  {Typ="Inf(f,t)", Arg={a,false,true },Foo=a.getInf, Out="{inf,-inf}"}
+}
+
 local z = a:getNew(0,0)
 local n = a:getNew(1/0, -1/0)
 local g = a:getNew(0/0, 0/0)
-tPar[11]={
-  Name = "Boolean checks "..tostring(rd),
-  {Typ="Zero   ", Arg={z},Foo=z.isZero           , Out="true"},
-  {Typ="ZeroRe ", Arg={z},Foo=z.isZeroReal       , Out="true"},
-  {Typ="ZeroIm ", Arg={z},Foo=z.isZeroImag       , Out="true"},
-  {Typ="Inf(++)", Arg={n,false, false},Foo=n.isInf, Out="false"},
-  {Typ="Inf(--)", Arg={n,true , true },Foo=n.isInf, Out="false"},
-  {Typ="Inf(+-)", Arg={n,false, true },Foo=n.isInf, Out="true"},
-  {Typ="Inf(-+)", Arg={n,true , false},Foo=n.isInf, Out="false"},
-  {Typ="InfRe  ", Arg={n},Foo=n.isInfReal        , Out="true"},
-  {Typ="InfRe  ", Arg={n,true} ,Foo=n.isInfReal  , Out="false"},
-  {Typ="InfRe  ", Arg={n,false},Foo=n.isInfReal  , Out="true"},
-  {Typ="InfIm  ", Arg={n,true} ,Foo=n.isInfImag  , Out="true"},
-  {Typ="InfIm  ", Arg={n,false},Foo=n.isInfImag  , Out="false"},
-  {Typ="Nan    ", Arg={g},Foo=g.isNan            , Out="true"},
-  {Typ="NanRe  ", Arg={g},Foo=g.isNanReal        , Out="true"},
-  {Typ="NanIm  ", Arg={g},Foo=g.isNanImag        , Out="true"}
+tPar[12]={
+  Name = "Boolean checks "..tostring(z).." > "..tostring(n).." > "..tostring(g),
+  {Typ="Zero     ", Arg={z},Foo=z.isZero            , Out="true"},
+  {Typ="Zero(f,f)", Arg={z,false,false},Foo=z.isZero, Out="nil"},
+  {Typ="Zero(t,t)", Arg={z,true ,true },Foo=z.isZero, Out="true"},
+  {Typ="Zero(t,f)", Arg={z,true ,false},Foo=z.isZero, Out="true"},
+  {Typ="Zero(f,t)", Arg={z,false,true },Foo=z.isZero, Out="true"},
+  {Typ="ZeroRe   ", Arg={z},Foo=z.isZeroReal        , Out="true"},
+  {Typ="ZeroIm   ", Arg={z},Foo=z.isZeroImag        , Out="true"},
+  {Typ="Inf(xx)  ", Arg={n}             ,Foo=n.isInf, Out="false"},
+  {Typ="Inf(++)  ", Arg={n,false, false},Foo=n.isInf, Out="false"},
+  {Typ="Inf(--)  ", Arg={n,true , true },Foo=n.isInf, Out="false"},
+  {Typ="Inf(+-)  ", Arg={n,false, true },Foo=n.isInf, Out="true"},
+  {Typ="Inf(-+)  ", Arg={n,true , false},Foo=n.isInf, Out="false"},
+  {Typ="InfRe    ", Arg={n},Foo=n.isInfReal         , Out="true"},
+  {Typ="InfRe    ", Arg={n,true} ,Foo=n.isInfReal   , Out="false"},
+  {Typ="InfRe    ", Arg={n,false},Foo=n.isInfReal   , Out="true"},
+  {Typ="InfIm    ", Arg={n,true} ,Foo=n.isInfImag   , Out="true"},
+  {Typ="InfIm    ", Arg={n,false},Foo=n.isInfImag   , Out="false"},
+  {Typ="Nan      ", Arg={g},Foo=g.isNan             , Out="true"},
+  {Typ="NanRe    ", Arg={g},Foo=g.isNanReal         , Out="true"},
+  {Typ="NanIm    ", Arg={g},Foo=g.isNanImag         , Out="true"}
 }
 
 makeTastCase()

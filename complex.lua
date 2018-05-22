@@ -544,22 +544,40 @@ function metaComplex:isZeroImag()
   return (math.abs(self:getImag()) < metaData.__margn)
 end
 
-function metaComplex:isZero()
-  return (self:isZeroReal() and self:isZeroImag())
+function metaComplex:isZero(bR, bI)
+  local bR = getPick(isNil(bR), true, bR)
+  local bI = getPick(isNil(bI), true, bI)
+  local zR, zI = self:isZeroReal(), self:isZeroImag()
+  if(bR and bI) then return (zR and zI) end
+  if(bR) then return zR end; if(bI) then return zI end
+  return logStatus("complex.isZero: Not applicable", nil)
 end
 
 function metaComplex:isInfReal(bR)
-  if(bR) then return (self:getReal() == -math.huge) end
-  return (self:getReal() == math.huge)
+  local mH, nR = math.huge, self:getReal()
+  if(bR) then return (nR == -mH) end
+  return (nR == mH)
 end
 
 function metaComplex:isInfImag(bI)
-  if(bI) then return (self:getImag() == -math.huge) end
-  return (self:getImag() == math.huge)
+  local mH, nI = math.huge, self:getImag()
+  if(bI) then return (nI == -mH) end
+  return (nI == mH)
 end
 
 function metaComplex:isInf(bR, bI)
   return (self:isInfReal(bR) and self:isInfImag(bI))
+end
+
+function metaComplex:Inf(bR, bI)
+  local nH, sR, sI = math.huge, self:getParts()
+  local nR = getPick(isNil(bR), sR, getPick(bR, -nH, nH))
+  local nI = getPick(isNil(bI), sI, getPick(bI, -nH, nH))
+  return self:setReal(nR):setImag(nI)
+end
+
+function metaComplex:getInf(bR, bI)
+  return self:getNew():Inf(bR, bI)
 end
 
 function metaComplex:isNanReal()
@@ -572,6 +590,17 @@ end
 
 function metaComplex:isNan()
   return (self:isNanReal() and self:isNanImag())
+end
+
+function metaComplex:Nan(bR, bI)
+  local nN, sR, sI = (0/0), self:getParts()
+  local nR = getPick(isNil(bR), sR, getPick(bR, nN, sR))
+  local nI = getPick(isNil(bI), sI, getPick(bI, nN, sI))
+  return self:setReal(nR):setImag(nI)
+end
+
+function metaComplex:getNan(bR, bI)
+  return self:getNew():Nan(bR, bI)
 end
 
 function metaComplex:isAmongRay(cO, cD, bF)
