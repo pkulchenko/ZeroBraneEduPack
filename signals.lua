@@ -19,6 +19,7 @@ local revArr      = common.tableArrReverse
 local byteSTR     = common.bytesGetString
 local byteUINT    = common.bytesGetNumber
 local byteMirr    = common.binaryMirror
+local isNumber    = common.isNumber
 local isNil       = common.isNil
 
 -- This holds header and format definition location
@@ -138,9 +139,13 @@ function signals.setWave(tD, fW, nW, tT, nT, tS)
 end
 
 -- Weights the signal trough the given window
-function signals.setWeight(tD, tS, tW, tA)
-  local iD = 1; while(tS[iD] and tW[iD]) do
-    tD[iD] = tS[iD] * tW[iD] + (tA and tA[iD] or 0); iD = (iD+1)
+function signals.setWeight(tD, tS, tW, tA, tB)
+  local bW, bA, bB = isNumber(tW), isNumber(tA), isNumber(tB)
+  local iD = 1; while(tS[iD]) do
+    local mW = (bW and tW or (tW and tonumber(tW[iD]) or 1))
+    local mA = (bA and tA or (tA and tonumber(tA[iD]) or 0))
+    local mB = (bB and tB or (tB and tonumber(tB[iD]) or 1))
+    tD[iD] = tS[iD] * mW + mA * mB; iD = (iD+1)
   end; return tD
 end
 
