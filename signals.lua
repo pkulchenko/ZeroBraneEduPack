@@ -138,9 +138,9 @@ function signals.setWave(tD, fW, nW, tT, nT, tS)
 end
 
 -- Weights the signal trough the given window
-function signals.setWeight(tD, tS, tW)
+function signals.setWeight(tD, tS, tW, tA)
   local iD = 1; while(tS[iD] and tW[iD]) do
-    tD[iD] = tS[iD] * tW[iD]; iD = (iD+1)
+    tD[iD] = tS[iD] * tW[iD] + (tA and tA[iD] or 0); iD = (iD+1)
   end; return tD
 end
 
