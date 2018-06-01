@@ -1,7 +1,7 @@
 require("turtle")
 
 local crt = require("chartmap")
-local pid = require("pidloop")
+local sig = require("signals")
 local col = require("colormap")
 
 io.stdout:setvbuf("no")
@@ -18,8 +18,8 @@ local tFixed     = 5
 local endTm = tFixed and tFixed or (tScale * To)
 local intX  = crt.New("interval","WinX",  0,endTm, 0, W)
 local intY  = crt.New("interval","WinY", -1, 15 , H, 0)
-local APR   = pid.New("unit",To,{8},{7 , 3, 1},"Hesitating plant"):Dump()
-local PID   = pid.New("control",To,"Lin-QR"):Setup({0.028, 0.01, -12, minC, maxC}):setStruct(false,false):Dump()
+local APR   = sig.New("plant",To,{8},{7 , 3, 1},"Hesitating plant"):Dump()
+local PID   = sig.New("control",To,"Lin-QR"):Setup({0.028, 0.01, -12, minC, maxC}):setStruct(false,false):Dump()
 local trRef = crt.New("tracer","Ref"):setInterval(intX, intY)
 local trCon = crt.New("tracer","Con"):setInterval(intX, intY)
 local trPV  = crt.New("tracer","PV" ):setInterval(intX, intY)

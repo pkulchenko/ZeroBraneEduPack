@@ -165,7 +165,7 @@ end
 
 function common.logConcat(anyMsg,aDel, ...)
   local sDel, tDat = tostring(aDel or ","), {...}
-  io.write(tostring(anyMsg)..": ")
+  io.write(tostring(anyMsg))
   for ID = 1, #tDat do
     io.write(tostring(tDat[ID] or ""))
     if(tDat[ID+1]) then io.write(sDel) end
