@@ -36,6 +36,7 @@ local binaryNeededBits  = common.binaryNeededBits
 local binaryMirror      = common.binaryMirror
 local isFunction        = common.isFunction
 local logConcat         = common.logConcat
+local logString         = common.logString
 local stringPadL        = common.stringPadL
 
 -- This holds header and format definition location
@@ -396,9 +397,9 @@ local metaNeuralNet = {}
       metaNeuralNet.__type  = "signals.neuralnet"
       metaNeuralNet.__metatable = metaNeuralNet.__type
       metaNeuralNet.__tostring = function(oNet) return oNet:getString() end
-local function newNeuralNet()
-  local self, mtData, mID, mfAct, mfOut, mfDif = {}, {}, 1
-  randomSetSeed()
+local function newNeuralNet(sName)
+  local self, mtData, mID, mName = {}, {}, 1, tostring(sName or "NET")
+  local mfAct, mfOut, mfDif; randomSetSeed()
   function self:addLayer(...)
     local tArg = {...}; nArg = #tArg;
     mtData[mID] = {}; mtData[mID].V = {}
@@ -412,6 +413,9 @@ local function newNeuralNet()
         mtData[mID].W[k][i] = (tArg[k][i] or randomGetNumber()) end
       end
     end; mID = mID + 1; return self
+  end
+  function self:getString()
+    return ("["..metaNeuralNet.__type.."]: "..mName)
   end
   function self:remLayer()
     mtData[mID] = nil; mID = (mID - 1); return self
@@ -431,6 +435,7 @@ local function newNeuralNet()
     end
   end
   function self:getOut(bOv)
+    if(mID < 2) then return {} end
     local tV, vO = mtData[mID-1].V
     if(bOv and mfOut) then vO = mfOut(tV)
     else vO = {}; for k = 1, #tV do table.insert(vO, tV[k]) end
@@ -442,42 +447,75 @@ local function newNeuralNet()
     return self
   end
   function self:setActive(fA, fD, fO)
-    if(isFunction(fA)) then mfAct = fA else
-      mfAct = logStatus("newNeuralNet.setActive(act): Skip", nil) end
-    if(isFunction(fD)) then mfDif = fD else
-      mfDif = logStatus("newNeuralNet.setActive(dif): Skip", nil) end
-    if(isFunction(fO)) then mfOut = fO else
-      mfOut = logStatus("newNeuralNet.setActive(out): Skip", nil) end
+    if(isFunction(fA)) then mfAct = fA 
+      local bS, aR = pcall(mfAct, 0)
+      if(not bS) then mfAct = logStatus("newNeuralNet.setActive(dif): Fail "..tostring(aR), self) end
+    else mfAct = logStatus("newNeuralNet.setActive(act): Skip", self) end
+    if(isFunction(fD)) then mfDif = fD 
+      local bS, aR = pcall(mfDif, 0)
+      if(not bS) then mfDif = logStatus("newNeuralNet.setActive(dif): Fail "..tostring(aR), self) end
+    else mfDif = logStatus("newNeuralNet.setActive(dif): Skip", self) end
+    if(isFunction(fO)) then mfOut = fO
+      local bS, aR = pcall(mfOut, 0)
+      if(not bS) then mfOut = logStatus("newNeuralNet.setActive(out): Fail "..tostring(aR), self) end
+    else mfOut = logStatus("newNeuralNet.setActive(out): Skip", self) end
     return self
   end
-  function self:getWeightLayer(iLay)
+  function self:getWeightLayer(vLay)
     local tW, mW = {}, mtData[iLay].W
     for k = 1, #mW do tW[k] = {}
       signals.setWeight(tW[k], mW[k])
     end; return tW
   end
-  function self:trainLayer(iLay, tSet, iTr)
+  function self:getValueLayer(vLay)
+    local iLay = math.floor(tonumber(vLay) or 0)
+    local mV = mtData[iLay]; if(isNil(mV)) then
+      return logStatus("newNeuralNet.trainLayer: Missing layer #"..tostring(vLay), self) end
+    local tV, mV = {}, mV.V; for k = 1, #mV do tV[k] = mV[k]; end; return tV
+  end
+  function self:trainLayer(iLay, tSet, iTr, bL, vK)
     if(not isFunction(mfDif)) then
       return logStatus("newNeuralNet.trainLayer: Derivative missing", self) end
     if(iLay < 2) then return self end
+    local nK = (tonumber(vK) or 1); if(bL) then logString("\nTraining:") end
     local tOut, tErr, tAdj = {}, {}, {}
-    for k = 1, iTr do
+    for k = 1, iTr do if(bL and ((k % 10000) == 0)) then logString(".") end
       for i = 1, #tSet do
-        tOut[i] = self:setValue(unpack(tSet[i][1])):Process():getOut()
-        tErr[i], tAdj[i] = {}, {}
+        tOut[i] = self:setValue(unpack(tSet[i][1])):Process()
+        if(isNil(tOut[i])) then return logStatus("newNeuralNet.trainLayer: Process fail", self) end
+        tOut[i] = tOut[i]:getOut(); tErr[i], tAdj[i] = {}, {}
         signals.setWeight(tErr[i],tSet[i][2],1,tOut[i],-1)
         for j = 1, #tOut[i] do tAdj[i][j] = {}
-          signals.setWeight(tAdj[i][j],tSet[i][1],tErr[i][j] * mfDif(tOut[i][j]))
+          signals.setWeight(tAdj[i][j],tSet[i][1],tErr[i][j] * mfDif(tOut[i][j]) * nK)
           signals.setWeight(mtData[iLay].W[j],mtData[iLay].W[j],1,tAdj[i][j])
         end
       end
-    end; return self
+    end; if(bL) then logString("done\n") end; return self
   end
+  function self:getNeuronsCnt()
+    local nC = 0; for k = 2, (mID-1) do
+      nC = nC + #mtData[k].V
+    end return nC
+  end
+  function self:getWeightsCnt()
+    local nC = 0; for k = 2, (mID-1) do
+      local mW = mtData[k].W
+      nC = nC + #mW * #(mW[1])
+    end return nC
+  end
+  function self:getType() return metaNeuralNet.__type end
   function self:Dump(vL)
-    local iL = math.floor(tonumber(vL) or 10)
+    local sT = self:getType()
+    local iL = math.floor(tonumber(vL) or sT:len())
+    logStatus("["..self:getType().."] Properties:")
+    logStatus("  Name    : "..mName)
+    logStatus("  Layers  : "..(mID-1))
+    logStatus("  Neurons : "..self:getNeuronsCnt())
+    logStatus("  Weights : "..self:getWeightsCnt())
+    logStatus("  Interanal weights and and values status:")
     logConcat(stringPadL("V[1]",iL," "),", ", unpack(mtData[1].V))
     for k = 2, (mID-1) do local mW = mtData[k].W; for i = 1, #mW do
-      logConcat(stringPadL("W["..k.."->"..(k-1).."]["..i.."]",iL," "),", ", unpack(mtData[k].W[i])) end
+      logConcat(stringPadL("W["..(k-1).."->"..k.."]["..i.."]",iL," "),", ", unpack(mtData[k].W[i])) end
     logConcat(stringPadL("V["..k.."]",iL," "),", ", unpack(mtData[k].V))
     end; return self
   end; return self
