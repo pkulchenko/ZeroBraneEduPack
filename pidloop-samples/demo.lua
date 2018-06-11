@@ -10,7 +10,7 @@ io.stdout:setvbuf("no")
 local W, H       = 1200, 800 -- window dimensions
 local minC, maxC = -20, 20   -- control limists
 local stVal      = 10        -- Step responce final value               
-local To         = 0.1       -- Sampling time
+local To         = 0.05       -- Sampling time
 local wAit       = 0.01      -- Simulation speed-up
 local tScale     = 30        -- End time relative to the sampling time
 local tFixed     = 5
@@ -19,7 +19,7 @@ local endTm = tFixed and tFixed or (tScale * To)
 local intX  = crt.New("interval","WinX",  0,endTm, 0, W)
 local intY  = crt.New("interval","WinY", -1, 15 , H, 0)
 local APR   = sig.New("plant",To,{8},{7 , 3, 1},"Hesitating plant"):Dump()
-local PID   = sig.New("control",To,"Lin-QR"):Setup({0.028, 0.01, -12, minC, maxC}):setStruct(false,false):Dump()
+local PID   = sig.New("control",To,"Lin-QR"):Setup({0.051, 0.009, 6, minC, maxC}):setStruct(false,false):Dump()
 local trRef = crt.New("tracer","Ref"):setInterval(intX, intY)
 local trCon = crt.New("tracer","Con"):setInterval(intX, intY)
 local trPV  = crt.New("tracer","PV" ):setInterval(intX, intY)
