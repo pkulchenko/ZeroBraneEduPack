@@ -21,6 +21,7 @@ end
 
 metaCommon.__time = 0
 metaCommon.__func = {}
+metaCommon.__marg = 1e-10
 metaCommon.__type = {"number", "boolean", "string", "function", "table", "nil", "userdata"}
 metaCommon.__syms = "1234567890abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ"
 metaCommon.__metatable = "common.lib"
@@ -748,6 +749,20 @@ function common.bytesGetNumber(tB)
   local nO = 0; for iD = 1, #tB do
     nO = nO * 256; nO = nO + tB[iD]
   end; return nO
+end
+
+function common.getMargin()
+  return metaCommon.__marg
+end
+
+function common.getDerivative(fF, vX)
+  local nX, nM, yL, yH = (tonumber(vX) or 0), metaCommon.__marg
+  local xL, xH, bS = (nX-nM), (nX+nM), true -- Derivative margin
+  bS, yL = pcall(fF, xL); if(not bS) then
+    return common.logStatus("common.getDerivative: "..yL ,0) end
+  bS, yH = pcall(fF, xH); if(not bS) then
+    return common.logStatus("common.getDerivative: "..yH, 0) end
+  return (yH-yL)/(xH-xL)
 end
 
 common.randomSetSeed()
