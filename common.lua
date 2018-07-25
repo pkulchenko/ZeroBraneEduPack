@@ -227,6 +227,16 @@ function common.stringExplode(sStr,sDel)
   end; return tLst
 end
 
+function common.stringCenter(sStr, vN, vC, bS)
+  local nN = common.getClamp(tonumber(vN) or 0, sStr:len())
+  local sC = tostring(vC or " "):sub(1,1)
+  nN = ((nN - sStr:len()) / 2); nN = ((nN > 0) and nN or 0)
+  if(nN > 0) then local nL, nH = math.floor(nN), math.ceil(nN)
+    if(bS) then return (sC:rep(nL)..sStr..sC:rep(nH))
+    else return (sC:rep(nH)..sStr..sC:rep(nL)) end
+  end; return sStr
+end
+
 function common.stringTrim(sStr, sC)
   local sC = tostring(sC or "%s")
   return (sStr:match("^"..sC.."*(.-)"..sC.."*$" ) or sStr)
