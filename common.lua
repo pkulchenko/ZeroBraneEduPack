@@ -211,6 +211,14 @@ function common.randomGetString(vE, vN)
   end; return sR
 end
 
+function common.stringIsUpper(sS)
+  return (sS:upper() == sS)
+end
+
+function common.stringIsLower(sS)
+  return (sS:lower() == sS)
+end
+
 function common.stringImplode(tLst,sDel)
   local ID, sStr, sDel = 1, "", tostring(sDel or "")
   while(tLst and tLst[ID]) do sStr = sStr..tLst[ID]; ID = ID + 1
@@ -543,6 +551,7 @@ function common.addPathLibrary(sB, sE)
   if(common.isDryString(ext)) then
     return common.logStatus("common.addPathLibrary: Missing extension") end
   local pad = (bas.."*."..ext):match("(.-)[^\\/]+$").."?."..ext
+  common.logStatus("common.addPathLibrary <"..pad..">")
   package.path = package.path..";"..pad
 end
 
