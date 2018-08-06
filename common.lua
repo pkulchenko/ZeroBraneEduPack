@@ -21,6 +21,7 @@ end
 
 metaCommon.__time = 0
 metaCommon.__func = {}
+metaCommon.__sort = {}
 metaCommon.__marg = 1e-10
 metaCommon.__type = {"number", "boolean", "string", "function", "table", "nil", "userdata"}
 metaCommon.__syms = "1234567890abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -782,6 +783,90 @@ function common.getDerivative(fF, vX)
   bS, yH = pcall(fF, xH); if(not bS) then
     return common.logStatus("common.getDerivative: "..yH, 0) end
   return (yH-yL)/(xH-xL)
+end
+
+local function sortQuick(tD, iL, iH)
+  if(iL and iH and iL > 0 and iL < iH) then
+    local iM = common.randomGetNumber(iH-(iL-1))+iL-1
+    tD[iL], tD[iM] = tD[iM], tD[iL]
+    local vM, iN = tD[iL].__val, (iL + 1); iM = iL
+    while(iN <= iH)do
+      if(tD[iN].__val < vM) then iM = iM + 1
+        tD[iM], tD[iN] = tD[iN], tD[iM]
+      end; iN = iN + 1
+    end
+    tD[iL], tD[iM] = tD[iM], tD[iL]
+    sortQuick(tD,iL,iM-1)
+    sortQuick(tD,iM+1,iH)
+  end
+end
+
+local function sortSelect(tD, iL, iH)
+  if(iL and iH and iL > 0 and iL < iH) then
+    local iN = 1; while(tD[iN]) do
+      local iS = iN + 1; while(tD[iS]) do
+        if(tD[iS].__val <= tD[iN].__val) then
+          tD[iN], tD[iS] = tD[iS], tD[iN]
+        end; iS = iS + 1
+      end; iN = iN + 1
+    end
+  end
+end
+
+local function sortBubble(tD, iL, iH)
+  local bE, iN = false
+  while(not bE) do bE = true
+    for iN = iL, (iH-1), 1 do
+      if(tD[iN].__val > tD[iN+1].__val) then bE = false
+        tD[iN], tD[iN+1] = tD[iN+1], tD[iN]
+      end
+    end
+  end
+end
+
+metaCommon.__sort.__ID = 1
+metaCommon.__sort[1] = sortQuick
+metaCommon.__sort[2] = sortSelect
+metaCommon.__sort[3] = sortBubble
+metaCommon.__sort.__top = #metaCommon.__sort
+
+function common.sortSet(vN)
+  local tS, iN = metaCommon.__sort, (tonumber(vN) or 0)
+  if(tS[iN]) then tS.__ID = iN; return true end; tS.__ID = 1
+  return common.logStatus("common.sortSet: Invalid <"..tostring(iN)..">", 0)
+end
+
+function common.sortAdd(fF)
+  local tS = metaCommon.__sort; if(metaCommon.__type[4] ~= type(fF)) then
+    return common.logStatus("common.sortAdd: Invalid <"..tostring(fF)..">", 0) end
+  tS.__top = (tS.__top + 1); tS[tS.__top] = fF; return (tS.__top)
+end
+
+function common.sortTable(tT, tC, bR)
+  local tS, tK = {__top = 0};
+  if(not common.isNil(tC)) then
+    if(not common.isTable(tC)) then
+      tK = {tC}; tK.__top = #tK
+    else tK = tC; tK.__top = #tK end
+  end
+  for key, val in pairs(tT) do tS.__top = (tS.__top + 1)
+    if(tK) then tS[tS.__top] = {__key = key, __val = ""}
+      for iK = 1, tK.__top do
+        tS[tS.__top].__val = tS[tS.__top].__val.."/"..tostring(val[tK[iK]])
+      end
+    else tS[tS.__top] = {__key = key, __val = val} end
+  end
+  local tF = metaCommon.__sort
+  local bS, sE = pcall(tF[tF.__ID], tS, 1, tS.__top)
+  if(not bS) then
+    return common.logStatus("common.sortTable: "..tostring(sE)) end
+  if(not bR) then
+    for iN = 1, tS.__top do
+      local rec = tS[iN]
+      local key, val = rec.__key, rec.__val
+      tS[iN] = tT[key]
+    end
+  end; return tS
 end
 
 common.randomSetSeed()
