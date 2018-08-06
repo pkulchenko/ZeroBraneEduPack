@@ -835,8 +835,15 @@ function common.sortList()
   local iL = tostring(tS.__top):len()
   common.logStatus("common.sortList: Sorting algorithms available:")
   for iN = 1, tS.__top do local inf = tS[iN][2]
-    common.logStatus("  ["..common.stringPadL(tostring(iN), iL, " ").."] > "..tostring(inf or ""))
+    common.logStatus("  ["..common.stringPadL(tostring(iN), iL, " ").."] > "..inf)
   end
+end
+
+function common.sortRem(vN)
+  local tS, iN = metaCommon.__sort, (tonumber(vN) or 0)
+  if(tS[iN]) then table.remove(tS, iN) end
+  if(tS.__ID == iN) then tS.__ID = 1 end
+  if(tS.__top > 0) then tS.__top = (tS.__top - 1) end; return true
 end
 
 function common.sortSet(vN)
@@ -852,7 +859,11 @@ function common.sortAdd(fF, sI)
 end
 
 function common.sortTable(tT, tC, bR)
-  local tS, tK = {__top = 0};
+  local tF = metaCommon.__sort; if(not tF[tF.__ID]) then
+    return common.logStatus("common.sortTable: Sorter missing <"..tostring(tF.__ID)..">", 0) end
+  local fS = tF[tF.__ID][1]; if(not type(fS) == metaCommon.__type[4]) then
+    return common.logStatus("common.sortTable: Sorter mismatch <"..tostring(fS)..">", 0) end
+  local tS, tK = {__top = 0}
   if(not common.isNil(tC)) then
     if(not common.isTable(tC)) then
       tK = {tC}; tK.__top = #tK
@@ -865,9 +876,7 @@ function common.sortTable(tT, tC, bR)
       end
     else tS[tS.__top] = {__key = key, __val = val} end
   end
-  local tF = metaCommon.__sort
-  local bS, sE = pcall(tF[tF.__ID][1], tS, 1, tS.__top)
-  if(not bS) then
+  local bS, sE = pcall(fS, tS, 1, tS.__top); if(not bS) then
     return common.logStatus("common.sortTable: "..tostring(sE)) end
   if(not bR) then
     for iN = 1, tS.__top do
