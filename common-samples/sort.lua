@@ -13,7 +13,10 @@ common.sortSet(2)
   Also add your own sorter like this and use it as the current.
   If the function or the ID are invalid it will fall back on using Qsort
 ]]
-common.sortSet(common.sortSet(function() return 0 end))
+common.sortSet(common.sortAdd(function() return 0 end, "My sort"))
+
+-- To list the sorting algorithms you can do the following
+common.sortList()
 
 --[[
   For sorting general items of objects supporting the />/ operator

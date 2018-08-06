@@ -825,10 +825,19 @@ local function sortBubble(tD, iL, iH)
 end
 
 metaCommon.__sort.__ID = 1
-metaCommon.__sort[1] = sortQuick
-metaCommon.__sort[2] = sortSelect
-metaCommon.__sort[3] = sortBubble
+metaCommon.__sort[1] = {sortQuick , "Quick sort"}
+metaCommon.__sort[2] = {sortSelect, "Selection sort"}
+metaCommon.__sort[3] = {sortBubble, "Bubble sort"}
 metaCommon.__sort.__top = #metaCommon.__sort
+
+function common.sortList()
+  local tS = metaCommon.__sort
+  local iL = tostring(tS.__top):len()
+  common.logStatus("common.sortList: Sorting algorithms available:")
+  for iN = 1, tS.__top do local inf = tS[iN][2]
+    common.logStatus("  ["..common.stringPadL(tostring(iN), iL, " ").."] > "..tostring(inf or ""))
+  end
+end
 
 function common.sortSet(vN)
   local tS, iN = metaCommon.__sort, (tonumber(vN) or 0)
@@ -836,10 +845,10 @@ function common.sortSet(vN)
   return common.logStatus("common.sortSet: Invalid <"..tostring(iN)..">", 0)
 end
 
-function common.sortAdd(fF)
+function common.sortAdd(fF, sI)
   local tS = metaCommon.__sort; if(metaCommon.__type[4] ~= type(fF)) then
-    return common.logStatus("common.sortAdd: Invalid <"..tostring(fF)..">", 0) end
-  tS.__top = (tS.__top + 1); tS[tS.__top] = fF; return (tS.__top)
+    return common.logStatus("common.sortAdd: Invalid <"..tostring(fF).."><"..tostring(sI)..">", 0) end
+  tS.__top = (tS.__top + 1); tS[tS.__top] = {fF, tostring(sI)}; return (tS.__top)
 end
 
 function common.sortTable(tT, tC, bR)
@@ -857,7 +866,7 @@ function common.sortTable(tT, tC, bR)
     else tS[tS.__top] = {__key = key, __val = val} end
   end
   local tF = metaCommon.__sort
-  local bS, sE = pcall(tF[tF.__ID], tS, 1, tS.__top)
+  local bS, sE = pcall(tF[tF.__ID][1], tS, 1, tS.__top)
   if(not bS) then
     return common.logStatus("common.sortTable: "..tostring(sE)) end
   if(not bR) then
