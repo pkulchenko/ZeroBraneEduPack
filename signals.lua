@@ -153,10 +153,11 @@ function signals.getRamp(nS, nE, nD)
 end
 
 -- Generate periodical signal
-function signals.setWave(tD, fW, nW, tT, nT, tS)
+function signals.setWave(tD, fW, nW, tT, nT, tS, nA, nB)
+  local nA, nB = (tonumber(nA) or 1), (tonumber(nB) or 1)
   local nT, iD = (tonumber(nT) or 0), 1; while(tT[iD]) do
-    local vS = (tS and tS[iD]); vS = vS and tS[iD] or 0
-    tD[iD] = vS + fW(nW * tT[iD] + nT); iD = (iD+1)
+    local vS = (tS and tS[iD]); vS = (vS and tS[iD] or 0)
+    tD[iD] = nA*vS + nB*fW(nW * tT[iD] + nT); iD = (iD+1)
   end; return tD
 end
 

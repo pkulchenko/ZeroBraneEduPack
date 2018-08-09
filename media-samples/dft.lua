@@ -5,11 +5,11 @@ local chartmap = require("chartmap")
 local signals  = require("signals")
 local colormap = require("colormap")
 
-local ws = 125               -- Signal frequency
-local rt = 100               -- Te amount of times to cal DFT
-local fs = 2000              -- Sampling rate
-local et = 1/10              -- End time (seconds)
-local pr = 1 / fs            -- Time per sample
+local ws = 125               -- Signal frequency [Hz]
+local rt = 100               -- Te amount of times to call DFT []
+local fs = 2000              -- Sampling rate [Hz]
+local et = 1/10              -- End time [s]
+local pr = 1 / fs            -- Time per sample [s]
 local s, g, i = {}, {}, 1    -- Arry containing samples and time
 local W, H = 1000, 600
 local intX  = chartmap.New("interval","WinX", 0, et, 0, W)
@@ -18,15 +18,13 @@ local scOpe = chartmap.New("scope"):setInterval(intX, intY)
       scOpe:setUpdate():setColor():setDelta(et / 10, 0.1)
 
 local t  = signals.getRamp(0, et, pr)
-local ww = signals.convLineToCircleFrq(ws)
-signals.setWave(s, math.sin, ww, t)
+signals.setWave(s, math.sin, signals.convLineToCircleFrq(ws), t)
 
 -- Remove the comment from the line below to see the change in the spectrum
 -- It simply adds one sinewave with double the frequency to the output signal
--- signals.setSine(s, t, signals.convLineToCircleFrq(2*ws),0,s)
+-- signals.setWave(s, math.sin, signals.convLineToCircleFrq(2*ws), t, 0, s, 0.7, 0.5)
 
-local tw = signals.winNuttall(#s)
-signals.setWeight(g,s,tw)
+signals.setWeight(g,s,signals.winNuttall(#s))
 
 -- Try commenting this line to remove the phase factor cashe
 signals.setPhaseFactorDFT(common.binaryNextBaseTwo(#s))
