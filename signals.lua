@@ -396,7 +396,7 @@ function signals.getForwardDFT(tS)
 end
 
 -- https://stevenmiller888.github.io/mind-how-to-build-a-neural-network/
--- Column /A/ is for avtivation
+-- Column /A/ is for activation
 -- Column /V/ is the activated value
 -- newNeuralNet: Class neural network manager
 local metaNeuralNet = {}
