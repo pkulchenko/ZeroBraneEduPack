@@ -825,6 +825,7 @@ local function sortBubble(tD, iL, iH)
 end
 
 metaCommon.__sort.__ID = 1
+metaCommon.__sort.__DV = "#"
 metaCommon.__sort[1] = {sortQuick , "Quick sort"}
 metaCommon.__sort[2] = {sortSelect, "Selection sort"}
 metaCommon.__sort[3] = {sortBubble, "Bubble sort"}
@@ -835,7 +836,8 @@ function common.sortList()
   local iL = tostring(tS.__top):len()
   common.logStatus("common.sortList: Sorting algorithms available:")
   for iN = 1, tS.__top do local inf = tS[iN][2]
-    common.logStatus("  ["..common.stringPadL(tostring(iN), iL, " ").."] > "..inf)
+    local sS = "] "..((iN == tS.__ID) and "@" or ">").." "..inf
+    common.logStatus("  ["..common.stringPadL(tostring(iN), iL, " ")..sS)
   end
 end
 
@@ -872,7 +874,8 @@ function common.sortTable(tT, tC, bR)
   for key, val in pairs(tT) do tS.__top = (tS.__top + 1)
     if(tK) then tS[tS.__top] = {__key = key, __val = ""}
       for iK = 1, tK.__top do
-        tS[tS.__top].__val = tS[tS.__top].__val.."/"..tostring(val[tK[iK]])
+        local cC = metaCommon.__sort.__DV..tostring(val[tK[iK]])
+        tS[tS.__top].__val = tS[tS.__top].__val..cC
       end
     else tS[tS.__top] = {__key = key, __val = val} end
   end
