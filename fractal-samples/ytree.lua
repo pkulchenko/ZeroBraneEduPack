@@ -1,7 +1,7 @@
 require("turtle")
 local fractal = require("fractal")
 
-local D, W, H, T = 10, 900,900, 0
+local D, W, H, T = 11, 900,900, 0
 local oTree = fractal.New("ytree", D, colr(100, 50, 255))
 if(oTree) then -- disable auto updates
   open("Binary tree branching")

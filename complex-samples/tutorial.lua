@@ -337,7 +337,7 @@ local bSuccess, cNum = a:getNew()("Set",1,1)
 if(bSuccess) then
   logStatus("The complex call was successful. The result is "..tostring(cNum).."\n")
 else
-  logStatus("The complex call was not successful.\n")
+  logStatus("The complex call was not successful. Error: "..cNum.."\n")
 end
 
 local tCall = {

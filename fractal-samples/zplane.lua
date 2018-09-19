@@ -48,7 +48,7 @@ local szRe  = 2
 local szIm  = 2
 local nStep = 35
 local nZoom = 15
-local iTer  = 1000
+local iTer  = 100
 local sfrac = "mandelbrot"
 local spale = "wikipedia" 
 local brdcl = nil -- colr(0, 250, 100)
@@ -58,7 +58,7 @@ local sTitl = "Fractal plot 2D"
 --- Dinamic parameters and constants
 local cexp   = compl.getNew(math.exp(1))
 local w2, h2 = W/2, H/2
-local gr     = 1.681
+local gr     = 1.618
 
 open(sTitl); size(W,H)
 zero(0, 0); updt(false) -- disable auto updates

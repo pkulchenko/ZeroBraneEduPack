@@ -742,6 +742,10 @@ function complex.getIntersectRayRay(cO1, cD1, cO2, cD2)
   return dO:Set(cO1):Add(cD1:getRsz(nT)), nT, nU
 end
 
+function complex.getIntersectRayLine(cO, cD, cS, cE)
+  return complex.getIntersectRayRay(cO, cD, cS, cE:getSub(cS))
+end
+
 function complex.getIntersectRayCircle(cO, cD, cC, nR)
   local nA = cD:getNorm2(); if(nA <= metaData.__margn) then
     return logStatus("complex.getIntersectRayCircle: Norm less than margin", nil) end
@@ -755,19 +759,22 @@ function complex.getIntersectRayCircle(cO, cD, cC, nR)
   return xN, xF
 end
 
-function complex.getReflectRayLine(cO, cD, cS, cE)
-  local uD, uO = cD:getUnit(), cO:getNew():Sub(cD)
-  local cN = uO:getProjectLine(cS, cE):Neg():Add(uO):Unit()
+function complex.getReflectRayRay(cO1, cD1, cO2, cD2)
+  local uD, uO = cD1:getUnit(), cO1:getNew():Sub(cD1)
+  local cN = uO:getProjectRay(cO2, cD2):Neg():Add(uO):Unit()
   local cR = uD:getNew():Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
   return cR, cN
+end
+
+function complex.getReflectRayLine(cO, cD, cS, cE)
+  return complex.getReflectRayRay(cO, cD, cS, cE:getSub(cS))
 end
 
 function complex.getReflectRayCircle(cO, cD, cC, nR, xF)
   local xN = (xF and xF or complex.getIntersectRayCircle(cO, cD, cC, nR))
   if(not complex.isValid(xN)) then return logStatus("complex.getReflectRayCircle: "..
     "Intersection invalid {"..type(xN).."}["..tostring(xN).."]", nil) end
-  local cE = xN:getNew():Sub(cC):Right():Add(xN)
-  return complex.getReflectRayLine(cO, cD, xN, cE)
+  return complex.getReflectRayRay(cO, cD, xN, xN:getNew():Sub(cC):Right())
 end
 
 function complex.getIntersectCircleCircle(cO1, nR1, cO2, nR2)
