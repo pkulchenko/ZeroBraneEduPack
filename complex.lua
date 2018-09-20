@@ -524,6 +524,17 @@ function complex.getAreaShoelace(...)
   end; return (0.5 * (nP - nN))
 end
 
+function complex.getAreaHeron(...)
+  local tV = {...}
+  if(isType(type(tV[1]), 5)) then tV = tV[1] end 
+  local nA = tV[1]:getSub(tV[2]):getNorm2()
+  local nB = tV[2]:getSub(tV[3]):getNorm2()
+  local nC = tV[3]:getSub(tV[1]):getNorm2()
+  local nD = (4 * (nA*nB+nA*nC+nB*nC))
+  local nE = ((nA + nB + nC)^2)
+  return (0.25 * math.sqrt(nD - nE))
+end
+
 function metaComplex:isAmongLine(cS, cE, bF)
   local nM = metaData.__margn
   if(math.abs(self:getLayMargin(cS, cE)) < nM) then
