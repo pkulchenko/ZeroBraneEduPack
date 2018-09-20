@@ -561,10 +561,16 @@ function common.tableClear(tT)
   for k,v in pairs(tT) do tT[k] = nil end
 end
 
-function common.tableGetLinearSpace(nS, nE, nN)
+function common.tableArrGetLinearSpace(nS, nE, nN)
   local tO, nI, nD = {}, 1, (nE-nS)
   for nK = nS, nE, (nD/(nN-1)) do
     tO[nI], nI = nK, (nI+1); end; return tO
+end
+
+function common.tableArrReverse(tT)
+  if(not common.isTable(tT)) then return end
+  local nN = #tT -- Store the array length
+  for ID = 1, #tT do tT[ID] = tT[nN-ID+1] end
 end
 
 function common.tableArrMallocDim(vV, ...)

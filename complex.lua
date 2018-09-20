@@ -20,7 +20,6 @@ local metaData     = {}
 local isNil           = common.isNil
 local getPick         = common.getPick
 local getSign         = common.getSign
-local isTable         = common.isTable
 local roundValue      = common.getRound
 local getClamp        = common.getClamp
 local isString        = common.isString
@@ -514,10 +513,10 @@ function metaComplex:getMirrorLine(cS, cE)
   return self:getNew():MirrorLine(cS, cE)
 end
 
-function metaComplex:getAreaShoelace(...)
-  local tV = {self, ...}
-  local nE = #tV; tV[nE+1] = self
-  local nP, nN = 0, 0
+function complex.getAreaShoelace(...)
+  local tV, nP, nN = {...}, 0, 0
+  if(isType(type(tV[1]), 5)) then tV = tV[1] end
+  local nE = #tV; tV[nE+1] = tV[1]
   for ID = 1, nE do
     local cB, cN = tV[ID], tV[ID+1]
     nP = nP + (cB:getReal()*cN:getImag())
@@ -638,7 +637,7 @@ end
 
 function metaComplex:getFormat(...)
   local tArg = {...}
-  local sMod = tostring(tArg[1] or "")
+  local sMod = tostring(tArg[1] or ""):lower()
   if(isType(sMod, 5)) then
     local tvB = metaData.__bords
     local tkR, tkI = metaData.__kreal, metaData.__kimag
@@ -958,7 +957,7 @@ local function catmullromSegment(cP0, cP1, cP2, cP3, nN, nA)
   local nT1 = catmullromTangent(nT0, cP0, cP1, nA)
   local nT2 = catmullromTangent(nT1, cP1, cP2, nA)
   local nT3 = catmullromTangent(nT2, cP2, cP3, nA)
-  local tTN = common.tableGetLinearSpace(nT1, nT2, nN)
+  local tTN = common.tableArrGetLinearSpace(nT1, nT2, nN)
   for iD = 1, #tTN do
     local tA1 = cP0:getNew():Mul((nT1-tTN[iD])/(nT1-nT0)):Add(cP1:getMul((tTN[iD]-nT0)/(nT1-nT0)))
     local tA2 = cP1:getNew():Mul((nT2-tTN[iD])/(nT2-nT1)):Add(cP2:getMul((tTN[iD]-nT1)/(nT2-nT1)))
