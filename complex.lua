@@ -525,12 +525,15 @@ function complex.getAreaShoelace(...)
 end
 
 function complex.getAreaHeron(...)
-  local tV = {...}
-  if(isType(type(tV[1]), 5)) then tV = tV[1] end 
+  local tV = {...}; if(isType(type(tV[1]), 5)) then tV = tV[1] end
+  local nV = #tV; if(nV < 3) then local sV = tostring(nV or "")
+    return logStatus("complex.getAreaHeron: Vertexes lacking <"..sV..">", 0) end
+  if(nV > 3) then local sV = tostring(nV or "")
+    logStatus("complex.getAreaHeron: Vertexes extra <"..sV..">") end
   local nA = tV[1]:getSub(tV[2]):getNorm2()
   local nB = tV[2]:getSub(tV[3]):getNorm2()
   local nC = tV[3]:getSub(tV[1]):getNorm2()
-  local nD = (4 * (nA*nB+nA*nC+nB*nC))
+  local nD = (4 * (nA*nB + nA*nC + nB*nC))
   local nE = ((nA + nB + nC)^2)
   return (0.25 * math.sqrt(nD - nE))
 end
