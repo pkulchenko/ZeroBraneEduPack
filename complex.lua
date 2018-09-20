@@ -492,7 +492,11 @@ function metaComplex:getProjectCircle(cC, nR)
   return self:getNew():ProjectCircle(cC, nR)
 end
 
-function metaComplex:getLayMargin(cS, cE)
+function metaComplex:getLayRay(cO, cD)
+  return self:getSub(cO):getCross(cD)
+end
+
+function metaComplex:getLayLine(cS, cE)
   return cS:getSub(self):getCross(cE:getSub(self))
 end
 
@@ -540,7 +544,7 @@ end
 
 function metaComplex:isAmongLine(cS, cE, bF)
   local nM = metaData.__margn
-  if(math.abs(self:getLayMargin(cS, cE)) < nM) then
+  if(math.abs(self:getLayLine(cS, cE)) < nM) then
     local dV = cE:getSub(cS)
     local dS = self:getSub(cS):getDot(dV)
     local dE = self:getSub(cE):getDot(dV)
@@ -619,7 +623,7 @@ end
 function metaComplex:isAmongRay(cO, cD, bF)
   local nM = metaData.__margn
   local cE = cO:getNew():Add(cD)
-  if(math.abs(self:getLayMargin(cO, cE)) < nM) then
+  if(math.abs(self:getLayLine(cO, cE)) < nM) then
     local dO = self:getSub(cO):getDot(cD)
     local dE = self:getSub(cE):getDot(cD)
     if(dO < 0 and dE < 0) then return false end
