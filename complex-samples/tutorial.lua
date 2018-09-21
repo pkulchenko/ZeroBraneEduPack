@@ -359,7 +359,7 @@ for id = 1, #tCall do
     local com = common.stringTrim(tCall[id][3])
     logStatus(tCall[id][1]..((rez == com) and "OK" or "FAIL").." >> "..com)
   else
-    logStatus("There was a problem executing method <"..tTrig[id][1].."> at index #"..id)
+    logStatus("There was a problem executing method <"..tCall[id][1].."> at index #"..id)
     logStatus("Error received: "..tostring(rez))
   end
 end; logStatus("")

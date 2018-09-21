@@ -672,11 +672,10 @@ function metaComplex:getFormat(...)
     return (sF.."["..kR.."]="..sN:format(R)..
                ",["..kI.."]="..sN:format(I)..sB)
   elseif(isType(sMod, 3)) then
-    local R, I = self:getParts()
+    local S, R, I = metaData.__ssyms, self:getParts()
     local mI, bS = (getSign(I) * I), tArg[3]
-    local iD, eS = (tonumber(tArg[2]) or 1), #metaData.__ssyms
-          iD = (iD > eS) and eS or iD
-    local kI = tostring(tArg[4] or metaData.__ssyms[iD])
+    local iD = getClamp(tonumber(tArg[2]) or 1, 1, #S)
+    local kI = tostring(tArg[4] or S[iD])
     local sI = ((getSign(I) < 0) and "-" or "+")
     if(bS) then return (R..sI..kI..mI)
     else return (R..sI..mI..kI) end
