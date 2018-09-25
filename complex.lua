@@ -35,12 +35,12 @@ metaComplex.__type  = "complex.complex"
 metaComplex.__index = metaComplex
 
 metaData.__valre = 0
-metaData.__valre = 0
+metaData.__valim = 0
 metaData.__cactf = {}
 metaData.__valns = "X"
 metaData.__margn = 1e-10
 metaData.__curve = 100
-metaData.__kurve = {"n","N","cnt","Cnt","*"}
+metaData.__kurve = {"n","N","cnt","CNT","Cnt","*"}
 metaData.__getpi = math.pi
 metaData.__bords = {"{([<|/","})]>|/"}
 metaData.__ssyms = {"i", "I", "j", "J"}
@@ -66,18 +66,18 @@ end
 
 function complex.getUnpack(R, I, E)
   if(complex.isValid(R)) then local nR, nI = R:getParts() return nR, nI, I end
-  return (tonumber(R) or metaData.__valre), (tonumber(I) or metaData.__valre), E
+  return (tonumber(R) or metaData.__valre), (tonumber(I) or metaData.__valim), E
 end
 
 function complex.getNew(nRe, nIm)
   self = {}; setmetatable(self, metaComplex)
   local Re = tonumber(nRe) or metaData.__valre
-  local Im = tonumber(nIm) or metaData.__valre
+  local Im = tonumber(nIm) or metaData.__valim
 
   if(complex.isValid(nRe)) then Re, Im = nRe:getReal(), nRe:getImag() end
 
   function self:setReal(R)  Re = (tonumber(R) or metaData.__valre); return self end
-  function self:setImag(I)  Im = (tonumber(I) or metaData.__valre); return self end
+  function self:setImag(I)  Im = (tonumber(I) or metaData.__valim); return self end
   function self:getReal()   return Re end
   function self:getImag()   return Im end
   function self:getParts()  return Re, Im end
@@ -865,9 +865,9 @@ local function stringToComplex(sStr, nS, nE, sDel)
   local Del = tostring(sDel or ","):sub(1,1)
   local S, E, D = nS, nE, sStr:find(Del)
   if((not D) or (D < S) or (D > E)) then
-    return complex.getNew(tonumber(sStr:sub(S,E)) or metaData.__valre, metaData.__valre) end
+    return complex.getNew(tonumber(sStr:sub(S,E)) or metaData.__valre, metaData.__valim) end
   return complex.getNew(tonumber(sStr:sub(S,D-1)) or metaData.__valre,
-                     tonumber(sStr:sub(D+1,E)) or metaData.__valre)
+                        tonumber(sStr:sub(D+1,E)) or metaData.__valim)
 end
 
 local function stringToComplexI(sStr, nS, nE, nI)
@@ -879,11 +879,11 @@ local function stringToComplexI(sStr, nS, nE, nI)
     local vR, vI = sStr:sub(nS,M-1), sStr:sub(M,nE-1) -- Automatically change real part
               vI = (tonumber(vI) and vI or (vI.."1")) -- Process cases for (+i,-i,i)
     return complex.getNew(tonumber(vR) or metaData.__valre,
-                          tonumber(vI) or metaData.__valre)
+                          tonumber(vI) or metaData.__valim)
   else -- (-0.7-i2.9)
     local vR, vI = sStr:sub(nS,M-1), (C..sStr:sub(nI+1,nE))
     return complex.getNew(tonumber(vR) or metaData.__valre,
-                          tonumber(vI) or metaData.__valre)
+                          tonumber(vI) or metaData.__valim)
   end
 end
 
@@ -894,7 +894,7 @@ local function tableToComplex(tTab, kRe, kIm)
   local I = getValueKeys(tTab, metaData.__kimag, kIm)
   if(R or I) then
     return complex.getNew(tonumber(R) or metaData.__valre,
-                          tonumber(I) or metaData.__valre) end
+                          tonumber(I) or metaData.__valim) end
   return logStatus("tableToComplex: Table format not supported", complex.getNew())
 end
 
