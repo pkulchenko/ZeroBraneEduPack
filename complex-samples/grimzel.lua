@@ -11,8 +11,9 @@ local logStatus = com.logStatus
 local  W,  H = 1500, 300
 local dX, dY = 1,1
 local xySize = 3
-local nRayCast = 40
-local nN1, nN2 = 1.33, 1 -- Water and vacuum
+local nTimeFR = 0.1
+local nRayCast = 50
+local nN1, nN2 = 1.6, 1 -- Glass and vacuum
 local greyLevel  = 200
 local minX, maxX = -50, 50
 local minY, maxY = -10, 10
@@ -71,7 +72,7 @@ while(nAng < eAng) do
   local rE, lE = rX:getAdd(rR:Mul(2 * nMul)), lX:getAdd(lR:Mul(2 * nMul))
   rE:Action("xy", clRed); lE:Action("xy", clRed)
   rX:Action("ab", rE, clRed); lX:Action("ab", lE, clRed)
-  nAng = nAng + dAng
+  nAng = nAng + dAng ; updt(); wait(nTimeFR)
 end
 
 wait()
