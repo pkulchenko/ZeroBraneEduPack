@@ -793,9 +793,7 @@ function complex.getRefractRayRay(cO1, cD1, cO2, cD2, vI, vO, bV)
   local sI, sO, sB = cN:getCross(cD1:getUnit():Neg())
   if(bV) then sO, sB = ((sI * nO) / nI), (nI / nO)
   else sO, sB = ((sI * nI) / nO), (nO / nI) end
-  if(math.abs(sO) == 1) then
-    return cN:getNeg():Right(), cN
-  elseif(math.abs(sO) > 1) then
+  if(math.abs(sO) > 1) then
     return complex.getReflectRayRay(cO1, cD1, cO2, cD2)
   end; return cN:getNeg():RotRad(math.asin(sO)), cN
 end
