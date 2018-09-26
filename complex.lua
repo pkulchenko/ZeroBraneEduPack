@@ -767,7 +767,7 @@ function complex.getIntersectRayCircle(cO, cD, cC, nR)
   local cR = cO:getNew():Sub(cC)
   local nB, nC = 2 * cD:getDot(cR), (cR:getNorm2() - nR^2)
   local nD = (nB^2 - 4*nA*nC); if(nD < 0) then
-    return logStatus("complex.getIntersectRayCircle: Irrational roots", nil) end
+    return logStatus("complex.getIntersectRayCircle: Imaginary roots", nil) end
   local dA = (1/(2*nA)); nD, nB = dA*math.sqrt(nD), -nB*dA
   local xF = cD:getNew():Mul(nB + nD):Add(cO)
   local xN = cD:getNew():Mul(nB - nD):Add(cO)
@@ -775,14 +775,33 @@ function complex.getIntersectRayCircle(cO, cD, cC, nR)
 end
 
 function complex.getReflectRayRay(cO1, cD1, cO2, cD2)
-  local uD, uO = cD1:getUnit(), cO1:getNew():Sub(cD1)
-  local cN = uO:getProjectRay(cO2, cD2):Neg():Add(uO):Unit()
+  local uD = cD1:getUnit()
+  local cN = cO1:getProjectRay(cO2, cD2):Neg():Add(cO1):Unit()
   local cR = uD:getNew():Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
+  if(cR:getDot(cN) < 0) then
+    return logStatus("complex.getReflectRayRay: Normal mismatch", nil) end
   return cR, cN
 end
 
 function complex.getReflectRayLine(cO, cD, cS, cE)
   return complex.getReflectRayRay(cO, cD, cS, cE:getSub(cS))
+end
+
+function complex.getRefractRayRay(cO1, cD1, cO2, cD2, vI, vO, bV)
+  local nI, nO = (tonumber(vI) or 0), (tonumber(vO) or 0)
+  local cN = cO1:getProjectRay(cO2, cD2):Neg():Add(cO1):Unit()
+  local sI, sO, sB = cN:getCross(cD1:getUnit():Neg())
+  if(bV) then sO, sB = ((sI * nO) / nI), (nI / nO)
+  else sO, sB = ((sI * nI) / nO), (nO / nI) end
+  if(math.abs(sO) == 1) then
+    return cN:getNeg():Right(), cN
+  elseif(math.abs(sO) > 1) then
+    return complex.getReflectRayRay(cO1, cD1, cO2, cD2)
+  end; return cN:getNeg():RotRad(math.asin(sO)), cN
+end
+
+function complex.getRefractRayLine(cO, cD, cS, cE, nI, nO)
+  return complex.getRefractRayRay(cO, cD, cS, cE:getSub(cS), nI, nO)
 end
 
 function complex.getReflectRayCircle(cO, cD, cC, nR, xF)

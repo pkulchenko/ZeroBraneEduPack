@@ -11,6 +11,7 @@ local logStatus = com.logStatus
 local  W,  H = 400, 400
 local dX, dY = 1,1
 local xySize = 3
+local nN1, nN2 = 1, 1.6
 local greyLevel  = 200
 local minX, maxX = -20, 20
 local minY, maxY = -20, 20
@@ -41,13 +42,14 @@ end
 cmp.setAction("xy", drawComplex)
 cmp.setAction("ab", drawComplexLine)
 
-logStatus("Create a mirror line to reflect off using the right mouse button (RED)")
-logStatus("Create a ray to reflect of the mirror using the left mouse button (BLUE)")
+logStatus("Create a interface line to refract on using the right mouse button (RED)")
+logStatus("Create a ray to refract on the interface using the left mouse button (BLUE)")
 logStatus("By clicking on the chart the point selected will be drawn")
 logStatus("On the coordinate system the OX and OY axises are drawn in black")
 logStatus("The distance between every grey line on X is: "..tostring(dX))
 logStatus("The distance between every grey line on Y is: "..tostring(dY))
 logStatus("Press escape to clear all rays and refresh the coordinate system")
+logStatus("Refraction indexes: http://hyperphysics.phy-astr.gsu.edu/hbase/Tables/indrf.html")
 
 open("Complex ray reflection demo")
 size(W, H); zero(0, 0)
@@ -79,14 +81,14 @@ while true do
     local cD1, cD2 = (cRay1[2] - cRay1[1]), (cRay2[2] - cRay2[1])
     local cX, nT, nU = cmp.getIntersectRayRay(cRay1[1], cD1, cRay2[1], cD2)
     if(cX) then local nN = cD1:getNorm()
-      local cR, cN = cmp.getReflectRayLine(cRay1[1], cD1, cRay2[1], cRay2[2])
+      local cR, cN = cmp.getRefractRayLine(cRay1[1], cD1, cRay2[1], cRay2[2], nN1, nN2)
       if(cR) then 
         local eR, eN = (cR*nN+cX), (cN*nN/2+cX)
         cX:Action("xy", clMgn); eR:Action("xy", clMgn)
         cX:Action("ab", eR, clOrg); cX:Action("ab", eN, clBlk)
         logStatus("The complex reflection is <"..tostring(cR).."/"..tostring(eR)..">")
       else
-        logStatus("The complex reflection cannot happen")
+        logStatus("The complex reflection is invalid")
       end
     else
       logStatus("The complex reflection is parallel <"..tostring(cN).."/"..tostring(cR)..">")

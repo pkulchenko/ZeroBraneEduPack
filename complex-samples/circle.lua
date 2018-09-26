@@ -108,6 +108,8 @@ while true do
         cV:getRight():Add(xN):Action("ab", xN, clGrn)
         cV:getLeft():Add(xN):Action("ab", xN, clBlk)
         xN:Action("ab", cRay2[1], clCya)
+      else
+        logStatus("The complex reflection cannot happen")
       end
     else
       logStatus("The needed conditions are not met for the intersection to happen")
