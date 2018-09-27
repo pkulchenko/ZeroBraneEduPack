@@ -13,7 +13,7 @@ local dX, dY = 1,1
 local xySize = 3
 local nTimeFR = 0.1
 local nRayCast = 50
-local nN1, nN2 = 1.6, 1 -- Glass and vacuum
+local nN1, nN2 = 1.333, 1 -- Water and air
 local greyLevel  = 200
 local minX, maxX = -50, 50
 local minY, maxY = -10, 10
@@ -52,7 +52,7 @@ logStatus("The distance between every grey line on X is: "..tostring(dX))
 logStatus("The distance between every grey line on Y is: "..tostring(dY))
 logStatus("Refraction indexes: http://hyperphysics.phy-astr.gsu.edu/hbase/Tables/indrf.html")
 
-open("Grimzel bath refraction demo")
+open("Grimzel bath refraction demo. What does a fish see from its point of view ( RED )")
 size(W, H); zero(0, 0)
 updt(false) -- disable auto updates
 
@@ -63,6 +63,8 @@ local dAng, nAng = (eAng / nRayCast), 0
 
 -- Skip the logs about reflecting primary ray on interface
 com.logSkipAdd("complex.getRefractRayRay: Normal mismatch")
+
+logStatus("Critical refraction angle is: "..cmp.toDegree(cmp.getRefractRayAngle(nN1, nN2)).." degrees.")
 
 while(nAng < eAng) do
   local rD, lD = cOrg:getNeg():RotRad(-nAng), cOrg:getNeg():RotRad(nAng)

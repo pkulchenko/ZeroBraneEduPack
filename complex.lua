@@ -858,17 +858,44 @@ function complex.getIntersectRayCircle(cO, cD, cC, nR)
   return xN, xF
 end
 
+function complex.getIntersectCircleCircle(cO1, nR1, cO2, nR2)
+  local cS, cA = cO2:getSub(cO1), cO2:getAdd(cO1)
+  local nD, nRA, nRS = cS:getNorm2(), (nR1 + nR2), (nR1 - nR2); if(nRA^2 < nD) then
+    return logStatus("complex.getIntersectCircleCircle: Intersection missing", nil) end
+  local dR = (nRA^2 - nD) * (nD - nRS^2); if(dR < 0) then
+    return logStatus("complex.getIntersectCircleCircle: Irrational area", nil) end
+  local nK = 0.25 * math.sqrt(dR)
+  local cV = cS:getSwap():Mul(2, -2, true):Rsz(nK / nD)
+  local mR = (0.5 * (nR1^2 - nR2^2)) / nD
+  local xB = cA:Rsz(0.5):Add(cS:Rsz(mR))
+  return xB:getAdd(cV), xB:getSub(cV), xB
+end
+
 function complex.getReflectRayRay(cO1, cD1, cO2, cD2)
-  local uD = cD1:getUnit()
+  local uD = cD1:getUnit() -- Get unit ray direction
   local cN = cO1:getProjectRay(cO2, cD2):Neg():Add(cO1):Unit()
-  local cR = uD:getNew():Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
-  if(cR:getDot(cN) < 0) then
+  local cR = uD:Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
+  if(cR:getDot(cN) < 0) then -- Ray points away from the reflection wall
     return logStatus("complex.getReflectRayRay: Normal mismatch", nil, cN) end
   return cR, cN
 end
 
 function complex.getReflectRayLine(cO, cD, cS, cE)
   return complex.getReflectRayRay(cO, cD, cS, cE:getSub(cS))
+end
+
+function complex.getReflectRayCircle(cO, cD, cC, nR, xF)
+  local xN = (xF and xF or complex.getIntersectRayCircle(cO, cD, cC, nR))
+  if(not complex.isValid(xN)) then return logStatus("complex.getReflectRayCircle: "..
+    "Intersection invalid {"..type(xN).."}["..tostring(xN).."]", nil) end
+  return complex.getReflectRayRay(cO, cD, xN, xN:getNew():Sub(cC):Right())
+end
+
+function complex.getRefractRayAngle(vI, vO, bV)
+  local nI, nO, nA = (tonumber(vI) or 0), (tonumber(vO) or 0)
+  if(bV) then nA = (nI / nO) else nA = (nO / nI) end
+  if(math.abs(nA) > 1) then nA = (1 / nA) end
+  return math.asin(nA)
 end
 
 function complex.getRefractRayRay(cO1, cD1, cO2, cD2, vI, vO, bV)
@@ -885,24 +912,8 @@ function complex.getRefractRayLine(cO, cD, cS, cE, nI, nO)
   return complex.getRefractRayRay(cO, cD, cS, cE:getSub(cS), nI, nO)
 end
 
-function complex.getReflectRayCircle(cO, cD, cC, nR, xF)
-  local xN = (xF and xF or complex.getIntersectRayCircle(cO, cD, cC, nR))
-  if(not complex.isValid(xN)) then return logStatus("complex.getReflectRayCircle: "..
-    "Intersection invalid {"..type(xN).."}["..tostring(xN).."]", nil) end
-  return complex.getReflectRayRay(cO, cD, xN, xN:getNew():Sub(cC):Right())
-end
-
-function complex.getIntersectCircleCircle(cO1, nR1, cO2, nR2)
-  local cS, cA = cO2:getSub(cO1), cO2:getAdd(cO1)
-  local nD, nRA, nRS = cS:getNorm2(), (nR1 + nR2), (nR1 - nR2); if(nRA^2 < nD) then
-    return logStatus("complex.getIntersectCircleCircle: Intersection missing", nil) end
-  local dR = (nRA^2 - nD) * (nD - nRS^2); if(dR < 0) then
-    return logStatus("complex.getIntersectCircleCircle: Irrational area", nil) end
-  local nK = 0.25 * math.sqrt(dR)
-  local cV = cS:getSwap():Mul(2, -2, true):Rsz(nK / nD)
-  local mR = (0.5 * (nR1^2 - nR2^2)) / nD
-  local xB = cA:Rsz(0.5):Add(cS:Rsz(mR))
-  return xB:getAdd(cV), xB:getSub(cV), xB
+function complex.getRefractRayCircle(cO, cD, cC, nR, vI, vO, xF)
+ -- TODO: Implement it tomorrow.
 end
 
 function complex.getEuler(vRm, vPh)
