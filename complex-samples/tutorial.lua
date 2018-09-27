@@ -30,13 +30,17 @@ logStatus("\nMethods starting with upper letter make internal changes and return
 logStatus("\nMethods starting with lower return something and do not change internals .")
 
 logStatus("\nCreating complex")
-local a = complex.getNew(7,7):Print("1: ","\n")
-complex.getNew(a):Print("2: ","\n")
-a:getNew():Print("3: ","\n")
-a:getNew(complex.getNew(1,-1)):Print("3: ","\n")
-a:getNew(-7,nil):Print("4: ","\n")
-a:getNew(nil,-7):Print("5: ","\n")
-a:getNew(-7,-7):Print("6: ","\n")
+local a = complex.getNew(7,7):Print(" 1: ","\n")
+complex.getNew(a):Print(" 2: ","\n")
+a:getNew():Print(" 3: ","\n")
+a:getNew(complex.getNew(1,-1)):Print(" 4: ","\n")
+a:getNew(-7,nil):Print(" 5: ","\n")
+a:getNew(nil,-7):Print(" 6: ","\n")
+a:getNew(-7,-7):Print(" 7: ","\n")
+a:getNew(true,true):Print(" 8: "," Copy-constructor is designed for numbers use convNew instead\n")
+a:getNew(false,false):Print(" 9: "," Copy-constructor is designed for numbers use convNew instead\n")
+a:getNew(true,false):Print("10: "," Copy-constructor is designed for numbers use convNew instead\n")
+a:getNew(false,true):Print("11: "," Copy-constructor is designed for numbers use convNew instead\n")
 
 --------------------------------------------------------------------------
 logStatus("\nConverting complex from something else "..tostring(a))
@@ -349,7 +353,8 @@ local tCall = {
   {"Hyp cosine    : ","getCosH ","{296.25695844114,461.39210823679}     "},
   {"Hyp tangent   : ","getTangH","{1.0000006920752,1.5122148957712e-006}"},
   {"Hyp cotangent : ","getCotgH","{0.999999307923,-1.5122128026371e-006}"},
-  {"Logarithm     : ","getLog  ","{1.9560115027141,0.14189705460416}    "}
+  {"Logarithm     : ","getLog  ","{1.9560115027141,0.14189705460416}    "},
+  {"Exponential   : ","getExp  ","{592.51342419036,922.78498379579}     "}
 }
 
 local b = complex.getNew(7,1)

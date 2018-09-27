@@ -73,8 +73,8 @@ function complex.getNew(nRe, nIm)
   self = {}; setmetatable(self, metaComplex)
   local Re = tonumber(nRe) or metaData.__valre
   local Im = tonumber(nIm) or metaData.__valim
-
-  if(complex.isValid(nRe)) then Re, Im = nRe:getReal(), nRe:getImag() end
+  
+  if(complex.isValid(nRe)) then Re, Im = nRe:getParts() end
 
   function self:setReal(R)  Re = (tonumber(R) or metaData.__valre); return self end
   function self:setImag(I)  Im = (tonumber(I) or metaData.__valim); return self end
@@ -313,6 +313,15 @@ function metaComplex:getPow(R, I, E)
   return self:getNew():Pow(R, I, E)
 end
 
+function metaComplex:Exp(cP)
+  local E = self:getNew(math.exp(1))
+  return self:Set(E:Pow(cP or self))
+end
+
+function metaComplex:getExp(cP)
+  return self:getNew():Exp(cP or self)
+end
+
 function metaComplex:Sin()
   local R, I = self:getParts()
   local rE = math.sin(R)*math.cosh(I)
@@ -352,7 +361,7 @@ function metaComplex:getCotg()
 end
 
 function metaComplex:SinH()
-  local E = math.exp(1)^self
+  local E = self:getExp()
   return self:Set(E):Sub(E:Rev()):Rsz(0.5)
 end
 
@@ -361,7 +370,7 @@ function metaComplex:getSinH()
 end
 
 function metaComplex:CosH()
-  local E = math.exp(1)^self
+  local E = self:getExp()
   return self:Set(E):Add(E:Rev()):Rsz(0.5)
 end
 
@@ -385,13 +394,13 @@ function metaComplex:getCotgH()
   return self:getNew():CotgH()
 end
 
-function metaComplex:Log()
-  local R, T = self:getPolar()
-  return self:setReal(math.log(R)):setImag(T)
+function metaComplex:Log(nK)  
+  local P, R, T = metaData.__getpi, self:getPolar()
+  return self:setReal(math.log(R)):setImag(T+2*(tonumber(nK) or 0)*P)
 end
 
-function metaComplex:getLog()
-  return self:getNew():Log()
+function metaComplex:getLog(nK)
+  return self:getNew():Log(nK)
 end
 
 function metaComplex:getApply(fF, bR, bI)
