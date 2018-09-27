@@ -51,7 +51,7 @@ logStatus("The distance between every grey line on Y is: "..tostring(dY))
 logStatus("Press escape to clear all rays and refresh the coordinate system")
 logStatus("Refraction indexes: http://hyperphysics.phy-astr.gsu.edu/hbase/Tables/indrf.html")
 
-open("Complex ray reflection demo")
+open("Complex ray refraction demo")
 size(W, H); zero(0, 0)
 updt(false) -- disable auto updates
 
@@ -82,16 +82,18 @@ while true do
     local cX, nT, nU = cmp.getIntersectRayRay(cRay1[1], cD1, cRay2[1], cD2)
     if(cX) then local nN = cD1:getNorm()
       local cR, cN = cmp.getRefractRayLine(cRay1[1], cD1, cRay2[1], cRay2[2], nN1, nN2)
+      if(not cR) then cR = cmp.getReflectRayLine(cRay1[1], cD1, cRay2[1], cRay2[2])
+        logStatus("Complex ray refraction is reflecting on interface... "..cN) end
       if(cR) then 
         local eR, eN = (cR*nN+cX), (cN*nN/2+cX)
         cX:Action("xy", clMgn); eR:Action("xy", clMgn)
         cX:Action("ab", eR, clOrg); cX:Action("ab", eN, clBlk)
-        logStatus("The complex reflection is <"..tostring(cR).."/"..tostring(eR)..">")
-      else
-        logStatus("The complex reflection is invalid")
+        logStatus("The complex refraction is <"..tostring(cR).."/"..tostring(eR)..">")
+      else 
+        logStatus("Complex ray refraction cannot happen. "..cN)
       end
     else
-      logStatus("The complex reflection is parallel <"..tostring(cN).."/"..tostring(cR)..">")
+      logStatus("The complex refraction is parallel <"..tostring(cN).."/"..tostring(cR)..">")
     end 
     drw = false
   end

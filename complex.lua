@@ -863,7 +863,7 @@ function complex.getReflectRayRay(cO1, cD1, cO2, cD2)
   local cN = cO1:getProjectRay(cO2, cD2):Neg():Add(cO1):Unit()
   local cR = uD:getNew():Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
   if(cR:getDot(cN) < 0) then
-    return logStatus("complex.getReflectRayRay: Normal mismatch", nil) end
+    return logStatus("complex.getReflectRayRay: Normal mismatch", nil, cN) end
   return cR, cN
 end
 
@@ -876,10 +876,9 @@ function complex.getRefractRayRay(cO1, cD1, cO2, cD2, vI, vO, bV)
   local cN = cO1:getProjectRay(cO2, cD2):Neg():Add(cO1):Unit()
   local sI, sO, sB = cN:getCross(cD1:getUnit():Neg())
   if(bV) then sO, sB = ((sI * nO) / nI), (nI / nO)
-  else sO, sB = ((sI * nI) / nO), (nO / nI) end
-  if(math.abs(sO) > 1) then
-    return complex.getReflectRayRay(cO1, cD1, cO2, cD2)
-  end; return cN:getNeg():RotRad(math.asin(sO)), cN
+  else sO, sB = ((sI * nI) / nO), (nO / nI) end; if(math.abs(sO) > 1) then
+    return logStatus("complex.getRefractRayRay: Normal mismatch", nil, cN) end
+  return cN:getNeg():RotRad(math.asin(sO)), cN
 end
 
 function complex.getRefractRayLine(cO, cD, cS, cE, nI, nO)

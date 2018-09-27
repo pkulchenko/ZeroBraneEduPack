@@ -61,12 +61,17 @@ cOrg:Action("xy", clMgn)
 local eAng, nMul = (math.pi/2), cOrg:getNorm()
 local dAng, nAng = (eAng / nRayCast), 0
 
+-- Skip the logs about reflecting primary ray on interface
+com.logSkipAdd("complex.getRefractRayRay: Normal mismatch")
+
 while(nAng < eAng) do
   local rD, lD = cOrg:getNeg():RotRad(-nAng), cOrg:getNeg():RotRad(nAng)
   local rX = cmp.getIntersectRayLine(cOrg, rD, tLin[1], tLin[2])
   local rR = cmp.getRefractRayLine(cOrg, rD, tLin[1], tLin[2], nN1, nN2)
   local lX = cmp.getIntersectRayLine(cOrg, lD, tLin[1], tLin[2])
   local lR = cmp.getRefractRayLine(cOrg, lD, tLin[1], tLin[2], nN1, nN2)
+  if(not rR) then rR = cmp.getReflectRayLine(cOrg, rD, tLin[1], tLin[2]) end
+  if(not lR) then lR = cmp.getReflectRayLine(cOrg, lD, tLin[1], tLin[2]) end
   rX:Action("xy", clBlu); lX:Action("xy", clBlu)
   cOrg:Action("ab", rX, clBlu); cOrg:Action("ab", lX, clBlu)
   local rE, lE = rX:getAdd(rR:Mul(2 * nMul)), lX:getAdd(lR:Mul(2 * nMul))
