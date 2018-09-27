@@ -333,6 +333,15 @@ function metaComplex:getSin()
   return self:getNew():Sin()
 end
 
+function metaComplex:ArcSin()
+  local Z = self:getNew():Pow(2):Neg():Add(1):Pow(0.5)
+  return self:Mul(0, 1):Add(Z):Log():Mul(0, -1)
+end
+
+function metaComplex:getArcSin()
+  return self:getNew():ArcSin()
+end
+
 function metaComplex:Cos()
   local R, I = self:getParts()
   local rE =  math.cos(R)*math.cosh(I)
@@ -344,6 +353,15 @@ function metaComplex:getCos()
   return self:getNew():Cos()
 end
 
+function metaComplex:ArcCos()
+  local Z = self:getNew():Pow(2):Neg():Add(1):Pow(0.5)
+  return self:Add(Z:Mul(0, 1)):Log():Mul(0, -1)
+end
+
+function metaComplex:getArcCos()
+  return self:getNew():ArcCos()
+end
+
 function metaComplex:Tang()
   return self:Set(self:getSin():Div(self:getCos()))
 end
@@ -352,12 +370,30 @@ function metaComplex:getTang()
   return self:getNew():Tang()
 end
 
+function metaComplex:ArcTang()
+  local D = self:getAdd(0, 1)
+  local N = self:getNeg():Add(0, 1)
+  return self:Set(N:Div(D):Log():Mul(0, -0.5))
+end
+
+function metaComplex:getArcTang()
+  return self:getNew():ArcTang()
+end
+
 function metaComplex:Cotg()
-  return self:Set(self:getCos():Div(self:getSin()))
+  return self:Tang():Rev()
 end
 
 function metaComplex:getCotg()
   return self:getNew():Cotg()
+end
+
+function metaComplex:ArcCotg()
+  return self:Rev():ArcTang()
+end
+
+function metaComplex:getArcCotg()
+  return self:getNew():ArcCotg()
 end
 
 function metaComplex:SinH()
@@ -369,6 +405,15 @@ function metaComplex:getSinH()
   return self:getNew():SinH()
 end
 
+function metaComplex:ArcSinH()
+  local Z = self:getNew():Pow(2):Add(1):Pow(0.5)
+  return self:Add(Z):Log()
+end
+
+function metaComplex:getArcSinH()
+  return self:getNew():ArcSinH()
+end
+
 function metaComplex:CosH()
   local E = self:getExp()
   return self:Set(E):Add(E:Rev()):Rsz(0.5)
@@ -376,6 +421,16 @@ end
 
 function metaComplex:getCosH()
   return self:getNew():CosH()
+end
+
+function metaComplex:ArcCosH()
+  local P = self:getNew():Add(1):Pow(0.5)
+  local N = self:getNew():Sub(1):Pow(0.5)
+  return self:Add(P:Mul(N)):Log()
+end
+
+function metaComplex:getArcCosH()
+  return self:getNew():ArcCosH()
 end
 
 function metaComplex:TangH()
@@ -386,12 +441,32 @@ function metaComplex:getTangH()
   return self:getNew():TangH()
 end
 
+function metaComplex:ArcTangH()
+  local P = self:getNew():Add(1):Log()
+  local N = self:getNew():Neg():Add(1):Log()
+  return self:Set(P:Sub(N)):Mul(0.5)
+end
+
+function metaComplex:getArcTangH()
+  return self:getNew():ArcTangH()
+end
+
 function metaComplex:CotgH()
   return self:Set(self:getCosH():Div(self:getSinH()))
 end
 
 function metaComplex:getCotgH()
   return self:getNew():CotgH()
+end
+
+function metaComplex:ArcCotgH()
+  local P = self:getNew():Rev():Add(1):Log()
+  local N = self:getNew():Rev():Neg():Add(1):Log()
+  return self:Set(P:Sub(N)):Mul(0.5)
+end
+
+function metaComplex:getArcCotgH()
+  return self:getNew():ArcCotgH()
 end
 
 function metaComplex:Log(nK)  

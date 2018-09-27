@@ -248,7 +248,7 @@ end
 
 function common.stringTrim(sStr, sC)
   local sC = tostring(sC or "%s")
-  return (sStr:match("^"..sC.."*(.-)"..sC.."*$" ) or sStr)
+  return (sStr:match("^"..sC.."*(.-)"..sC.."*$") or sStr)
 end
 
 function common.stringPadR(sS, nL, sC)

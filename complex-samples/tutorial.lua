@@ -345,36 +345,49 @@ else
 end
 
 local tCall = {
-  {"Sine          : ","getSin  ","{1.0137832978161,0.885986829195}      "},
-  {"Cosine        : ","getCos  ","{1.1633319692207,-0.7720914350223}    "},
-  {"Tangent       : ","getTang ","{0.25407140331504,0.93021872707887}   "},
-  {"Cotangent     : ","getCotg ","{0.27323643702064,-1.0003866917748}   "},
-  {"Hyp sine      : ","getSinH ","{296.25646574921,461.392875559}       "},
-  {"Hyp cosine    : ","getCosH ","{296.25695844114,461.39210823679}     "},
-  {"Hyp tangent   : ","getTangH","{1.0000006920752,1.5122148957712e-006}"},
-  {"Hyp cotangent : ","getCotgH","{0.999999307923,-1.5122128026371e-006}"},
-  {"Logarithm     : ","getLog  ","{1.9560115027141,0.14189705460416}    "},
-  {"Exponential   : ","getExp  ","{592.51342419036,922.78498379579}     "}
+  {"Sine          : ","getSin     ","{1.0137832978161,0.885986829195}      "},
+  {"Cosine        : ","getCos     ","{1.1633319692207,-0.7720914350223}    "},
+  {"Tangent       : ","getTang    ","{0.25407140331504,0.93021872707887}   "},
+  {"Cotangent     : ","getCotg    ","{0.27323643702064,-1.0003866917748}   "},
+  {"Hyp sine      : ","getSinH    ","{296.25646574921,461.392875559}       "},
+  {"Hyp cosine    : ","getCosH    ","{296.25695844114,461.39210823679}     "},
+  {"Hyp tangent   : ","getTangH   ","{1.0000006920752,1.5122148957712e-006}"},
+  {"Hyp cotangent : ","getCotgH   ","{0.999999307923,-1.5122128026371e-006}"},
+  {"Logarithm     : ","getLog     ","{1.9560115027141,0.14189705460416}    "},
+  {"Exponential   : ","getExp     ","{592.51342419036,922.78498379579}     "},
+  {"ArgSine       : ","getArcSin  ","{1.4274787937403,2.6443267863946}     "},
+  {"ArgCosine     : ","getArcCos  ","{0.14331753305457,-2.6443267863946}   "},
+  {"ArgTangent    : ","getArcTang ","{1.4316464972923,0.019617903860374}   "},
+  {"ArgCotangent  : ","getArcCotg ","{0.13914982950256,-0.019617903860374} "},
+  {"ArgSineH      : ","getArcSinH ","{2.6539273355384,0.14051690607218}    "},
+  {"ArgCosineH    : ","getArcCosH ","{2.6443267863946,0.14331753305457}    "},
+  {"ArgTangentH   : ","getArcTangH","{0.14086733931285,1.550399485361}     "},
+  {"ArgCotangentH : ","getArcCotgH","{0.14086733931285,-0.020396841433933} "}
+
 }
 
 local b = complex.getNew(7,1)
 for id = 1, #tCall do
-  local suc, rez = b(common.stringTrim(tCall[id][2]))
+  local mth = common.stringTrim(tCall[id][2])
+  local suc, rez = b(mth)
   if(suc) then rez = tostring(rez)
     local com = common.stringTrim(tCall[id][3])
-    logStatus(tCall[id][1]..((rez == com) and "OK" or "FAIL").." >> "..com)
-  else
-    logStatus("There was a problem executing method <"..tCall[id][1].."> at index #"..id)
-    logStatus("Error received: "..tostring(rez))
+    logStatus(tCall[id][1]..((rez == com) and "OK" or "FAIL").." >> "..rez)
+  else local nam = tCall[id][1]:gsub(":","")
+    logStatus("There was a problem executing method <"..
+      common.stringTrim(nam).."> at index #"..id)
+    logStatus("Error received: "..tostring(rez).. " <"..mth..">")
   end
 end; logStatus("")
+
+--[===[
 
 local W, H   = 800, 800 -- Window size
 local dX, dY = 1, 1     -- Coordinate system step
 local gAlp   = 200      -- Coordinate system grey alpha level
 local R = 5             -- Roots base
 
-open("Graphical complex roots for "..tostring(a))
+_open("Graphical complex roots for "..tostring(a))
 size(W, H)
 zero(0, 0)
 updt(false) -- disable auto updates
@@ -432,3 +445,4 @@ if(r) then
 end
 
 wait()
+]===]
