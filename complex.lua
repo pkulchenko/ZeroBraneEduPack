@@ -723,6 +723,20 @@ function metaComplex:isCollinear(vC)
   return (math.abs(self:getCross(vC)) < metaData.__margn)
 end
 
+function metaComplex:isInCircle(cO, vR)
+  local nM = metaData.__margn
+  local nR = getClamp(tonumber(vR) or 0, 0)
+  local nN = self:getSub(cO):getNorm()
+  return (nN <= (nR+nM))
+end
+
+function metaComplex:isAmongCircle(cO, vR)
+  local nM = metaData.__margn
+  local nN = self:getSub(cO):getNorm()
+  local nR = getClamp(tonumber(vR) or 0, 0)
+  return ((nN <= (nR+nM)) and (nN >= (nR-nM)))
+end
+
 function metaComplex:getRoots(nNm)
   local nN = math.floor(tonumber(nNm) or 0)
   if(nN > 0) then local tRt = {}
@@ -853,9 +867,10 @@ function complex.getIntersectRayCircle(cO, cD, cC, nR)
   local nD = (nB^2 - 4*nA*nC); if(nD < 0) then
     return logStatus("complex.getIntersectRayCircle: Imaginary roots", nil) end
   local dA = (1/(2*nA)); nD, nB = dA*math.sqrt(nD), -nB*dA
-  local xF = cD:getNew():Mul(nB + nD):Add(cO)
-  local xN = cD:getNew():Mul(nB - nD):Add(cO)
-  return xN, xF
+  local xM = cD:getNew():Mul(nB - nD):Add(cO)
+  local xP = cD:getNew():Mul(nB + nD):Add(cO)
+  if(cO:isInCircle(cC, nR)) then return xP, xM end
+  return xM, xP -- Outside the circle
 end
 
 function complex.getIntersectCircleCircle(cO1, nR1, cO2, nR2)
@@ -884,11 +899,13 @@ function complex.getReflectRayLine(cO, cD, cS, cE)
   return complex.getReflectRayRay(cO, cD, cS, cE:getSub(cS))
 end
 
-function complex.getReflectRayCircle(cO, cD, cC, nR, xF)
-  local xN = (xF and xF or complex.getIntersectRayCircle(cO, cD, cC, nR))
-  if(not complex.isValid(xN)) then return logStatus("complex.getReflectRayCircle: "..
-    "Intersection invalid {"..type(xN).."}["..tostring(xN).."]", nil) end
-  return complex.getReflectRayRay(cO, cD, xN, xN:getNew():Sub(cC):Right())
+function complex.getReflectRayCircle(cO, cD, cC, nR, xU)
+  local xX = (xU and xU or complex.getIntersectRayCircle(cO, cD, cC, nR))
+  if(not complex.isValid(xX)) then
+    return logStatus("complex.getReflectRayCircle: Intersect mismatch", nil) end
+  local cX = xX:getSub(cC):Right()
+  local cR, cN = complex.getReflectRayRay(cO, cD, xX, cX)
+  return cR, cN, cX:Set(xX)
 end
 
 function complex.getRefractRayAngle(vI, vO, bV)
@@ -912,8 +929,13 @@ function complex.getRefractRayLine(cO, cD, cS, cE, nI, nO)
   return complex.getRefractRayRay(cO, cD, cS, cE:getSub(cS), nI, nO)
 end
 
-function complex.getRefractRayCircle(cO, cD, cC, nR, vI, vO, xF)
- -- TODO: Implement it tomorrow.
+function complex.getRefractRayCircle(cO, cD, cC, nR, vI, vO, bV, xU)
+  local xX = (xU and xU or complex.getIntersectRayCircle(cO, cD, cC, nR))
+  if(not complex.isValid(xX)) then
+    return logStatus("complex.getRefractRayCircle: Intersect mismatch", nil) end
+  local cX = xX:getSub(cC):Right()
+  local cR, cN = complex.getRefractRayRay(cO, cD, xX, cX, vI, vO, bV)
+  return cR, cN, cX:Set(xX)
 end
 
 function complex.getEuler(vRm, vPh)

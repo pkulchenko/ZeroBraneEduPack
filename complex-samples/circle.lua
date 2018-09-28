@@ -12,6 +12,7 @@ local  W,  H = 400, 400
 local greyLevel  = 200
 local minX, maxX = -20, 20
 local minY, maxY = -20, 20
+local nNCirc, nNArea = 1.5, 1
 local dX, dY, xySize = 1, 1, 3
 local intX  = crt.New("interval","WinX", minX, maxX, 0, W)
 local intY  = crt.New("interval","WinY", minY, maxY, H, 0)
@@ -24,6 +25,13 @@ local clGrn = colr(col.getColorGreenRGB())
 local clCya = colr(col.getColorCyanRGB())
 local scOpe = crt.New("scope"):setBorder(minX, maxX, minY, maxY)
       scOpe:setSize(W, H):setColor(clBlk, clGry):setInterval(intX, intY):setDelta(dX, dY)
+
+local function swapN(cP, cC, nR)
+  if(cP:isInCircle(cC, nR)) then
+    return nNCirc, nNArea 
+  end
+  return nNArea, nNCirc
+end
 
 local function drawComplex(C, Cl, vN)
   local nN = (tonumber(vN) or xySize)
@@ -105,9 +113,14 @@ while true do
         logStatus("Reflected ray from the circle is "..cR)
         cmp.getNew():ProjectCircle(cRay2[1], rad):Action("xy", clMgn, 6)
         local cV = xN:getSub(cRay2[1])
-        cV:getRight():Add(xN):Action("ab", xN, clGrn)
+        cV:getRight():Add(xN):Action("ab", xN, clBlk)
         cV:getLeft():Add(xN):Action("ab", xN, clBlk)
         xN:Action("ab", cRay2[1], clCya)
+        local nB, nE = swapN(cRay1[1], cRay2[1], rad)
+        local vC, vN, vX = cmp.getRefractRayCircle(cRay1[1], cD, cRay2[1], rad, nB, nE)
+        if(not vC) then logStatus("Complex ray refraction is reflecting on interface... "..cN)
+          vC, vN = cmp.getReflectRayCircle(cRay1[1], cD, cRay2[1], rad) end
+        if(vC) then vX:Action("ab", vX:getAdd(vC:Mul(nL)), clGrn) end
       else
         logStatus("The complex reflection cannot happen")
       end
