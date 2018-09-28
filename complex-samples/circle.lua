@@ -8,7 +8,7 @@ local com = require("common")
 io.stdout:setvbuf("no")
 
 local logStatus = com.logStatus
-local  W,  H = 400, 400
+local  W,  H = 600, 600
 local greyLevel  = 200
 local minX, maxX = -20, 20
 local minY, maxY = -20, 20
@@ -121,6 +121,7 @@ while true do
         if(not vC) then logStatus("Complex ray refraction is reflecting on interface... "..cN)
           vC, vN = cmp.getReflectRayCircle(cRay1[1], cD, cRay2[1], rad) end
         if(vC) then vX:Action("ab", vX:getAdd(vC:Mul(nL)), clGrn) end
+        logStatus("Refracted ray from the circle is "..vC)
       else
         logStatus("The complex reflection cannot happen")
       end

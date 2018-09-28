@@ -380,14 +380,12 @@ for id = 1, #tCall do
   end
 end; logStatus("")
 
---[===[
-
 local W, H   = 800, 800 -- Window size
 local dX, dY = 1, 1     -- Coordinate system step
 local gAlp   = 200      -- Coordinate system grey alpha level
 local R = 5             -- Roots base
 
-_open("Graphical complex roots for "..tostring(a))
+open("Graphical complex roots for "..tostring(a))
 size(W, H)
 zero(0, 0)
 updt(false) -- disable auto updates
@@ -445,4 +443,3 @@ if(r) then
 end
 
 wait()
-]===]
