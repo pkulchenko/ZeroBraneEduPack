@@ -43,7 +43,7 @@ metaData.__curve = 100
 metaData.__kurve = {"n","N","cnt","CNT","Cnt","count","COUNT","Count","*"}
 metaData.__getpi = math.pi
 metaData.__bords = {"{([<|/","})]>|/"}
-metaData.__ssyms = {"i", "I", "j", "J"}
+metaData.__ssyms = {"i", "I", "j", "J", "k", "K"}
 metaData.__radeg = (180 / metaData.__getpi)
 metaData.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
 metaData.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
@@ -53,7 +53,8 @@ function complex.isValid(cNum)
 end
 
 function complex.getType(cNum)
-  return metaComplex.__type
+  local tM = getmetatable(cNum)
+  return ((tM and tM.__type) and tostring(tM.__type) or type(cNum))
 end
 
 function complex.setMargin(nM)
@@ -158,9 +159,9 @@ function complex.getNew(nRe, nIm)
 end
 
 function metaComplex:Action(aK,...)
-  if(not aK) then return self end
+  if(not aK) then return false, self end
   local fDr = metaData.__cactf[aK]
-  if(not fDr) then return self end
+  if(not fDr) then return false, self end
   return pcall(fDr,self,...)
 end
 
@@ -510,6 +511,10 @@ function metaComplex:getNorm2()
   local R, I = self:getParts(); return(R*R + I*I) end
 
 function metaComplex:getNorm() return math.sqrt(self:getNorm2()) end
+
+function metaComplex:setNorm(nN)
+  return self:Rsz((tonumber(nN) or 0) / self:getNorm())
+end
 
 function metaComplex:getAngRad()
   local R, I = self:getParts(); return math.atan2(I, R) end
