@@ -57,7 +57,7 @@ function complex.getType(cNum)
 end
 
 function complex.setMargin(nM)
-  metaData.__margn = math.abs((tonumber(nM) or 0))
+  metaData.__margn = math.abs(tonumber(nM) or 0)
 end
 
 function complex.getMargin()
@@ -536,18 +536,21 @@ function metaComplex:getPolar()
   return self:getNorm(), self:getAngRad()
 end
 
-function metaComplex:RotRad(nA)
-  local nR, nP = self:getPolar(); nP = (nP + (tonumber(nA) or 0))
+function metaComplex:setAngRad(nA)
+  local nR, nP = self:getNorm(), (tonumber(nA) or 0)
   return self:setReal(math.cos(nP)):setImag(math.sin(nP)):Rsz(nR)
+end
+
+function metaComplex:RotRad(nA)
+  return self:setAngRad(self:getAngRad() + (tonumber(nA) or 0))
 end
 
 function metaComplex:getRotRad(nA)
   return self:getNew():RotRad(nA)
 end
 
-function metaComplex:setAngRad(nA)
-  local nR, nP = self:getNorm(), (tonumber(nA) or 0)
-  return self:setReal(math.cos(nP)):setImag(math.sin(nP)):Rsz(nR)
+function metaComplex:setPolarRad(nN, nA)
+  return self:Set((tonumber(nN) or 0), 0):setAngRad(nA)
 end
 
 function metaComplex:ProjectRay(cO, cD)
@@ -955,6 +958,10 @@ end
 
 function metaComplex:getAngDeg() return complex.toDegree(self:getAngRad()) end
 
+function metaComplex:setAngDeg(nA)
+  return self:setAngRad(complex.toRadian(tonumber(nA) or 0))
+end
+
 function metaComplex:RotDeg(nA)
   return self:RotRad(complex.toRadian(tonumber(nA) or 0))
 end
@@ -963,8 +970,8 @@ function metaComplex:getRotDeg(nA)
   return self:getNew():RotDeg(nA)
 end
 
-function metaComplex:setAngDeg(nA)
-  return self:setAngRad(complex.toRadian(tonumber(nA) or 0))
+function metaComplex:setPolarDeg(nN, nA)
+  return self:Set((tonumber(nN) or 0), 0):setAngDeg(nA)
 end
 
 function metaComplex:getAngDegVec(cV)
