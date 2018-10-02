@@ -23,6 +23,7 @@ metaCommon.__time = 0
 metaCommon.__func = {}
 metaCommon.__sort = {}
 metaCommon.__marg = 1e-10
+metaCommon.__fmtb = "[%s]:%d {%s} [%d]<%s>[%s](%d)"
 metaCommon.__type = {"number", "boolean", "string", "function", "table", "nil", "userdata"}
 metaCommon.__syms = "1234567890abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ"
 metaCommon.__metatable = "common.lib"
@@ -152,15 +153,18 @@ function common.logStatus(anyMsg, ...)
   return common.logString(tostring(anyMsg).."\n", ...)
 end
 
+function common.logUnpackInfo(tInf)
+  return tInf.source     , tInf.currentline, tInf.what,
+         tInf.linedefined, tInf.namewhat   , tInf.name, tInf.nparams
+end
+
 function common.logStackTB(sMsg, ...)
-  local iLev = 1; if(sMsg) then
-    common.logStatus(tostring(sMsg)) end
-  while(true) do
-    local tInf = debug.getinfo(iLev)
+  local iLev, sFmt = 1, metaCommon.__fmtb
+  if(sMsg) then common.logStatus(tostring(sMsg)) end
+  while(true) do local tInf = debug.getinfo(iLev)
     if(not tInf)then break end
     if tInf.what ~= "C" then
-      common.logStatus(("[%s]:%d {%s} [%d]<%s>[%s]"):format(
-        tInf.source, tInf.currentline, tInf.what, tInf.linedefined, tInf.namewhat, tInf.name))
+      common.logStatus(sFmt:format(common.logUnpackInfo(tInf)))
     end; iLev = iLev + 1
   end; return ...
 end

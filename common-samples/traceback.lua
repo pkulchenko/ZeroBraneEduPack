@@ -12,7 +12,7 @@ end
 local function cerr(f)
   local s, o = pcall(err)
   if(s) then return 0 end
-  return com.logStackTB(smg:format(o),1)
+  return com.logStackTB(smg:format(o), 1)
 end
 
 local function a()

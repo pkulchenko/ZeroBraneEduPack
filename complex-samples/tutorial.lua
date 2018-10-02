@@ -18,29 +18,49 @@ local function makeTastCase(fCompl)
       local num = tostring(fun(unpack(row.Arg)))
       if(num ~= row.Out) then
         logStatus("  FAIL: ("..row.Typ..") <"..num.."> = <"..row.Out..">")
-        logStatus("     Converting complex test #"..ID.." found mistmatch at index #"..IR)
-      else
-        logStatus("  OK: ("..row.Typ..") <"..num..">")
+        error("Complex test #"..ID.." found mistmatch at index #"..IR)
+      else local sM = (row.Msg and (": "..tostring(row.Msg)) or "")
+        logStatus("  OK: ("..row.Typ..") <"..num..">"..sM)
       end
     end
   end; common.tableClear(tPar); collectgarbage()
+end
+
+local function testTranslate(na, nb)
+  return common.convSignString(na)..common.convSignString(nb).."i"
 end
 
 logStatus("\nMethods starting with upper letter make internal changes and return /self/ .")
 logStatus("\nMethods starting with lower return something and do not change internals .")
 
 logStatus("\nCreating complex")
-local a = complex.getNew(7,7):Print(" 1: ","\n")
-complex.getNew(a):Print(" 2: ","\n")
-a:getNew():Print(" 3: ","\n")
-a:getNew(complex.getNew(1,-1)):Print(" 4: ","\n")
-a:getNew(-7,nil):Print(" 5: ","\n")
-a:getNew(nil,-7):Print(" 6: ","\n")
-a:getNew(-7,-7):Print(" 7: ","\n")
-a:getNew(true,true):Print(" 8: "," Copy-constructor is designed for numbers use convNew instead\n")
-a:getNew(false,false):Print(" 9: "," Copy-constructor is designed for numbers use convNew instead\n")
-a:getNew(true,false):Print("10: "," Copy-constructor is designed for numbers use convNew instead\n")
-a:getNew(false,true):Print("11: "," Copy-constructor is designed for numbers use convNew instead\n")
+local a = complex.getNew(7,7):Print(" Create: ","\n")
+complex.getNew(a):Print(" Copy-constructor: ","\n")
+
+--------------------------------------------------------------------------
+logStatus("\nCalling the copy-constructor for different arguments "..tostring(a)); tPar = {}
+logStatus("The functionality manages the values internally and converts to number !")
+logStatus("If the conversion to a number cannot be completed a default internal value is used !")
+
+tPar[1] = {
+  Name = "Complex copy-constructor",
+  {Typ="nil-value", Arg={a}, Out="{7,7}"},
+  {Typ="complex", Arg={complex.getNew(1,-1)}, Out="{1,-1}"},
+  {Typ="nil-number1", Arg={a,-7,-7}, Out="{-7,-7}"},
+  {Typ="nil-number2", Arg={a,-7,nil}, Out="{-7,0}"},
+  {Typ="nil-number3", Arg={a,nil,-7}, Out="{0,-7}"},
+  {Typ="nil-number4", Arg={a,nil,nil}, Out="{7,7}"},
+  {Typ="string1", Arg={a,"7","7"}, Out="{7,7}"},
+  {Typ="string2", Arg={a,"","7"}, Out="{0,7}"},
+  {Typ="string3", Arg={a,"7",""}, Out="{7,0}"},
+  {Typ="string4", Arg={a,"",""}, Out="{0,0}"},
+  {Typ="string5", Arg={a,"abc","def"}, Out="{0,0}"},
+  {Typ="bool1", Arg={a,true ,true }, Out="{0,0}", Msg="Copy-constructor is designed for numbers use convNew instead"},
+  {Typ="bool2", Arg={a,false,false}, Out="{7,7}", Msg="Copy-constructor is designed for numbers use convNew instead"},
+  {Typ="bool3", Arg={a,true ,false}, Out="{0,0}", Msg="Copy-constructor is designed for numbers use convNew instead"},
+  {Typ="bool4", Arg={a,false,true }, Out="{0,0}", Msg="Copy-constructor is designed for numbers use convNew instead"}
+}
+makeTastCase(a.getNew)
 
 --------------------------------------------------------------------------
 logStatus("\nConverting complex from something else "..tostring(a))
@@ -51,9 +71,6 @@ tPar[1] = {
   {Typ="copy-constructor", Arg={a}, Out="{7,7}"}
 }
 
-local function testTranslate(na, nb)
-  return common.convSignString(na)..common.convSignString(nb).."i"
-end
 tPar[2] = {
   Name = "Translator function",
   {Typ="function result", Arg={testTranslate,7,7}, Out="{7,7}"}
@@ -117,6 +134,7 @@ tPar[7] = {
 }
 
 makeTastCase(complex.convNew)
+
 -------------------------------------------------------------------------------------------------------
 logStatus("\nComplex signum "..tostring(a)); tPar = {}
 
@@ -371,12 +389,13 @@ for id = 1, #tCall do
   local mth = common.stringTrim(tCall[id][2])
   local suc, rez = b(mth)
   if(suc) then rez = tostring(rez)
+    local nam = tCall[id][1]:gsub(":", ""); nam = common.stringTrim(nam)
     local com = common.stringTrim(tCall[id][3])
-    logStatus(tCall[id][1]..((rez == com) and "OK" or "FAIL").." >> "..rez)
+    local sta = ((rez == com) and "OK" or "FAIL")
+    if(sta == "OK") then logStatus(common.stringPadR(nam,15," ")..sta.." >> "..rez)
+    else error("There was a problem executing method <"..nam.."> at index #"..id) end
   else local nam = tCall[id][1]:gsub(":","")
-    logStatus("There was a problem executing method <"..
-      common.stringTrim(nam).."> at index #"..id)
-    logStatus("Error received: "..tostring(rez).. " <"..mth..">")
+    error("There was a problem executing method <"..nam.."> at index #"..id)
   end
 end; logStatus("")
 
@@ -435,7 +454,11 @@ logStatus("Complex roots returns a table of complex numbers being the roots of t
 local r = a:getRoots(R)
 if(r) then
   for id = 1, #r do
-    logStatus(r[id].."^"..R.." = "..(r[id]^R))
+    local ppw = (r[id]^R)
+    logStatus(common.stringPadR(r[id].."^"..R, 38, " ").." = "..ppw)
+    spw, sa = tostring(ppw), tostring(a)
+    if(spw ~= sa) then
+      error("Complex power mismatch at #"..id.." <"..spw..">?=<"..sa..">") end
     r[id]:Action("This your action key !")
     -- scOpe:drawComplex(r[id], nil, true) -- This is the same as above
     updt(); wait(0.1)
