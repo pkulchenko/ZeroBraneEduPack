@@ -53,6 +53,7 @@ function complex.isValid(cNum)
 end
 
 function complex.getType(cNum)
+  if(not cNum) then return metaComplex.__type end
   local tM = getmetatable(cNum)
   return ((tM and tM.__type) and tostring(tM.__type) or type(cNum))
 end
@@ -65,7 +66,7 @@ function complex.getMargin()
   return metaData.__margn
 end
 
-function complex.getUnpack(R, I, E)
+local function getUnpackStack(R, I, E)
   if(complex.isValid(R)) then local nR, nI = R:getParts() return nR, nI, I end
   return (tonumber(R) or metaData.__valre), (tonumber(I) or metaData.__valim), E
 end
@@ -84,17 +85,17 @@ function complex.getNew(nRe, nIm)
   function self:getParts()  return Re, Im end
 
   function self:Set(R, I)
-    local R, I = complex.getUnpack(R, I)
+    local R, I = getUnpackStack(R, I)
     Re, Im = R, I; return self
   end
 
   function self:Add(R, I)
-    local R, I = complex.getUnpack(R, I)
+    local R, I = getUnpackStack(R, I)
     Re, Im = (Re + R), (Im + I); return self
   end
 
   function self:Sub(R, I)
-    local R, I = complex.getUnpack(R, I)
+    local R, I = getUnpackStack(R, I)
     Re, Im = (Re - R), (Im - I); return self
   end
 
@@ -105,7 +106,7 @@ function complex.getNew(nRe, nIm)
 
   function self:Mul(R, I, E)
     local A, B = self:getParts()
-    local C, D, U = complex.getUnpack(R, I, E)
+    local C, D, U = getUnpackStack(R, I, E)
     if(U) then Re, Im = (A*C), (B*D) else
       Re, Im = (A*C - B*D), (A*D + B*C)
     end; return self
@@ -113,14 +114,14 @@ function complex.getNew(nRe, nIm)
 
   function self:Mid(R, I)
     local A, B = self:getParts()
-    local C, D = complex.getUnpack(R, I)
+    local C, D = getUnpackStack(R, I)
     Re = ((A + C) / 2)
     Im = ((B + D) / 2); return self
   end
 
   function self:Div(R, I, E)
     local A, B = self:getParts()
-    local C, D, U = complex.getUnpack(R, I, E)
+    local C, D, U = getUnpackStack(R, I, E)
     if(U) then Re, Im = (A/C), (B/D) else
       local Z = (C*C + D*D)
       Re = ((A*C + B*D) / Z)
@@ -130,7 +131,7 @@ function complex.getNew(nRe, nIm)
 
   function self:Mod(R, I)
     local A, B = self:getParts()
-    local C, D = complex.getUnpack(R, I); self:Div(C,D)
+    local C, D = getUnpackStack(R, I); self:Div(C,D)
     local rei, ref = math.modf(Re)
     local imi, imf = math.modf(Im)
     self:Set(ref,imf)
@@ -145,7 +146,7 @@ function complex.getNew(nRe, nIm)
 
   function self:Pow(R, I, E)
     local A, B = self:getParts()
-    local C, D, U = complex.getUnpack(R, I, E)
+    local C, D, U = getUnpackStack(R, I, E)
     if(U) then Re, Im = (A^C), (B^D) else
       local N, G = self:getNorm2(), self:getAngRad()
       local eK = N^(C/2) * math.exp(-D*G)
@@ -167,7 +168,7 @@ end
 
 function metaComplex:getNew(nR, nI)
   local N = complex.getNew(self); if(nR or nI) then
-    local R, I = complex.getUnpack(nR, nI); N:Set(R, I)
+    local R, I = getUnpackStack(nR, nI); N:Set(R, I)
   end; return N
 end
 
@@ -227,7 +228,7 @@ end
 
 function metaComplex:getDist2(R, I)
   local C, D = self:getParts()
-  local R, I = complex.getUnpack(R, I)
+  local R, I = getUnpackStack(R, I)
   return ((C - R)^2 + (D - I)^2)
 end
 
@@ -237,7 +238,7 @@ end
 
 function metaComplex:getCross(R, I)
   local C, D = self:getParts()
-  local R, I = complex.getUnpack(R, I)
+  local R, I = getUnpackStack(R, I)
   return (C*I - D*R)
 end
 
@@ -833,23 +834,23 @@ metaComplex.__concat = function(A,B)
 end
 
 metaComplex.__eq =  function(C1,C2)
-  local R1, I1 = complex.getUnpack(C1)
-  local R2, I2 = complex.getUnpack(C2)
+  local R1, I1 = getUnpackStack(C1)
+  local R2, I2 = getUnpackStack(C2)
   if(R1 == R2 and I1 == I2) then return true end
   return false
 end
 
 metaComplex.__le =  function(C1,C2)
-  local R1, I1 = complex.getUnpack(C1)
-  local R2, I2 = complex.getUnpack(C2)
+  local R1, I1 = getUnpackStack(C1)
+  local R2, I2 = getUnpackStack(C2)
   if(I1 == 0 and I2 == 0) then return (R1 <= R2) end
   if(R1 <= R2 and I1 <= I2) then return true end
   return false
 end
 
 metaComplex.__lt =  function(C1,C2)
-  local R1, I1 = complex.getUnpack(C1)
-  local R2, I2 = complex.getUnpack(C2)
+  local R1, I1 = getUnpackStack(C1)
+  local R2, I2 = getUnpackStack(C2)
   if(I1 == 0 and I2 == 0) then return (R1 < R2) end
   if(R1 < R2 and I1 < I2) then return true end
   return false
