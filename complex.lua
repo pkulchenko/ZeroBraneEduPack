@@ -321,7 +321,7 @@ function metaComplex:Exp(cP)
 end
 
 function metaComplex:getExp(cP)
-  return self:getNew():Exp(cP or self)
+  return self:getNew():Exp(cP)
 end
 
 function metaComplex:Sin()
@@ -982,6 +982,10 @@ end
 
 function metaComplex:getAngDegVec(cV)
   return complex.toDegree(self:getAngRadVec(cV))
+end
+
+function metaComplex:getMatrix()
+  local R, I = self:getParts(); return {{R, -I}, {I, R}}
 end
 
 function complex.setAction(aK, fD)
