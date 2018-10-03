@@ -50,7 +50,7 @@ line(0, zEro, W, zEro)
 for ID = 1, #traJ do wait(nTimeFR)
   local cPos = traJ[ID]
   if(traJ[ID+1]) then
-    aN = (traJ[ID+1] - traJ[ID]):getAngDegVec(oX)-90 end
+    aN = oX:getAngDegVec(traJ[ID+1] - traJ[ID])-90 end
   local Re, Im = cPos:Round(0.001):getParts()
   trAj:putValue(Re, Im):Draw(clGrn)
   if(drwText) then intX:Convert(Re); intY:Convert(Im)

@@ -204,6 +204,15 @@ function metaComplex:getNegRe() return self:getNew():NegRe() end
 function metaComplex:getNegIm() return self:getNew():NegIm() end
 function metaComplex:getConj () return self:getNegIm() end
 
+function metaComplex:getNorm2()
+  local R, I = self:getParts(); return (R*R + I*I) end
+
+function metaComplex:getNorm() return math.sqrt(self:getNorm2()) end
+
+function metaComplex:setNorm(nN)
+  return self:Rsz((tonumber(nN) or 0) / self:getNorm())
+end
+
 function metaComplex:Unit()
   return self:Rsz(1/self:getNorm())
 end
@@ -219,7 +228,7 @@ function metaComplex:getDot(cV)
 end
 
 function metaComplex:getAngRadVec(cV)
-  return (self:getAngRad() - cV:getAngRad())
+  return (cV:getAngRad() - self:getAngRad())
 end
 
 function metaComplex:getMid(R, I)
@@ -322,6 +331,14 @@ end
 
 function metaComplex:getExp(cP)
   return self:getNew():Exp(cP)
+end
+
+function metaComplex:Bisect(cD)
+  return self:RotRad(self:getAngRadVec(cD) / 2)
+end
+
+function metaComplex:getBisect(cD)
+  local nA = self:getAngRad(cD)
 end
 
 function metaComplex:Sin()
@@ -506,15 +523,6 @@ end
 
 function metaComplex:getCeil(bR, bI)
   return self:getNew():Ceil(bR, bI)
-end
-
-function metaComplex:getNorm2()
-  local R, I = self:getParts(); return(R*R + I*I) end
-
-function metaComplex:getNorm() return math.sqrt(self:getNorm2()) end
-
-function metaComplex:setNorm(nN)
-  return self:Rsz((tonumber(nN) or 0) / self:getNorm())
 end
 
 function metaComplex:getAngRad()
