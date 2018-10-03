@@ -99,60 +99,48 @@ function complex.getNew(nRe, nIm)
     Re, Im = (Re - R), (Im - I); return self
   end
 
-  function self:Rsz(vN)
-    local nN = tonumber(vN)
+  function self:Rsz(vN) local nN = tonumber(vN)
     if(nN) then Re, Im = (Re * nN), (Im * nN) end; return self
   end
 
   function self:Mul(R, I, E)
-    local A, B = self:getParts()
     local C, D, U = getUnpackStack(R, I, E)
-    if(U) then Re, Im = (A*C), (B*D) else
-      Re, Im = (A*C - B*D), (A*D + B*C)
+    if(U) then Re, Im = (Re*C), (Im*D) else
+      Re, Im = (Re*C - Im*D), (Re*D + Im*C)
     end; return self
   end
 
   function self:Mid(R, I)
-    local A, B = self:getParts()
     local C, D = getUnpackStack(R, I)
-    Re = ((A + C) / 2)
-    Im = ((B + D) / 2); return self
+    Re, Im = ((Re + C) / 2), ((Im + D) / 2); return self
   end
 
   function self:Div(R, I, E)
-    local A, B = self:getParts()
     local C, D, U = getUnpackStack(R, I, E)
-    if(U) then Re, Im = (A/C), (B/D) else
-      local Z = (C*C + D*D)
-      Re = ((A*C + B*D) / Z)
-      Im = ((B*C - A*D) / Z)
+    if(U) then Re, Im = (Re/C), (Im/D) else local Z = (C*C + D*D)
+      Re, Im = ((Re*C + Im*D) / Z), ((Im*C - Re*D) / Z)
     end; return self
   end
 
   function self:Mod(R, I)
-    local A, B = self:getParts()
     local C, D = getUnpackStack(R, I); self:Div(C,D)
     local rei, ref = math.modf(Re)
     local imi, imf = math.modf(Im)
-    self:Set(ref,imf)
-    self:Mul(C,D); return self
+    return self:Set(ref,imf):Mul(C,D)
   end
 
   function self:Rev()
     local N = self:getNorm2()
-    local R, I = self:getParts()
-    Re, Im = (R/N), (-I/N); return self
+    Re, Im = (Re/N), (-Im/N); return self
   end
 
   function self:Pow(R, I, E)
-    local A, B = self:getParts()
     local C, D, U = getUnpackStack(R, I, E)
-    if(U) then Re, Im = (A^C), (B^D) else
+    if(U) then Re, Im = (Re^C), (Im^D) else
       local N, G = self:getNorm2(), self:getAngRad()
       local eK = N^(C/2) * math.exp(-D*G)
       local eC = (C*G + 0.5*D*math.log(N))
-      Re = eK * math.cos(eC)
-      Im = eK * math.sin(eC)
+      Re, Im = (eK * math.cos(eC)), (eK * math.sin(eC))
     end; return self
   end
 

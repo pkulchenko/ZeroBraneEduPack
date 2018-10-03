@@ -214,7 +214,8 @@ tPar[3] ={
   {Typ="Mul 2" , Arg={a, 2}     ,Foo=a.__mul , Out="{14,14}"},
   {Typ="Mul 3" , Arg={a, 2}     ,Foo=a.getMul, Out="{14,14}"},
   {Typ="Mul F1", Arg={a, .7, .7},Foo=a.getMul, Out="{0,9.8}"},
-  {Typ="Mul F2", Arg={a, a/10}  ,Foo=a.getMul, Out="{0,9.8}"}
+  {Typ="Mul F2", Arg={a, a/10}  ,Foo=a.getMul, Out="{0,9.8}"},
+  {Typ="Mul UE", Arg={a, 2, 2, true}  ,Foo=a.getMul, Out="{14,14}"}
 }
 
 tPar[4] ={
@@ -223,7 +224,8 @@ tPar[4] ={
   {Typ="Div 2" , Arg={a, 2}     ,Foo=a.__div , Out="{3.5,3.5}"},
   {Typ="Div 3" , Arg={a, 2}     ,Foo=a.getDiv, Out="{3.5,3.5}"},
   {Typ="Div F1", Arg={a, .7, .7},Foo=a.getDiv, Out="{10,0}"},
-  {Typ="Div F2", Arg={a, a/10}  ,Foo=a.getDiv, Out="{10,0}"}
+  {Typ="Div F2", Arg={a, a/10}  ,Foo=a.getDiv, Out="{10,0}"},
+  {Typ="Div UE", Arg={a, 2, 2, true}  ,Foo=a.getDiv, Out="{3.5,3.5}"}
 }
 
 tPar[5] ={
@@ -232,7 +234,8 @@ tPar[5] ={
   {Typ="Pow 2" , Arg={a, 2}     ,Foo=a.__pow , Out="{6.0005711337296e-015,98}"},
   {Typ="Pow 3" , Arg={a, 2}     ,Foo=a.getPow, Out="{6.0005711337296e-015,98}"},
   {Typ="Pow F1", Arg={a, .7, .7},Foo=a.getPow, Out="{-1.5827757183203,2.3963307116848}"},
-  {Typ="Pow F2", Arg={a, a/10}  ,Foo=a.getPow, Out="{-1.5827757183203,2.3963307116848}"}
+  {Typ="Pow F2", Arg={a, a/10}  ,Foo=a.getPow, Out="{-1.5827757183203,2.3963307116848}"},
+  {Typ="Pow UE", Arg={a, 2, 2, true}  ,Foo=a.getPow, Out="{49,49}"}
 }
 
 local t = a:getNew():Add(complex.convNew("0.5+0.5i"))
