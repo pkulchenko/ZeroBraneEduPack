@@ -630,6 +630,14 @@ function metaComplex:getMirrorLine(cS, cE)
   return self:getNew():MirrorLine(cS, cE)
 end
 
+function metaComplex:getAreaParallelogram(cE)
+  return math.abs(self:getCross(cE))
+end
+
+function metaComplex:getAreaTriangle(cE)
+  return math.abs(self:getCross(cE) / 2)
+end
+
 function complex.getAreaShoelace(...)
   local tV, nP, nN = {...}, 0, 0
   if(isType(type(tV[1]), 5)) then tV = tV[1] end
@@ -638,7 +646,7 @@ function complex.getAreaShoelace(...)
     local cB, cN = tV[ID], tV[ID+1]
     nP = nP + (cB:getReal()*cN:getImag())
     nN = nN + (cB:getImag()*cN:getReal())
-  end; return (0.5 * (nP - nN))
+  end; return math.abs(0.5 * (nP - nN))
 end
 
 function complex.getAreaHeron(...)
@@ -652,7 +660,7 @@ function complex.getAreaHeron(...)
   local nC = tV[3]:getSub(tV[1]):getNorm2()
   local nD = (4 * (nA*nB + nA*nC + nB*nC))
   local nE = ((nA + nB + nC)^2)
-  return (0.25 * math.sqrt(nD - nE))
+  return math.abs(0.25 * math.sqrt(nD - nE))
 end
 
 function metaComplex:isAmongLine(cS, cE, bF)
