@@ -223,6 +223,18 @@ function metaComplex:getMid(R, I)
   return self:getNew():Mid(R, I)
 end
 
+function metaComplex:Mean(tV)
+  local sT = type(tV); if(not isType(sT, 5)) then
+    return logStatus("complex.Mean: Mismatch "..sT, self) end
+  local nE = #tV; if(nE <= 1) then return self end
+  self:Set(tV[1]); for iD = 2, nE do self:Add(tV[iD]) end
+  self:Rsz(1/nE) return self
+end
+
+function metaComplex:getMean(tV)
+  return self:getNew():Mean(tV)
+end
+
 function metaComplex:getDist2(R, I)
   local C, D = self:getParts()
   local R, I = getUnpackStack(R, I)
@@ -1175,9 +1187,10 @@ function complex.getCatmullRomCurve(...)
   table.remove(tV, 1); table.remove(tV); return tC
 end
 
-function complex.getRegularPolygon(cO, nN, nR, nI)
-  local vD = cO:getNew(1, 0); if(nR) then vD:Set(nR, nI) end
-  local tV, nD = {cO:getNew()}, ((2*metaData.__getpi) / nN)
+function complex.getRegularPolygon(cS, nN, nR, nI)
+  local eN = (tonumber(nN) or 0)
+  local vD = cS:getNew(1, 0); if(nR) then vD:Set(nR, nI) end
+  local tV, nD = {cS:getNew()}, ((2*metaData.__getpi) / nN)
   for iD = 2, nN do tV[iD] = tV[iD-1]:getAdd(vD); vD:RotRad(nD) end; return tV
 end
 

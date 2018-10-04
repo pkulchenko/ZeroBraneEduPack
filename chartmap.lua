@@ -260,7 +260,7 @@ local function newScope(sName)
     local nE = (tonumber(nN) or #tV)
     for iD = 1, nE do local cS, cE = (tV[iD+1] or tV[1]), tV[iD]
       self:drawComplex(cS, cE, bTx, clP, clO)
-    end
+    end; return self
   end
   function self:drawPointXY(nX, nY, clNew)
     local px = moiX:Convert(nX):getValue()
