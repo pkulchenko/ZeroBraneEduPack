@@ -12,8 +12,11 @@ local tonumber     = tonumber
 local tostring     = tostring
 local setmetatable = setmetatable
 local math         = math
-local logStatus    = common.logStatus
 local isNil        = common.isNil
+local getPick      = common.getPick
+local isTable      = common.isTable
+local getClamp     = common.getClamp
+local logStatus    = common.logStatus
 local chartmap     = {}
 
 --[[
@@ -242,10 +245,10 @@ local function newScope(sName)
     local sMs, cP = tostring(sTx), xyP:getRound(0.001)
     local px, py = cP:getParts()
     local nA = xyP:getSub(0,0):getAngDeg()
-    nA = common.getPick(vA, tonumber(vA), nA)
+    nA = getPick(vA, tonumber(vA), nA)
     px = moiX:Convert(px):getValue()
     py = moiY:Convert(py):getValue()
-    sMs = sMs..common.getPick(bSp, tostring(cP), "")
+    sMs = sMs..getPick(bSp, tostring(cP), "")
     text(sMs,nA,px,py); return self
   end
   function self:drawComplexPoint(xyP, clNew, bTx)
@@ -256,11 +259,17 @@ local function newScope(sName)
       pncl(clNew or mclPos); rect(px-mnPs,py-mnPs,sz,sz) end
     return self
   end
-  function self:drawComplexPolygon(tV, bTx, clP, clO, nN)
-    local nE = (tonumber(nN) or #tV)
+  function self:drawComplexPolygon(tV, bTx, clP, clO, nN, bO)
+    if(not isTable(tV)) then
+      return logStatus("newCoordSys.drawComplexPolygon: Skip", self) end
+    local nL = #tV -- Store the length to avoid counting again
+    local nE = getClamp(math.floor(tonumber(nN) or nL), 1, nL)
     for iD = 1, nE do local cS, cE = (tV[iD+1] or tV[1]), tV[iD]
       self:drawComplex(cS, cE, bTx, clP, clO)
-    end; return self
+    end;
+    if(not bO and nE < nL) then
+      self:drawComplex(tV[1], tV[nE+1], bTx, clP, clO) end
+    return self
   end
   function self:drawPointXY(nX, nY, clNew)
     local px = moiX:Convert(nX):getValue()
@@ -270,33 +279,33 @@ local function newScope(sName)
     return self
   end
   function self:drawGraph(tY, tX)
-    if(not common.isTable(tY)) then
-      logStatus("newCoordSys.plotGraph: Skip", self) end
+    if(not isTable(tY)) then
+      return logStatus("newCoordSys.plotGraph: Skip", self) end
     local ntY, bX, ntX, toP = #tY, false
-    if(common.isTable(tX)) then ntX, bX = #tX, true
+    if(isTable(tX)) then ntX, bX = #tX, true
       if(ntX ~= ntY) then
         logStatus("newCoordSys.plotGraph: Shorter <" ..ntX..","..ntY..">")
         toP = math.min(ntX, ntY) else toP = ntY end
     else toP, bX = ntY, false end
     local trA, vX = newTracer("plotGraph"):setInterval(moiX, moiY)
     for iD = 1, toP do
-      vX = common.getPick(bX, tX and tX[iD], iD)
+      vX = getPick(bX, tX and tX[iD], iD)
       trA:putValue(vX, tY[iD]):Draw(mclDir, mnPs)
     end; self:drawPointXY(vX, tY[toP], mclDir)
     return self
   end
   function self:drawStem(tY, tX)
-    if(not common.isTable(tY)) then
-      logStatus("newCoordSys.plotGraph: Skip", self) end
+    if(not isTable(tY)) then
+      return logStatus("newCoordSys.plotGraph: Skip", self) end
     local ntY, bX, ntX, toP = #tY, false
-    if(common.isTable(tX)) then ntX, bX = #tX, true
+    if(isTable(tX)) then ntX, bX = #tX, true
       if(ntX ~= ntY) then
         logStatus("newCoordSys.plotGraph: Shorter <" ..ntX..","..ntY..">")
         toP = math.min(ntX, ntY) else toP = ntY end
     else toP, bX = ntY, false end; local vX
     local zY = moiY:Convert(0):getValue()
     for iD = 1, toP do
-      vX = common.getPick(bX, tX and tX[iD], iD)
+      vX = getPick(bX, tX and tX[iD], iD)
       local nX = moiX:Convert(vX):getValue()
       local nY = moiY:Convert(tY[iD]):getValue()
       pncl(mclDir); line(nX, nY, nX, zY)

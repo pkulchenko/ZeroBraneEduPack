@@ -19,7 +19,7 @@ local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, min
       scOpe:setSize(W, H):setColor(clBlk, clGry):setDelta(dX, dY)
       
 local cO = complex.getNew()
-local tV = complex.getRegularPolygon(cO, 5, 2)
+local tV = complex.getRegularPolygon(cO, 5, 3)
 local cM = cO:getMean(tV); for i = 1, #tV do tV[i]:Sub(cM) end
 if(tV) then
   common.logStatus("The distance between every grey line on X is: "..tostring(dX))
