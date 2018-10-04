@@ -757,12 +757,12 @@ end
 function metaComplex:getRoots(nNm)
   local nN = math.floor(tonumber(nNm) or 0)
   if(nN > 0) then local tRt = {}
-    local nPw, dA  = (1 / nN), ((2*metaData.__getpi) / nN)
+    local nPw, nA  = (1 / nN), ((2*metaData.__getpi) / nN)
     local nRa = self:getNorm()   ^ nPw
     local nAn = self:getAngRad() * nPw
     for k = 1, nN do
       local cRe, cIm = (nRa * math.cos(nAn)), (nRa * math.sin(nAn))
-      tRt[k], nAn = self:getNew(cRe,cIm), (nAn + dA)
+      tRt[k], nAn = self:getNew(cRe,cIm), (nAn + nA)
     end; return tRt
   end; return logStatus("complex.getRoots: Invalid <"..nN..">")
 end
@@ -1173,6 +1173,12 @@ function complex.getCatmullRomCurve(...)
     for iK = 1, #tS do tC[iC] = tS[iK]; iC = (iC + 1) end
   end; tC[iC] = tV[nV-1]:getNew()
   table.remove(tV, 1); table.remove(tV); return tC
+end
+
+function complex.getRegularPolygon(cO, nN, nR, nI)
+  local vD = cO:getNew(1, 0); if(nR) then vD:Set(nR, nI) end
+  local tV, nD = {cO:getNew()}, ((2*metaData.__getpi) / nN)
+  for iD = 2, nN do tV[iD] = tV[iD-1]:getAdd(vD); vD:RotRad(nD) end; return tV
 end
 
 return complex

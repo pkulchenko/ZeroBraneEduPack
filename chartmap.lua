@@ -236,7 +236,7 @@ local function newScope(sName)
     end return self
   end
   function self:drawComplexLine(xyS, xyE, bTx)
-    self:drawComplex(xyS, xyE, bTx, mclOrg, mclOrg); return self
+    return self:drawComplex(xyS, xyE, bTx, mclOrg, mclOrg)
   end
   function self:drawComplexText(xyP, sTx, bSp, vA)
     local sMs, cP = tostring(sTx), xyP:getRound(0.001)
@@ -255,6 +255,12 @@ local function newScope(sName)
     if(mnPs > 0) then local sz = 2*mnPs+1
       pncl(clNew or mclPos); rect(px-mnPs,py-mnPs,sz,sz) end
     return self
+  end
+  function self:drawComplexPolygon(tV, bTx, clP, clO, nN)
+    local nE = (tonumber(nN) or #tV)
+    for iD = 1, nE do local cS, cE = (tV[iD+1] or tV[1]), tV[iD]
+      self:drawComplex(cS, cE, bTx, clP, clO)
+    end
   end
   function self:drawPointXY(nX, nY, clNew)
     local px = moiX:Convert(nX):getValue()
