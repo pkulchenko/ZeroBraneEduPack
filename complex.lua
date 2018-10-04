@@ -321,7 +321,7 @@ function metaComplex:getExp(cP)
   return self:getNew():Exp(cP)
 end
 
-function metaComplex:Eps(nE)
+function metaComplex:Margin(nE)
   local nR, nI = self:getParts()
   local nM = (tonumber(nE) or metaData.__margn)
   if(math.abs(nR) < nM) then nR = 0 end
@@ -329,8 +329,8 @@ function metaComplex:Eps(nE)
   return self:Set(nR, nI)
 end
 
-function metaComplex:getEps(nE)
-  return self:getNew():Exp(nE)
+function metaComplex:getMargin(nE)
+  return self:getNew():Margin(nE)
 end
 
 function metaComplex:Bisect(cD)
