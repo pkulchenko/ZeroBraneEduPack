@@ -338,7 +338,7 @@ function metaComplex:Bisect(cD)
 end
 
 function metaComplex:getBisect(cD)
-  local nA = self:getAngRad(cD)
+  return self:getNew():Bisect(cD)
 end
 
 function metaComplex:Sin()
