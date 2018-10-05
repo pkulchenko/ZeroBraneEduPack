@@ -30,15 +30,10 @@ local c5 = complex.getNew(  5, -5)
 local c6 = complex.getNew( 15, 15)
 
 -- These calls produce the same curve for interpolation length <n-samples> and power <alpha>
--- The key <kK> can be any of these {"n","N","cnt","CNT","count", "","*"}
 -- The default curve interpolation sample count is 100
 -- The default curve power interpolation coefficient <alpha> is 0.5
--- local tC = complex.getCatmullRomCurve( p1, p2, ..., pn) < Uses the default interpolation length and power
--- local tC = complex.getCatmullRomCurve( p1, p2, ..., pn, n-samples) < Uses the default power
 -- local tC = complex.getCatmullRomCurve( p1, p2, ..., pn, n-samples, alpha)
 -- local tC = complex.getCatmullRomCurve({p1, p2, ..., pn}, n-samples, alpha)
--- local tC = complex.getCatmullRomCurve({p1, p2, ..., pn,[kK]=n-samples}, alpha)
--- local tC = complex.getCatmullRomCurve({p1, p2, ..., pn,["banana"]=7}, n-samples, alpha)
 
 local tc = {c1,c2,c3,c4,c5,c6}
 local tC = complex.getCatmullRomCurve(tc,15,0.1)

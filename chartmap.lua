@@ -229,8 +229,8 @@ local function newScope(sName)
     px = moiX:Convert(px):getValue()
     py = moiY:Convert(py):getValue()
     if(mnPs > 0) then local sz = 2*mnPs+1
-      pncl(clP or mclPos); rect(px-mnPs,py-mnPs,sz,sz)
       pncl(clO or mclOrg); rect(ox-mnPs,oy-mnPs,sz,sz)
+      pncl(clP or mclPos); rect(px-mnPs,py-mnPs,sz,sz)
     end
     pncl(mclDir); line(px, py, ox, oy)
     if(bTx) then pncl(mclDir);

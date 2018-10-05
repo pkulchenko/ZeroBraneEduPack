@@ -23,16 +23,13 @@ local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, min
       scOpe:setSize(W, H):setColor(clBlk, clGry):setDelta(dX, dY)
 
 -- These calls produce the same curve for interpolation length <n-samples>
--- The key <kK> can be any of these {"n","N","cnt","Cnt","*"}.
 -- The default curve interpolation sample count is 100
--- local tS = complex.getBezierCurve( p1, p2, ..., pn) < Uses the default interpolation length
+-- local tS = complex.getBezierCurve( p1, p2, ..., pn) < Uses the default interpolation count
 -- local tS = complex.getBezierCurve( p1, p2, ..., pn,n-samples)
 -- local tS = complex.getBezierCurve({p1, p2, ..., pn},n-samples)
--- local tS = complex.getBezierCurve({p1, p2, ..., pn,[kK]=n-samples})
--- local tS = complex.getBezierCurve({p1, p2, ..., pn,[kK]=7},n-samples)
--- local tS = complex.getBezierCurve({p1, p2, ..., pn,[banana]=7},nil) < Uses the default interpolation length
+
 local tp = {p1,p2,p3,p4}
-local tS = complex.getBezierCurve(tp,20)
+local tS = complex.getBezierCurve(tp,30)
 
 if(tS) then
   common.logStatus("The distance between every grey line on X is: "..tostring(dX))

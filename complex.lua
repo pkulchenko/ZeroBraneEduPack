@@ -75,7 +75,7 @@ function complex.getNew(nRe, nIm)
   self = {}; setmetatable(self, metaComplex)
   local Re = tonumber(nRe) or metaData.__valre
   local Im = tonumber(nIm) or metaData.__valim
-  
+
   if(complex.isValid(nRe)) then Re, Im = nRe:getParts() end
 
   function self:setReal(R)  Re = (tonumber(R) or metaData.__valre); return self end
@@ -509,7 +509,7 @@ function metaComplex:getArcCotgH()
   return self:getNew():ArcCotgH()
 end
 
-function metaComplex:Log(nK)  
+function metaComplex:Log(nK)
   local P, R, T = metaData.__getpi, self:getPolar()
   return self:setReal(math.log(R)):setImag(T+2*(tonumber(nK) or 0)*P)
 end
@@ -1114,6 +1114,18 @@ function complex.convNew(vIn, ...)
   return logStatus("complex.convNew: Type <"..tyIn.."> not supported",nil)
 end
 
+local function getUnpackSplit(...)
+  local tA, tC, nC, iC = {...}, {}, 0, 1
+  if(complex.isValid(tA[1])) then
+    while(complex.isValid(tA[1])) do tC[iC] = tA[1]
+      table.remove(tA, 1); iC = iC + 1
+    end; nC = (iC-1)
+  else
+    if(isType(type(tA[1]), 5)) then
+      tC = tA[1]; nC = #tA[1]; table.remove(tA, 1); end
+  end; return tC, nC, unpack(tA)
+end
+
 local function getBezierCurveVertexRec(nS, tV)
   local tD, tP, nD = {}, {}, (#tV-1)
   for ID = 1, nD do tD[ID] = tV[ID+1]:getNew():Sub(tV[ID]) end
@@ -1123,20 +1135,9 @@ local function getBezierCurveVertexRec(nS, tV)
 end
 
 function complex.getBezierCurve(...)
-  local tV = {...}; local nV, nT, nC = #tV, 0, metaData.__curve
-  if(complex.isValid(tV[1])) then local iL = nV
-    while(not complex.isValid(tV[iL])) do
-      iL = (iL - 1) end; iL = iL + 1 -- First non-complex
-    nT = tonumber(tV[iL]); nT = getPick(nT, nT, nC)
-    for iK = iL, nV do tV[iK] = nil end; nV = #tV
-  else if(not isType(type(tV[1]), 5)) then
-    return logStatus("complex.getBezierCurve: Argument not table or complex",nil) end
-    local kN = getValueKeys(tV[1], metaData.__kurve)
-    local nI, nO = tonumber(kN), tonumber(tV[2])
-    nT = getPick(nO, nO, getPick(nI, nI, nC))
-    for iK = 2, nV do tV[iK] = nil end; tV = tV[1]; nV = #tV
-  end; nT = math.floor(nT); if(nT < 2) then
-    return logStatus("complex.getBezierCurve: Curve samples not enough",nil) end
+  local tV, nV, nT = getUnpackSplit(...)
+  nT = math.floor(tonumber(nT) or metaData.__curve); if(nT < 2) then
+    return logStatus(complex.getBezierCurve..": Curve samples not enough",nil) end
   if(not (tV[1] and tV[2])) then
     return logStatus("complex.getBezierCurve: Two vertexes are needed",nil) end
   if(not complex.isValid(tV[1])) then
@@ -1172,20 +1173,8 @@ local function catmullromSegment(cP0, cP1, cP2, cP3, nN, nA)
 end
 
 function complex.getCatmullRomCurve(...)
-  local tV = {...}; local nV, nT, nA, nC = #tV, 0, 0, metaData.__curve
-  if(complex.isValid(tV[1])) then local iL = nV
-    while(not complex.isValid(tV[iL])) do
-      iL = (iL - 1) end; iL = iL + 1 -- First non-complex
-    nT = tonumber(tV[iL])  ; nT = getPick(nT, nT, nC)
-    nA = tonumber(tV[iL+1]); nT = getPick(nA, nA, nil)
-    while(tV[iL]) do tV[iL] = nil; iL = (iL + 1) end
-  else if(not isType(type(tV[1]), 5)) then
-    return logStatus("complex.getCatmullRomCurve: Argument not table or complex",nil) end
-    local kN = getValueKeys(tV[1], metaData.__kurve); if(kN) then
-      nT, nA = tonumber(kN), tonumber(tV[2]); nT = getPick(nT, nT, nC)
-    else nT, nA = tonumber(tV[2]), tonumber(tV[3]); nT = getPick(nT, nT, nC) end
-    for iL = 2, nV do tV[iL] = nil end; tV = tV[1]; nV = #tV
-  end; nT = math.floor(nT); if(nT < 2) then
+  local tV, nV, nT, nA = getUnpackSplit(...)
+  nT = math.floor(tonumber(nT) or metaData.__curve); if(nT < 2) then
     return logStatus("complex.getCatmullRomCurve: Curve samples not enough",nil) end
   if(not (tV[1] and tV[2])) then
     return logStatus("complex.getCatmullRomCurve: Two vertexes are needed",nil) end
@@ -1205,11 +1194,76 @@ function complex.getCatmullRomCurve(...)
 end
 
 function complex.getRegularPolygon(cS, nN, nR, nI)
-  local eN = (tonumber(nN) or 0); if(eN <= 0) then 
+  local eN = (tonumber(nN) or 0); if(eN <= 0) then
     return logStatus("complex.getRegularPolygon: Vertexes #"..tostring(nN),nil) end
   local vD = cS:getNew(1, 0); if(nR) then vD:Set(nR, nI) end
   local tV, nD = {cS:getNew()}, ((2*metaData.__getpi) / eN)
   for iD = 2, eN do tV[iD] = tV[iD-1]:getAdd(vD); vD:RotRad(nD) end; return tV
+end
+
+function metaComplex:AltitudeCenter(...)
+  local tO, tI, tV, nV = {}, {}, getUnpackSplit(...)
+  for iD = 1, nV do local cP, cN = (tV[iD+1] or tV[1]), (tV[iD-1] or tV[nV])
+    tO[iD] = tV[iD]:getProjectLine(cP, cN) end
+  for iD = 1, nV do local nN = (tV[iD+1] and (iD+1) or 1)
+    local dC, dN = tO[iD]:getSub(tV[iD]), tO[nN]:getSub(tV[nN])
+    tI[iD] = complex.getIntersectRayRay(tV[iD], dC, tV[nN], dN) end
+  return self:Mean(tI)
+end
+
+function metaComplex:getAltitudeCenter(...)
+  return self:getNew():AltitudeCenter(...)
+end
+
+function metaComplex:MedianCenter(...)
+  local tO, tI, tV, nV = {}, {}, getUnpackSplit(...)
+  for iD = 1, nV do tO[iD] = (tV[iD+1] or tV[1]):getMid(tV[iD-1] or tV[nV]) end
+  for iD = 1, nV do local nN = (tV[iD+1] and (iD+1) or 1)
+    local dC, dN = tO[iD]:getSub(tV[iD]), tO[nN]:getSub(tV[nN])
+    tI[iD] = complex.getIntersectRayRay(tV[iD], dC, tV[nN], dN) end
+  return self:Mean(tI)
+end
+
+function metaComplex:getMedianCenter(...)
+  return self:getNew():MedianCenter(...)
+end
+
+function metaComplex:InnerCircleCenter(...)
+  local tO, tI, tV, nV = {}, {}, getUnpackSplit(...)
+  local dC, dN = self:getNew(), self:getNew()
+  for iD = 1, nV do
+    dC:Set(tV[iD-1] or tV[nV]):Sub(tV[iD])
+    dN:Set(tV[iD+1] or tV[ 1]):Sub(tV[iD])
+    tO[iD] = dC:getBisect(dN)
+  end
+  for iD = 1, nV do local nN = (tV[iD+1] and (iD+1) or 1)
+    tI[iD] = complex.getIntersectRayRay(tV[iD], tO[iD], tV[nN], tO[nN]) end
+  return self:Mean(tI)
+end
+
+function metaComplex:getInnerCircleCenter(...)
+  self:getNew():InnerCircleCenter(...)
+end
+
+function metaComplex:OuterCircleCenter(...)
+  local tO, tI, tV, nV = {}, {}, getUnpackSplit(...)
+  for iD = 1, nV do tO[iD] = tV[iD]:getMid(tV[iD+1] or tV[1]) end
+  for iD = 1, nV do local nN = (tV[iD+1] and (iD+1) or 1)
+    local dC, dN = tO[iD]:getSub(tV[iD]):Right(), tO[nN]:getSub(tV[nN]):Right()
+    tI[iD] = complex.getIntersectRayRay(tO[iD], dC, tO[nN], dN)
+  end; return self:Mean(tI)
+end
+
+function metaComplex:getOuterCircleCenter(...)
+  return self:getNew():OuterCircleCenter(...)
+end
+
+function metaComplex:MidcircleCenter(...)
+  return self -- TO DO
+end
+
+function metaComplex:getMidcircleCenter(...)
+  return self:getNew():MidcircleCenter(...)
 end
 
 return complex
