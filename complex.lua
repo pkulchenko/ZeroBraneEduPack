@@ -20,7 +20,7 @@ local metaData     = {}
 local isNil           = common.isNil
 local getPick         = common.getPick
 local getSign         = common.getSign
-local roundValue      = common.getRound
+local getRound        = common.getRound
 local getClamp        = common.getClamp
 local isString        = common.isString
 local isType          = common.isType
@@ -333,6 +333,15 @@ function metaComplex:getExp(cP)
   return self:getNew():Exp(cP)
 end
 
+function metaComplex:AddPythagor(R, I)
+  local cP = self:getNew(R, I)
+  return self:Pow(2):Add(cP:Pow(2)):Pow(0.5)
+end
+
+function metaComplex:getAddPythagor(cP)
+  return self:getNew():AddPythagor(cP)
+end
+
 function metaComplex:Margin(nE)
   local nR, nI = self:getParts()
   local nM = (tonumber(nE) or metaData.__margn)
@@ -551,7 +560,7 @@ end
 
 function metaComplex:Round(nF)
   local R, I = self:getParts()
-  return self:setReal(roundValue(R, nF)):setImag(roundValue(I, nF))
+  return self:setReal(getRound(R, nF)):setImag(getRound(I, nF))
 end
 
 function metaComplex:getRound(nP)
