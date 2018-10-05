@@ -20,14 +20,15 @@ local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, min
       
 local cO = complex.getNew()
 local tV = complex.getRegularPolygon(cO, 5, 3)
-local cM = cO:getMean(tV); for i = 1, #tV do tV[i]:Sub(cM) end
 if(tV) then
+  
   common.logStatus("The distance between every grey line on X is: "..tostring(dX))
   common.logStatus("The distance between every grey line on Y is: "..tostring(dY))
 
   open("Complex regular polygon")
   size(W,H); zero(0, 0); updt(false) -- disable auto updates
 
+  local cM = cO:Mean(tV); for i = 1, #tV do tV[i]:Sub(cM) end
   scOpe:Draw(true, true, true):drawComplexPolygon(tV)
 
   wait()

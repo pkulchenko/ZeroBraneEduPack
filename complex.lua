@@ -1196,10 +1196,11 @@ function complex.getCatmullRomCurve(...)
 end
 
 function complex.getRegularPolygon(cS, nN, nR, nI)
-  local eN = (tonumber(nN) or 0)
+  local eN = (tonumber(nN) or 0); if(eN <= 0) then 
+    return logStatus("complex.getRegularPolygon: Vertexes #"..tostring(nN),nil) end
   local vD = cS:getNew(1, 0); if(nR) then vD:Set(nR, nI) end
-  local tV, nD = {cS:getNew()}, ((2*metaData.__getpi) / nN)
-  for iD = 2, nN do tV[iD] = tV[iD-1]:getAdd(vD); vD:RotRad(nD) end; return tV
+  local tV, nD = {cS:getNew()}, ((2*metaData.__getpi) / eN)
+  for iD = 2, eN do tV[iD] = tV[iD-1]:getAdd(vD); vD:RotRad(nD) end; return tV
 end
 
 return complex
