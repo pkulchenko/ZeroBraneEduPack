@@ -226,7 +226,7 @@ function metaComplex:Mean(tV)
   local sT = type(tV); if(not isType(sT, 5)) then
     return logStatus("complex.Mean: Mismatch "..sT, self) end
   local nE = #tV; if(nE <= 1) then return self end
-  self:Set(tV[1]); for iD = 2, nE do self:Add(tV[iD]) end
+  self:Set(); for iD = 1, nE do self:Add(tV[iD]) end
   self:Rsz(1/nE) return self
 end
 
@@ -904,6 +904,10 @@ function complex.getIntersectRayLine(cO, cD, cS, cE)
   return complex.getIntersectRayRay(cO, cD, cS, cE:getSub(cS))
 end
 
+function complex.getIntersectLineLine(cS1, cE1, cS2, cE2)
+  return complex.getIntersectRayRay(cS1, cE1:getSub(cS1), cS2, cE2:getSub(cS2))
+end
+
 function complex.getIntersectRayCircle(cO, cD, cC, nR)
   local nA = cD:getNorm2(); if(nA <= metaData.__margn) then
     return logStatus("complex.getIntersectRayCircle: Norm less than margin", nil) end
@@ -1200,7 +1204,18 @@ function complex.getRegularPolygon(cS, nN, nR, nI)
   for iD = 2, eN do tV[iD] = tV[iD-1]:getAdd(vD); vD:RotRad(nD) end; return tV
 end
 
-function metaComplex:AltitudeCenter(...)
+function metaComplex:Center(...)
+  local tV, nV = getUnpackSplit(...)
+  local tI, tN, iK, tO = {}, {S = tV[nV], E = tV[1]}, 0
+  for iD = 1, nV do local cC, cN = tV[iD], (tV[iD+1] or tV[1])
+    tO = tN; tN = {S = cC, E = cN}; iK = (iK + 1)
+    local nM, nD = tN.E:getMid(tN.S), tN.E:getSub(tN.S):Right()
+    local oM, oD = tO.E:getMid(tO.S), tO.E:getSub(tO.S):Right()
+    tI[iK] = complex.getIntersectRayRay(nM, nD, oM, oD)
+  end; return self:Mean(tI)
+end
+
+function metaComplex:CenterAltitude(...)
   local tO, tI, tV, nV = {}, {}, getUnpackSplit(...)
   for iD = 1, nV do local cP, cN = (tV[iD+1] or tV[1]), (tV[iD-1] or tV[nV])
     tO[iD] = tV[iD]:getProjectLine(cP, cN) end
@@ -1210,11 +1225,11 @@ function metaComplex:AltitudeCenter(...)
   return self:Mean(tI)
 end
 
-function metaComplex:getAltitudeCenter(...)
-  return self:getNew():AltitudeCenter(...)
+function metaComplex:getCenterAltitude(...)
+  return self:getNew():CenterAltitude(...)
 end
 
-function metaComplex:MedianCenter(...)
+function metaComplex:CenterMedian(...)
   local tO, tI, tV, nV = {}, {}, getUnpackSplit(...)
   for iD = 1, nV do tO[iD] = (tV[iD+1] or tV[1]):getMid(tV[iD-1] or tV[nV]) end
   for iD = 1, nV do local nN = (tV[iD+1] and (iD+1) or 1)
@@ -1223,11 +1238,11 @@ function metaComplex:MedianCenter(...)
   return self:Mean(tI)
 end
 
-function metaComplex:getMedianCenter(...)
-  return self:getNew():MedianCenter(...)
+function metaComplex:getCenterMedian(...)
+  return self:getNew():CenterMedian(...)
 end
 
-function metaComplex:InnerCircleCenter(...)
+function metaComplex:CenterInnerCircle(...)
   local tO, tI, tV, nV = {}, {}, getUnpackSplit(...)
   local dC, dN = self:getNew(), self:getNew()
   for iD = 1, nV do
@@ -1240,29 +1255,31 @@ function metaComplex:InnerCircleCenter(...)
   return self:Mean(tI)
 end
 
-function metaComplex:getInnerCircleCenter(...)
-  self:getNew():InnerCircleCenter(...)
+function metaComplex:getCenterInnerCircle(...)
+  return self:getNew():CenterInnerCircle(...)
 end
 
-function metaComplex:OuterCircleCenter(...)
-  local tO, tI, tV, nV = {}, {}, getUnpackSplit(...)
-  for iD = 1, nV do tO[iD] = tV[iD]:getMid(tV[iD+1] or tV[1]) end
-  for iD = 1, nV do local nN = (tV[iD+1] and (iD+1) or 1)
-    local dC, dN = tO[iD]:getSub(tV[iD]):Right(), tO[nN]:getSub(tV[nN]):Right()
-    tI[iD] = complex.getIntersectRayRay(tO[iD], dC, tO[nN], dN)
-  end; return self:Mean(tI)
+function metaComplex:CenterOuterCircle(...)
+  local tV, nV = getUnpackSplit(...); return self:Center(tV)
 end
 
-function metaComplex:getOuterCircleCenter(...)
-  return self:getNew():OuterCircleCenter(...)
+function metaComplex:getCenterOuterCircle(...)
+  return self:getNew():CenterOuterCircle(...)
 end
 
-function metaComplex:MidcircleCenter(...)
-  return self -- TO DO
+function metaComplex:CenterMidcircle(...)
+  local cH = self:getCenterAltitude(...)
+  local tI, tV, nV = {}, getUnpackSplit(...)
+  for iD = 1, nV do local iG = (3*(iD-1)+1)
+    local cP, cN = (tV[iD+1] or tV[1]), (tV[iD-1] or tV[nV])
+    tI[iG  ] = tV[iD]:getProjectLine(cP, cN)
+    tI[iG+1] = cP:getMid(cN)
+    tI[iG+2] = cH:getMid(tV[iD])
+  end; return self:Center(tI)
 end
 
-function metaComplex:getMidcircleCenter(...)
-  return self:getNew():MidcircleCenter(...)
+function metaComplex:getCenterMidcircle(...)
+  return self:getNew():CenterMidcircle(...)
 end
 
 return complex

@@ -33,11 +33,14 @@ if(tV) then
 
   local cM = cO:Mean(tV); for i = 1, #tV do tV[i]:Sub(cM) end
   scOpe:Draw(true, true, true):drawComplexPolygon(tV)
-  scOpe:drawComplex(cO:AltitudeCenter(tV))
-  scOpe:setColorPos(clB):drawComplex(cO:MedianCenter(tV))
-  scOpe:setColorPos(clM):drawComplex(cO:InnerCircleCenter(tV))
-  scOpe:setColorPos(clC):drawComplex(cO:OuterCircleCenter(tV))
-  scOpe:setColorPos(clY):drawComplex(cO:MidcircleCenter(tV))
+  scOpe:drawComplex(cO:CenterAltitude(tV))
+  scOpe:setColorPos(clB):drawComplex(cO:CenterMedian(tV))
+  scOpe:setColorPos(clM):setColorDir(clM):setColorOrg(clM)
+  scOpe:drawComplex(cO:CenterInnerCircle(tV)):drawCircle(cO, cO:getProjectLine(tV[1], tV[2]):Sub(cO):getNorm())
+  scOpe:setColorPos(clC):setColorDir(clC):setColorOrg(clC)
+  scOpe:drawComplex(cO:CenterOuterCircle(tV)):drawCircle(cO, cO:getSub(tV[1]):getNorm())
+  scOpe:setColorPos(clR):setColorDir(clR):setColorOrg(clR)
+  scOpe:drawComplex(cO:CenterMidcircle(tV)):drawCircle(cO, tV[1]:getMid(tV[2]):Sub(cO):getNorm())
   wait()
 else
   common.logStatus("Your poly parameters are invalid !")

@@ -271,6 +271,15 @@ local function newScope(sName)
       self:drawComplex(tV[1], tV[nE+1], bTx, clP, clO) end
     return self
   end
+  function self:drawComplexPointSet(tV, clNew, bTx, nN)
+    if(not isTable(tV)) then
+      return logStatus("newCoordSys.drawComplexPointSet: Skip", self) end
+    local nL = #tV -- Store the length to avoid counting again
+    local nE = getClamp(math.floor(tonumber(nN) or nL), 1, nL)
+    for iD = 1, nE do
+      self:drawComplexPoint(tV[iD], clNew, bTx)
+    end; return self
+  end
   function self:drawPointXY(nX, nY, clNew)
     local px = moiX:Convert(nX):getValue()
     local py = moiY:Convert(nY):getValue()
