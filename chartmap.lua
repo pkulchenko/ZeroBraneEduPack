@@ -16,6 +16,7 @@ local isNil        = common.isNil
 local getPick      = common.getPick
 local isTable      = common.isTable
 local getClamp     = common.getClamp
+local getRound     = common.getRound
 local logStatus    = common.logStatus
 local chartmap     = {}
 
@@ -200,18 +201,18 @@ local function newScope(sName)
     return self
   end
   function self:Draw(bMx, bMy, bGrd)
-    local xe = moiX:Convert(midX):getValue()
-    local ye = moiY:Convert(midY):getValue()
+    local xe = getRound(moiX:Convert(midX):getValue(),1)
+    local ye = getRound(moiY:Convert(midY):getValue(),1)
     if(bGrd) then pncl(mcldXY); local nK
       nK = 0; for x = midX, maxX, mdX do
-        local xp = moiX:Convert(midX + nK * mdX):getValue()
-        local xm = moiX:Convert(midX - nK * mdX):getValue()
+        local xp = getRound(moiX:Convert(midX + nK * mdX):getValue(),1)
+        local xm = getRound(moiX:Convert(midX - nK * mdX):getValue(),1)
         nK = nK + 1; if(not bMy or x ~= midX) then
           line(xp, 0, xp, mnH); line(xm, 0, xm, mnH) end
       end
       nK = 0; for y = midY, maxY, mdY do
-        local yp = moiY:Convert(midY + nK * mdY):getValue()
-        local ym = moiY:Convert(midY - nK * mdY):getValue()
+        local yp = getRound(moiY:Convert(midY + nK * mdY):getValue(),1)
+        local ym = getRound(moiY:Convert(midY - nK * mdY):getValue(),1)
         nK = nK + 1; if(not bMx or y ~= midY) then
           pncl(mcldXY); line(0, yp, mnW, yp); line(0, ym, mnW, ym) end
       end
@@ -224,10 +225,10 @@ local function newScope(sName)
     local ox, oy, px, py = 0, 0, 0, 0
     if(xyO) then ox, oy = xyO:getParts() end
     px, py = xyP:getParts()
-    ox = moiX:Convert(ox):getValue()
-    oy = moiY:Convert(oy):getValue()
-    px = moiX:Convert(px):getValue()
-    py = moiY:Convert(py):getValue()
+    ox = getRound(moiX:Convert(ox):getValue(),1)
+    oy = getRound(moiY:Convert(oy):getValue(),1)
+    px = getRound(moiX:Convert(px):getValue(),1)
+    py = getRound(moiY:Convert(py):getValue(),1)
     if(mnPs > 0) then local sz = 2*mnPs+1
       pncl(clO or mclOrg); rect(ox-mnPs,oy-mnPs,sz,sz)
       pncl(clP or mclPos); rect(px-mnPs,py-mnPs,sz,sz)
@@ -242,19 +243,19 @@ local function newScope(sName)
     return self:drawComplex(xyS, xyE, bTx, mclOrg, mclOrg)
   end
   function self:drawComplexText(xyP, sTx, bSp, vA)
-    local sMs, cP = tostring(sTx), xyP:getRound(1)
+    local sMs, cP = tostring(sTx), xyP:getRound(0.001)
     local px, py = cP:getParts()
     local nA = xyP:getSub(0,0):getAngDeg()
     nA = getPick(vA, tonumber(vA), nA)
-    px = moiX:Convert(px):getValue()
-    py = moiY:Convert(py):getValue()
+    px = getRound(moiX:Convert(px):getValue(),1)
+    py = getRound(moiY:Convert(py):getValue(),1)
     sMs = sMs..getPick(bSp, tostring(cP), "")
     text(sMs,nA,px,py); return self
   end
   function self:drawComplexPoint(xyP, clNew, bTx)
     local px, py = xyP:getParts()
-    px = moiX:Convert(px):getValue()
-    py = moiY:Convert(py):getValue()
+    px = getRound(moiX:Convert(px):getValue(),1)
+    py = getRound(moiY:Convert(py):getValue(),1)
     if(mnPs > 0) then local sz = 2*mnPs+1
       pncl(clNew or mclPos); rect(px-mnPs,py-mnPs,sz,sz) end
     return self
@@ -281,8 +282,8 @@ local function newScope(sName)
     end; return self
   end
   function self:drawPointXY(nX, nY, clNew)
-    local px = moiX:Convert(nX):getValue()
-    local py = moiY:Convert(nY):getValue()
+    local px = getRound(moiX:Convert(nX):getValue(),1)
+    local py = getRound(moiY:Convert(nY):getValue(),1)
     if(mnPs > 0) then local sz = 2*mnPs+1
       pncl(clNew or mclPos); rect(px-mnPs,py-mnPs,sz,sz) end
     return self
@@ -312,11 +313,11 @@ local function newScope(sName)
         logStatus("newCoordSys.plotGraph: Shorter <" ..ntX..","..ntY..">")
         toP = math.min(ntX, ntY) else toP = ntY end
     else toP, bX = ntY, false end; local vX
-    local zY = moiY:Convert(0):getValue()
+    local zY = getRound(moiY:Convert(0):getValue(),1)
     for iD = 1, toP do
       vX = getPick(bX, tX and tX[iD], iD)
-      local nX = moiX:Convert(vX):getValue()
-      local nY = moiY:Convert(tY[iD]):getValue()
+      local nX = getRound(moiX:Convert(vX):getValue(),1)
+      local nY = getRound(moiY:Convert(tY[iD]):getValue(),1)
       pncl(mclDir); line(nX, nY, nX, zY)
       if(mnPs > 0) then local sz = 2*mnPs+1
         pncl(mclPos) rect(nX-mnPs,nY-mnPs,sz,sz) end
@@ -325,8 +326,8 @@ local function newScope(sName)
   end
   function self:drawOval(nX, nY, rX, rY)
     local px, py = (tonumber(nX) or 0), (tonumber(nY) or 0)
-    px = moiX:Convert(px):getValue()
-    py = moiY:Convert(py):getValue()
+    px = getRound(moiX:Convert(px):getValue(),1)
+    py = getRound(moiY:Convert(py):getValue(),1)
     local rx, ry = (tonumber(rX) or 0), (tonumber(rY) or 0)
           rx, ry = (rX * (pxX / mdX)), (rY * (pxY / mdY))
     if(mnPs > 0) then local sz = 2*mnPs+1
@@ -334,7 +335,7 @@ local function newScope(sName)
     pncl(mclDir); oval(px, py, rx, ry); return self
   end
   function self:drawComplexOval(xyP, rX, rY)
-    self:drawOval(xyP:getReal(), xyP:getImag(), rX, rY)
+    return self:drawOval(xyP:getReal(), xyP:getImag(), rX, rY)
   end
   function self:drawComplexCircle(xyP, rR)
     return self:drawComplexOval(xyP, rR, rR)

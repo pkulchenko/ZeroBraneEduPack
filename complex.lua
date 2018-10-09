@@ -343,7 +343,7 @@ end
 
 function metaComplex:Margin(nE)
   local nR, nI = self:getParts()
-  local nM = (tonumber(nE) or metaData.__margn)
+  local nM = math.abs(tonumber(nE) or metaData.__margn)
   if(math.abs(nR) < nM) then nR = 0 end
   if(math.abs(nI) < nM) then nI = 0 end
   return self:Set(nR, nI)
@@ -354,7 +354,11 @@ function metaComplex:getMargin(nE)
 end
 
 function metaComplex:Bisect(cD)
-  return self:RotRad(self:getAngRadVec(cD) / 2)
+  local nM = metaData.__margn
+  if(math.abs(self:getCross(cD)) < nM) then
+    return self:Neg():Right() end
+  nS, nD = self:getNorm(), cD:getNorm()
+  return self:Mul(nD):Add(cD:getMul(nS))
 end
 
 function metaComplex:getBisect(cD)
@@ -1253,6 +1257,7 @@ function metaComplex:CenterInnerCircle(...)
     dC:Set(tV[iD-1] or tV[nV]):Sub(tV[iD])
     dN:Set(tV[iD+1] or tV[ 1]):Sub(tV[iD])
     tO[iD] = dC:getBisect(dN)
+    print(tO[iD])
   end
   for iD = 1, nV do local iN = (tV[iD+1] and (iD+1) or 1)
     tI[iD] = complex.getIntersectRayRay(tV[iD], tO[iD], tV[iN], tO[iN]) end

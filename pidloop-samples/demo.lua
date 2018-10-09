@@ -10,10 +10,10 @@ io.stdout:setvbuf("no")
 local W, H       = 1200, 800 -- window dimensions
 local minC, maxC = -20, 20   -- control limists
 local stVal      = 10        -- Step responce final value               
-local To         = 0.05       -- Sampling time
+local To         = 0.05      -- Sampling time
 local wAit       = 0.01      -- Simulation speed-up
-local tScale     = 30        -- End time relative to the sampling time
-local tFixed     = 5
+local tScale     = 50        -- End time relative to the sampling time
+-- local tFixed     = 5      -- Fixed time
 -- Automated part
 local endTm = tFixed and tFixed or (tScale * To)
 local intX  = crt.New("interval","WinX",  0,endTm, 0, W)
