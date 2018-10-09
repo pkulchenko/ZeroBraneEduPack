@@ -354,10 +354,11 @@ function metaComplex:getMargin(nE)
 end
 
 function metaComplex:Bisect(cD)
-  local nM = metaData.__margn
-  if(math.abs(self:getCross(cD)) < nM) then
-    return self:Neg():Right() end
-  nS, nD = self:getNorm(), cD:getNorm()
+  if(self:getCross(cD) == 0) then
+    if(self:getDot(cD) > 0) then return self
+    elseif(self:getDot(cD) < 0) then return self:Right()
+    else return logStatus("complex.Bisect: Impossible", self) end
+  end; local nS, nD = self:getNorm(), cD:getNorm()
   return self:Mul(nD):Add(cD:getMul(nS))
 end
 
@@ -1256,9 +1257,7 @@ function metaComplex:CenterInnerCircle(...)
   for iD = 1, nV do
     dC:Set(tV[iD-1] or tV[nV]):Sub(tV[iD])
     dN:Set(tV[iD+1] or tV[ 1]):Sub(tV[iD])
-    tO[iD] = dC:getBisect(dN)
-    print(tO[iD])
-  end
+    tO[iD] = dC:getBisect(dN) end
   for iD = 1, nV do local iN = (tV[iD+1] and (iD+1) or 1)
     tI[iD] = complex.getIntersectRayRay(tV[iD], tO[iD], tV[iN], tO[iN]) end
   return self:Mean(tI)
