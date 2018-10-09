@@ -242,7 +242,7 @@ local function newScope(sName)
     return self:drawComplex(xyS, xyE, bTx, mclOrg, mclOrg)
   end
   function self:drawComplexText(xyP, sTx, bSp, vA)
-    local sMs, cP = tostring(sTx), xyP:getRound(0.001)
+    local sMs, cP = tostring(sTx), xyP:getRound(1)
     local px, py = cP:getParts()
     local nA = xyP:getSub(0,0):getAngDeg()
     nA = getPick(vA, tonumber(vA), nA)
