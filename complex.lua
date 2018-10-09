@@ -1204,7 +1204,7 @@ function complex.getRegularPolygon(cS, nN, nR, nI)
   for iD = 2, eN do tV[iD] = tV[iD-1]:getAdd(vD); vD:RotRad(nD) end; return tV
 end
 
-function metaComplex:Center(...)
+function metaComplex:CenterOuterCircle(...)
   local tV, nV = getUnpackSplit(...)
   local tI, tN, iK, tO = {}, {S = tV[nV], E = tV[1]}, 0
   for iD = 1, nV do local cC, cN = tV[iD], (tV[iD+1] or tV[1])
@@ -1213,6 +1213,10 @@ function metaComplex:Center(...)
     local oM, oD = tO.E:getMid(tO.S), tO.E:getSub(tO.S):Right()
     tI[iK] = complex.getIntersectRayRay(nM, nD, oM, oD)
   end; return self:Mean(tI)
+end
+
+function metaComplex:getCenterOuterCircle(...)
+  return self:getNew():CenterOuterCircle(...)
 end
 
 function metaComplex:CenterAltitude(...)
@@ -1250,21 +1254,13 @@ function metaComplex:CenterInnerCircle(...)
     dN:Set(tV[iD+1] or tV[ 1]):Sub(tV[iD])
     tO[iD] = dC:getBisect(dN)
   end
-  for iD = 1, nV do local nN = (tV[iD+1] and (iD+1) or 1)
-    tI[iD] = complex.getIntersectRayRay(tV[iD], tO[iD], tV[nN], tO[nN]) end
+  for iD = 1, nV do local iN = (tV[iD+1] and (iD+1) or 1)
+    tI[iD] = complex.getIntersectRayRay(tV[iD], tO[iD], tV[iN], tO[iN]) end
   return self:Mean(tI)
 end
 
 function metaComplex:getCenterInnerCircle(...)
   return self:getNew():CenterInnerCircle(...)
-end
-
-function metaComplex:CenterOuterCircle(...)
-  local tV, nV = getUnpackSplit(...); return self:Center(tV)
-end
-
-function metaComplex:getCenterOuterCircle(...)
-  return self:getNew():CenterOuterCircle(...)
 end
 
 function metaComplex:CenterMidcircle(...)
@@ -1275,7 +1271,7 @@ function metaComplex:CenterMidcircle(...)
     tI[iG  ] = tV[iD]:getProjectLine(cP, cN)
     tI[iG+1] = cP:getMid(cN)
     tI[iG+2] = cH:getMid(tV[iD])
-  end; return self:Center(tI)
+  end; return self:CenterOuterCircle(tI)
 end
 
 function metaComplex:getCenterMidcircle(...)

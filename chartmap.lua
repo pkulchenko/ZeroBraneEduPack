@@ -323,8 +323,8 @@ local function newScope(sName)
     end; self:drawPointXY(vX, tY[toP], mclPos)
     return self
   end
-  function self:drawOval(xyP, rX, rY)
-    local px, py = xyP:getParts()
+  function self:drawOval(nX, nY, rX, rY)
+    local px, py = (tonumber(nX) or 0), (tonumber(nY) or 0)
     px = moiX:Convert(px):getValue()
     py = moiY:Convert(py):getValue()
     local rx, ry = (tonumber(rX) or 0), (tonumber(rY) or 0)
@@ -333,8 +333,11 @@ local function newScope(sName)
       pncl(mclOrg); rect(px-mnPs,py-mnPs,sz,sz) end
     pncl(mclDir); oval(px, py, rx, ry); return self
   end
-  function self:drawCircle(xyP, rR)
-    return self:drawOval(xyP, rR, rR)
+  function self:drawComplexOval(xyP, rX, rY)
+    self:drawOval(xyP:getReal(), xyP:getImag(), rX, rY)
+  end
+  function self:drawComplexCircle(xyP, rR)
+    return self:drawComplexOval(xyP, rR, rR)
   end
   function self:getString() return "["..metaScope.__type.."] "..mName end
   return self
