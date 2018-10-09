@@ -17,7 +17,7 @@ local clR = colr(col.getColorRedRGB())
 local clBlk = colr(col.getColorBlackRGB())
 local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, minY, maxY)
       scOpe:setSize(W, H):setColor(clBlk, clGry):setDelta(dX, dY)
-local nSides = 7 -- The sides that the polygon has
+local nSides = 8 -- The sides that the polygon has
 local cO = complex.getNew()
 local tV = complex.getRegularPolygon(cO, nSides, ((maxX-minX)/(2*nSides))*5)
 if(tV) then
