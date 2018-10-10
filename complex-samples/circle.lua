@@ -8,7 +8,7 @@ local com = require("common")
 io.stdout:setvbuf("no")
 
 local logStatus = com.logStatus
-local  W,  H = 600, 600
+local  W,  H = 800, 800
 local greyLevel  = 200
 local minX, maxX = -20, 20
 local minY, maxY = -20, 20
@@ -107,7 +107,7 @@ while true do
     if(xN) then xN:Action("xy", clMgn); xF:Action("xy", clBlk)
       local cR, cN = cmp.getReflectRayCircle(cRay1[1], cD, cRay2[1], rad)
       logStatus("The ray has intersected the circle at "..xN.."/"..xF)
-      if(cN) then local nL = cD:getNorm()
+      if(cR) then local nL = cD:getNorm()
         cN:Mul(nL / 2):Add(xN); cR:Mul(cD:getNorm()):Add(xN)
         cN:Action("ab", xN, clMgn); cR:Action("ab", xN, clMgn)
         logStatus("Reflected ray from the circle is "..cR)

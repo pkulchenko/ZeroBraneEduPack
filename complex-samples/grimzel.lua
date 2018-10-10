@@ -62,6 +62,7 @@ local eAng, nMul = (math.pi/2), cOrg:getNorm()
 local dAng, nAng = (eAng / nRayCast), 0
 
 -- Skip the logs about reflecting primary ray on interface
+com.logSkipAdd("complex.getRefractRayRay: Angle mismatch")
 com.logSkipAdd("complex.getRefractRayRay: Normal mismatch")
 
 logStatus("Critical refraction angle is: "..cmp.toDegree(cmp.getRefractRayAngle(nN1, nN2)).." degrees.")

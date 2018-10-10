@@ -8,7 +8,7 @@ local com = require("common")
 io.stdout:setvbuf("no")
 
 local logStatus = com.logStatus
-local  W,  H = 400, 400
+local  W,  H = 800, 800
 local dX, dY = 1,1
 local xySize = 3
 local greyLevel  = 200

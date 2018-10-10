@@ -970,11 +970,14 @@ function complex.getRefractRayAngle(vI, vO, bV)
 end
 
 function complex.getRefractRayRay(cO1, cD1, cO2, cD2, vI, vO, bV)
+  local uD = cD1:getUnit() -- Reference to unit direction
   local nI, nO = (tonumber(vI) or 0), (tonumber(vO) or 0)
   local cN = cO1:getProjectRay(cO2, cD2):Neg():Add(cO1):Unit()
-  local sI, sO, sB = cN:getCross(cD1:getUnit():Neg())
+  local sI, sO, sB = cN:getCross(uD:Neg())
   if(bV) then sO, sB = ((sI * nO) / nI), (nI / nO)
   else sO, sB = ((sI * nI) / nO), (nO / nI) end; if(math.abs(sO) > 1) then
+    return logStatus("complex.getRefractRayRay: Angle mismatch", nil, cN) end
+  if(cN:getDot(uD) < 0) then -- Check negated because of cross product
     return logStatus("complex.getRefractRayRay: Normal mismatch", nil, cN) end
   return cN:getNeg():RotRad(math.asin(sO)), cN
 end
