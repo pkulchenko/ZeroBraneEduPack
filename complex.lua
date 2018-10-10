@@ -941,10 +941,12 @@ function complex.getIntersectCircleCircle(cO1, nR1, cO2, nR2)
 end
 
 function complex.getReflectRayRay(cO1, cD1, cO2, cD2)
-  local uD = cD1:getUnit() -- Get unit ray direction
   local cN = cO1:getProjectRay(cO2, cD2):Neg():Add(cO1):Unit()
+  if(cN:getDot(cD1) > 0) then -- Ray points away from the reflection wall
+    return logStatus("complex.getReflectRayRay: Angle mismatch", nil, cN) end
+  local uD = cD1:getUnit() -- Get unit ray direction
   local cR = uD:Sub(cN:getNew():Mul(2 * uD:getDot(cN))):Unit()
-  if(cR:getDot(cN) < 0) then -- Ray points away from the reflection wall
+  if(cR:getDot(cN) < 0) then -- Reflection goes trough the wall
     return logStatus("complex.getReflectRayRay: Normal mismatch", nil, cN) end
   return cR, cN
 end
