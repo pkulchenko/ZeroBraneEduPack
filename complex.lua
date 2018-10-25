@@ -1292,8 +1292,12 @@ end
      x1  x2 The point Y us between y1 and y2
  The arguments q[xy] are the values the function has in c[xy]
 ]]
-function metaComplex:getInterpolateBilinear(c12, q12, c22, q22, c11, q11, c21, q21)
-  local nM = metaData.__margn
+function metaComplex:getInterpolateBilinear(...)
+  local tV, nV, q12, q22, q11, q21 = getUnpackSplit(...)
+  local c12, c22, c11, c21 = tV[1], tV[2], tV[3], tV[4]
+  q12, q22 = (tonumber(q12) or 0), (tonumber(q22) or 0)
+  q11, q21 = (tonumber(q11) or 0), (tonumber(q21) or 0)
+  local nM, x, y = metaData.__margn, self:getParts()
   if(math.abs(c12:getReal() - c11:getReal()) > nM) then
     return logStatus("complex.getInterpBilinear: Vertex X1 mismatch",0) end
   if(math.abs(c22:getReal() - c21:getReal()) > nM) then
@@ -1302,7 +1306,6 @@ function metaComplex:getInterpolateBilinear(c12, q12, c22, q22, c11, q11, c21, q
     return logStatus("complex.getInterpBilinear: Vertex Y1 mismatch",0) end
   if(math.abs(c12:getImag() - c22:getImag()) > nM) then
     return logStatus("complex.getInterpBilinear: Vertex Y2 mismatch",0) end
-  local x, y = self:getParts()
   local x1 = (c12:getReal() + c11:getReal()) / 2
   local x2 = (c22:getReal() + c21:getReal()) / 2
   local y1 = (c11:getImag() + c21:getImag()) / 2

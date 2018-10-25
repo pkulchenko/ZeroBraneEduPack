@@ -35,10 +35,10 @@ com.logStatus("https://en.wikipedia.org/wiki/Bilinear_interpolation")
 com.logStatus("Interpolated pallete map size: "..nTot)
 
 local cZ = cmp.getNew()
-local tArea = {cZ:getNew(0,1), 1,
-               cZ:getNew(1,1), 0.5,
-               cZ:getNew(0,0), 0,
-               cZ:getNew(1,0), 1}
+local tArea = {cZ:getNew(0,1),
+               cZ:getNew(1,1),
+               cZ:getNew(0,0),
+               cZ:getNew(1,0), 1, 0.5, 0, 1}
 
 open("Complex surface interpolation")
 size(W, H)
