@@ -22,6 +22,7 @@ local getValueKeys    = common.getValueKeys
 local stringExplode   = common.stringExplode
 local getClamp        = common.getClamp
 local getRound        = common.getRound
+local isNil           = common.isNil
 
 --[[ https://en.wikipedia.org/wiki/HSL_and_HSV ]]
 local function projectColorHC(h,c)
@@ -105,17 +106,17 @@ end
 
 function colormap.setColorMap(sKey,tTable,bReplace)
   local tyTable = type(tTable); if(tyTable ~= "table") then
-    return logStatus("colormap.getColorMap: Missing table argument",nil) end
+    return logStatus("colormap.setColorMap: Missing table argument",nil) end
   local sKey = tostring(sKey)
   local tRgb = clMapping[sKey]; if(tRgb and not bReplace) then
-    return logStatus("colormap.getColorMap: Exists mapping for <"..sKey..">",nil) end
+    return logStatus("colormap.setColorMap: Exists mapping for <"..sKey..">",nil) end
   clMapping[sKey] = tTable; if(not tTable.Size) then tTable.Size = #tTable end
   return clMapping[sKey]
 end
 
-function colormap.getColorMap(sKey,iNdex)
-  local iNdex = (tonumber(iNdex) or 0); if(iNdex <= 0) then
-    return logStatus("colormap.getColorMap: Missing index #"..tostring(iNdex), colormap.getColorBlackRGB()) end
+function colormap.getColorMap(sKey, iNdex)
+  if(isNil(iNdex)) then return clMapping[sKey] end
+  local iNdex = (tonumber(iNdex) or 0)
   local sKey, tCl = tostring(sKey)
   local tRgb = clMapping[sKey]; if(not tRgb) then
     return logStatus("colormap.getColorMap: Missing mapping for <"..sKey..">", colormap.getColorBlackRGB()) end
@@ -123,6 +124,19 @@ function colormap.getColorMap(sKey,iNdex)
   if(not tCl) then tCl = tRgb.Miss end
   if(not tCl) then return colormap.getColorBlackRGB() end
   return colormap.getClamp(tCl[1]), colormap.getClamp(tCl[2]), colormap.getClamp(tCl[3])
+end
+
+function colormap.getColorMapInterpolate(tMap, nStp)
+  local tPal, nS, iP = {}, (tonumber(nStp) or 0), 0; if(nS <= 0) then
+    return logStatus("colormap.getPaleteMap: Mismatch <"..tostring(nStp)..">", nil) end
+  for iD = 1, (#tMap-1) do iP = iP + 1
+    local dr = (tMap[iD+1][1]-tMap[iD][1]) / nS
+    local dg = (tMap[iD+1][2]-tMap[iD][2]) / nS
+    local db = (tMap[iD+1][3]-tMap[iD][3]) / nS
+    tPal[iP] = {tMap[iD][1], tMap[iD][2], tMap[iD][3]}
+    for iK = 1, nS do iP = iP + 1
+      tPal[iP] = {tPal[iP-1][1]+dr, tPal[iP-1][2]+dg, tPal[iP-1][3]+db} end
+  end; return tPal
 end
 
 --[[

@@ -232,6 +232,9 @@ local function newScope(sName)
     if(mnPs > 0) then local sz = 2*mnPs+1
       pncl(clO or mclOrg); rect(ox-mnPs,oy-mnPs,sz,sz)
       pncl(clP or mclPos); rect(px-mnPs,py-mnPs,sz,sz)
+    else
+      pncl(clO or mclOrg); pixl(ox, oy)
+      pncl(clP or mclPos); pixl(px, py)
     end
     pncl(mclDir); line(px, py, ox, oy)
     if(bTx) then pncl(mclDir);
@@ -257,8 +260,8 @@ local function newScope(sName)
     px = getRound(moiX:Convert(px):getValue(),1)
     py = getRound(moiY:Convert(py):getValue(),1)
     if(mnPs > 0) then local sz = 2*mnPs+1
-      pncl(clNew or mclPos); rect(px-mnPs,py-mnPs,sz,sz) end
-    return self
+      pncl(clNew or mclPos); rect(px-mnPs,py-mnPs,sz,sz)
+    else pncl(clNew or mclPos); pixl(px, py) end; return self
   end
   function self:drawComplexPolygon(tV, bTx, clP, clO, nN, bO)
     if(not isTable(tV)) then
@@ -285,7 +288,8 @@ local function newScope(sName)
     local px = getRound(moiX:Convert(nX):getValue(),1)
     local py = getRound(moiY:Convert(nY):getValue(),1)
     if(mnPs > 0) then local sz = 2*mnPs+1
-      pncl(clNew or mclPos); rect(px-mnPs,py-mnPs,sz,sz) end
+      pncl(clNew or mclPos); rect(px-mnPs,py-mnPs,sz,sz)
+    else pncl(clNew or mclPos); pixl(px, py) end
     return self
   end
   function self:drawGraph(tY, tX)
@@ -320,7 +324,8 @@ local function newScope(sName)
       local nY = getRound(moiY:Convert(tY[iD]):getValue(),1)
       pncl(mclDir); line(nX, nY, nX, zY)
       if(mnPs > 0) then local sz = 2*mnPs+1
-        pncl(mclPos) rect(nX-mnPs,nY-mnPs,sz,sz) end
+        pncl(mclPos); rect(nX-mnPs,nY-mnPs,sz,sz)
+      else pncl(mclPos); pixl(nX, nY) end
     end; self:drawPointXY(vX, tY[toP], mclPos)
     return self
   end
@@ -331,7 +336,8 @@ local function newScope(sName)
     local rx, ry = (tonumber(rX) or 0), (tonumber(rY) or 0)
           rx, ry = (rX * (pxX / mdX)), (rY * (pxY / mdY))
     if(mnPs > 0) then local sz = 2*mnPs+1
-      pncl(mclOrg); rect(px-mnPs,py-mnPs,sz,sz) end
+      pncl(mclOrg); rect(px-mnPs,py-mnPs,sz,sz)
+    else pncl(mclOrg); pixl(px, py) end
     pncl(mclDir); oval(px, py, rx, ry); return self
   end
   function self:drawComplexOval(xyP, rX, rY)

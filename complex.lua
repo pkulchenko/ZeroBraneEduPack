@@ -1286,5 +1286,31 @@ end
 function metaComplex:getCenterMidcircle(...)
   return self:getNew():CenterMidcircle(...)
 end
+--[[ Interpolates a z = f(x,y) scalar over a 2D surface
+ y2 c12-c22 The 2D interpolated point us betwen c[xy]
+ y1 c11-c21 The point X is between x1 and x2
+     x1  x2 The point Y us between y1 and y2
+ The arguments q[xy] are the values the function has in c[xy]
+]]
+function metaComplex:getInterpolateBilinear(c12, q12, c22, q22, c11, q11, c21, q21)
+  local nM = metaData.__margn
+  if(math.abs(c12:getReal() - c11:getReal()) > nM) then
+    return logStatus("complex.getInterpBilinear: Vertex X1 mismatch",0) end
+  if(math.abs(c22:getReal() - c21:getReal()) > nM) then
+    return logStatus("complex.getInterpBilinear: Vertex X2 mismatch",0) end
+  if(math.abs(c11:getImag() - c21:getImag()) > nM) then
+    return logStatus("complex.getInterpBilinear: Vertex Y1 mismatch",0) end
+  if(math.abs(c12:getImag() - c22:getImag()) > nM) then
+    return logStatus("complex.getInterpBilinear: Vertex Y2 mismatch",0) end
+  local x, y = self:getParts()
+  local x1 = (c12:getReal() + c11:getReal()) / 2
+  local x2 = (c22:getReal() + c21:getReal()) / 2
+  local y1 = (c11:getImag() + c21:getImag()) / 2
+  local y2 = (c12:getImag() + c22:getImag()) / 2
+  local ax, bx = ((x2 - x)/(x2 - x1)), ((x - x1)/(x2 - x1))
+  local ay, by = ((y2 - y)/(y2 - y1)), ((y - y1)/(y2 - y1))
+  local f1, f2 = (ax*q11 + bx*q21), (ax*q12 + bx*q22)
+  return ((ay*f1)+(by*f2))
+end
 
 return complex
