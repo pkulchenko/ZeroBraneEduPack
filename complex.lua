@@ -1293,27 +1293,34 @@ end
  The arguments q[xy] are the values the function has in c[xy]
 ]]
 function metaComplex:getInterpolateBilinear(...)
-  local tV, nV, q12, q22, q11, q21 = getUnpackSplit(...)
-  local c12, c22, c11, c21 = tV[1], tV[2], tV[3], tV[4]
-  q12, q22 = (tonumber(q12) or 0), (tonumber(q22) or 0)
-  q11, q21 = (tonumber(q11) or 0), (tonumber(q21) or 0)
-  local nM, x, y = metaData.__margn, self:getParts()
-  if(math.abs(c12:getReal() - c11:getReal()) > nM) then
-    return logStatus("complex.getInterpBilinear: Vertex X1 mismatch",0) end
-  if(math.abs(c22:getReal() - c21:getReal()) > nM) then
-    return logStatus("complex.getInterpBilinear: Vertex X2 mismatch",0) end
-  if(math.abs(c11:getImag() - c21:getImag()) > nM) then
-    return logStatus("complex.getInterpBilinear: Vertex Y1 mismatch",0) end
-  if(math.abs(c12:getImag() - c22:getImag()) > nM) then
-    return logStatus("complex.getInterpBilinear: Vertex Y2 mismatch",0) end
-  local x1 = (c12:getReal() + c11:getReal()) / 2
-  local x2 = (c22:getReal() + c21:getReal()) / 2
-  local y1 = (c11:getImag() + c21:getImag()) / 2
-  local y2 = (c12:getImag() + c22:getImag()) / 2
-  local ax, bx = ((x2 - x)/(x2 - x1)), ((x - x1)/(x2 - x1))
-  local ay, by = ((y2 - y)/(y2 - y1)), ((y - y1)/(y2 - y1))
-  local f1, f2 = (ax*q11 + bx*q21), (ax*q12 + bx*q22)
-  return ((ay*f1)+(by*f2))
+  local tV, nV, q12, q22, q11, q21 ,nH, bC = getUnpackSplit(...)
+  local tI = {(tonumber(q12) or 0), (tonumber(q22) or 0),
+              (tonumber(q11) or 0), (tonumber(q21) or 0)}
+  if(bC) then
+    local nM = metaData.__margn -- Validate function square borders area
+    if(math.abs(tV[1]:getReal() - tV[3]:getReal()) > nM) then
+      return logStatus("complex.getInterpBilinear: Vertex X1 mismatch",0) end
+    if(math.abs(tV[2]:getReal() - tV[4]:getReal()) > nM) then
+      return logStatus("complex.getInterpBilinear: Vertex X2 mismatch",0) end
+    if(math.abs(tV[3]:getImag() - tV[4]:getImag()) > nM) then
+      return logStatus("complex.getInterpBilinear: Vertex Y1 mismatch",0) end
+    if(math.abs(tV[1]:getImag() - tV[2]:getImag()) > nM) then
+      return logStatus("complex.getInterpBilinear: Vertex Y2 mismatch",0) end
+  end; nH = getClamp(getRound(tonumber(nH or 1), 1), 1, 3)
+  if(nH == 1) then -- Nearest neighbour. Zero order hold
+    local nD, nV = self:getSub(tV[1]):getNorm(), tI[1]
+    for iD = 2, 4 do local nT = self:getSub(tV[iD]):getNorm()
+      if(nT < nD) then nD, nV = nT, tI[iD] end; end; return nV
+  elseif(nH == 2) then local x, y = self:getParts()
+    local x1 = (tV[1]:getReal() + tV[3]:getReal()) / 2
+    local x2 = (tV[2]:getReal() + tV[4]:getReal()) / 2
+    local y1 = (tV[3]:getImag() + tV[4]:getImag()) / 2
+    local y2 = (tV[1]:getImag() + tV[2]:getImag()) / 2
+    local ax, bx = ((x2 - x)/(x2 - x1)), ((x - x1)/(x2 - x1))
+    local ay, by = ((y2 - y)/(y2 - y1)), ((y - y1)/(y2 - y1))
+    local f1, f2 = (ax*tI[3] + bx*tI[4]), (ax*tI[1] + bx*tI[2])
+    return ((ay*f1)+(by*f2))
+  end; return 0
 end
 
 return complex
