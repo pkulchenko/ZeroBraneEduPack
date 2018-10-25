@@ -35,10 +35,10 @@ local tMap = {
 
 local tPal = col.getColorMapInterpolate(tMap, 15)
 col.setColorMap("interp", tPal)
-local nTot = (col.getColorMap("interp").Size - 1)
+local nTot = col.getColorMap("interp").Size
 
 com.logStatus("https://en.wikipedia.org/wiki/Bilinear_interpolation")
-com.logStatus("Interpolated pallete map size: "..nTot)
+com.logStatus("Interpolated pallete map size: "..nTot); nTot = nTot - 1
 
 local cZ = cmp.getNew()
 local tArea = {cZ:getNew(0,1),
@@ -50,14 +50,17 @@ open("Complex surface interpolation")
 size(W, H)
 zero(0, 0)
 updt(false) -- disable auto updates
+com.setTic()
 for j = 1, 0, -gnAccuracy do
   for i = 0, 1, gnAccuracy do  
-    local nV = cZ:getNew(i,j):getInterpolateBilinear(unpack(tArea))
+    local nV = cZ:getNew(i,j):getInterpolation(unpack(tArea))
     local nI = com.getClamp(com.getRound(nV*nTot, 1), 1, nTot)
     local r, g, b = col.getColorMap("interp", nI)
     scOpe:drawPointXY(i, j, colr(r, g, b))
   end; updt()
 end
+
+com.logStatus("Elapsed: "..com.getToc())
 
 -- To prodice a PNG snapshot, uncomment the line below
 -- save(com.stringGetChunkPath().."snapshot")
