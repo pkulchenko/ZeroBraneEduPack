@@ -40,7 +40,6 @@ local tArea = {cZ:getNew(0,1), 1,
                cZ:getNew(0,0), 0,
                cZ:getNew(1,0), 1}
 
-
 open("Complex surface interpolation")
 size(W, H)
 zero(0, 0)
@@ -52,7 +51,7 @@ for j = 1, 0, -gnAccuracy do
   end; updt()
 end
 
--- Snapshot
+-- To prodice a PNG snapshot, uncomment the line below
 -- save(com.stringGetChunkPath().."snapshot")
 
 wait()

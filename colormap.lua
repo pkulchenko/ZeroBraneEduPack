@@ -54,7 +54,7 @@ function colormap.getColorRotateRigh(r, g, b) return b, r, g end
 function colormap.getClamp(vN)
   local nN = tonumber(vN); if(not nN) then
     return logStatus("colormap.getClamp: NAN {"..type(nN).."}<"..tostring(nN)..">") end
-  return getClamp(nN, clClamp[1], clClamp[2])
+  return getClamp(getRound(nN, 1), clClamp[1], clClamp[2])
 end
 
 -- H [0,360], S [0,1], V [0,1]
@@ -62,9 +62,9 @@ function colormap.getColorHSV(h,s,v)
   local c = v * s
   local m = v - c
   local r, g, b = projectColorHC(h,c)
-  return getRound(clClamp[2] * (r + m),1),
-         getRound(clClamp[2] * (g + m),1),
-         getRound(clClamp[2] * (b + m),1)
+  return colormap.getClamp(clClamp[2] * (r + m)),
+         colormap.getClamp(clClamp[2] * (g + m)),
+         colormap.getClamp(clClamp[2] * (b + m))
 end
 
 -- H [0,360], S [0,1], L [0,1]
@@ -72,18 +72,18 @@ function colormap.getColorHSL(h,s,l)
   local c = (1 - math.abs(2*l - 1)) * s
   local m = l - 0.5*c
   local r, g, b = projectColorHC(h,c)
-  return getRound(clClamp[2] * (r + m),1),
-         getRound(clClamp[2] * (g + m),1),
-         getRound(clClamp[2] * (b + m),1)
+  return colormap.getClamp(clClamp[2] * (r + m)),
+         colormap.getClamp(clClamp[2] * (g + m)),
+         colormap.getClamp(clClamp[2] * (b + m))
 end
 
 -- H [0,360], C [0,1], L [0,1]
 function colormap.getColorHCL(h,c,l)
   local r, g, b = projectColorHC(h,c)
   local m = l - (0.30*r + 0.59*g + 0.11*b)
-  return getRound(clClamp[2] * (r + m),1),
-         getRound(clClamp[2] * (g + m),1),
-         getRound(clClamp[2] * (b + m),1)
+  return colormap.getClamp(clClamp[2] * (r + m)),
+         colormap.getClamp(clClamp[2] * (g + m)),
+         colormap.getClamp(clClamp[2] * (b + m))
 end
 
 function colormap.printColorMap(sKey, ...)
@@ -115,9 +115,9 @@ function colormap.setColorMap(sKey,tTable,bReplace)
 end
 
 function colormap.getColorMap(sKey, iNdex)
+  local sKey = tostring(sKey)
   if(isNil(iNdex)) then return clMapping[sKey] end
-  local iNdex = (tonumber(iNdex) or 0)
-  local sKey, tCl = tostring(sKey)
+  local iNdex, tCl = (tonumber(iNdex) or 0)
   local tRgb = clMapping[sKey]; if(not tRgb) then
     return logStatus("colormap.getColorMap: Missing mapping for <"..sKey..">", colormap.getColorBlackRGB()) end
   local cID = (iNdex % tRgb.Size + 1); tCl = tRgb[cID]
@@ -129,13 +129,17 @@ end
 function colormap.getColorMapInterpolate(tMap, nStp)
   local tPal, nS, iP = {}, (tonumber(nStp) or 0), 0; if(nS <= 0) then
     return logStatus("colormap.getPaleteMap: Mismatch <"..tostring(nStp)..">", nil) end
-  for iD = 1, (#tMap-1) do iP = iP + 1
+  for iD = 1, (#tMap-1) do iP = iP + 1; tPal[iP] = {}
     local dr = (tMap[iD+1][1]-tMap[iD][1]) / nS
     local dg = (tMap[iD+1][2]-tMap[iD][2]) / nS
     local db = (tMap[iD+1][3]-tMap[iD][3]) / nS
-    tPal[iP] = {tMap[iD][1], tMap[iD][2], tMap[iD][3]}
-    for iK = 1, nS do iP = iP + 1
-      tPal[iP] = {tPal[iP-1][1]+dr, tPal[iP-1][2]+dg, tPal[iP-1][3]+db} end
+    tPal[iP][1] = colormap.getClamp(tMap[iD][1])
+    tPal[iP][2] = colormap.getClamp(tMap[iD][2])
+    tPal[iP][3] = colormap.getClamp(tMap[iD][3])
+    for iK = 1, nS do iP = iP + 1; tPal[iP] = {}
+      tPal[iP][1] = colormap.getClamp(tPal[iP-1][1]+dr)
+      tPal[iP][2] = colormap.getClamp(tPal[iP-1][2]+dg)
+      tPal[iP][3] = colormap.getClamp(tPal[iP-1][3]+db) end
   end; return tPal
 end
 

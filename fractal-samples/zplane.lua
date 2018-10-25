@@ -15,6 +15,7 @@ local getClamp    = clmap.getClamp
 local getColorMap = clmap.getColorMap
 local getColorHSL = clmap.getColorHSL
 local getColorHSV = clmap.getColorHSV
+local getColorHCL = clmap.getColorHCL
 local getChunkLoc = commn.stringGetChunkPath
 
 -- https://upload.wikimedia.org/wikipedia/commons/b/b3/Mandel_zoom_07_satellite.jpg
@@ -50,7 +51,7 @@ local nStep = 35
 local nZoom = 15
 local iTer  = 100
 local sfrac = "mandelbrot"
-local spale = "wikipedia" 
+local spale = "hcl" 
 local brdcl = nil -- colr(0, 250, 100)
 local brdup = nil -- true
 local sTitl = "Fractal plot 2D"
@@ -90,6 +91,7 @@ local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup):SetControlW
         "region", function (Z, C, i, x, y) return getColorRegion(i,iTer,10) end,
         "hsl", function (Z, C, i, x, y) local it = i / iTer; return getColorHSL(it*360,it,it) end,
         "hsv", function (Z, C, i, x, y) local it = i / iTer; return getColorHSV(it*360,1,1) end,
+        "hcl", function (Z, C, i, x, y) local it = i / iTer; return getColorHCL(it*360,it,it) end,
         "wikipedia_r", function (Z, C, i, x, y, R)
           return getColorMap("wikipedia",i * (R[1] and 1+math.floor(math.abs(R[1])) or 1)) end)
 
