@@ -10,9 +10,9 @@ local crt = require("chartmap")
 -- 3 : Bicubic interpolation ( SoH )
 local nOH = 1
 
-local W,  H = 300, 300
+local W,  H = 400, 400
 local greyLevel  = 200
-local gnAccuracy = 0.003
+local gnAccuracy = 0.002
 local minX, maxX = 0, 1
 local minY, maxY = 0, 1
 local dX, dY, xySize = 1, 1, 3
@@ -33,7 +33,7 @@ local tMap = {
   {180,  0,  0}
 }
 
-local tPal = col.getColorMapInterpolate(tMap, 15)
+local tPal = col.getColorMapInterpolate(tMap, 20)
 col.setColorMap("interp", tPal)
 local nTot = col.getColorMap("interp").Size
 

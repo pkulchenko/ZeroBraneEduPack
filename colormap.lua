@@ -127,12 +127,12 @@ function colormap.getColorMap(sKey, iNdex)
 end
 
 function colormap.getColorMapInterpolate(tMap, nStp)
-  local tPal, nS, iP = {}, (tonumber(nStp) or 0), 0; if(nS <= 0) then
+  local tPal, nS, iP, nT = {}, (tonumber(nStp) or 0), 0, #tMap; if(nS <= 0) then
     return logStatus("colormap.getPaleteMap: Mismatch <"..tostring(nStp)..">", nil) end
   for iD = 1, (#tMap-1) do iP = iP + 1; tPal[iP] = {}
-    local dr = (tMap[iD+1][1]-tMap[iD][1]) / nS
-    local dg = (tMap[iD+1][2]-tMap[iD][2]) / nS
-    local db = (tMap[iD+1][3]-tMap[iD][3]) / nS
+    local dr = (tMap[iD+1][1]-tMap[iD][1]) / (nS + 1)
+    local dg = (tMap[iD+1][2]-tMap[iD][2]) / (nS + 1)
+    local db = (tMap[iD+1][3]-tMap[iD][3]) / (nS + 1)
     tPal[iP][1] = colormap.getClamp(tMap[iD][1])
     tPal[iP][2] = colormap.getClamp(tMap[iD][2])
     tPal[iP][3] = colormap.getClamp(tMap[iD][3])
@@ -140,7 +140,11 @@ function colormap.getColorMapInterpolate(tMap, nStp)
       tPal[iP][1] = colormap.getClamp(tPal[iP-1][1]+dr)
       tPal[iP][2] = colormap.getClamp(tPal[iP-1][2]+dg)
       tPal[iP][3] = colormap.getClamp(tPal[iP-1][3]+db) end
-  end; return tPal
+  end; iP = iP + 1; tPal[iP] = {}
+  tPal[iP][1] = colormap.getClamp(tMap[nT][1])
+  tPal[iP][2] = colormap.getClamp(tMap[nT][2])
+  tPal[iP][3] = colormap.getClamp(tMap[nT][3])
+  return tPal
 end
 
 --[[
