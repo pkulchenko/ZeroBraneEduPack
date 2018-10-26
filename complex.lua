@@ -1003,6 +1003,22 @@ function complex.getEuler(vRm, vPh)
   return self:getNew(math.cos(nPh),math.sin(nPh)):Rsz(nRm)
 end
 
+function complex.getAngRadFull()
+  return metaData.__fulpi
+end
+
+function complex.getAngRadHalf()
+  return metaData.__getpi
+end
+
+function complex.getAngRadFullFrac(nF)
+  return (metaData.__fulpi / nF)
+end
+
+function complex.getAngRadHalfFrac(nF)
+  return (metaData.__getpi / nF)
+end
+
 function complex.toDegree(nRad)
   if(math.deg) then return math.deg(nRad) end
   return (tonumber(nRad) or 0) * metaData.__radeg
