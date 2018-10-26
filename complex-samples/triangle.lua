@@ -24,7 +24,6 @@ local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, min
 local cO = complex.getNew()
 local tV = {cO:getNew(3,4), cO:getNew(-5,1), cO:getNew(3,-7)}
 if(tV) then
-  
   common.logStatus("The distance between every grey line on X is: "..tostring(dX))
   common.logStatus("The distance between every grey line on Y is: "..tostring(dY))
 

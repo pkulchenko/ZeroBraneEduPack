@@ -4,8 +4,9 @@ local common  = require("common")
 local col     = require("colormap")
 local crt     = require("chartmap")
 
-local dX,dY = 1,1
-local W , H = 600, 600
+local nSides = 5 -- The sides that the polygon has
+local dX, dY = 1,1
+local W ,  H = 600, 600
 local minX, maxX = -5, 5
 local minY, maxY = -5, 5
 local greyLevel  = 200
@@ -17,7 +18,6 @@ local clR = colr(col.getColorRedRGB())
 local clBlk = colr(col.getColorBlackRGB())
 local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, minY, maxY)
       scOpe:setSize(W, H):setColor(clBlk, clGry):setDelta(dX, dY)
-local nSides = 8 -- The sides that the polygon has
 local cO = complex.getNew()
 local tV = complex.getRegularPolygon(cO, nSides, ((maxX-minX)/(2*nSides))*5)
 if(tV) then

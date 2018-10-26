@@ -41,6 +41,7 @@ metaData.__valns = "X"
 metaData.__margn = 1e-10
 metaData.__curve = 100
 metaData.__getpi = math.pi
+metaData.__fulpi = (2 * metaData.__getpi)
 metaData.__bords = {"{([<|/","})]>|/"}
 metaData.__ssyms = {"i", "I", "j", "J", "k", "K"}
 metaData.__radeg = (180 / metaData.__getpi)
@@ -790,7 +791,7 @@ end
 function metaComplex:getRoots(nNm)
   local nN = math.floor(tonumber(nNm) or 0)
   if(nN > 0) then local tRt = {}
-    local nPw, nA  = (1 / nN), ((2*metaData.__getpi) / nN)
+    local nPw, nA  = (1 / nN), (metaData.__fulpi / nN)
     local nRa = self:getNorm()   ^ nPw
     local nAn = self:getAngRad() * nPw
     for k = 1, nN do
@@ -1210,7 +1211,7 @@ function complex.getRegularPolygon(cS, nN, nR, nI)
   local eN = (tonumber(nN) or 0); if(eN <= 0) then
     return logStatus("complex.getRegularPolygon: Vertexes #"..tostring(nN),nil) end
   local vD = cS:getNew(1, 0); if(nR) then vD:Set(nR, nI) end
-  local tV, nD = {cS:getNew()}, ((2*metaData.__getpi) / eN)
+  local tV, nD = {cS:getNew()}, (metaData.__fulpi / eN)
   for iD = 2, eN do tV[iD] = tV[iD-1]:getAdd(vD); vD:RotRad(nD) end; return tV
 end
 
