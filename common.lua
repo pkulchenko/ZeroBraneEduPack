@@ -572,7 +572,7 @@ function common.tableClear(tT)
 end
 
 function common.tableArrGetLinearSpace(nS, nE, nN)
-  local fN = math.floor(nN)
+  local fN = common.getClamp(math.floor(tonumber(nN) or 0), 0)
   local iE, dI = (fN + 1), (nE - nS)
   local tO, nI, nD = {nS}, 1, (dI / iE)
   for iD = 1, fN do tO[iD+1] = tO[iD] + nD end
