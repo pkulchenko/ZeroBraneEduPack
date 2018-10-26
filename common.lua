@@ -573,10 +573,10 @@ end
 
 function common.tableArrGetLinearSpace(nS, nE, nN)
   local fN = common.getClamp(math.floor(tonumber(nN) or 0), 0)
-  local iE, dI = (fN + 1), (nE - nS)
-  local tO, nI, nD = {nS}, 1, (dI / iE)
-  for iD = 1, fN do tO[iD+1] = tO[iD] + nD end
-  tO[fN+2] = nE return tO
+  local iE, dI, fS, fE = (fN + 1), (nE - nS), 1, (fN+2)
+  local tO, nI, nD = {[fS]=nS, [fE] = nE}, 1, (dI / iE)
+  while(fS <= fE) do fS, fE = (fS + 1), (fE - 1)
+    tO[fS], tO[fE] = tO[fS-1]+nD, tO[fE+1]-nD end; return tO
 end
 
 function common.tableArrReverse(tT)
