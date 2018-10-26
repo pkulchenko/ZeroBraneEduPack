@@ -1175,7 +1175,7 @@ local function catmullromSegment(cP0, cP1, cP2, cP3, nN, nA)
   local nT1 = catmullromTangent(nT0, cP0, cP1, nA)
   local nT2 = catmullromTangent(nT1, cP1, cP2, nA)
   local nT3 = catmullromTangent(nT2, cP2, cP3, nA)
-  local tTN = common.tableArrGetLinearSpace(nT1, nT2, nN)
+  local tTN = common.tableArrGetLinearSpace(nT1, nT2, nN-2)
   for iD = 1, #tTN do
     local tA1 = cP0:getNew():Mul((nT1-tTN[iD])/(nT1-nT0)):Add(cP1:getMul((tTN[iD]-nT0)/(nT1-nT0)))
     local tA2 = cP1:getNew():Mul((nT2-tTN[iD])/(nT2-nT1)):Add(cP2:getMul((tTN[iD]-nT1)/(nT2-nT1)))

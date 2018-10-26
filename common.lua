@@ -102,6 +102,11 @@ function common.isNumber(nVal)
   return (type(nVal) == metaCommon.__type[1])
 end
 
+function common.isInteger(nVal)
+  if(not common.isNumber(nVal)) then return false end
+  local nW, nF = math.modf(nVal); return (nF == 0)
+end
+
 function common.isFunction(fVal)
   return (type(fVal) == metaCommon.__type[4])
 end
@@ -567,9 +572,11 @@ function common.tableClear(tT)
 end
 
 function common.tableArrGetLinearSpace(nS, nE, nN)
-  local tO, nI, nD = {}, 1, (nE-nS)
-  for nK = nS, nE, (nD/(nN-1)) do
-    tO[nI], nI = nK, (nI+1); end; return tO
+  local fN = math.floor(nN)
+  local iE, dI = (fN + 1), (nE - nS)
+  local tO, nI, nD = {nS}, 1, (dI / iE)
+  for iD = 1, fN do tO[iD+1] = tO[iD] + nD end
+  tO[fN+2] = nE return tO
 end
 
 function common.tableArrReverse(tT)
