@@ -25,12 +25,12 @@ local Wv = cmp.convNew(-3,3):Print("Wind velocity    : ","\n")
 local minX, maxX, minY, maxY, traJ = 0, 0, 0, 0, {cmp.getNew(P)}
 
 for ID = 1, nMaxItr do
+  traJ[ID] = P:getNew()
   if(P:getImag() < 0) then break end
   V:Add(G)                         -- Apply gravity
   V:Add(V:getUnit():Mul(-drgCoef)) -- Calculate drag
   V:Add(Wv)                        -- Apply wind
   P:Add(V)                         -- Calcilate position
-  traJ[ID] = P:getNew()
   local xP, yP = P:getParts()
   if(xP >= maxX) then maxX = xP end
   if(yP >= maxY) then maxY = yP end
