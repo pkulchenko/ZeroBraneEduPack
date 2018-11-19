@@ -1167,7 +1167,7 @@ end
 function complex.getBezierCurve(...)
   local tV, nV, nT = getUnpackSplit(...)
   nT = math.floor(tonumber(nT) or metaData.__curve); if(nT < 2) then
-    return logStatus(complex.getBezierCurve..": Curve samples not enough",nil) end
+    return logStatus("complex.getBezierCurve: Samples <"..nT.."> less than two",nil) end
   if(not (tV[1] and tV[2])) then
     return logStatus("complex.getBezierCurve: Two vertexes are needed",nil) end
   if(not complex.isValid(tV[1])) then
