@@ -333,13 +333,13 @@ function metaComplex:getExp(cP)
   return self:getNew():Exp(cP)
 end
 
-function metaComplex:AddPythagor(R, I)
+function metaComplex:AddPyth(R, I)
   local cP = self:getNew(R, I)
   return self:Pow(2):Add(cP:Pow(2)):Pow(0.5)
 end
 
-function metaComplex:getAddPythagor(cP)
-  return self:getNew():AddPythagor(cP)
+function metaComplex:getAddPyth(cP)
+  return self:getNew():AddPyth(cP)
 end
 
 function metaComplex:Margin(nE)
