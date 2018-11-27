@@ -6,17 +6,17 @@ if not debug.getinfo(3) then
   os.exit(1)
 end
 
-local common       = require("common")
-local type         = type
-local math         = math
-local pcall        = pcall
-local tonumber     = tonumber
-local tostring     = tostring
-local getmetatable = getmetatable
-local setmetatable = setmetatable
-local complex      = {}
-local metaComplex  = {}
-local metaData     = {}
+local common          = require("common")
+local type            = type
+local math            = math
+local pcall           = pcall
+local tonumber        = tonumber
+local tostring        = tostring
+local getmetatable    = getmetatable
+local setmetatable    = setmetatable
+local complex         = {}
+local metaComplex     = {}
+local metaData        = {}
 local isNil           = common.isNil
 local getPick         = common.getPick
 local getSign         = common.getSign
@@ -30,9 +30,10 @@ local logString       = common.logString
 local getSignNon      = common.getSignNon
 local getValueKeys    = common.getValueKeys
 local randomGetNumber = common.randomGetNumber
-
-metaComplex.__type  = "complex.complex"
-metaComplex.__index = metaComplex
+local matrixScale     = common.tableMatrixScale
+local matrixTrans     = common.tableMatrixTrans
+metaComplex.__type    = "complex.complex"
+metaComplex.__index   = metaComplex
 
 metaData.__valre = 0
 metaData.__valim = 0
@@ -47,6 +48,8 @@ metaData.__ssyms = {"i", "I", "j", "J", "k", "K"}
 metaData.__radeg = (180 / metaData.__getpi)
 metaData.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
 metaData.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
+metaData.__ipmtx = {{{ 1, 0, 0, 0}, { 0, 0, 1, 0}, {-3, 3,-2,-1}, { 2,-2, 1, 1}}}
+metaData.__ipmtx[2] = matrixTrans(metaData.__ipmtx[1])
 
 function complex.isValid(cNum)
   return (getmetatable(cNum) == metaComplex)
@@ -1303,16 +1306,20 @@ end
 function metaComplex:getCenterMidcircle(...)
   return self:getNew():CenterMidcircle(...)
 end
+
 --[[ Interpolates a z = f(x,y) scalar over a 2D surface
  y2 c12-c22 The 2D interpolated point us betwen c[xy]
  y1 c11-c21 The point X is between x1 and x2
      x1  x2 The point Y us between y1 and y2
+ Storage is done as tI{F=(01),(11),(00),(10)}
  The arguments q[xy] are the values the function has in c[xy]
+ tV > The complex points of all four corners
+ nV > Length od the array ( usually 4 )
+ tI > Values of the function/derivate in tV
+ bC > Check for the point being on square
 ]]
 function metaComplex:getInterpolation(...)
-  local tV, nV, q12, q22, q11, q21 ,nH, bC = getUnpackSplit(...)
-  local tI = {(tonumber(q12) or 0), (tonumber(q22) or 0),
-              (tonumber(q11) or 0), (tonumber(q21) or 0)}
+  local tV, nV, tI ,nH, bC = getUnpackSplit(...)
   if(bC) then
     local nM = metaData.__margn -- Validate function square borders area
     if(math.abs(tV[1]:getReal() - tV[3]:getReal()) > nM) then
@@ -1325,10 +1332,10 @@ function metaComplex:getInterpolation(...)
       return logStatus("complex.getInterpolation["..nH.."]: Vertex Y2 mismatch",nil) end
   end; nH = getRound(tonumber(nH or 1), 1)
   if(nH == 1) then local cT = self:getNew() -- Nearest neighbour
-    local nD, nV = cT:Sub(tV[1]):getNorm2(), tI[1]
+    local nD, nV = cT:Sub(tV[1]):getNorm2(), (tonumber(tI.F[1]) or 0)
     for iD = 2, 4 do cT:Set(self):Sub(tV[iD])
       local nT = cT:getNorm2(); if(nT < nD) then
-        nD, nV = nT, tI[iD] end; end; return nV
+        nD, nV = nT, (tonumber(tI.F[iD]) or 0) end; end; return nV
   elseif(nH == 2) then local x, y = self:getParts()
     local x1 = (tV[1]:getReal() + tV[3]:getReal()) / 2
     local x2 = (tV[2]:getReal() + tV[4]:getReal()) / 2
@@ -1336,9 +1343,20 @@ function metaComplex:getInterpolation(...)
     local y2 = (tV[1]:getImag() + tV[2]:getImag()) / 2
     local ax, bx = ((x2 - x)/(x2 - x1)), ((x - x1)/(x2 - x1))
     local ay, by = ((y2 - y)/(y2 - y1)), ((y - y1)/(y2 - y1))
-    local f1, f2 = (ax*tI[3] + bx*tI[4]), (ax*tI[1] + bx*tI[2])
+    local f1 = (ax*(tonumber(tI.F[3]) or 0) + bx*(tonumber(tI.F[4]) or 0))
+    local f2 = (ax*(tonumber(tI.F[1]) or 0) + bx*(tonumber(tI.F[2]) or 0))
     return ((ay*f1)+(by*f2))
-  elseif(nH == 3) then 
+  elseif(nH == 3) then local mtx = metaData.__ipmtx
+    local ftx = {
+      {tI.F [3], tI.F [1], tI.Fy [3], tI.Fy [1]},
+      {tI.F [4], tI.F [2], tI.Fy [4], tI.Fy [2]},
+      {tI.Fx[3], tI.Fx[1], tI.Fxy[3], tI.Fxy[1]},
+      {tI.Fx[4], tI.Fx[2], tI.Fxy[4], tI.Fxy[2]}
+    }; local nV, x, y = 0, self:getParts()
+    local mta = matrixScale(matrixScale(mtx[1], ftx), mtx[2])
+    for iD = 1, 4 do for jD = 1, 4 do
+      nV = (tonumber(ftx[iD][jD]) or 0)*x^(iD-1)*y^(jD-1)
+    end; end; return nV
   end; return logStatus("complex.getInterpolation["..nH.."]: Mode mismatch",nil)
 end
 

@@ -40,11 +40,18 @@ local nTot = col.getColorMap("interp").Size
 com.logStatus("https://en.wikipedia.org/wiki/Bilinear_interpolation")
 com.logStatus("Interpolated pallete map size: "..nTot); nTot = nTot - 1
 
+local tI = {
+  F   = {1   , 0.5,   0,   1},
+  Fx  = {3   ,  -5,   7, 0.5},
+  Fy  = {8   , 3.5, 4.1,  -1},
+  Fxy = {-2.6, 1.5, 0.6,  -8}
+}
+
 local cZ = cmp.getNew()
 local tArea = {cZ:getNew(0,1),
                cZ:getNew(1,1),
                cZ:getNew(0,0),
-               cZ:getNew(1,0), 1, 0.5, 0, 1, nOH, false}
+               cZ:getNew(1,0), tI, nOH, false}
 
 open("Complex surface interpolation")
 size(W, H)

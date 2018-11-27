@@ -567,7 +567,8 @@ function common.addPathLibrary(sB, sE)
 end
 
 function common.tableClear(tT)
-  if(not common.isTable(tT)) then return end
+  if(not common.isTable(tT)) then
+    return common.logStatus("common.tableClear: Missing <"..tostring(tT)..">") end
   for k,v in pairs(tT) do tT[k] = nil end
 end
 
@@ -751,6 +752,34 @@ function common.tableArrReverse(tA)
     tA[nE], tA[nS] = tA[nS], tA[nE]
     nS, nE = (nS + 1), (nE - 1)
   end
+end
+
+function common.tableMatrixScale(tA, tB, tO, bDiv)
+  local rA, cA, rB, cB = #tA, #tA[1],#tB, #tB[1]; if(cA ~= rB) then
+    return common.logStatus("common.tableMatrix: Dimension mismatch <"..cA..","..rB..">") end
+  local tO = (tO or {})
+  for i = 1, rA do if(not tO[i]) then tO[i] = {} end
+    for j = 1, cB do local nV = 0
+      for k = 1, rB do
+        if(bDiv) then nV = nV + tA[i][k] * (1 / tB[k][j])
+        else nV = nV + tA[i][k] * tB[k][j] end
+      end; tO[i][j] = nV
+    end
+  end; return tO
+end
+
+function common.tableMatrixTrans(tA, tO)
+  local rA, cA, tO = #tA, #tA[1], (tO or {})
+  for i = 1, cA do if(not tO[i]) then tO[i] = {} end
+    for j = 1, rA do tO[i][j] = tA[j][i] end
+  end; return tO
+end
+
+function common.tableMatrixEye(nW, nH)
+  local tO, i, j = common.tableArrMallocDim(0, nW, nH), 1
+  while(tO[i]) do j = 1; while(tO[i][j]) do print(i,j)
+    if(i == j) then tO[i][j] = 1 end; j = j + 1 end; i = i + 1
+  end; return tO
 end
 
 function common.binaryMirror(nN, nB)
