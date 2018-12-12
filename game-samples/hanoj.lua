@@ -10,8 +10,8 @@ local tHan = {
   B = {},
   C = {},
   Set = {
-    ["nDisk"] = 6, -- The amount of disks to get moved
-    ["nWait"] = 0.1, -- The amout of time to wait before a move
+    ["nDisk"] = 15, -- The amount of disks to get moved
+    ["nWait"] = 0, -- The amout of time to wait before a move
     ["clBase"] = colr(139,69,19), -- Bease pylon color
     ["clDisk"] = colr(0,255,0), -- Disks color
     ["dW"] = 10, -- The distance between all pylons and window edges X
@@ -22,7 +22,8 @@ local tHan = {
     ["wB"] = 0,  -- Fixed width of the last, bottom, largest disk
     ["dD"] = 0,  -- The disk size width delta until the bottom disk is reached
     ["bW"] = 0,  -- Pylon base support width
-    ["bH"] = 0   -- Pylon hight
+    ["bH"] = 0,   -- Pylon hight
+    ["tS"] = os.clock() -- Start time of the process
   }
 }
 
@@ -47,19 +48,22 @@ local function drawBase()
   local dT = tHan.Set["dT"]
   local bW = tHan.Set["bW"]
   local bH = tHan.Set["bH"]
+  local tS = tHan.Set["tS"]
   local clBase = tHan.Set["clBase"]; wipe()
   for iD = 1, #tHan.ID do
     local key = tHan.ID[iD]
     local val = tHan[key]
-    pncl(clBase); rect(val.X,val.Y,bW,dP)
     local xP = (val.X + (bW / 2)) - dP/2
     pncl(clBase); rect(xP,dH,dP,bH)
     text(tHan.ID[iD],0,xP,dH-dT)
+    pncl(clBase); rect(val.X,val.Y,bW,dP)
+    text("Time: "..tostring(os.clock()-tS))
   end
 end
 
 local function doMove(ID, tS, tD)
-  wait(tHan.Set["nWait"])
+  local nWait = tHan.Set["nWait"]
+  if(nWait and nWait > 0) then wait(nWait) end
   tD[#tD+1] = tS[#tS]; tS[#tS] = nil
   drawBase(); drawState(); updt()
 end
