@@ -2,7 +2,7 @@ require("wx")
 require("turtle")
 local com = require('common')
 
-local nW, nH = 1800, 1000
+local nW, nH = 1200, 800
 
 local tHan = {
   ID = {"A", "B", "C"},
@@ -10,9 +10,9 @@ local tHan = {
   B = {},
   C = {},
   Set = {
-    ["nDisk"] = 15, -- The amount of disks to get moved
+    ["nDisk"] = 10, -- The amount of disks to get moved
     ["nWait"] = 0, -- The amout of time to wait before a move
-    ["clBase"] = colr(139,69,19), -- Bease pylon color
+    ["clBase"] = colr(139,69,19), -- Base pylon color
     ["clDisk"] = colr(0,255,0), -- Disks color
     ["dW"] = 10, -- The distance between all pylons and window edges X
     ["dH"] = 20, -- The distance between all pylons and window edges Y
