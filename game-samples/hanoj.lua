@@ -2,7 +2,7 @@ require("wx")
 require("turtle")
 local com = require('common')
 
-local nW, nH = 800, 600
+local nW, nH = 1800, 1000
 
 local tHan = {
   ID = {"A", "B", "C"},
