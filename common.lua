@@ -184,6 +184,19 @@ function common.logConcat(anyMsg,aDel, ...)
   end; io.write("\n")
 end
 
+function common.logMatrix(tA)
+  local iY, iX, tR = 1, 1, {}
+  while(tA[iY]) do
+    local v = tA[iY]; iX = 1
+    while(v[iX]) do
+      tR[iX] = tostring(v[iX])
+      iX = (iX + 1)
+    end; common.logStatus("{"..table.concat(tR,", ").."}")    
+    common.tableClear(tR)
+    iY = (iY + 1)
+  end
+end
+
 -- http://lua-users.org/wiki/MathLibraryTutorial
 function common.randomSetSeed(bL)
   local nT = os.time()
@@ -744,6 +757,14 @@ function common.tableArrConcat(...)
   end; return tO
 end
 
+function common.tableArrExtract2D(tA,sX,eX,sY,eY)
+  local tO, cX, cY = {}
+  for iY = sY, eY  do for iX = sX, eX do
+    if(not tO[iY-sY+1]) then tO[iY-sY+1] = {} end
+    tO[iY-sY+1][iX-sX+1] = tA[iY][iX]
+  end end; return tO
+end
+
 function common.tableArrReverse(tA)
   local nS, nE = 1, 1
   while(tA[nE]) do nE = nE + 1 end
@@ -752,6 +773,30 @@ function common.tableArrReverse(tA)
     tA[nE], tA[nS] = tA[nS], tA[nE]
     nS, nE = (nS + 1), (nE - 1)
   end
+end
+
+function common.tableMatrixDropXY(tA,dX,dY)
+  local tO, eX, eY, cX, cY = {}, #tA[1], #tA, 1, 1
+  for iY = 1, eY do for iX = 1, eX do
+    if(not (iY == dY or iX == dX)) then
+      if(not tO[cY]) then tO[cY] = {} end
+      tO[cY][cX] = tA[iY][iX]; cX = (cX + 1)
+  end end; if(not (iY == dY or iX == dX)) then
+  cX, cY = 1, (cY + 1); end; end; return tO
+end
+
+function common.getMatrixDetRow(tA, nR)
+  if(common.isNumber(tA)) then return tA end
+  local nR = common.getClamp(tonumber(nR) or 1,1)
+  local tR, iR, nD = tA[nR], 1, 0
+  local nW, nH = #tR, #tA; if(nW ~= nH) then
+    return common.logStatus("common.getMatrixDet: Rectangle <"..nW..", "..nH..">", 0) end
+  if(nW == 1 and nH == 1) then return tA[1][1] end
+  if(nW == 2 and nH == 2) then return ((tA[1][1]*tA[2][2]) - (tA[2][1]*tA[1][2])) end
+  local fDet, fDrp = common.getMatrixDetRow, common.tableMatrixDropXY
+  while(tR[iR]) do local nV = tR[iR]
+    nD = nD + nV*((-1)^(nR+iR))*fDet(fDrp(tA,iR,nR)); iR = (iR + 1)
+  end; return nD
 end
 
 function common.tableMatrixScale(tA, tB, tO, bDiv)
@@ -780,6 +825,10 @@ function common.tableMatrixEye(nW, nH)
   while(tO[i]) do j = 1; while(tO[i][j]) do print(i,j)
     if(i == j) then tO[i][j] = 1 end; j = j + 1 end; i = i + 1
   end; return tO
+end
+
+function common.tableMatrixDet(tA)
+
 end
 
 function common.binaryMirror(nN, nB)
