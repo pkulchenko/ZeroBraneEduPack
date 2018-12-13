@@ -775,17 +775,17 @@ function common.tableArrReverse(tA)
   end
 end
 
-function common.tableMatrixDropXY(tA,dX,dY)
-  local tO, eX, eY, cX, cY = {}, #tA[1], #tA, 1, 1
-  for iY = 1, eY do for iX = 1, eX do
-    if(not (iY == dY or iX == dX)) then
-      if(not tO[cY]) then tO[cY] = {} end
-      tO[cY][cX] = tA[iY][iX]; cX = (cX + 1)
-  end end; if(not (iY == dY or iX == dX)) then
-  cX, cY = 1, (cY + 1); end; end; return tO
+function common.tableMatrixDropRC(tA,nR,nC)
+  local tO, eC, eR, cC, cR = {}, #tA[1], #tA, 1, 1
+  for iR = 1, eR do for iC = 1, eC do
+    if(not (iR == nR or iC == nC)) then
+      if(not tO[cR]) then tO[cR] = {} end
+      tO[cR][cC] = tA[iR][iC]; cC = (cC + 1)
+  end end; if(not (iR == nR or iC == nC)) then
+  cC, cR = 1, (cR + 1); end; end; return tO
 end
 
-function common.getMatrixDetRow(tA, nR)
+function common.getMatrixDet(tA, nR)
   if(common.isNumber(tA)) then return tA end
   local nR = common.getClamp(tonumber(nR) or 1,1)
   local tR, iR, nD = tA[nR], 1, 0
@@ -793,10 +793,19 @@ function common.getMatrixDetRow(tA, nR)
     return common.logStatus("common.getMatrixDet: Rectangle <"..nW..", "..nH..">", 0) end
   if(nW == 1 and nH == 1) then return tA[1][1] end
   if(nW == 2 and nH == 2) then return ((tA[1][1]*tA[2][2]) - (tA[2][1]*tA[1][2])) end
-  local fDet, fDrp = common.getMatrixDetRow, common.tableMatrixDropXY
+  local fDet, fDrp = common.getMatrixDet, common.tableMatrixDropRC
   while(tR[iR]) do local nV = tR[iR]
-    nD = nD + nV*((-1)^(nR+iR))*fDet(fDrp(tA,iR,nR)); iR = (iR + 1)
+    nD = nD + nV*((-1)^(nR+iR))*fDet(fDrp(tA,nR,iR)); iR = (iR + 1)
   end; return nD
+end
+
+function common.tableMatrixRandom(nR, nC, nL, nU, vC)
+  local tO = {}
+  local nR = common.getClamp(tonumber(nR) or 1 ,1)
+  local nC = common.getClamp(tonumber(nC) or nR,1)
+  for iR = 1, nR do tO[iR] = {}; for iC = 1, nC do
+    tO[iR][iC] = common.randomGetNumber(nL, nU, vC)
+  end; end; return tO
 end
 
 function common.tableMatrixScale(tA, tB, tO, bDiv)
@@ -825,10 +834,6 @@ function common.tableMatrixEye(nW, nH)
   while(tO[i]) do j = 1; while(tO[i][j]) do print(i,j)
     if(i == j) then tO[i][j] = 1 end; j = j + 1 end; i = i + 1
   end; return tO
-end
-
-function common.tableMatrixDet(tA)
-
 end
 
 function common.binaryMirror(nN, nB)
