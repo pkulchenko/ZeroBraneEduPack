@@ -8,7 +8,7 @@ local crt = require("chartmap")
 -- 1 : Nearest neighbour ( ZoH )
 -- 2 : Bilinear interpolation ( FoH )
 -- 3 : Bicubic interpolation ( SoH )
-local nOH = 2
+local nOH = 3
 
 local W,  H = 400, 400
 local greyLevel  = 200

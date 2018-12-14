@@ -184,19 +184,6 @@ function common.logConcat(anyMsg,aDel, ...)
   end; io.write("\n")
 end
 
-function common.logMatrix(tA)
-  local iY, iX, tR = 1, 1, {}
-  while(tA[iY]) do
-    local v = tA[iY]; iX = 1
-    while(v[iX]) do
-      tR[iX] = tostring(v[iX])
-      iX = (iX + 1)
-    end; common.logStatus("{"..table.concat(tR,", ").."}")    
-    common.tableClear(tR)
-    iY = (iY + 1)
-  end
-end
-
 -- http://lua-users.org/wiki/MathLibraryTutorial
 function common.randomSetSeed(bL)
   local nT = os.time()
@@ -773,67 +760,6 @@ function common.tableArrReverse(tA)
     tA[nE], tA[nS] = tA[nS], tA[nE]
     nS, nE = (nS + 1), (nE - 1)
   end
-end
-
-function common.tableMatrixDropRC(tA,nR,nC)
-  local tO, eC, eR, cC, cR = {}, #tA[1], #tA, 1, 1
-  for iR = 1, eR do for iC = 1, eC do
-    if(not (iR == nR or iC == nC)) then
-      if(not tO[cR]) then tO[cR] = {} end
-      tO[cR][cC] = tA[iR][iC]; cC = (cC + 1)
-  end end; if(not (iR == nR or iC == nC)) then
-  cC, cR = 1, (cR + 1); end; end; return tO
-end
-
-function common.getMatrixDet(tA, nR)
-  if(common.isNumber(tA)) then return tA end
-  local nR = common.getClamp(tonumber(nR) or 1,1)
-  local tR, iR, nD = tA[nR], 1, 0
-  local nW, nH = #tR, #tA; if(nW ~= nH) then
-    return common.logStatus("common.getMatrixDet: Rectangle <"..nW..", "..nH..">", 0) end
-  if(nW == 1 and nH == 1) then return tA[1][1] end
-  if(nW == 2 and nH == 2) then return ((tA[1][1]*tA[2][2]) - (tA[2][1]*tA[1][2])) end
-  local fDet, fDrp = common.getMatrixDet, common.tableMatrixDropRC
-  while(tR[iR]) do local nV = tR[iR]
-    nD = nD + nV*((-1)^(nR+iR))*fDet(fDrp(tA,nR,iR)); iR = (iR + 1)
-  end; return nD
-end
-
-function common.tableMatrixRandom(nR, nC, nL, nU, vC)
-  local tO = {}
-  local nR = common.getClamp(tonumber(nR) or 1 ,1)
-  local nC = common.getClamp(tonumber(nC) or nR,1)
-  for iR = 1, nR do tO[iR] = {}; for iC = 1, nC do
-    tO[iR][iC] = common.randomGetNumber(nL, nU, vC)
-  end; end; return tO
-end
-
-function common.tableMatrixScale(tA, tB, tO, bDiv)
-  local rA, cA, rB, cB = #tA, #tA[1],#tB, #tB[1]; if(cA ~= rB) then
-    return common.logStatus("common.tableMatrix: Dimension mismatch <"..cA..","..rB..">") end
-  local tO = (tO or {})
-  for i = 1, rA do if(not tO[i]) then tO[i] = {} end
-    for j = 1, cB do local nV = 0
-      for k = 1, rB do
-        if(bDiv) then nV = nV + tA[i][k] * (1 / tB[k][j])
-        else nV = nV + tA[i][k] * tB[k][j] end
-      end; tO[i][j] = nV
-    end
-  end; return tO
-end
-
-function common.tableMatrixTrans(tA, tO)
-  local rA, cA, tO = #tA, #tA[1], (tO or {})
-  for i = 1, cA do if(not tO[i]) then tO[i] = {} end
-    for j = 1, rA do tO[i][j] = tA[j][i] end
-  end; return tO
-end
-
-function common.tableMatrixEye(nW, nH)
-  local tO, i, j = common.tableArrMallocDim(0, nW, nH), 1
-  while(tO[i]) do j = 1; while(tO[i][j]) do print(i,j)
-    if(i == j) then tO[i][j] = 1 end; j = j + 1 end; i = i + 1
-  end; return tO
 end
 
 function common.binaryMirror(nN, nB)

@@ -7,6 +7,7 @@ if not debug.getinfo(3) then
 end
 
 local common          = require("common")
+local matrix          = require("matrix")
 local type            = type
 local math            = math
 local pcall           = pcall
@@ -14,6 +15,7 @@ local tonumber        = tonumber
 local tostring        = tostring
 local getmetatable    = getmetatable
 local setmetatable    = setmetatable
+local table           = table
 local complex         = {}
 local metaComplex     = {}
 local metaData        = {}
@@ -30,14 +32,13 @@ local logString       = common.logString
 local getSignNon      = common.getSignNon
 local getValueKeys    = common.getValueKeys
 local randomGetNumber = common.randomGetNumber
-local matrixScale     = common.tableMatrixScale
-local matrixTrans     = common.tableMatrixTrans
 metaComplex.__type    = "complex.complex"
 metaComplex.__index   = metaComplex
 
 metaData.__valre = 0
 metaData.__valim = 0
 metaData.__cactf = {}
+metaData.__ipmtx = {}
 metaData.__valns = "X"
 metaData.__margn = 1e-10
 metaData.__curve = 100
@@ -48,8 +49,11 @@ metaData.__ssyms = {"i", "I", "j", "J", "k", "K"}
 metaData.__radeg = (180 / metaData.__getpi)
 metaData.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
 metaData.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
-metaData.__ipmtx = {{{ 1, 0, 0, 0}, { 0, 0, 1, 0}, {-3, 3,-2,-1}, { 2,-2, 1, 1}}}
-metaData.__ipmtx[2] = matrixTrans(metaData.__ipmtx[1])
+metaData.__ipmtx[1] = matrix.getNew({{ 1, 0, 0, 0},
+                                     { 0, 0, 1, 0},
+                                     {-3, 3,-2,-1},
+                                     { 2,-2, 1, 1}})
+metaData.__ipmtx[2] = metaData.__ipmtx[1]:getTrans()
 
 function complex.isValid(cNum)
   return (getmetatable(cNum) == metaComplex)
@@ -1347,15 +1351,14 @@ function metaComplex:getInterpolation(...)
     local f2 = (ax*(tonumber(tI.F[1]) or 0) + bx*(tonumber(tI.F[2]) or 0))
     return ((ay*f1)+(by*f2))
   elseif(nH == 3) then local mtx = metaData.__ipmtx
-    local ftx = {
-      {tI.F [3], tI.F [1], tI.Fy [3], tI.Fy [1]},
-      {tI.F [4], tI.F [2], tI.Fy [4], tI.Fy [2]},
-      {tI.Fx[3], tI.Fx[1], tI.Fxy[3], tI.Fxy[1]},
-      {tI.Fx[4], tI.Fx[2], tI.Fxy[4], tI.Fxy[2]}
-    }; local nV, x, y = 0, self:getParts()
-    local mta = matrixScale(matrixScale(mtx[1], ftx), mtx[2])
+    local ftx = matrix.getNew({{tI.F [3], tI.F [1], tI.Fy [3], tI.Fy [1]},
+                               {tI.F [4], tI.F [2], tI.Fy [4], tI.Fy [2]},
+                               {tI.Fx[3], tI.Fx[1], tI.Fxy[3], tI.Fxy[1]},
+                               {tI.Fx[4], tI.Fx[2], tI.Fxy[4], tI.Fxy[2]}});
+    local nV, x, y = 0, self:getParts()
+    local mta = mtx[1]:getMul(ftx):Mul(mtx[2])
     for iD = 1, 4 do for jD = 1, 4 do
-      nV = (tonumber(ftx[iD][jD]) or 0)*x^(iD-1)*y^(jD-1)
+      nV = (tonumber(mta(iD,jD) or 0)*x^(iD-1)*y^(jD-1))
     end; end; return nV
   end; return logStatus("complex.getInterpolation["..nH.."]: Mode mismatch",nil)
 end
