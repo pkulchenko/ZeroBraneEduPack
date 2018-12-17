@@ -53,8 +53,7 @@ function matrix.getNew(tM)
 end
 
 function metaMatrix:Apply(fC, ...)
-  local tData = self:getData()
-  local nR, nC = self:getSize()
+  local tData, nR, nC = self:getData(), self:getSize()
   for iR = 1, nR do
     for iC = 1, nC do local bS, nC = pcall(tC, ...)
       if(not bS) then return logStatus("matrix.Apply: Failed: "..nC, nil) end
@@ -64,9 +63,10 @@ function metaMatrix:Apply(fC, ...)
   end; return self
 end
 
-function metaMatrix:Print(nS)
+function metaMatrix:Print(nS, sM)
+  local sM = (sM and " "..tostring(sM) or "")
   local tData, nR, nC = self:cpyData(), self:getSize()
-  common.logStatus("Matrix ["..nR.." x "..nC.."]")
+  common.logStatus("Matrix ["..nR.." x "..nC.."]"..sM)
   local nS = common.getClamp(tonumber(nS) or 0,0)
   for iR = 1, nR do if(nS > 0) then
     for iC = 1, nC do tData[iR][iC] = common.stringPadL(tostring(tData[iR][iC]), nS) end; end
@@ -80,13 +80,13 @@ end
 
 function metaMatrix:Scratch(nR,nC)
   local tData = self:getData()
-  local tO, cR, cC, eR, eC = {}, 1, 1, self:getSize()
+  local tM, cR, cC, eR, eC = {}, 1, 1, self:getSize()
   for iR = 1, eR do for iC = 1, eC do
     if(not (iR == nR or iC == nC)) then
-      if(not tO[cR]) then tO[cR] = {} end
-      tO[cR][cC] = tData[iR][iC]; cC = (cC + 1)
+      if(not tM[cR]) then tM[cR] = {} end
+      tM[cR][cC] = tData[iR][iC]; cC = (cC + 1)
   end end; if(not (iR == nR or iC == nC)) then
-  cC, cR = 1, (cR + 1); end; end; return self:setData(tO)
+  cC, cR = 1, (cR + 1); end; end; return self:setData(tM)
 end
 
 function metaMatrix:getScratch(nR,nC)
@@ -129,6 +129,17 @@ function metaMatrix:getZero(nR, nC)
   return self:getNew():Zero(nR, nC)
 end
 
+function metaMatrix:Ones(nR, nC) local tM = {}
+  local nR = common.getClamp(tonumber(nR) or 1 ,1)
+  local nC = common.getClamp(tonumber(nC) or nR,1)
+  for iR = 1, nR do tM[iR] = {}; for iC = 1, nC do tM[iR][iC] = 1
+  end; end; return self:setData(tM)
+end
+
+function metaMatrix:getOnes(nR, nC)
+  return self:getNew():Ones(nR, nC)
+end
+
 function metaMatrix:Unit(nR, nC)
   local nR = common.getClamp(tonumber(nR) or 1 ,1)
   local nC = common.getClamp(tonumber(nC) or nR,1)
@@ -146,13 +157,13 @@ function metaMatrix:Mul(oM)
     local rA, cA = self:getSize()
     local rB, cB = oM:getSize(); if(cA ~= rB) then
       return common.logStatus("matrix.Mul: Dimension mismatch ["..rA.." x "..cA.."] * ["..rB.." x "..cB.."]",nil) end
-    local tA, tB, tO = self:getData(), oM:getData(), {}
-    for i = 1, rA do if(not tO[i]) then tO[i] = {} end
+    local tA, tB, tM = self:getData(), oM:getData(), {}
+    for i = 1, rA do if(not tM[i]) then tM[i] = {} end
       for j = 1, cB do local nV = 0
         for k = 1, rB do nV = nV + tA[i][k] * tB[k][j] end
-        tO[i][j] = nV
+        tM[i][j] = nV
       end
-    end; return self:setData(tO)
+    end; return self:setData(tM)
   else local tA, nR, nC = self:getData(), self:getSize()
     local nN = (tonumber(oM) or 0)
     for iR = 1, nR do for iC = 1, nC do
@@ -166,10 +177,17 @@ function metaMatrix:getMul(oM)
 end
 
 function metaMatrix:Trans()
-  local tO, tData, nR, nC = {}, self:getData(), self:getSize()
-  for iC = 1, nC do if(not tO[iC]) then tO[iC] = {} end
-    for iR = 1, nR do tO[iC][iR] = tData[iR][iC] end
-  end; return self:setData(tO)
+  local tData, nR, nC = self:getData(), self:getSize()
+  local nE = (nR > nC and nR or nC)
+  for iC = 1, nE do for iR = 1, nE do if(iC < iR) then
+    local vC = (tData[iC] and tData[iC][iR] or nil)
+    local vR = (tData[iR] and tData[iR][iC] or nil)
+    if(not tData[iC]) then tData[iC] = {} end
+    if(not tData[iR]) then tData[iR] = {} end
+    tData[iC][iR], tData[iR][iC] = vR, vC
+  end; end; end; while(not tData[nE][1]) do
+    tData[nE] = nil; nE = nE - 1 end
+  return self:setData(tData)
 end
 
 function metaMatrix:getTrans()
@@ -179,11 +197,11 @@ end
 function metaMatrix:Adj()
   local nR, nC = self:getSize(); if(nR ~= nC) then
     return common.logStatus("matrix.Adj: Rectangle ["..nR.." x "..nC.."]",nil) end
-  local tData, tO = self:getData(), {}
+  local tData, tM = self:getData(), {}
   for iR = 1, nR do for iC = 1, nC do
-    if(not tO[iR]) then tO[iR] = {} end
-    tO[iR][iC] = (-1)^(iR+iC)*self:getScratch(iR,iC):getDet()
-  end end; return self:setData(tO)
+    if(not tM[iR]) then tM[iR] = {} end
+    tM[iR][iC] = (-1)^(iR+iC)*self:getScratch(iR,iC):getDet()
+  end end; return self:setData(tM)
 end
 
 function metaMatrix:getAdj()
@@ -207,7 +225,7 @@ function metaMatrix:Div(oM)
   if(matrix.isValid(oM)) then
     return self:Mul(oM:getInv())
   else
-    return self:Mul(tonumber(oM) or 0)
+    return self:Mul(1/(tonumber(oM) or 0))
   end
 end
 
@@ -215,15 +233,80 @@ function metaMatrix:getDiv(oM)
   return self:getNew():Div(oM)
 end
 
-metaMatrix.__call = function(oM, nR, nC)
-  local tData = oM:getData()
+metaMatrix.__call = function(oM, nR, nC, nV)
+  local tData, nM = oM:getData(), tonumber(nV)
   local nR = common.getClamp(tonumber(nR) or 1 ,1)
   local nC = common.getClamp(tonumber(nC) or nR,1)
   local tR = tData[nR]; if(not tR) then
     return common.logStatus("matrix.Call: Missing row ["..nR.." x "..nC.."]",nil) end
   local nV = tR[nC]; if(not nV) then
     return common.logStatus("matrix.Call: Missing col ["..nR.." x "..nC.."]",nil) end
-  return nV -- Return the indexed column. Null if not found
+  if(nM) then tR[nC] = nM end; return nV -- Return the indexed column. Null if not found
+end
+
+function metaMatrix:Upper()
+  local tData = self:getData()
+  local nR, nC = self:getSize(); local iC = 1
+  for iR = 1, nR do local tRow = tData[iR] 
+    for iK = (iR+1), nR do local oRow = tData[iK]
+      if(oRow[iC] ~= 0 and iC <= nC) then
+        local nK = (tRow[iC] / oRow[iC])
+        for iN = iC, nC do oRow[iN] = (oRow[iN] * nK) - tRow[iN] end
+      end
+    end; iC = (iC + 1)
+  end; return self
+end
+
+function metaMatrix:getUpper()
+  return self:getNew():Upper()
+end
+
+function metaMatrix:Lower()
+  local tData = self:getData()
+  local nR, nC = self:getSize(); local iC = nC
+  for iR = nR, 1, -1  do local tRow = tData[iR] 
+    for iK = (iR-1), 1, -1 do local oRow = tData[iK]
+      if(oRow[iC] ~= 0 and iC <= nC) then
+        local nK = (tRow[iC] / oRow[iC])
+        for iN = iC, nC do oRow[iN] = (oRow[iN] * nK) - tRow[iN] end
+      end
+    end; iC = (iC - 1)
+  end; return self
+end
+
+function metaMatrix:getLower()
+  return self:getNew():Lower()
+end
+
+function metaMatrix:Drop()
+  local tData = self:getData()
+  local iR, nR, nC = 1, self:getSize()
+  while(tData[iR]) do local nS = 0
+    for iC = 1, nC do
+      nS = nS + math.abs(tData[iR][iC]) 
+    end if(nS == 0) then table.remove(tData, iR)
+      else iR = iR + 1 end
+  end; return self:setData(tData)
+end
+
+function metaMatrix:getDrop()
+  return self:getNew():Drop()
+end
+
+function metaMatrix:getRank()
+  local oR = self:getNew():Upper():Drop():getSize()
+  local tR = self:getNew():Trans():Upper():Drop():getSize()
+  return math.max(oR, tR)
+end
+
+function metaMatrix:Solve(oB)
+  local tData, nR, nC = self:getData(), self:getSize(); if(nR ~= nC) then
+    return common.logStatus("matrix.Solve: Rectangle ["..nR.." x "..nC.."]", nil) end
+  return self:Inv():Mul(oB)
+end
+
+function metaMatrix:getSolve(oB)
+  return self:getNew():Solve(oB)
 end
 
 return matrix
