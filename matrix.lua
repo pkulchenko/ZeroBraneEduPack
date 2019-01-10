@@ -33,7 +33,7 @@ function matrix.convNew(vIn,...)
   if(matrix.isValid(vIn)) then return vIn:getNew(vIn) end
   local tyIn, tArg = type(vIn), {...}
   if(isType(tyIn, 5)) then -- Table
-    
+
   end
 end
 
@@ -85,6 +85,23 @@ function metaMatrix:getNew(tM)
   return (tM and matrix.getNew(tM) or matrix.getNew(self:cpyData()))
 end
 
+--[[
+  Modify destination row id /iD/, with the source /iS/
+  Uses the coefficient nK to scale the linear system
+]]
+function metaMatrix:Modify(iD, iS, nK)
+  local tData, nR, nC = self:getData(), self:getSize()
+  local tS = tData[iS]; if(not iS) then
+    return common.logStatus("matrix.Modify: Source invalid",nil) end
+  local tD = tData[iD]; if(not tD) then
+    return common.logStatus("matrix.Modify: Destination invalid",nil) end
+  for iC = 1, nC do tD[iC] = tD[iC] + nK * tS[iC] end; return self
+end
+
+function metaMatrix:getModify(iD, iS, nK)
+  return self:getNew():Modify(iD, iS, nK)
+end
+
 function metaMatrix:Scratch(nR,nC)
   local tData = self:getData()
   local tM, cR, cC, eR, eC = {}, 1, 1, self:getSize()
@@ -99,8 +116,11 @@ end
 function metaMatrix:getScratch(nR,nC)
   return self:getNew():Scratch(nR,nC)
 end
-
-function metaMatrix:getDet(vR)
+--[[
+ * Calcolates matrix determinant by expanding
+ * on the row /vR/. Second parameter is symbolic mode 
+]]
+function metaMatrix:getDet(vR, bS)
   local tData, nR, nC = self:getData(), self:getSize(); if(nR ~= nC) then
     return common.logStatus("matrix.getDet: Rectangle ["..nR.." x "..nC.."]", 0) end
   if(isNumber(tData)) then return tData end
@@ -117,7 +137,8 @@ function metaMatrix:Rand(nR, nC, nL, nU, vC) local tM = {}
   local nR = common.getClamp(tonumber(nR) or 1 ,1)
   local nC = common.getClamp(tonumber(nC) or nR,1)
   for iR = 1, nR do tM[iR] = {}; for iC = 1, nC do
-    tM[iR][iC] = common.randomGetNumber(nL, nU, vC)
+    if(extlb) then tM[iR][iC] = extlb.complexGetRandom(nL, nU, vC)
+    else tM[iR][iC] = common.randomGetNumber(nL, nU, vC) end
   end; end; return self:setData(tM)
 end
 
@@ -128,7 +149,10 @@ end
 function metaMatrix:Zero(nR, nC) local tM = {}
   local nR = common.getClamp(tonumber(nR) or 1 ,1)
   local nC = common.getClamp(tonumber(nC) or nR,1)
-  for iR = 1, nR do tM[iR] = {}; for iC = 1, nC do tM[iR][iC] = 0
+  local extlb = metaMatrix.__extlb
+  for iR = 1, nR do tM[iR] = {}; for iC = 1, nC do
+    if(extlb) then tM[iR][iC] = extlb.complexNew()
+    else tM[iR][iC] = 0 end
   end; end; return self:setData(tM)
 end
 
@@ -332,38 +356,36 @@ metaMatrix.__call = function(oM, nR, nC, nS)
   if(nS) then tR[nC] = nS end; return nV -- Return the indexed column. Null if not found
 end
 
-function metaMatrix:Upper()
-  local tData = self:getData()
-  local nR, nC = self:getSize(); local iC = 1
-  for iR = 1, nR do local tRow = tData[iR] 
-    for iK = (iR+1), nR do local oRow = tData[iK]
-      if(oRow[iC] ~= 0 and iC <= nC) then
-        local nK = (tRow[iC] / oRow[iC])
-        for iN = iC, nC do oRow[iN] = (oRow[iN] * nK) - tRow[iN] end
-      end
-    end; iC = (iC + 1)
+function metaMatrix:Upper(bS)
+  local tData, nR, nC = self:getData(), self:getSize()
+  local tS, iR, eR, dR, iC, dC = tData[1], 2, nR, 1
+  if(bS) then iC, dC = nC, -1 else iC, dC = 1, 1 end
+  while(iR <= eR) do local iD = iR
+    while(iD <= eR) do local tD = tData[iD]
+      local nK = (tD[iC] / tS[iC])
+      self:Modify(iD, iR-dR, -nK); iD = (iD + dR)
+    end; tS, iC, iR = tData[iR], (iC + dC), (iR + dR)
   end; return self
 end
 
-function metaMatrix:getUpper()
-  return self:getNew():Upper()
+function metaMatrix:getUpper(bS)
+  return self:getNew():Upper(bS)
 end
 
-function metaMatrix:Lower()
-  local tData = self:getData()
-  local nR, nC = self:getSize(); local iC = nC
-  for iR = nR, 1, -1  do local tRow = tData[iR] 
-    for iK = (iR-1), 1, -1 do local oRow = tData[iK]
-      if(oRow[iC] ~= 0 and iC <= nC) then
-        local nK = (tRow[iC] / oRow[iC])
-        for iN = iC, nC do oRow[iN] = (oRow[iN] * nK) - tRow[iN] end
-      end
-    end; iC = (iC - 1)
+function metaMatrix:Lower(bS)
+  local tData, nR, nC = self:getData(), self:getSize()
+  local tS, iR, eR, dR, iC, dC = tData[nR], (nR-1), 1, -1
+  if(bS) then iC, dC = 1, 1 else iC, dC = nC, -1 end
+  while(iR >= eR) do local iD = iR
+    while(iD >= eR) do local tD = tData[iD]
+      local nK = (tD[iC] / tS[iC])
+      self:Modify(iD, iR-dR, -nK); iD = (iD + dR)
+    end; tS, iC, iR = tData[iR], (iC + dC), (iR + dR)
   end; return self
 end
 
-function metaMatrix:getLower()
-  return self:getNew():Lower()
+function metaMatrix:getLower(bS)
+  return self:getNew():Lower(bS)
 end
 
 function metaMatrix:Drop()
@@ -371,7 +393,7 @@ function metaMatrix:Drop()
   local iR, nR, nC = 1, self:getSize()
   while(tData[iR]) do local nS = 0
     for iC = 1, nC do
-      nS = nS + math.abs(tData[iR][iC]) 
+      nS = nS + math.abs(tData[iR][iC])
     end if(nS == 0) then table.remove(tData, iR)
       else iR = iR + 1 end
   end; return self:setData(tData)
@@ -409,15 +431,20 @@ function metaMatrix:getTrace()
   end; return nT
 end
 
-function metaMatrix:Pow(oR, oI)
+function metaMatrix:PowExp(oR, oI)
   local extlb, nK = metaMatrix.__extlb
   if(extlb) then nK = extlb.complexNew(oR, oI)
   else nK = (tonumber(oR) or 0) end
   return self:Log():Mul(nK):Exp()
 end
 
-function metaMatrix:getPow(oR, oI)
-  return self:getNew():Pow(oR, oI)
+function metaMatrix:getPowExp(oR, oI)
+  return self:getNew():PowExp(oR, oI)
+end
+
+-- det(tI - A) = 0
+function metaMatrix:gerRoots()
+  
 end
 
 function metaMatrix:getEig()

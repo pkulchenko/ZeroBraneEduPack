@@ -38,4 +38,8 @@ function extensions.matrix.complexNew(nRe, nIm)
   return complex.getNew(nRe, nIm)
 end
 
+function extensions.matrix.complexGetRandom(nL, nU, vC)
+  return complex.getRandom(nL, nU, vC)
+end
+
 return extensions
