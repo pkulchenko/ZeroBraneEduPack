@@ -34,8 +34,8 @@ logStatus("\nMethods starting with upper letter make internal changes and return
 logStatus("\nMethods starting with lower return something and do not change internals .")
 
 logStatus("\nCreating complex")
-local a = complex.getNew(7,7):Print(" Create: ","\n")
-complex.getNew(a):Print(" Copy-constructor: ","\n")
+local a = complex.getNew(7,7):Print("%2d"," Create:           {","}\n")
+complex.getNew(a):Print("%2d"," Copy-constructor: {","}\n")
 
 --------------------------------------------------------------------------
 logStatus("\nCalling the copy-constructor for different arguments "..tostring(a)); tPar = {}
@@ -180,7 +180,7 @@ makeTastCase(a.getFormat)
 
 logStatus("\nConverting to polar coordinates and back "..tostring(a))
 local r, p = a:getPolar(); logStatus("1: "..r.."e^"..p.."i")
-complex.getEuler(r, p):Print("2: ","\n")
+complex.getEuler(r, p):Print(nil,"2: {","}\n")
 
 logStatus("\nAngle handling radian to degree and back "..tostring(a))
 local r, d = a:getAngRad(), a:getAngDeg()
@@ -266,8 +266,8 @@ tPar[8] ={
   {Typ="Conj" , Arg={a, true, false },Foo=t.getConj , Out="{7,-7}"},
 }
 
-local ru = ( a:getNew() * 10 + complex.convNew(" 0.36+0.36j")):Print("Positive : ","\n")
-local rd = (-a:getNew() * 10 + complex.convNew("-0.36-0.36j")):Print("Negative : ","\n")
+local ru = ( a:getNew() * 10 + complex.convNew(" 0.36+0.36j")):Print("%7.3f","Positive : {","}\n")
+local rd = (-a:getNew() * 10 + complex.convNew("-0.36-0.36j")):Print("%7.3f","Negative : {","}\n")
 
 tPar[9] ={
   Name = "Round positive "..tostring(a),
@@ -366,6 +366,7 @@ else
 end
 
 local tCall = {
+  {"Reverse         : ","getRev     ","{0.14,-0.02}                          "},
   {"Sine            : ","getSin     ","{1.0137832978161,0.885986829195}      "},
   {"Cosine          : ","getCos     ","{1.1633319692207,-0.7720914350223}    "},
   {"Tangent         : ","getTang    ","{0.25407140331504,0.93021872707887}   "},

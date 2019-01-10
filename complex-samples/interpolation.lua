@@ -1,9 +1,9 @@
 require("wx")
 require("turtle")
-local cmp = require("complex")
 local com = require("common")
 local col = require("colormap")
 local crt = require("chartmap")
+local cmp = require("complex").extend()
 
 -- 1 : Nearest neighbour ( ZoH )
 -- 2 : Bilinear interpolation ( FoH )
@@ -58,6 +58,7 @@ size(W, H)
 zero(0, 0)
 updt(false) -- disable auto updates
 com.setTic()
+
 for j = 1, 0, -gnAccuracy do
   for i = 0, 1, gnAccuracy do  
     local nV = cZ:getNew(i,j):getInterpolation(unpack(tArea))

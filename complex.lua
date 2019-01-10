@@ -7,7 +7,6 @@ if not debug.getinfo(3) then
 end
 
 local common          = require("common")
-local matrix          = require("matrix")
 local type            = type
 local math            = math
 local pcall           = pcall
@@ -43,17 +42,17 @@ metaData.__valns = "X"
 metaData.__margn = 1e-10
 metaData.__curve = 100
 metaData.__getpi = math.pi
+metaData.__basef = "%s,%s"
 metaData.__fulpi = (2 * metaData.__getpi)
 metaData.__bords = {"{([<|/","})]>|/"}
 metaData.__ssyms = {"i", "I", "j", "J", "k", "K"}
 metaData.__radeg = (180 / metaData.__getpi)
 metaData.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
 metaData.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
-metaData.__ipmtx[1] = matrix.getNew({{ 1, 0, 0, 0},
-                                     { 0, 0, 1, 0},
-                                     {-3, 3,-2,-1},
-                                     { 2,-2, 1, 1}})
-metaData.__ipmtx[2] = metaData.__ipmtx[1]:getTrans()
+
+function complex.extend()
+  metaData.__extlb = require("extensions").complex; return complex
+end
 
 function complex.isValid(cNum)
   return (getmetatable(cNum) == metaComplex)
@@ -566,8 +565,11 @@ function metaComplex:getTable(kR, kI)
   local R , I  = self:getParts(); return {[kR] = R, [kI] = I}
 end
 
-function metaComplex:Print(sS,sE)
-  return logString(tostring(sS or "")..tostring(self)..tostring(sE or ""), self)
+function metaComplex:Print(sF,sS,sE)
+  local nR, nI = self:getParts()
+  local fB, sF = metaData.__basef, tostring(sF or "%f")
+  local sS, sE = tostring(sS or "{"), tostring(sE or "}")
+  return logString(sS..(fB:format(sF,sF):format(nR,nI))..sE, self)
 end
 
 function metaComplex:Round(nF)
@@ -1334,7 +1336,7 @@ function metaComplex:getInterpolation(...)
       return logStatus("complex.getInterpolation["..nH.."]: Vertex Y1 mismatch",nil) end
     if(math.abs(tV[1]:getImag() - tV[2]:getImag()) > nM) then
       return logStatus("complex.getInterpolation["..nH.."]: Vertex Y2 mismatch",nil) end
-  end; nH = getRound(tonumber(nH or 1), 1)
+  end; nH, extlb = getRound(tonumber(nH or 1), 1), metaData.__extlb
   if(nH == 1) then local cT = self:getNew() -- Nearest neighbour
     local nD, nV = cT:Sub(tV[1]):getNorm2(), (tonumber(tI.F[1]) or 0)
     for iD = 2, 4 do cT:Set(self):Sub(tV[iD])
@@ -1350,16 +1352,9 @@ function metaComplex:getInterpolation(...)
     local f1 = (ax*(tonumber(tI.F[3]) or 0) + bx*(tonumber(tI.F[4]) or 0))
     local f2 = (ax*(tonumber(tI.F[1]) or 0) + bx*(tonumber(tI.F[2]) or 0))
     return ((ay*f1)+(by*f2))
-  elseif(nH == 3) then local mtx = metaData.__ipmtx
-    local ftx = matrix.getNew({{tI.F [3], tI.F [1], tI.Fy [3], tI.Fy [1]},
-                               {tI.F [4], tI.F [2], tI.Fy [4], tI.Fy [2]},
-                               {tI.Fx[3], tI.Fx[1], tI.Fxy[3], tI.Fxy[1]},
-                               {tI.Fx[4], tI.Fx[2], tI.Fxy[4], tI.Fxy[2]}});
-    local nV, x, y = 0, self:getParts()
-    local mta = mtx[1]:getMul(ftx):Mul(mtx[2])
-    for iD = 1, 4 do for jD = 1, 4 do
-      nV = (tonumber(mta(iD,jD) or 0)*x^(iD-1)*y^(jD-1))
-    end; end; return nV
+  elseif(nH == 3) then
+    if(extlb) then return extlb.getInterpolation(self,nH,tI)
+    else return logStatus("complex.getInterpolation["..nH.."]: Extension missing",nil) end
   end; return logStatus("complex.getInterpolation["..nH.."]: Mode mismatch",nil)
 end
 

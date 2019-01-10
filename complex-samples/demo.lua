@@ -17,11 +17,11 @@ local nMarg   = 30
 local nMaxItr = 1000
 local nTimeFR = 0.1
 local drwText = true
-local V0 = cmp.getNew(200,200):Print("Initial velocity : ","\n")
-local P  = cmp.convNew("0+j0"):Print("Position         : ","\n")
-local G  = cmp.convNew({0,-9.8}):Print("Gravity          : ","\n")
-local V  = cmp.convNew(V0):Print("Moment velocity  : ","\n")
-local Wv = cmp.convNew(-3,3):Print("Wind velocity    : ","\n")
+local V0 = cmp.getNew(200,200):Print("%7.3f","Initial velocity : {","}\n")
+local P  = cmp.convNew("0+j0"):Print("%7.3f","Position         : {","}\n")
+local G  = cmp.convNew({0,-9.8}):Print("%7.3f","Gravity          : {","}\n")
+local V  = cmp.convNew(V0):Print("%7.3f","Moment velocity  : {","}\n")
+local Wv = cmp.convNew(-3,3):Print("%7.3f","Wind velocity    : {","}\n")
 local minX, maxX, minY, maxY, traJ = 0, 0, 0, 0, {cmp.getNew(P)}
 
 for ID = 1, nMaxItr do
