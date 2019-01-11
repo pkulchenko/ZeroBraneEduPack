@@ -377,9 +377,9 @@ function common.getSignString(nV)
 end
 
 function common.convSignString(nV)
-  local sS, sV = common.getSignString(nV), tostring(nV)
-  if(common.isDryString(sS)) then return nil end
-  return common.getPick(nV > 0, sS..sV, sV)
+  local sS = common.getSignString(nV); if(not sS) then
+    return common.logStatus("common.convSignString: Not number",nil) end
+  return (sS..tostring(math.abs(nV)))
 end
 
 function common.getType(o)

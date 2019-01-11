@@ -697,6 +697,14 @@ function metaComplex:isAmongLine(cS, cE, bF)
   end; return false
 end
 
+function metaComplex:Zero()
+  return self:setReal(0):setImag(0)
+end
+
+function metaComplex:getZero()
+  return self:getNew():Zero()
+end
+
 function metaComplex:isZeroReal()
   return (math.abs(self:getReal()) < metaData.__margn)
 end
