@@ -880,11 +880,11 @@ metaComplex.__div = function(C1,C2)
   return complex.getNew(C1):Div(C2)
 end
 
-metaComplex.__mod =  function(C1,C2)
+metaComplex.__mod = function(C1,C2)
   return complex.getNew(C1):Mod(C2)
 end
 
-metaComplex.__pow =  function(C1,C2)
+metaComplex.__pow = function(C1,C2)
   return complex.getNew(C1):Pow(C2)
 end
 
@@ -892,14 +892,14 @@ metaComplex.__concat = function(A,B)
   return tostring(A)..tostring(B)
 end
 
-metaComplex.__eq =  function(C1,C2)
+metaComplex.__eq = function(C1,C2)
   local R1, I1 = getUnpackStack(C1)
   local R2, I2 = getUnpackStack(C2)
   if(R1 == R2 and I1 == I2) then return true end
   return false
 end
 
-metaComplex.__le =  function(C1,C2)
+metaComplex.__le = function(C1,C2)
   local R1, I1 = getUnpackStack(C1)
   local R2, I2 = getUnpackStack(C2)
   if(I1 == 0 and I2 == 0) then return (R1 <= R2) end
@@ -907,7 +907,7 @@ metaComplex.__le =  function(C1,C2)
   return false
 end
 
-metaComplex.__lt =  function(C1,C2)
+metaComplex.__lt = function(C1,C2)
   local R1, I1 = getUnpackStack(C1)
   local R2, I2 = getUnpackStack(C2)
   if(I1 == 0 and I2 == 0) then return (R1 < R2) end

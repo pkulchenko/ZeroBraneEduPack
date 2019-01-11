@@ -581,4 +581,20 @@ metaMatrix.__concat = function(oA,oB)
   return tostring(oA)..tostring(oB)
 end
 
+metaMatrix.__len = function(oM)
+  return oM:getRank()
+end
+
+metaMatrix.__eq = function(oA,oB)
+  local aR, aC = oA:getSize()
+  local bR, bC = oB:getSize()
+  if(aR ~= aC) then return false end
+  if(bR ~= bC) then return false end
+  local tA, tB = oA:getData(), oB:getData()
+  if(not (tA and tB)) then return false end
+  for iR = 1, aR do for iC = 1, aC do
+    if(tA[iR][iC] ~= tB[iR][iC]) then return false end
+  end end; return true -- Every element must be exact same
+end
+
 return matrix
