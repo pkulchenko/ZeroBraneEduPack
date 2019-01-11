@@ -117,6 +117,10 @@ function common.isBool(bVal)
   return false
 end
 
+function common.isZero(vVal)
+  return (not ((vVal + vVal) ~= vVal))
+end
+
 function common.isType(sT, iD)
   return (sT == metaCommon.__type[iD])
 end

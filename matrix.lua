@@ -12,6 +12,7 @@ local tonumber       = tonumber
 local matrix         = {}
 local metaMatrix     = {}
 local dataMatrix     = {}
+local isZero         = common.isZero
 local isTable        = common.isTable
 local isString       = common.isString
 local isNumber       = common.isNumber
@@ -35,10 +36,6 @@ function matrix.getType(oM)
   return ((tM and tM.__type) and tostring(tM.__type) or type(oM))
 end
 
-function matrix.extValue(nV)
-  
-end
-
 function matrix.convNew(vIn,...)
   if(matrix.isValid(vIn)) then return vIn:getNew(vIn) end
   local tyIn, tArg = type(vIn), {...}
@@ -54,6 +51,8 @@ function matrix.getNew(tM)
   function self:getData() return mtData end
   function self:cpyData() return common.copyItem(mtData) end
   function self:getSize() return mnR, mnC end
+  function self:getRows() return mnR end
+  function self:getCols() return mnC end
   function self:setData(oM)
     if(matrix.isValid(oM)) then mtData = oM:cpyData()
     elseif(oM) then mtData = common.copyItem(oM)
@@ -108,6 +107,9 @@ function metaMatrix:getNew(tM)
   return (tM and matrix.getNew(tM) or matrix.getNew(self:getData()))
 end
 
+--[[
+  Negates all the elements of the matrix
+]]
 function metaMatrix:Neg()
   local tData, nR, nC = self:getData(), self:getSize()
   local extlb = dataMatrix.__extlb
@@ -140,7 +142,7 @@ function metaMatrix:setSym(bS)
 end
 
 --[[
-  Modify destination row id /iD/, with the source /iS/.
+  Modify destination row id /iD/, with the source id /iS/.
   Uses the coefficient nK to scale the linear system
   to adjust the destination row by id based on the source
 ]]
@@ -162,7 +164,7 @@ end
 
 --[[
  * Scratches the matrix by row /nR/ and colum /nC/
- * and converts matrix to sub-matrix
+ * and converts matrix to sub-matrix minor
 ]]
 function metaMatrix:Minor(nR,nC)
   local tData = self:getData()
@@ -221,6 +223,10 @@ function metaMatrix:getRand(nR, nC, nL, nU, vC)
   return self:getNew():Rand(nR, nC, nL, nU, vC)
 end
 
+--[[
+ * Fill the matrix of size [nR, nC] with value vV
+ * When bM is enabed fills only the main diagonal
+]]
 function metaMatrix:Fill(nR, nC, vV, bM)
   local tM, vR, vC = {}
   local extlb tData = dataMatrix.__extlb
@@ -247,7 +253,7 @@ end
 
 function metaMatrix:Zero(nR, nC)
   local extlb tData = dataMatrix.__extlb
-  local nZ = (extlb and complexNew(0,0) or 0)
+  local nZ = (extlb and extlb.complexNew(0,0) or 0)
   return self:Fill(nR, nC, nZ)
 end
 
@@ -257,7 +263,7 @@ end
 
 function metaMatrix:Ones(nR, nC)
   local extlb tData = dataMatrix.__extlb
-  local nZ = (extlb and complexNew(1,0) or 1)
+  local nZ = (extlb and extlb.complexNew(1,0) or 1)
   return self:Fill(nR, nC, nZ)
 end
 
@@ -273,7 +279,7 @@ function metaMatrix:getUnit(nR, nC)
   return self:getNew():Unit(nR, nC)
 end
 
-function metaMatrix:Add(oM)
+function metaMatrix:Offset(oM, nK)
   local oR, oC = oM:getSize()
   local mR, mC = self:getSize()
   local mData, oData = self:getData(), oM:getData()
@@ -281,11 +287,17 @@ function metaMatrix:Add(oM)
     return logStatus("matrix.Div: Row mismatch ["..oR.." x "..oC.."] + ["..mR.." x "..mC.."]",nil) end
   if(oC ~= mC) then
     return logStatus("matrix.Div: Col mismatch ["..oR.." x "..oC.."] + ["..mR.." x "..mC.."]",nil) end
-  local extlb = dataMatrix.__extlb
   for iR = 1, mR do for iC = 1, mC do
-    if(extlb) then mData[iR][iC]:Add(oData[iR][iC])
-    else mData[iR][iC] = mData[iR][iC] + oData[iR][iC] end
+    mData[iR][iC] = mData[iR][iC] + nK * oData[iR][iC]
   end end; return self
+end
+
+function metaMatrix:getOffset(oM, nK)
+  return self:getNew():Offset(oM, nK)
+end
+
+function metaMatrix:Add(oM)
+  return self:Offset(oM, 1)
 end
 
 function metaMatrix:getAdd(oM)
@@ -293,18 +305,7 @@ function metaMatrix:getAdd(oM)
 end
 
 function metaMatrix:Sub(oM)
-  local oR, oC = oM:getSize()
-  local mR, mC = self:getSize()
-  local mData, oData = self:getData(), oM:getData()
-  if(oR ~= mR) then
-    return logStatus("matrix.Sub: Row mismatch ["..oR.." x "..oC.."] - ["..mR.." x "..mC.."]",nil) end
-  if(oC ~= mC) then
-    return logStatus("matrix.Sub: Col mismatch ["..oR.." x "..oC.."] - ["..mR.." x "..mC.."]",nil) end
-  local extlb = dataMatrix.__extlb
-  for iR = 1, mR do for iC = 1, mC do
-    if(extlb) then mData[iR][iC]:Sub(oData[iR][iC])
-    else mData[iR][iC] = mData[iR][iC] - oData[iR][iC] end
-  end end; return self
+  return self:Offset(oM, -1)
 end
 
 function metaMatrix:getSub(oM)
@@ -339,20 +340,26 @@ function metaMatrix:getLog()
   return self:getNew():Log()
 end
 
-function metaMatrix:Mul(oM)
+function metaMatrix:Mul(oM, bE)
   local extlb = dataMatrix.__extlb
   if(matrix.isValid(oM)) then
     local rA, cA = self:getSize()
-    local rB, cB = oM:getSize(); if(cA ~= rB) then
+    local rB, cB = oM:getSize(); if(not bE and cA ~= rB) then
       return logStatus("matrix.Mul: Dimension mismatch ["..rA.." x "..cA.."] * ["..rB.." x "..cB.."]",nil) end
     local tA, tB, tM = self:getData(), oM:getData(), {}
-    for i = 1, rA do if(not tM[i]) then tM[i] = {} end
-      for j = 1, cB do local nV
-        if(extlb) then nV = extlb.complexNew() else nV = 0 end
-        for k = 1, rB do
-          if(extlb) then nV:Add(tA[i][k] * tB[k][j])
-          else nV = nV + (tA[i][k] * tB[k][j]) end
-        end; tM[i][j] = nV
+    for iA = 1, rA do if(not tM[iA]) then tM[iA] = {} end
+      if(not bE) then
+        for iB = 1, cB do local nV
+          if(extlb) then nV = extlb.complexNew() else nV = 0 end
+          for kB = 1, rB do nV = nV + (tA[iA][kB] * tB[kB][iB]) end
+          tM[iA][iB] = nV
+        end
+      else
+        for jA = 1, cA do local oB = ((tB[iA] and tB[iA][jA]) and tB[iA][jA] or 1)
+          if(extlb) then vB = extlb.complexNew(oB)
+          else vB = (tonumber(oB) or 1) end
+          tM[iA][jA] = (tA[iA][jA] * vB)
+        end
       end
     end; return self:setData(tM)
   else
@@ -413,20 +420,28 @@ function metaMatrix:getInv()
   return self:getNew():Inv()
 end
 
-function metaMatrix:Div(oR, oI)
+function metaMatrix:Div(oM, bE)
   local rA, cA = self:getSize()
-  local rB, cB = oR:getSize(); if(cA ~= rB) then
+  local rB, cB = oM:getSize(); if(not bE and cA ~= rB) then
     return logStatus("matrix.Div: Dimension mismatch ["..rA.." x "..cA.."] * ["..rB.." x "..cB.."]",nil) end
-  if(matrix.isValid(oR)) then
-    return self:Mul(oR:getInv())
+  if(matrix.isValid(oM)) then
+    if(bE) then local tA, tM = self:getData(), oM:getData()
+      for iR = 1, rA do
+        for iC = 1, cA do local vM = ((tM[iR] and tM[iR][iC]) and tM[iR][iC] or 1)
+          if(extlb) then vB = extlb.complexNew(vM)
+          else vB = (tonumber(vM) or 1) end
+          tA[iR][iC] = tA[iR][iC] / vM
+        end
+      end; return self:setData()
+    end; return self:Mul(oM:getInv())
   else local extlb = dataMatrix.__extlb
-    if(extlb) then return self:Mul(complexNew(oR, oI):Rev())
-    else return self:Mul(1/(tonumber(oR) or 0)) end
+    if(extlb) then return self:Mul(extlb.complexNew(oM):Rev())
+    else return self:Mul(1/(tonumber(oM) or 0)) end
   end
 end
 
-function metaMatrix:getDiv(oR, oI)
-  return self:getNew():Div(oR, oI)
+function metaMatrix:getDiv(oM, bE)
+  return self:getNew():Div(oM, bE)
 end
 
 metaMatrix.__call = function(oM, nR, nC, nS)
@@ -442,12 +457,15 @@ end
 
 function metaMatrix:Upper(bS)
   local tData, nR, nC = self:getData(), self:getSize()
-  local tS, iR, eR, dR, iC, dC = tData[1], 2, nR, 1
+  local tS, iR, eR, dR, iC, eC, dC = tData[1], 2, nR, 1
   if(bS) then iC, dC = nC, -1 else iC, dC = 1, 1 end
   while(iR <= eR) do local iD = iR
     while(iD <= eR) do local tD = tData[iD]
-      local nK = (tD[iC] / tS[iC])
-      self:Modify(iD, iR-dR, -nK); iD = (iD + dR)
+      if(not tD[iC]) then return self end
+      if(not isZero(tD[iC])) then
+        local nK = (tD[iC] / tS[iC])
+        self:Modify(iD, iR-dR, -nK)
+      end; iD = (iD + dR)
     end; tS, iC, iR = tData[iR], (iC + dC), (iR + dR)
   end; return self
 end
@@ -462,8 +480,11 @@ function metaMatrix:Lower(bS)
   if(bS) then iC, dC = 1, 1 else iC, dC = nC, -1 end
   while(iR >= eR) do local iD = iR
     while(iD >= eR) do local tD = tData[iD]
-      local nK = (tD[iC] / tS[iC])
-      self:Modify(iD, iR-dR, -nK); iD = (iD + dR)
+      if(not tD[iC]) then return self end
+      if(not isZero(tD[iC])) then
+        local nK = (tD[iC] / tS[iC])
+        self:Modify(iD, iR-dR, -nK)
+      end; iD = (iD + dR)
     end; tS, iC, iR = tData[iR], (iC + dC), (iR + dR)
   end; return self
 end
@@ -475,12 +496,13 @@ end
 function metaMatrix:Drop()
   local tData = self:getData()
   local iR, nR, nC = 1, self:getSize()
-  while(tData[iR]) do local nS = 0
-    for iC = 1, nC do
-      nS = nS + math.abs(tData[iR][iC])
-    end if(nS == 0) then table.remove(tData, iR)
-      else iR = iR + 1 end
-  end; return self:setData(tData)
+  while(iR <= nR) do local nZ = 0
+    for iC = 1, nC do local vD = tData[iR][iC]
+      if(isZero(vD)) then nZ = (nZ + 1) end end 
+    if(nZ == nC) then nR = (nR - 1)
+      table.remove(tData, iR)
+    else iR = (iR + 1) end
+  end; return self:setData()
 end
 
 function metaMatrix:getDrop()
@@ -488,9 +510,7 @@ function metaMatrix:getDrop()
 end
 
 function metaMatrix:getRank()
-  local oR = self:getNew():Upper():Drop():getSize()
-  local tR = self:getNew():Trans():Upper():Drop():getSize()
-  return math.max(oR, tR)
+  return self:getNew():Upper():Drop():getRows()
 end
 
 function metaMatrix:Solve(oB)
@@ -505,14 +525,8 @@ end
 
 function metaMatrix:getTrace()
   local mR, mC = self:getSize()
-  local nE = math.min(mR, mC)
-  local mData = self:getData()
-  local extlb, nT = dataMatrix.__extlb
-  if(extlb) then nT = extlb.complexNew() else nT = 0 end
-  for iE = 1, nE do
-    if(extlb) then nT:Add(mData[iE][iE])
-    else nT = nT + mData[iE][iE] end
-  end; return nT
+  local nE, nT, tData = math.min(mR, mC), 0, self:getData()
+  for iE = 1, nE do nT = nT + tData[iE][iE] end; return nT
 end
 
 function metaMatrix:PowExp(oR, oI)
@@ -535,6 +549,36 @@ function metaMatrix:getEig()
   local nR, nC = self:getSize(); if(nR ~= nC) then
     return logStatus("matrix.getEig: Rectangle ["..nR.." x "..nC.."]", nil) end
   return self:getNew(), self:getNew()
+end
+
+metaMatrix.__mul = function(oA,oB)
+  return oA:getNew():Mul(oB)
+end
+
+metaMatrix.__div = function(oA,oB)
+  return oA:getNew():Div(oB)
+end
+
+metaMatrix.__add = function(oA,oB)
+  return oA:getNew():Add(oB)
+end
+
+metaMatrix.__sub = function(oA,oB)
+  return oA:getNew():Sub(oB)
+end
+
+metaMatrix.__unm = function(oA,oB)
+  return oA:getNew():Neg(oB)
+end
+
+metaMatrix.__tostring = function(oM) 
+  local nR, nC = oM:getSize()
+  local nZ, tD = oM:getRank(), tostring(oM:getData()):sub(8,-1)
+  return "{"..tD.."}Matrix("..nZ..") ["..nR.." x "..nC.."]"
+end
+
+metaMatrix.__concat = function(oA,oB)
+  return tostring(oA)..tostring(oB)
 end
 
 return matrix
