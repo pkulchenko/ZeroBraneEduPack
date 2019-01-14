@@ -6,21 +6,27 @@ if not debug.getinfo(3) then
   os.exit(1)
 end
 
-local common         = require("common")
-local tostring       = tostring
-local tonumber       = tonumber
-local matrix         = {}
-local metaMatrix     = {}
-local dataMatrix     = {}
-local isZero         = common.isZero
-local isTable        = common.isTable
-local isString       = common.isString
-local isNumber       = common.isNumber
-local logStatus      = common.logStatus
-local convSignString = common.convSignString
-metaMatrix.__type    = "matrix.matrix"
-metaMatrix.__index   = metaMatrix
-dataMatrix.__symch   = "x"
+local common          = require("common")
+local tostring        = tostring
+local tonumber        = tonumber
+local matrix          = {}
+local metaMatrix      = {}
+local dataMatrix      = {}
+local isZero          = common.isZero
+local isTable         = common.isTable
+local isString        = common.isString
+local isNumber        = common.isNumber
+local logStatus       = common.logStatus
+local getClamp        = common.getClamp
+local getType         = common.getType
+local getPick         = common.getPick
+local copyItem        = common.copyItem
+local stringPadL      = common.stringPadL
+local convSignString  = common.convSignString
+local randomGetNumber = common.randomGetNumber
+metaMatrix.__type     = "matrix.matrix"
+metaMatrix.__index    = metaMatrix
+dataMatrix.__symch    = "x"
 
 function matrix.extend()
   dataMatrix.__extlb = require("extensions").matrix; return matrix
@@ -28,12 +34,6 @@ end
 
 function matrix.isValid(oM)
   return (getmetatable(oM) == metaMatrix)
-end
-
-function matrix.getType(oM)
-  if(not oM) then return metaMatrix.__type end
-  local tM = getmetatable(oM)
-  return ((tM and tM.__type) and tostring(tM.__type) or type(oM))
 end
 
 function matrix.convNew(vIn,...)
@@ -45,17 +45,17 @@ function matrix.convNew(vIn,...)
 end
 
 function matrix.getNew(tM)
-  local mnR, mnC mtData = 0, 0, nil
-  local self, mtData = setmetatable({}, metaMatrix)
+  local mnR, mnC, self, mtData = 0, 0, {}
+  setmetatable(self, metaMatrix)
   local extlb = dataMatrix.__extlb
   function self:getData() return mtData end
-  function self:cpyData() return common.copyItem(mtData) end
+  function self:cpyData() return copyItem(mtData) end
   function self:getSize() return mnR, mnC end
   function self:getRows() return mnR end
   function self:getCols() return mnC end
   function self:setData(oM)
     if(matrix.isValid(oM)) then mtData = oM:cpyData()
-    elseif(oM) then mtData = common.copyItem(oM)
+    elseif(oM) then mtData = copyItem(oM)
     else --[[ Reinitialize mtData ]] end
     mnR, mnC = #mtData, #mtData[1]
     for iR = 1, mnR do for iC = 1, mnC do
@@ -95,10 +95,10 @@ function metaMatrix:Print(nS, sM)
   local sM = (sM and " "..tostring(sM) or "")
   local tData, nR, nC = self:getData(), self:getSize()
   logStatus("Matrix ["..nR.." x "..nC.."]"..sM)
-  local nS = common.getClamp(tonumber(nS) or 0,0)
+  local nS = getClamp(tonumber(nS) or 0,0)
   for iR = 1, nR do local sL = ""
     for iC = 1, nC do
-      sL = sL..", "..common.stringPadL(tostring(tData[iR][iC]), nS)
+      sL = sL..", "..stringPadL(tostring(tData[iR][iC]), nS)
     end; logStatus("[ "..sL:sub(2,-1).." ]")
   end; return self
 end
@@ -195,8 +195,8 @@ function metaMatrix:getDet(vR)
   if(not isTable(tData)) then return tData end
   if(nR == 1 and nC == 1) then return tData[1][1] end
   if(nR == 2 and nC == 2) then local R1, R2 = tData[1], tData[2]
-    return ((R1[1]*R2[2]) - (R2[1]*R1[2])) end
-  local vR = common.getClamp(tonumber(vR) or 1, 1)
+    return ((R1[1] * R2[2]) - (R2[1] * R1[2])) end
+  local vR = getClamp(tonumber(vR) or 1, 1)
   local tR, iR, nD = tData[vR], 1, 0
   for iC = 1, nC do nD = nD + tR[iC]*self:getCofactor(vR,iC) end; return nD
 end
@@ -211,11 +211,11 @@ function metaMatrix:getPolynomial()
 end
 
 function metaMatrix:Rand(nR, nC, nL, nU, vC) local tM = {}
-  local nR = common.getClamp(tonumber(nR) or 1 ,1)
-  local nC = common.getClamp(tonumber(nC) or nR,1)
+  local nR = getClamp(tonumber(nR) or 1 ,1)
+  local nC = getClamp(tonumber(nC) or nR,1)
   for iR = 1, nR do tM[iR] = {}; for iC = 1, nC do
     if(extlb) then tM[iR][iC] = extlb.complexGetRandom(nL, nU, vC)
-    else tM[iR][iC] = common.randomGetNumber(nL, nU, vC) end
+    else tM[iR][iC] = randomGetNumber(nL, nU, vC) end
   end; end; return self:setData(tM)
 end
 
@@ -231,8 +231,8 @@ function metaMatrix:Fill(nR, nC, vV, bM)
   local tM, vR, vC = {}
   local extlb tData = dataMatrix.__extlb
   if(nR or nC) then
-   vR = common.getClamp(tonumber(nR) or 1 ,1)
-   vC = common.getClamp(tonumber(nC) or nR,1)
+   vR = getClamp(tonumber(nR) or 1 ,1)
+   vC = getClamp(tonumber(nC) or nR,1)
   else tData, vR, vC = self:getData(), self:getSize() end
   for iR = 1, vR do if(not tData) then tM[iR] = {} end
     for iC = 1, vC do if((bM and iR==iC) or not bM) then
@@ -446,8 +446,8 @@ end
 
 metaMatrix.__call = function(oM, nR, nC, nS)
   local tData, nS = oM:getData(), tonumber(nS)
-  local nR = common.getClamp(tonumber(nR) or 1 ,1)
-  local nC = common.getClamp(tonumber(nC) or nR,1)
+  local nR = getClamp(tonumber(nR) or 1 ,1)
+  local nC = getClamp(tonumber(nC) or nR,1)
   local tR = tData[nR]; if(not tR) then
     return logStatus("matrix.Call: Missing row ["..nR.." x "..nC.."]",nil) end
   local nV = tR[nC]; if(not nV) then
@@ -595,6 +595,30 @@ metaMatrix.__eq = function(oA,oB)
   for iR = 1, aR do for iC = 1, aC do
     if(tA[iR][iC] ~= tB[iR][iC]) then return false end
   end end; return true -- Every element must be exact same
+end
+
+metaMatrix.__lt = function(oA,oB)
+  local oA, oB, bF = oA, oB, false
+  if(not matrix.isValid(oA)) then oA, oB, bF = oB, oA, true end
+  if(not matrix.isValid(oB)) then local nR, nC = oA:getSize()
+    if(nR == 1 and nC == 1) then local nV = oA:getData()[1][1]
+      return getPick(bF, nV > oB, nV < oB)
+    else local tA, tB = getType(oA), getType(oB); if(bF) then tA, tB = tB, tA end
+      return logStatus("matrix.(<=): Cannot compare {"..tA.."} with {"..tB.."}",false)
+    end; return false
+  end; return oA:getDet() < oB:getDet()
+end
+
+metaMatrix.__le = function(oA,oB)
+  local oA, oB, bF = oA, oB, false
+  if(not matrix.isValid(oA)) then oA, oB, bF = oB, oA, true end
+  if(not matrix.isValid(oB)) then local nR, nC = oA:getSize()
+    if(nR == 1 and nC == 1) then local nV = oA:getData()[1][1]
+      return getPick(bF, nV >= oB, nV <= oB)
+    else local tA, tB = getType(oA), getType(oB); if(bF) then tA, tB = tB, tA end
+      return logStatus("matrix.(<=): Cannot compare {"..tA.."} with {"..tB.."}",false)
+    end; return false
+  end; return oA:getDet() <= oB:getDet()
 end
 
 return matrix
