@@ -158,8 +158,8 @@ function metaMatrix:Modify(iD, iS, nK)
   for iC = 1, nC do tD[iC] = tD[iC] + nK * tS[iC] end; return self
 end
 
-function metaMatrix:getModify(iD, iS, nK)
-  return self:getNew():Modify(iD, iS, nK)
+function metaMatrix:getModify(...)
+  return self:getNew():Modify(...)
 end
 
 --[[
@@ -177,8 +177,8 @@ function metaMatrix:Minor(nR,nC)
   cC, cR = 1, (cR + 1); end; end; return self:setData(tM)
 end
 
-function metaMatrix:getMinor(nR,nC)
-  return self:getNew():Minor(nR,nC)
+function metaMatrix:getMinor(...)
+  return self:getNew():Minor(...)
 end
 
 function metaMatrix:getCofactor(nR,nC)
@@ -219,8 +219,8 @@ function metaMatrix:Rand(nR, nC, nL, nU, vC) local tM = {}
   end; end; return self:setData(tM)
 end
 
-function metaMatrix:getRand(nR, nC, nL, nU, vC)
-  return self:getNew():Rand(nR, nC, nL, nU, vC)
+function metaMatrix:getRand(...)
+  return self:getNew():Rand(...)
 end
 
 --[[
@@ -247,8 +247,8 @@ function metaMatrix:Fill(nR, nC, vV, bM)
   end; return (tData and self:setData() or self:setData(tM))
 end
 
-function metaMatrix:getFill(nR, nC, vV, bM)
-  return self:getNew():Fill(nR, nC, vV, bM)
+function metaMatrix:getFill(...)
+  return self:getNew():Fill(...)
 end
 
 function metaMatrix:Zero(nR, nC)
@@ -257,8 +257,8 @@ function metaMatrix:Zero(nR, nC)
   return self:Fill(nR, nC, nZ)
 end
 
-function metaMatrix:getZero(nR, nC)
-  return self:getNew():Zero(nR, nC)
+function metaMatrix:getZero(...)
+  return self:getNew():Zero(...)
 end
 
 function metaMatrix:Ones(nR, nC)
@@ -267,16 +267,16 @@ function metaMatrix:Ones(nR, nC)
   return self:Fill(nR, nC, nZ)
 end
 
-function metaMatrix:getOnes(nR, nC)
-  return self:getNew():Ones(nR, nC)
+function metaMatrix:getOnes(...)
+  return self:getNew():Ones(...)
 end
 
 function metaMatrix:Unit(nR, nC)
   return self:Fill(nR, nC, 1, true)
 end
 
-function metaMatrix:getUnit(nR, nC)
-  return self:getNew():Unit(nR, nC)
+function metaMatrix:getUnit(...)
+  return self:getNew():Unit(...)
 end
 
 function metaMatrix:Offset(oM, nK)
@@ -292,24 +292,24 @@ function metaMatrix:Offset(oM, nK)
   end end; return self
 end
 
-function metaMatrix:getOffset(oM, nK)
-  return self:getNew():Offset(oM, nK)
+function metaMatrix:getOffset(...)
+  return self:getNew():Offset(...)
 end
 
 function metaMatrix:Add(oM)
   return self:Offset(oM, 1)
 end
 
-function metaMatrix:getAdd(oM)
-  return self:getNew():Add(oM)
+function metaMatrix:getAdd(...)
+  return self:getNew():Add(...)
 end
 
 function metaMatrix:Sub(oM)
   return self:Offset(oM, -1)
 end
 
-function metaMatrix:getSub(oM)
-  return self:getNew():Sub(oM)
+function metaMatrix:getSub(...)
+  return self:getNew():Sub(...)
 end
 
 function metaMatrix:Exp()
@@ -374,8 +374,8 @@ function metaMatrix:Mul(oM, bE)
   end
 end
 
-function metaMatrix:getMul(oM)
-  return self:getNew():Mul(oM)
+function metaMatrix:getMul(...)
+  return self:getNew():Mul(...)
 end
 
 function metaMatrix:Trans()
@@ -440,8 +440,8 @@ function metaMatrix:Div(oM, bE)
   end
 end
 
-function metaMatrix:getDiv(oM, bE)
-  return self:getNew():Div(oM, bE)
+function metaMatrix:getDiv(...)
+  return self:getNew():Div(...)
 end
 
 metaMatrix.__call = function(oM, nR, nC, nS)
@@ -470,8 +470,8 @@ function metaMatrix:Upper(bS)
   end; return self
 end
 
-function metaMatrix:getUpper(bS)
-  return self:getNew():Upper(bS)
+function metaMatrix:getUpper(...)
+  return self:getNew():Upper(...)
 end
 
 function metaMatrix:Lower(bS)
@@ -489,8 +489,8 @@ function metaMatrix:Lower(bS)
   end; return self
 end
 
-function metaMatrix:getLower(bS)
-  return self:getNew():Lower(bS)
+function metaMatrix:getLower(...)
+  return self:getNew():Lower(...)
 end
 
 function metaMatrix:Drop()
@@ -519,8 +519,8 @@ function metaMatrix:Solve(oB)
   return self:Inv():Mul(oB)
 end
 
-function metaMatrix:getSolve(oB)
-  return self:getNew():Solve(oB)
+function metaMatrix:getSolve(...)
+  return self:getNew():Solve(...)
 end
 
 function metaMatrix:getTrace()
@@ -536,8 +536,8 @@ function metaMatrix:PowExp(oR, oI)
   return self:Log():Mul(nK):Exp()
 end
 
-function metaMatrix:getPowExp(oR, oI)
-  return self:getNew():PowExp(oR, oI)
+function metaMatrix:getPowExp(...)
+  return self:getNew():PowExp(...)
 end
 
 -- det(tI - A) = 0
@@ -549,6 +549,34 @@ function metaMatrix:getEig()
   local nR, nC = self:getSize(); if(nR ~= nC) then
     return logStatus("matrix.getEig: Rectangle ["..nR.." x "..nC.."]", nil) end
   return self:getNew(), self:getNew()
+end
+
+function metaMatrix:Snip(nsR, nsC, neR, neC)
+  local tD, tA, nR, nC = self:getData(), {}, self:getSize()
+  tA[1], tA[2] = (tonumber(nsR) or 0), (tonumber(neR) or 0)
+  tA[3], tA[4] = (tonumber(nsC) or 0), (tonumber(neC) or 0) 
+  if(tA[1] > tA[2]) then
+    return logStatus("matrix.Snip: Row mismatch {"..tA[1]..", "..tA[2].."}", nil) end
+  if(tA[3] > tA[4]) then
+    return logStatus("matrix.Snip: Col mismatch {"..tA[2]..", "..tA[4].."}", nil) end
+  for iD = 1, 2 do local dR, dC = tA[iD], tA[iD+2]
+  local tR = tD[dR]; if(not tR) then
+    return logStatus("matrix.Snip: Row bound {"..dR..", "..nR.."}", nil) end
+  if(not tR[dC]) then
+    return logStatus("matrix.Snip: Col bound {"..dC..", "..nC.."}", nil) end
+  end local iK = 1 -- Drop the depricated rows
+  for iD = tA[1], tA[2] do tD[iK], iK = tD[iD], (iK+1) end
+  for iD = iK, nR do table.remove(tD) nR = (nR - 1) end
+  -- Drop the depricated columns
+  for iD = 1, nR do local iK, tR = 1, tD[iD]
+    for iC = tA[3], tA[4] do tR[iK], iK = tR[iC], (iK+1) end
+    for iF = iK, nC do table.remove(tR) nR = (nR - 1) end
+  end
+  return self:setData()
+end
+
+function metaMatrix:getSnip(...)
+  return self:getNew():Snip(...)
 end
 
 metaMatrix.__mul = function(oA,oB)
