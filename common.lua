@@ -935,6 +935,21 @@ function common.getToc()
   return (os.clock() - metaCommon.__clok)
 end
 
+function common.getPermute(...)
+  local tV = {...} -- Read input arguments
+  local nV = #tV; if(nV <= 1) then return tV end
+  if(nV == 2) then return {{tV[1], tV[2]}, {tV[2], tV[1]}} end
+  local tO, iO = {}, 1
+  for iD = 1, nV do
+    local cP = common.copyItem(tV)
+    local vP = table.remove(cP, iD) -- Pop element
+    local tP = common.getPermute(unpack(cP))    
+    for iP = 1, #tP do table.insert(tP[iP], vP)
+      tO[iO] = tP[iP]; iO = (iO + 1)
+    end
+  end; return tO
+end
+
 common.randomSetSeed()
 
 return common
