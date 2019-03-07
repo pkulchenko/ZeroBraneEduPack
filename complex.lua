@@ -1199,43 +1199,46 @@ function complex.getBezierCurve(...)
   end; tS[ID] = {tV[nV]:getNew(), tV[nV]:getSub(tV[nV-1]), 1}; return tS
 end
 
-local function catmullromTangent(nT, cS, cE, nA)
+function complex.getCatmullRomCurveTang(cS, cE, nT, nA)
   return ((cE:getNew():Sub(cS):getNorm()^(tonumber(nA) or 0.5))+nT)
 end
 
-local function catmullromSegment(cP0, cP1, cP2, cP3, nN, nA)
+function complex.getCatmullRomCurveSegm(cP0, cP1, cP2, cP3, nN, nA)
   local nT0, tC = 0, {} -- Start point is always zero
-  local nT1 = catmullromTangent(nT0, cP0, cP1, nA)
-  local nT2 = catmullromTangent(nT1, cP1, cP2, nA)
-  local nT3 = catmullromTangent(nT2, cP2, cP3, nA)
-  local tTN = common.tableArrGetLinearSpace(nT1, nT2, nN-2)
-  for iD = 1, #tTN do
-    local tA1 = cP0:getNew():Mul((nT1-tTN[iD])/(nT1-nT0)):Add(cP1:getMul((tTN[iD]-nT0)/(nT1-nT0)))
-    local tA2 = cP1:getNew():Mul((nT2-tTN[iD])/(nT2-nT1)):Add(cP2:getMul((tTN[iD]-nT1)/(nT2-nT1)))
-    local tA3 = cP2:getNew():Mul((nT3-tTN[iD])/(nT3-nT2)):Add(cP3:getMul((tTN[iD]-nT2)/(nT3-nT2)))
-    local tB1 = tA1:getNew():Mul((nT2-tTN[iD])/(nT2-nT0)):Add(tA2:getMul((tTN[iD]-nT0)/(nT2-nT0)))
-    local tB2 = tA2:getNew():Mul((nT3-tTN[iD])/(nT3-nT1)):Add(tA3:getMul((tTN[iD]-nT1)/(nT3-nT1)))
-       tC[iD] = tB1:Mul((nT2-tTN[iD])/(nT2-nT1)):Add(tB2:Mul((tTN[iD]-nT1)/(nT2-nT1)))
+  local nT1 = complex.getCatmullRomCurveTang(cP0, cP1, nT0, nA)
+  local nT2 = complex.getCatmullRomCurveTang(cP1, cP2, nT1, nA)
+  local nT3 = complex.getCatmullRomCurveTang(cP2, cP3, nT2, nA)
+  local tTN = common.tableArrGetLinearSpace(nT1, nT2, nN)
+  local cB1, cB2 = cP0:getNew(), cP0:getNew()
+  local cA1, cA2, cA3 = cP0:getNew(), cP0:getNew(), cP0:getNew()
+  for iD = 1, #tTN do tC[iD] = cP0:getNew(); local vTn, cTn = tTN[iD], tC[iD]
+    cA1:Set(cP0):Mul((nT1-vTn)/(nT1-nT0)):Add(cP1:getMul((vTn-nT0)/(nT1-nT0)))
+    cA2:Set(cP1):Mul((nT2-vTn)/(nT2-nT1)):Add(cP2:getMul((vTn-nT1)/(nT2-nT1)))
+    cA3:Set(cP2):Mul((nT3-vTn)/(nT3-nT2)):Add(cP3:getMul((vTn-nT2)/(nT3-nT2)))
+    cB1:Set(cA1):Mul((nT2-vTn)/(nT2-nT0)):Add(cA2:getMul((vTn-nT0)/(nT2-nT0)))
+    cB2:Set(cA2):Mul((nT3-vTn)/(nT3-nT1)):Add(cA3:getMul((vTn-nT1)/(nT3-nT1)))
+    cTn:Set(cB1):Mul((nT2-vTn)/(nT2-nT1)):Add(cB2:getMul((vTn-nT1)/(nT2-nT1)))
   end; return tC
 end
 
 function complex.getCatmullRomCurve(...)
   local tV, nV, nT, nA = getUnpackSplit(...)
-  nT = math.floor(tonumber(nT) or metaData.__curve); if(nT < 2) then
-    return logStatus("complex.getCatmullRomCurve: Curve samples not enough",nil) end
+  nT = math.floor(tonumber(nT) or metaData.__curve); if(nT < 0) then
+    return logStatus("complex.getCatmullRomCurve: Curve samples invalid",nil) end
   if(not (tV[1] and tV[2])) then
     return logStatus("complex.getCatmullRomCurve: Two vertexes are needed",nil) end
   if(not complex.isValid(tV[1])) then
     return logStatus("complex.getCatmullRomCurve: First vertex invalid <"..type(tV[1])..">",nil) end
   if(not complex.isValid(tV[2])) then
     return logStatus("complex.getCatmullRomCurve: Second vertex invalid <"..type(tV[2])..">",nil) end
-  local vM = metaData.__margn
-  local cS, tC = tV[1]:getNew():Unit():Mul(vM):Add(tV[1]), {}
-  local cE, iC = tV[nV]:getNew():Unit():Mul(vM):Add(tV[nV]), 1
+  local vM, iC, tC = metaData.__margn, 1, {}
+  local cS = tV[1]:getNew():Sub(tV[2]):Unit():Mul(vM):Add(tV[1])
+  local cE = tV[nV]:getNew():Sub(tV[nV-1]):Unit():Mul(vM):Add(tV[nV])
   table.insert(tV, 1, cS); table.insert(tV, cE); nV = #tV;
-  for iD = 1, (nV-3) do tC[iC] = tV[iD+1]:getNew(); iC = (iC + 1)
-    local tS = catmullromSegment(tV[iD], tV[iD+1], tV[iD+2], tV[iD+3], nT, nA)
-    for iK = 1, #tS do tC[iC] = tS[iK]; iC = (iC + 1) end
+  for iD = 1, (nV-3) do
+    local cA, cB, cC, cD = tV[iD], tV[iD+1], tV[iD+2], tV[iD+3]
+    local tS = complex.getCatmullRomCurveSegm(cA, cB, cC, cD, nT, nA)
+    for iK = 1, (nT+1) do tC[iC] = tS[iK]; iC = (iC + 1) end
   end; tC[iC] = tV[nV-1]:getNew()
   table.remove(tV, 1); table.remove(tV); return tC
 end

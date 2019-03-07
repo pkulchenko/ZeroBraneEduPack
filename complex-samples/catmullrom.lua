@@ -36,7 +36,7 @@ local c6 = complex.getNew( 15, 15)
 -- local tC = complex.getCatmullRomCurve({p1, p2, ..., pn}, n-samples, alpha)
 
 local tc = {c1,c2,c3,c4,c5,c6}
-local tC = complex.getCatmullRomCurve(tc,15,0.1)
+local tC = complex.getCatmullRomCurve(tc,10,0.1)
 
 if(tC) then
   open("Complex Catmull Rom curve demo")
