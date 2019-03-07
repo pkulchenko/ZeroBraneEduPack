@@ -1199,15 +1199,15 @@ function complex.getBezierCurve(...)
   end; tS[ID] = {tV[nV]:getNew(), tV[nV]:getSub(tV[nV-1]), 1}; return tS
 end
 
-function complex.getCatmullRomCurveTang(cS, cE, nT, nA)
+function complex.getCatmullRomCurveTangent(cS, cE, nT, nA)
   return ((cE:getNew():Sub(cS):getNorm()^(tonumber(nA) or 0.5))+nT)
 end
 
-function complex.getCatmullRomCurveSegm(cP0, cP1, cP2, cP3, nN, nA)
+function complex.getCatmullRomCurveSegment(cP0, cP1, cP2, cP3, nN, nA)
   local nT0, tC = 0, {} -- Start point is always zero
-  local nT1 = complex.getCatmullRomCurveTang(cP0, cP1, nT0, nA)
-  local nT2 = complex.getCatmullRomCurveTang(cP1, cP2, nT1, nA)
-  local nT3 = complex.getCatmullRomCurveTang(cP2, cP3, nT2, nA)
+  local nT1 = complex.getCatmullRomCurveTangent(cP0, cP1, nT0, nA)
+  local nT2 = complex.getCatmullRomCurveTangent(cP1, cP2, nT1, nA)
+  local nT3 = complex.getCatmullRomCurveTangent(cP2, cP3, nT2, nA)
   local tTN = common.tableArrGetLinearSpace(nT1, nT2, nN)
   local cB1, cB2 = cP0:getNew(), cP0:getNew()
   local cA1, cA2, cA3 = cP0:getNew(), cP0:getNew(), cP0:getNew()
@@ -1237,7 +1237,7 @@ function complex.getCatmullRomCurve(...)
   table.insert(tV, 1, cS); table.insert(tV, cE); nV = #tV;
   for iD = 1, (nV-3) do
     local cA, cB, cC, cD = tV[iD], tV[iD+1], tV[iD+2], tV[iD+3]
-    local tS = complex.getCatmullRomCurveSegm(cA, cB, cC, cD, nT, nA)
+    local tS = complex.getCatmullRomCurveSegment(cA, cB, cC, cD, nT, nA)
     for iK = 1, (nT+1) do tC[iC] = tS[iK]; iC = (iC + 1) end
   end; tC[iC] = tV[nV-1]:getNew()
   table.remove(tV, 1); table.remove(tV); return tC
