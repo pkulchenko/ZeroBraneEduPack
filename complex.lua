@@ -196,7 +196,7 @@ function metaComplex:Neg     () return self:NegRe():NegIm() end
 function metaComplex:getNeg  () return self:getNew():Neg() end
 function metaComplex:getNegRe() return self:getNew():NegRe() end
 function metaComplex:getNegIm() return self:getNew():NegIm() end
-function metaComplex:getConj () return self:getNegIm() end
+function metaComplex:getConj () return self:getNew():Conj() end
 
 function metaComplex:getNorm2()
   local R, I = self:getParts(); return (R*R + I*I) end
