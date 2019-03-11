@@ -576,12 +576,15 @@ function common.tableClear(tT)
   for k,v in pairs(tT) do tT[k] = nil end
 end
 
-function common.tableArrGetLinearSpace(nS, nE, nN)
-  local fN = common.getClamp(math.floor(tonumber(nN) or 0), 0)
-  local iE, dI, fS, fE = (fN + 1), (nE - nS), 1, (fN+2)
-  local tO, nI, nD = {[fS]=nS, [fE] = nE}, 1, (dI / iE)
-  while(fS <= fE) do fS, fE = (fS + 1), (fE - 1)
-    tO[fS], tO[fE] = tO[fS-1]+nD, tO[fE+1]-nD end; return tO
+function common.tableArrGetLinearSpace(nBeg, nEnd, nAmt)
+  local fAmt = math.floor(tonumber(nAmt) or 0); if(fAmt < 0) then
+    return common.logStatus("common.tableArrGetLinearSpace: Samples count invalid <"..tostring(fAmt)..">",nil) end
+  local iAmt, dAmt = (fAmt + 1), (nEnd - nBeg)
+  local fBeg, fEnd, nAdd = 1, (fAmt+2), (dAmt / iAmt)
+  local tO = {[fBeg] = nBeg, [fEnd] = nEnd}
+  while(fBeg <= fEnd) do fBeg, fEnd = (fBeg + 1), (fEnd - 1)
+    tO[fBeg], tO[fEnd] = (tO[fBeg-1] + nAdd), (tO[fEnd+1] - nAdd)
+  end return tO
 end
 
 function common.tableArrReverse(tT)
