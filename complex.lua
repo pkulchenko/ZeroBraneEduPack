@@ -73,8 +73,12 @@ function complex.getMargin()
 end
 
 local function getUnpackStack(R, I, E)
-  if(complex.isValid(R)) then local nR, nI = R:getParts() return nR, nI, I end
-  return (tonumber(R) or metaData.__valre), (tonumber(I) or metaData.__valim), E
+  if(complex.isValid(R)) then
+    local nR, nI = R:getParts(); return nR, nI, I
+  elseif(isType(type(R), 5)) then
+    local nR = (getValueKeys(R, metaData.__kreal) or 0)
+    local nI = (getValueKeys(R, metaData.__kimag) or 0); return nR, nI, I
+  end; return (tonumber(R) or metaData.__valre), (tonumber(I) or metaData.__valim), E
 end
 
 function complex.getNew(nRe, nIm)
@@ -229,16 +233,17 @@ function metaComplex:getMid(R, I)
   return self:getNew():Mid(R, I)
 end
 
-function metaComplex:Mean(tV)
-  local sT = type(tV); if(not isType(sT, 5)) then
-    return logStatus("complex.Mean: Mismatch "..sT, self) end
-  local nE = #tV; if(nE <= 1) then return self end
-  self:Set(); for iD = 1, nE do self:Add(tV[iD]) end
-  self:Rsz(1/nE) return self
+function metaComplex:Mean(...)
+  local tV = {...} -- Read parameters 
+  local fV, cV = tV[1], self:getNew() print(self)
+  if(isType(type(fV), 5)) then tV = tV[1] end
+  local nV = #tV; if(nV <= 0) then return self end
+  cV:Set(); for iD = 1, nV do cV:Add(tV[iD]) print(tV[iD]) end
+  return self:Set(cV:Rsz(1/nV))
 end
 
-function metaComplex:getMean(tV)
-  return self:getNew():Mean(tV)
+function metaComplex:getMean(...)
+  return self:getNew():Mean(...)
 end
 
 function metaComplex:getDist2(R, I)
