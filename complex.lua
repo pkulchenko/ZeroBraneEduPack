@@ -39,8 +39,9 @@ metaData.__valim = 0
 metaData.__cactf = {}
 metaData.__ipmtx = {}
 metaData.__valns = "X"
-metaData.__margn = 1e-10
 metaData.__curve = 100
+metaData.__fulan = 360
+metaData.__margn = 1e-10
 metaData.__getpi = math.pi
 metaData.__basef = "%s,%s"
 metaData.__fulpi = (2 * metaData.__getpi)
@@ -235,10 +236,10 @@ end
 
 function metaComplex:Mean(...)
   local tV = {...} -- Read parameters 
-  local fV, cV = tV[1], self:getNew() print(self)
+  local fV, cV = tV[1], self:getNew()
   if(isType(type(fV), 5)) then tV = tV[1] end
   local nV = #tV; if(nV <= 0) then return self end
-  cV:Set(); for iD = 1, nV do cV:Add(tV[iD]) print(tV[iD]) end
+  cV:Set(); for iD = 1, nV do cV:Add(tV[iD]) end
   return self:Set(cV:Rsz(1/nV))
 end
 
@@ -1247,12 +1248,20 @@ function complex.getCatmullRomCurve(...)
   end; tC[iC] = tV[nV-1]:getNew(); return tC
 end
 
-function complex.getRegularPolygon(cS, nN, nR, nI)
-  local eN = (tonumber(nN) or 0); if(eN <= 0) then
+function complex.getRegularPolygon(nN, cD, cO)
+  local iD, eN = 2, (tonumber(nN) or 0); if(eN <= 0) then
     return logStatus("complex.getRegularPolygon: Vertexes #"..tostring(nN),nil) end
-  local vD = cS:getNew(1, 0); if(nR) then vD:Set(nR, nI) end
-  local tV, nD = {cS:getNew()}, (metaData.__fulpi / eN)
-  for iD = 2, eN do tV[iD] = tV[iD-1]:getAdd(vD); vD:RotRad(nD) end; return tV
+  local bO = (cO and complex.isValid(cO) or false)
+  local bD = (cD and complex.isValid(cD) or false)
+  local vD = complex.getNew(1, 0); if(bD) then vD:Set(cD) end
+  local tV, nD, dD = {vD:getNew()}, (metaData.__fulpi / eN), 0
+  if(bO) then tV[1]:Add(cO) end -- Offser first vertex
+  while(iD <= eN) do dD = (dD + nD) -- Prepare for rotation
+    tV[iD] = vD:getNew():RotRad(dD); if(bO) then tV[iD]:Add(cO) end
+    if(iD ~= eN) then -- Do not overwrite the overapped vertex
+      tV[eN] = vD:getNew():RotRad(-dD); if(bO) then tV[eN]:Add(cO) end
+    end; iD, eN = (iD + 1), (eN - 1)
+  end; return tV
 end
 
 function metaComplex:CenterOuterCircle(...)

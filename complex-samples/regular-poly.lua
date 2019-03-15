@@ -18,8 +18,9 @@ local clR = colr(col.getColorRedRGB())
 local clBlk = colr(col.getColorBlackRGB())
 local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, minY, maxY)
       scOpe:setSize(W, H):setColor(clBlk, clGry):setDelta(dX, dY)
-local cO = complex.getNew()
-local tV = complex.getRegularPolygon(cO, nSides, ((maxX-minX)/(2*nSides))*5)
+local cO = complex.getNew(0,0)
+local cD = complex.getNew(0,5)
+local tV = complex.getRegularPolygon(nSides, cD, cO)
 if(tV) then
   
   common.logStatus("The distance between every grey line on X is: "..tostring(dX))
@@ -27,11 +28,17 @@ if(tV) then
 
   open("Complex regular polygon")
   size(W,H); zero(0, 0); updt(false) -- disable auto updates
-
-  local cM = cO:Mean(tV); for i = 1, #tV do tV[i]:Sub(cM) end
+  
+  local nV = cO:getSub(tV[1]):getNorm()
+  local nA = cO:getProjectLine(tV[1], tV[2]):Sub(cO):getNorm()
+  local nE = tV[1]:getSub(tV[2]):getNorm()
+  common.logStatus("Edge length is                   : "..tostring(nE))
+  common.logStatus("Outer circle radius is           : "..tostring(nV))
+  common.logStatus("Inner circle length ( apotem ) is: "..tostring(nA))
+  
   scOpe:Draw(true, true, true):drawComplexPolygon(tV)
-  scOpe:drawComplexCircle(cO:CenterOuterCircle(tV), cO:getSub(tV[1]):getNorm())
-  scOpe:drawComplexCircle(cO:CenterInnerCircle(tV), cO:getProjectLine(tV[1], tV[2]):Sub(cO):getNorm())
+  scOpe:drawComplexCircle(cO:CenterOuterCircle(tV), nV)
+  scOpe:drawComplexCircle(cO:CenterInnerCircle(tV), nA)
   wait()
 else
   common.logStatus("Your poly parameters are invalid !")
