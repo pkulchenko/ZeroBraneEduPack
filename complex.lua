@@ -177,8 +177,8 @@ function metaComplex:Random(nL, nU, vC)
   return self:setReal(R):setImag(I)
 end
 
-function metaComplex:getRandom(nL, nU, vC)
-  return self:getNew():Random(nL, nU, vC)
+function metaComplex:getRandom(...)
+  return self:getNew():Random(...)
 end
 
 function metaComplex:Apply(fF, bR, bI)
@@ -230,8 +230,8 @@ function metaComplex:getAngRadVec(cV)
   return (cV:getAngRad() - self:getAngRad())
 end
 
-function metaComplex:getMid(R, I)
-  return self:getNew():Mid(R, I)
+function metaComplex:getMid(...)
+  return self:getNew():Mid(...)
 end
 
 function metaComplex:Mean(...)
@@ -271,8 +271,8 @@ function metaComplex:Sign(bE, bC, bN)
   return self:Unit()
 end
 
-function metaComplex:getSign(bE, bC, bN)
-  return self:getNew():Sign(bE, bC, bN)
+function metaComplex:getSign(...)
+  return self:getNew():Sign(...)
 end
 
 function metaComplex:Swap()
@@ -300,40 +300,40 @@ function metaComplex:getLeft()
   return self:getNew():Left()
 end
 
-function metaComplex:getSet(R, I)
-  return self:getNew():Set(R, I)
+function metaComplex:getSet(...)
+  return self:getNew():Set(...)
 end
 
-function metaComplex:getAdd(R, I)
-  return self:getNew():Add(R, I)
+function metaComplex:getAdd(...)
+  return self:getNew():Add(...)
 end
 
-function metaComplex:getSub(R, I)
-  return self:getNew():Sub(R, I)
+function metaComplex:getSub(...)
+  return self:getNew():Sub(...)
 end
 
-function metaComplex:getRsz(R, I)
-  return self:getNew():Rsz(R, I)
+function metaComplex:getRsz(...)
+  return self:getNew():Rsz(...)
 end
 
-function metaComplex:getMul(R, I, E)
-  return self:getNew():Mul(R, I, E)
+function metaComplex:getMul(...)
+  return self:getNew():Mul(...)
 end
 
-function metaComplex:getDiv(R, I, E)
-  return self:getNew():Div(R, I, E)
+function metaComplex:getDiv(...)
+  return self:getNew():Div(...)
 end
 
-function metaComplex:getMod(R, I)
-  return self:getNew():Mod(R, I)
+function metaComplex:getMod(...)
+  return self:getNew():Mod(...)
 end
 
-function metaComplex:getRev(R, I)
-  return self:getNew():Rev(R, I)
+function metaComplex:getRev(...)
+  return self:getNew():Rev(...)
 end
 
-function metaComplex:getPow(R, I, E)
-  return self:getNew():Pow(R, I, E)
+function metaComplex:getPow(...)
+  return self:getNew():Pow(...)
 end
 
 function metaComplex:Exp(cP)
@@ -341,8 +341,8 @@ function metaComplex:Exp(cP)
   return self:Set(E:Pow(cP or self))
 end
 
-function metaComplex:getExp(cP)
-  return self:getNew():Exp(cP)
+function metaComplex:getExp(...)
+  return self:getNew():Exp(...)
 end
 
 function metaComplex:AddPyth(R, I)
@@ -350,8 +350,8 @@ function metaComplex:AddPyth(R, I)
   return self:Pow(2):Add(cP:Pow(2)):Pow(0.5)
 end
 
-function metaComplex:getAddPyth(cP)
-  return self:getNew():AddPyth(cP)
+function metaComplex:getAddPyth(...)
+  return self:getNew():AddPyth(...)
 end
 
 function metaComplex:Margin(nE)
@@ -362,8 +362,8 @@ function metaComplex:Margin(nE)
   return self:Set(nR, nI)
 end
 
-function metaComplex:getMargin(nE)
-  return self:getNew():Margin(nE)
+function metaComplex:getMargin(...)
+  return self:getNew():Margin(...)
 end
 
 function metaComplex:Bisect(cD)
@@ -375,8 +375,8 @@ function metaComplex:Bisect(cD)
   return self:Mul(nD):Add(cD:getMul(nS))
 end
 
-function metaComplex:getBisect(cD)
-  return self:getNew():Bisect(cD)
+function metaComplex:getBisect(...)
+  return self:getNew():Bisect(...)
 end
 
 function metaComplex:Sin()
@@ -531,36 +531,36 @@ function metaComplex:Log(nK)
   return self:setReal(math.log(R)):setImag(T+2*(tonumber(nK) or 0)*P)
 end
 
-function metaComplex:getLog(nK)
-  return self:getNew():Log(nK)
+function metaComplex:getLog(...)
+  return self:getNew():Log(...)
 end
 
-function metaComplex:getApply(fF, bR, bI)
-  return self:getNew():Apply(fF, bR, bI)
+function metaComplex:getApply(...)
+  return self:getNew():Apply(...)
 end
 
 function metaComplex:Abs(bR, bI)
   return self:Apply(math.abs, bR, bI)
 end
 
-function metaComplex:getAbs(bR, bI)
-  return self:getNew():Abs(bR, bI)
+function metaComplex:getAbs(...)
+  return self:getNew():Abs(...)
 end
 
 function metaComplex:Floor(bR, bI)
   return self:Apply(math.floor, bR, bI)
 end
 
-function metaComplex:getFloor(bR, bI)
-  return self:getNew():Floor(bR, bI)
+function metaComplex:getFloor(...)
+  return self:getNew():Floor(...)
 end
 
 function metaComplex:Ceil(bR, bI)
   return self:Apply(math.ceil, bR, bI)
 end
 
-function metaComplex:getCeil(bR, bI)
-  return self:getNew():Ceil(bR, bI)
+function metaComplex:getCeil(...)
+  return self:getNew():Ceil(...)
 end
 
 function metaComplex:getAngRad()
@@ -583,8 +583,8 @@ function metaComplex:Round(nF)
   return self:setReal(getRound(R, nF)):setImag(getRound(I, nF))
 end
 
-function metaComplex:getRound(nP)
-  return self:getNew():Round(nP)
+function metaComplex:getRound(...)
+  return self:getNew():Round(...)
 end
 
 function metaComplex:getPolar()
@@ -600,8 +600,8 @@ function metaComplex:RotRad(nA)
   return self:setAngRad(self:getAngRad() + (tonumber(nA) or 0))
 end
 
-function metaComplex:getRotRad(nA)
-  return self:getNew():RotRad(nA)
+function metaComplex:getRotRad(...)
+  return self:getNew():RotRad(...)
 end
 
 function metaComplex:setPolarRad(nN, nA)
@@ -614,24 +614,24 @@ function metaComplex:ProjectRay(cO, cD)
   return self:Add(cD:getMul(nK, -nK, true):Swap())
 end
 
-function metaComplex:getProjectRay(cO, cD)
-  return self:getNew():ProjectRay(cO, cD)
+function metaComplex:getProjectRay(...)
+  return self:getNew():ProjectRay(...)
 end
 
 function metaComplex:ProjectLine(cS, cE)
   return self:ProjectRay(cS, cE:getSub(cS))
 end
 
-function metaComplex:getProjectLine(cS, cE)
-  return self:getNew():ProjectLine(cS, cE)
+function metaComplex:getProjectLine(...)
+  return self:getNew():ProjectLine(...)
 end
 
 function metaComplex:ProjectCircle(cC, nR)
   return self:Sub(cC):Unit():Mul(nR):Add(cC)
 end
 
-function metaComplex:getProjectCircle(cC, nR)
-  return self:getNew():ProjectCircle(cC, nR)
+function metaComplex:getProjectCircle(...)
+  return self:getNew():ProjectCircle(...)
 end
 
 function metaComplex:getLayRay(cO, cD)
@@ -647,16 +647,16 @@ function metaComplex:MirrorRay(cO, cD)
   return self:Add(cP:Sub(self):Rsz(2))
 end
 
-function metaComplex:getMirrorRay(cO, cD)
-  return self:getNew():MirrorRay(cO, cD)
+function metaComplex:getMirrorRay(...)
+  return self:getNew():MirrorRay(...)
 end
 
 function metaComplex:MirrorLine(cS, cE)
   return self:MirrorRay(cS, cE:getSub(cS))
 end
 
-function metaComplex:getMirrorLine(cS, cE)
-  return self:getNew():MirrorLine(cS, cE)
+function metaComplex:getMirrorLine(...)
+  return self:getNew():MirrorLine(...)
 end
 
 function metaComplex:getAreaParallelogram(cE)
@@ -751,8 +751,8 @@ function metaComplex:Inf(bR, bI)
   return self:setReal(nR):setImag(nI)
 end
 
-function metaComplex:getInf(bR, bI)
-  return self:getNew():Inf(bR, bI)
+function metaComplex:getInf(...)
+  return self:getNew():Inf(...)
 end
 
 function metaComplex:isNanReal()
@@ -774,8 +774,8 @@ function metaComplex:Nan(bR, bI)
   return self:setReal(nR):setImag(nI)
 end
 
-function metaComplex:getNan(bR, bI)
-  return self:getNew():Nan(bR, bI)
+function metaComplex:getNan(...)
+  return self:getNew():Nan(...)
 end
 
 function metaComplex:isAmongRay(cO, cD, bF)
@@ -1062,8 +1062,8 @@ function metaComplex:RotDeg(nA)
   return self:RotRad(complex.toRadian(tonumber(nA) or 0))
 end
 
-function metaComplex:getRotDeg(nA)
-  return self:getNew():RotDeg(nA)
+function metaComplex:getRotDeg(...)
+  return self:getNew():RotDeg(...)
 end
 
 function metaComplex:setPolarDeg(nN, nA)

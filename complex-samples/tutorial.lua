@@ -30,8 +30,9 @@ local function testTranslate(na, nb)
   return common.convSignString(na)..common.convSignString(nb).."i"
 end
 
-logStatus("\nMethods starting with upper letter make internal changes and return /self/ .")
-logStatus("\nMethods starting with lower return something and do not change internals .")
+logStatus("\nThis file is the complex library self test. It will generate error on mismatch.")
+logStatus("Methods starting with upper letter make internal changes and return `self`.")
+logStatus("Methods starting with lower case return something and do not change internals.")
 
 logStatus("\nCreating complex")
 local a = complex.getNew(7,7):Print("%2d"," Create:           {","}\n")
@@ -396,7 +397,7 @@ for id = 1, #tCall do
     local nam = tCall[id][1]:gsub(":", ""); nam = common.stringTrim(nam)
     local com = common.stringTrim(tCall[id][3])
     local sta = ((rez == com) and "OK" or "FAIL")
-    if(sta == "OK") then logStatus(common.stringPadR(nam,15," ")..sta.." >> "..rez)
+    if(sta == "OK") then logStatus(common.stringPadR(nam,20," ")..sta.." >> "..rez)
     else error("There was a problem executing method <"..nam.."> at index #"..id.."<"..rez.."="..com..">") end
   else local nam = tCall[id][1]:gsub(":","")
     error("There was a problem executing method <"..nam.."> at index #"..id.."<"..rez.."="..com..">")

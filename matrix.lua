@@ -173,8 +173,8 @@ function metaMatrix:getMinor(...)
   return self:getNew():Minor(...)
 end
 
-function metaMatrix:getCofactor(iR,iC)
-  return (-1)^(iR+iC)*(self:getMinor(iR,iC):getDet())
+function metaMatrix:getCofactor(nR,nC)
+  return (-1)^(nR+nC)*(self:getMinor(nR,nC):getDet())
 end
 
 --[[
@@ -278,14 +278,10 @@ end
 function metaMatrix:Offset(oM, nK)
   local oR, oC = oM:getSize()
   local mR, mC = self:getSize()
-  local mData, oData = self:getData(), oM:getData()
-  if(oR ~= mR) then
-    return logStatus("matrix.Div: Row mismatch ["..oR.." x "..oC.."] + ["..mR.." x "..mC.."]",nil) end
-  if(oC ~= mC) then
-    return logStatus("matrix.Div: Col mismatch ["..oR.." x "..oC.."] + ["..mR.." x "..mC.."]",nil) end
-  for iR = 1, mR do for iC = 1, mC do
-    mData[iR][iC] = mData[iR][iC] + nK * oData[iR][iC]
-  end end; return self
+  local mData, oData, nK = self:getData(), oM:getData(), (tonumber(nK) or 1)
+  if(oR ~= mR) then return logStatus("matrix.Div: Row mismatch ["..mR.."x"..mC.."]+["..oR.."x"..oC.."]",nil) end
+  if(oC ~= mC) then return logStatus("matrix.Div: Col mismatch ["..mR.."x"..mC.."]+["..oR.."x"..oC.."]",nil) end
+  for iR = 1, mR do for iC = 1, mC do mData[iR][iC] = mData[iR][iC] + nK * oData[iR][iC] end end; return self
 end
 
 function metaMatrix:getOffset(...)
@@ -551,10 +547,8 @@ function metaMatrix:Snip(nsR, neR, nsC, neC)
   local tD, nR, nC = self:getData(), self:getSize()
   local nsR, neR = (tonumber(nsR) or 0), (tonumber(neR) or 0)
   local nsC, neC = (tonumber(nsC) or 0), (tonumber(neC) or 0) 
-  if(nsR > neR) then
-    return logStatus("matrix.Snip: Row mismatch {"..nsR..", "..neR.."}", nil) end
-  if(nsC > neC) then
-    return logStatus("matrix.Snip: Col mismatch {"..nsC..", "..neC.."}", nil) end
+  if(nsR > neR) then return logStatus("matrix.Snip: Row mismatch {"..nsR..", "..neR.."}", nil) end
+  if(nsC > neC) then return logStatus("matrix.Snip: Col mismatch {"..nsC..", "..neC.."}", nil) end
   for iD = nsR, neR do local tR = tD[iD]; if(not tR) then
     return logStatus("matrix.Snip: Row size #"..nR, nil) end
     for iK = nsC, neC do local vN = tR[iK]; if(not vN) then
