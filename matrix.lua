@@ -36,14 +36,6 @@ function matrix.isValid(oM)
   return (getmetatable(oM) == metaMatrix)
 end
 
-function matrix.convNew(vIn,...)
-  if(matrix.isValid(vIn)) then return vIn:getNew(vIn) end
-  local tyIn, tArg = type(vIn), {...}
-  if(isType(tyIn, 5)) then -- Table
-
-  end
-end
-
 function matrix.getNew(tM)
   local mnR, mnC, self, mtData = 0, 0, {}
   setmetatable(self, metaMatrix)
@@ -181,8 +173,8 @@ function metaMatrix:getMinor(...)
   return self:getNew():Minor(...)
 end
 
-function metaMatrix:getCofactor(nR,nC)
-  return (-1)^(nR+nC)*(self:getMinor(nR,nC):getDet())
+function metaMatrix:getCofactor(iR,iC)
+  return (-1)^(iR+iC)*(self:getMinor(iR,iC):getDet())
 end
 
 --[[
@@ -228,22 +220,24 @@ end
  * When bM is enabed fills only the main diagonal
 ]]
 function metaMatrix:Fill(nR, nC, vV, bM)
-  local tM, vR, vC = {}
-  local extlb tData = dataMatrix.__extlb
+  local tM, vR, vC, tData = {}
+  local extlb = dataMatrix.__extlb
   if(nR or nC) then
    vR = getClamp(tonumber(nR) or 1 ,1)
    vC = getClamp(tonumber(nC) or nR,1)
   else tData, vR, vC = self:getData(), self:getSize() end
   for iR = 1, vR do if(not tData) then tM[iR] = {} end
-    for iC = 1, vC do if((bM and iR==iC) or not bM) then
-      if(extlb) then
-        if(tData) then tData[iR][iC]:Set(vV)
-        else tM[iR][iC] = extlb.complexNew():Set(vV) end
-      else 
-        if(tData) then tData[iR][iC] = vV
-        else tM[iR][iC] = vV end
+    for iC = 1, vC do
+      if((bM and iR==iC) or not bM) then
+        if(extlb) then
+          if(tData) then tData[iR][iC]:Set(vV)
+          else tM[iR][iC] = extlb.complexNew():Set(vV) end
+        else 
+          if(tData) then tData[iR][iC] = vV
+          else tM[iR][iC] = vV end
+        end
       end
-    end; end
+    end
   end; return (tData and self:setData() or self:setData(tM))
 end
 
@@ -252,7 +246,7 @@ function metaMatrix:getFill(...)
 end
 
 function metaMatrix:Zero(nR, nC)
-  local extlb tData = dataMatrix.__extlb
+  local extlb = dataMatrix.__extlb
   local nZ = (extlb and extlb.complexNew(0,0) or 0)
   return self:Fill(nR, nC, nZ)
 end
@@ -262,9 +256,9 @@ function metaMatrix:getZero(...)
 end
 
 function metaMatrix:Ones(nR, nC)
-  local extlb tData = dataMatrix.__extlb
-  local nZ = (extlb and extlb.complexNew(1,0) or 1)
-  return self:Fill(nR, nC, nZ)
+  local extlb = dataMatrix.__extlb
+  local nO = (extlb and extlb.complexNew(1,0) or 1)
+  return self:Fill(nR, nC, nO)
 end
 
 function metaMatrix:getOnes(...)
@@ -272,7 +266,9 @@ function metaMatrix:getOnes(...)
 end
 
 function metaMatrix:Unit(nR, nC)
-  return self:Fill(nR, nC, 1, true)
+  local extlb = dataMatrix.__extlb
+  local nO = (extlb and extlb.complexNew(1,0) or 1)
+  return self:Zero():Fill(nR, nC, nO, true)
 end
 
 function metaMatrix:getUnit(...)
@@ -542,7 +538,7 @@ end
 
 -- det(tI - A) = 0
 function metaMatrix:getRoots()
-  
+  return {}
 end
 
 function metaMatrix:getEig()
@@ -551,28 +547,25 @@ function metaMatrix:getEig()
   return self:getNew(), self:getNew()
 end
 
-function metaMatrix:Snip(nsR, nsC, neR, neC)
-  local tD, tA, nR, nC = self:getData(), {}, self:getSize()
-  tA[1], tA[2] = (tonumber(nsR) or 0), (tonumber(neR) or 0)
-  tA[3], tA[4] = (tonumber(nsC) or 0), (tonumber(neC) or 0) 
-  if(tA[1] > tA[2]) then
-    return logStatus("matrix.Snip: Row mismatch {"..tA[1]..", "..tA[2].."}", nil) end
-  if(tA[3] > tA[4]) then
-    return logStatus("matrix.Snip: Col mismatch {"..tA[2]..", "..tA[4].."}", nil) end
-  for iD = 1, 2 do local dR, dC = tA[iD], tA[iD+2]
-  local tR = tD[dR]; if(not tR) then
-    return logStatus("matrix.Snip: Row bound {"..dR..", "..nR.."}", nil) end
-  if(not tR[dC]) then
-    return logStatus("matrix.Snip: Col bound {"..dC..", "..nC.."}", nil) end
-  end local iK = 1 -- Drop the depricated rows
-  for iD = tA[1], tA[2] do tD[iK], iK = tD[iD], (iK+1) end
-  for iD = iK, nR do table.remove(tD) nR = (nR - 1) end
-  -- Drop the depricated columns
-  for iD = 1, nR do local iK, tR = 1, tD[iD]
-    for iC = tA[3], tA[4] do tR[iK], iK = tR[iC], (iK+1) end
-    for iF = iK, nC do table.remove(tR) nR = (nR - 1) end
+function metaMatrix:Snip(nsR, neR, nsC, neC)
+  local tD, nR, nC = self:getData(), self:getSize()
+  local nsR, neR = (tonumber(nsR) or 0), (tonumber(neR) or 0)
+  local nsC, neC = (tonumber(nsC) or 0), (tonumber(neC) or 0) 
+  if(nsR > neR) then
+    return logStatus("matrix.Snip: Row mismatch {"..nsR..", "..neR.."}", nil) end
+  if(nsC > neC) then
+    return logStatus("matrix.Snip: Col mismatch {"..nsC..", "..neC.."}", nil) end
+  for iD = nsR, neR do local tR = tD[iD]; if(not tR) then
+    return logStatus("matrix.Snip: Row size #"..nR, nil) end
+    for iK = nsC, neC do local vN = tR[iK]; if(not vN) then
+      return logStatus("matrix.Snip: Col size #"..nC, nil) end end
   end
-  return self:setData()
+  for iD = (neR+1), nR do table.remove(tD) end
+  for iD = 1, (nsR-1) do table.remove(tD, 1) end
+  for iD = 1, (neR-nsR+1) do local tR = tD[iD] 
+    for iK = (neC+1), nR do table.remove(tR) end
+    for iK = 1, (nsC-1) do table.remove(tR, 1) end    
+  end; return self:setData()
 end
 
 function metaMatrix:getSnip(...)
@@ -647,6 +640,14 @@ metaMatrix.__le = function(oA,oB)
       return logStatus("matrix.(<=): Cannot compare {"..tA.."} with {"..tB.."}",false)
     end; return false
   end; return oA:getDet() <= oB:getDet()
+end
+
+function matrix.convNew(vIn,...)
+  if(matrix.isValid(vIn)) then return vIn:getNew(vIn) end
+  local tyIn, tArg = type(vIn), {...}
+  if(isType(tyIn, 5)) then -- Table
+
+  end
 end
 
 return matrix
