@@ -38,8 +38,20 @@ local function drawComplexLine(S, E, Cl)
   pncl(Cl); line(x1, y1, x2, y2)
 end
 
+local function drawComplexArrow(O, D, Cl, nA, nL)
+  local nA, cD = (nA or 10), D:getNew()
+  local xO = intX:Convert(O:getReal()):getValue()
+  local yO = intY:Convert(O:getImag()):getValue()
+  local cO, cD = complex.getNew(xO,yO)
+  cD:Set(D); cD:RotAngRad(-nA); cD:Neg(); cD:Add(cO)
+  pncl(Cl); line(cO:getReal(), cO:getImag(), cD:getReal(), cD:getImag())
+  cD:Set(D); cD:RotAngRad(2 * nA); cD:Neg(); cD:Add(cO)
+  pncl(Cl); line(cO:getReal(), cO:getImag(), cD:getReal(), cD:getImag())
+end
+
 cmp.setAction("xy", drawComplex)
 cmp.setAction("ab", drawComplexLine)
+cmp.setAction("rw", drawComplexArrow)
 
 logStatus("Create a primary ray to intersect using the left mouse button (BLUE)")
 logStatus("Create a secondary ray to intersect using the right mouse button (RED)")

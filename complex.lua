@@ -639,7 +639,7 @@ function metaComplex:getLayRay(cO, cD)
 end
 
 function metaComplex:getLayLine(cS, cE)
-  return cS:getSub(self):getCross(cE:getSub(self))
+  return self:getSub(cS):getCross(cE:getSub(cS))
 end
 
 function metaComplex:MirrorRay(cO, cD)
