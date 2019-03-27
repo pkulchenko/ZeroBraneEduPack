@@ -5,14 +5,16 @@ local col = require("colormap")
 local crt = require("chartmap")
 local cmp = require("complex").extend()
 
+local tIntn = {"Neighbour", "Bilinear", "Bicubic"}
+
 -- 1 : Nearest neighbour ( ZoH )
 -- 2 : Bilinear interpolation ( FoH )
 -- 3 : Bicubic interpolation ( SoH )
-local nOH = 3
+local nOH = 1
 
-local W,  H = 400, 400
+local W,  H = 500, 500
 local greyLevel  = 200
-local gnAccuracy = 0.002
+local gnDrwStep = 0.002
 local minX, maxX = 0, 1
 local minY, maxY = 0, 1
 local dX, dY, xySize = 1, 1, 3
@@ -53,14 +55,14 @@ local tArea = {cZ:getNew(0,1),
                cZ:getNew(0,0),
                cZ:getNew(1,0), tI, nOH, false}
 
-open("Complex surface interpolation")
+open("Complex surface interpolation : "..tIntn[nOH])
 size(W, H)
 zero(0, 0)
 updt(false) -- disable auto updates
 com.setTic()
 
-for j = 1, 0, -gnAccuracy do
-  for i = 0, 1, gnAccuracy do  
+for j = 1, 0, -gnDrwStep do
+  for i = 0, 1, gnDrwStep do  
     local nV = cZ:getNew(i,j):getInterpolation(unpack(tArea))
     local nI = com.getClamp(com.getRound(nV*nTot, 1), 1, nTot)
     local r, g, b = col.getColorMap("interp", nI)

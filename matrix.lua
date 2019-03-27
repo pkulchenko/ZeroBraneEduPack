@@ -72,9 +72,8 @@ end
 function metaMatrix:Apply(fC, ...)
   local tData, nR, nC = self:getData(), self:getSize()
   for iR = 1, nR do for iC = 1, nC do
-    local bS, nC = pcall(fC, tData, iR, iC, ...)
-    if(not bS) then return logStatus("matrix.Apply: Failed: "..nC, nil) end
-    if(not isNumber(nC)) then return logStatus("matrix.Apply: NaN: "..tostring(nC), nil) end
+    local bS, nC = pcall(fC, tData, iR, iC, ...); if(not bS) then
+      return logStatus("matrix.Apply: Failed {"..iR..","..iC.."}: "..nC, nil) end
     tData[iR][iC] = nC
   end; end; return self
 end
