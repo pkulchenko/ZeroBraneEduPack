@@ -769,8 +769,8 @@ end
 
 function metaComplex:Nan(bR, bI)
   local nN, sR, sI = (0/0), self:getParts()
-  local nR = getPick(isNil(bR), sR, getPick(bR, nN, sR))
-  local nI = getPick(isNil(bI), sI, getPick(bI, nN, sI))
+  local nR = getPick(bR, nN, sR)
+  local nI = getPick(bI, nN, sI)
   return self:setReal(nR):setImag(nI)
 end
 
