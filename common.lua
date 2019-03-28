@@ -168,11 +168,11 @@ function common.logUnpackInfo(tInf)
          tInf.linedefined, tInf.namewhat   , tInf.name, tInf.nparams
 end
 
-function common.logStackTB(sMsg, ...)
+function common.logCallStack(sMsg, ...)
   local iLev, sFmt = 1, metaCommon.__fmtb
   if(sMsg) then common.logStatus(tostring(sMsg)) end
   while(true) do local tInf = debug.getinfo(iLev)
-    if(not tInf)then break end
+    if(not tInf) then break end
     if tInf.what ~= "C" then
       common.logStatus(sFmt:format(common.logUnpackInfo(tInf)))
     end; iLev = iLev + 1
