@@ -42,8 +42,10 @@ metaData.__valns = "X"
 metaData.__curve = 100
 metaData.__fulan = 360
 metaData.__margn = 1e-10
-metaData.__getpi = math.pi
+metaData.__nanum = (0/0)
 metaData.__basef = "%s,%s"
+metaData.__getpi = math.pi
+metaData.__infum = math.huge
 metaData.__fulpi = (2 * metaData.__getpi)
 metaData.__bords = {"{([<|/","})]>|/"}
 metaData.__ssyms = {"i", "I", "j", "J", "k", "K"}
@@ -729,13 +731,13 @@ function metaComplex:isZero(bR, bI)
 end
 
 function metaComplex:isInfReal(bR)
-  local mH, nR = math.huge, self:getReal()
+  local mH, nR = metaData.__infum, self:getReal()
   if(bR) then return (nR == -mH) end
   return (nR == mH)
 end
 
 function metaComplex:isInfImag(bI)
-  local mH, nI = math.huge, self:getImag()
+  local mH, nI = metaData.__infum, self:getImag()
   if(bI) then return (nI == -mH) end
   return (nI == mH)
 end
@@ -745,7 +747,7 @@ function metaComplex:isInf(bR, bI)
 end
 
 function metaComplex:Inf(bR, bI)
-  local nH, sR, sI = math.huge, self:getParts()
+  local nH, sR, sI = metaData.__infum, self:getParts()
   local nR = getPick(isNil(bR), sR, getPick(bR, -nH, nH))
   local nI = getPick(isNil(bI), sI, getPick(bI, -nH, nH))
   return self:setReal(nR):setImag(nI)
@@ -768,7 +770,8 @@ function metaComplex:isNan()
 end
 
 function metaComplex:Nan(bR, bI)
-  local nN, sR, sI = (0/0), self:getParts()
+  local sR, sI = self:getParts()
+  local nN = metaData.__nanum
   local nR = getPick(bR, nN, sR)
   local nI = getPick(bI, nN, sI)
   return self:setReal(nR):setImag(nI)
