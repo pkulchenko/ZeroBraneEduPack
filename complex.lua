@@ -639,7 +639,7 @@ function metaComplex:getLayRay(cO, cD)
 end
 
 function metaComplex:getLayLine(cS, cE)
-  return self:getSub(cS):getCross(cE:getSub(cS))
+  return self:getLayRay(cS, cE:getSub(cS))
 end
 
 function metaComplex:MirrorRay(cO, cD)
@@ -801,14 +801,14 @@ function metaComplex:isInCircle(cO, vR)
   local nM = metaData.__margn
   local nR = getClamp(tonumber(vR) or 0, 0)
   local nN = self:getSub(cO):getNorm()
-  return (nN <= (nR+nM))
+  return (nN < (nR+nM))
 end
 
 function metaComplex:isAmongCircle(cO, vR)
   local nM = metaData.__margn
   local nN = self:getSub(cO):getNorm()
   local nR = getClamp(tonumber(vR) or 0, 0)
-  return ((nN <= (nR+nM)) and (nN >= (nR-nM)))
+  return ((nN < (nR+nM)) and (nN > (nR-nM)))
 end
 
 function metaComplex:getRoots(nNm)
@@ -938,7 +938,7 @@ function complex.getIntersectLineLine(cS1, cE1, cS2, cE2)
 end
 
 function complex.getIntersectRayCircle(cO, cD, cC, nR)
-  local nA = cD:getNorm2(); if(nA <= metaData.__margn) then
+  local nA = cD:getNorm2(); if(nA < metaData.__margn) then
     return logStatus("complex.getIntersectRayCircle: Norm less than margin", nil) end
   local cR = cO:getNew():Sub(cC)
   local nB, nC = 2 * cD:getDot(cR), (cR:getNorm2() - nR^2)
