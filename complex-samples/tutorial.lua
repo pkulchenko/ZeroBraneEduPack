@@ -407,7 +407,7 @@ end; logStatus("")
 local W, H   = 800, 800 -- Window size
 local dX, dY = 1, 1     -- Coordinate system step
 local gAlp   = 200      -- Coordinate system grey alpha level
-local R = 5             -- Roots base
+local R      = 5        -- Roots base
 
 open("Graphical complex roots for "..tostring(a))
 size(W, H)
@@ -459,10 +459,9 @@ logStatus("Complex roots returns a table of complex numbers being the roots of t
 local r = a:getRoots(R)
 if(r) then
   for id = 1, #r do
-    local ppw = (r[id]^R)
+    local ppw = (r[id]^R); ppw:Round(0.0000000001)
     logStatus(common.stringPadR(r[id].."^"..R, 38, " ").." = "..ppw)
-    spw, sa = tostring(ppw), tostring(a)
-    if(spw ~= sa) then
+    spw, sa = tostring(ppw), tostring(a); if(spw ~= sa) then
       error("Complex power mismatch at #"..id.." <"..spw..">?=<"..sa..">") end
     r[id]:Action("This your action key !")
     -- scOpe:drawComplex(r[id], nil, true) -- This is the same as above
