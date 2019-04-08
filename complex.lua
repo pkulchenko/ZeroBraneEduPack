@@ -1340,6 +1340,26 @@ function metaComplex:getCenterMidcircle(...)
   return self:getNew():CenterMidcircle(...)
 end
 
+function metaComplex:CenterMass(tV, tM, bO)
+  local tyV = type(tV); if(not isType(tyV, 5)) then
+    return logStatus("complex.CenterMass: Verteces <"..tyV.."> not table",nil) end
+  local tyM = type(tM); if(not isType(tyM, 5)) then
+    return logStatus("complex.CenterMass: Masses <"..tyM.."> not table",nil) end
+  local nV, nM = #tV, #tM; if(not (nV == nM)) then
+    return logStatus("complex.CenterMass: Counts <"..nV.."/"..nM.."> mismatch",nil) end
+  local vT = self:getNew(0,0) for iD = 1, nV do local vN = tV[iD]
+    if(not complex.isValid(vN)) then
+      logStatus("complex.CenterMass["..iD.."]: Convert {"..tostring(vN).."}",nil)
+      vN = self:getNew(vN) -- Call the complex convertor to generate a complex
+    end; local vV = vN:getMul(tonumber(tM[iD]) or 0)
+    if(bO) then vV:Sub(self) end vT:Add(vV)
+  end; return self:Set(vT):Rsz(1/nV)
+end
+
+function metaComplex:getCenterMass(...)
+  return self:getNew():CenterMass(...)
+end
+
 --[[ Interpolates a z = f(x,y) scalar over a 2D surface
  y2 c12-c22 The 2D interpolated point us betwen c[xy]
  y1 c11-c21 The point X is between x1 and x2
