@@ -1340,19 +1340,16 @@ function metaComplex:getCenterMidcircle(...)
   return self:getNew():CenterMidcircle(...)
 end
 
-function metaComplex:CenterMass(tV, tM, bO)
-  local tyV = type(tV); if(not isType(tyV, 5)) then
-    return logStatus("complex.CenterMass: Verteces <"..tyV.."> not table",nil) end
-  local tyM = type(tM); if(not isType(tyM, 5)) then
-    return logStatus("complex.CenterMass: Masses <"..tyM.."> not table",nil) end
-  local nV, nM = #tV, #tM; if(not (nV == nM)) then
-    return logStatus("complex.CenterMass: Counts <"..nV.."/"..nM.."> mismatch",nil) end
-  local vT = self:getNew(0,0) for iD = 1, nV do local vN = tV[iD]
+function metaComplex:CenterMass(...)
+  local tV, nV, tM, bO = getUnpackSplit(...)
+  local nM, vT = tonumber(tM), self:getNew(0,0)
+  for iD = 1, nV do local vN, vM = tV[iD]
     if(not complex.isValid(vN)) then
       logStatus("complex.CenterMass["..iD.."]: Convert {"..tostring(vN).."}",nil)
       vN = self:getNew(vN) -- Call the complex convertor to generate a complex
-    end; local vV = vN:getMul(tonumber(tM[iD]) or 0)
-    if(bO) then vV:Sub(self) end vT:Add(vV)
+    end -- In case the mass is the same for all nodes given as number
+    if(nM) then vM = nM else vM = (tonumber(tM[iD]) or 0) end
+    local vV = vN:getMul(vM); if(bO) then vV:Sub(self) end vT:Add(vV)
   end; return self:Set(vT):Rsz(1/nV)
 end
 
