@@ -1254,8 +1254,8 @@ end
 function complex.getRegularPolygon(nN, cD, cO)
   local iD, eN = 2, (tonumber(nN) or 0); if(eN <= 0) then
     return logStatus("complex.getRegularPolygon: Vertexes #"..tostring(nN),nil) end
-  local bO = (cO and complex.isValid(cO) or false)
-  local bD = (cD and complex.isValid(cD) or false)
+  local bO = (cO and (complex.isValid(cO) or tonumber(cO)) or false)
+  local bD = (cD and (complex.isValid(cD) or tonumber(cD)) or false)
   local vD = complex.getNew(1, 0); if(bD) then vD:Set(cD) end
   local tV, nD, dD = {vD:getNew()}, (metaData.__fulpi / eN), 0
   if(bO) then tV[1]:Add(cO) end -- Offser first vertex

@@ -19,7 +19,7 @@ local clBlk = colr(col.getColorBlackRGB())
 local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, minY, maxY)
       scOpe:setSize(W, H):setColor(clBlk, clGry):setDelta(dX, dY)
 local cO = complex.getNew(0,0)
-local cD = complex.getNew(0,5)
+local cD = complex.getNew(0,4)
 local tV = complex.getRegularPolygon(nSides, cD, cO)
 if(tV) then
   
