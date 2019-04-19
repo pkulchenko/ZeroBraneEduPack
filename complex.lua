@@ -1341,16 +1341,22 @@ function metaComplex:getCenterMidcircle(...)
 end
 
 function metaComplex:CenterMass(...)
-  local tV, nV, tM, bO = getUnpackSplit(...)
-  local nM, vT = tonumber(tM), self:getNew(0,0)
-  for iD = 1, nV do local vN, vM = tV[iD]
-    if(not complex.isValid(vN)) then
-      logStatus("complex.CenterMass["..iD.."]: Convert {"..tostring(vN).."}",nil)
-      vN = self:getNew(vN) -- Call the complex convertor to generate a complex
-    end -- In case the mass is the same for all nodes given as number
-    if(nM) then vM = nM else vM = (tonumber(tM[iD]) or 0) end
-    local vV = vN:getMul(vM); if(bO) then vV:Sub(self) end vT:Add(vV)
-  end; return self:Set(vT):Rsz(1/nV)
+  local tV, vT, iD = {...}, self:getNew(0,0), 1
+  local mT = type(tV[1])
+  if(not isType(mT, 5)) then tV[1] = self:getNew(tV[1]) end
+  if(complex.isValid(tV[1])) then -- Pair (complex, mass)
+    while(tV[iD]) do
+      local vC = self:getNew(tV[iD])
+      local vM = (tonumber(tV[iD+1]) or 0)
+      vT:Add(vC:Mul(vM)); iD = iD + 2
+    end; iD = (iD - 2)/2
+  else local tV, tM = tV[1], tV[2] or {} -- Pair {complexes}, {masses}
+    while(tV[iD]) do
+      local vC = self:getNew(tV[iD])
+      local vM = (tonumber(tM[iD]) or 0)
+      vT:Add(vC:Mul(vM)); iD = iD + 1
+    end; iD = iD - 1
+  end; return self:Set(vT):Rsz(1/iD)
 end
 
 function metaComplex:getCenterMass(...)
