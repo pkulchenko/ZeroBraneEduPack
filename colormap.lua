@@ -25,15 +25,15 @@ local getRound        = common.getRound
 local isNil           = common.isNil
 
 --[[ https://en.wikipedia.org/wiki/HSL_and_HSV ]]
-local function projectColorHC(h,c)
-  local hp = h / 60
+local function projectColorHC(h, c)
+  local hp, hc = (h / 60), (h % 360)
   local x  = c * (1 - math.abs((hp % 2) - 1))
-  if(hp >= 0 and hp < 1) then return c, x , 0 end
-  if(hp >= 1 and hp < 2) then return x, c , 0 end
-  if(hp >= 2 and hp < 3) then return 0, c , x end
-  if(hp >= 3 and hp < 4) then return 0, x , c end
-  if(hp >= 4 and hp < 5) then return x, 0 , c end
-  if(hp >= 5 and hp < 6) then return c, 0 , x end
+  if(hc >=   0 and hc <  60) then return c, x , 0 end
+  if(hc >=  60 and hc < 120) then return x, c , 0 end
+  if(hc >= 120 and hc < 180) then return 0, c , x end
+  if(hc >= 180 and hc < 240) then return 0, x , c end
+  if(hc >= 240 and hc < 300) then return x, 0 , c end
+  if(hc >= 300 and hc < 360) then return c, 0 , x end
   return 0, 0, 0
 end
 
