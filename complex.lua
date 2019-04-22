@@ -1341,8 +1341,8 @@ function metaComplex:getCenterMidcircle(...)
 end
 
 function metaComplex:CenterMass(...)
-  local tV, vT, iD = {...}, self:getNew(0,0), 1
-  local mT = type(tV[1])
+  local tV, iD = {...}, 1
+  local mT, vT = type(tV[1]), self:getNew(0,0)
   if(not isType(mT, 5)) then tV[1] = self:getNew(tV[1]) end
   if(complex.isValid(tV[1])) then -- Pair (complex, mass)
     while(tV[iD]) do
