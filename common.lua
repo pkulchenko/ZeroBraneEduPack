@@ -532,7 +532,7 @@ local function logTableRec(tT,sS,tP,tD)
       elseif(tP[v]) then
         common.logStatus(vK.." = "..tostring(tP[v]))
       elseif(type(tD) == tY[5] and
-        (type(tD[cT]) == tY[4] or tD[mT] == tY[4])) then
+        (type(tD[cT]) == tY[4] or type(tD[mT]) == tY[4])) then
           local vF = common.getPick(tD[cT], tD[cT], tD[mT])
           common.logStatus(vK.." = "..vF(v))
       else
