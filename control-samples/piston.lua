@@ -24,7 +24,7 @@ local function getAngNorm(nA)
   return ((nA + 180) % 360 - 180)
 end
 
-open("Piston internal signals")
+open("Piston internal signals. Sign as (BLUE), sine-wave as (RED) and tiangular as (GREEN)")
 size(W, H); zero(0, 0)
 updt(false) -- disable auto updates
 
