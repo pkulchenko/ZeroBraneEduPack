@@ -1,8 +1,6 @@
 local matrix  = require("matrix").extend()
-local complex = require("complex").extend()
-local common  = require("common")
 
-common.logStatus("\nComment the `extend` internal method call to use the matrix library with regular numbers.\n")
+print("\nComment the `extend` internal method call to use the matrix library with regular numbers.\n")
 
 local a = {
   {1, 3,-2},
