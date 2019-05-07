@@ -925,7 +925,7 @@ function common.sortTable(tT, tC, bR)
 end
 
 function common.getFibonacci(vN)
-  nN, nA, nB = math.floor(tonumber(vN) or 0), 0, 1
+  local nN, nA, nB = math.floor(tonumber(vN) or 0), 0, 1
   for iD = 1, nN do nA, nB = nB, (nA + nB) end
   return nA
 end
