@@ -10,14 +10,14 @@ local tIntn = {"Neighbour", "Bilinear", "Bicubic"}
 -- 1 : Nearest neighbour ( ZoH )
 -- 2 : Bilinear interpolation ( FoH )
 -- 3 : Bicubic interpolation ( SoH )
-local nOH = 1
+local nOH = 2
 
 local W,  H = 500, 500
 local greyLevel  = 200
 local gnDrwStep = 0.002
 local minX, maxX = 0, 1
 local minY, maxY = 0, 1
-local dX, dY, xySize = 1, 1, 3
+local dX, dY, xySize, bStop = 1, 1, 3, false
 local clRed = colr(col.getColorRedRGB())
 local clBlk = colr(col.getColorBlackRGB())
 local clGry = colr(col.getColorPadRGB(greyLevel))
@@ -62,12 +62,18 @@ updt(false) -- disable auto updates
 com.setTic()
 
 for j = 1, 0, -gnDrwStep do
-  for i = 0, 1, gnDrwStep do  
-    local nV = cZ:getNew(i,j):getInterpolation(unpack(tArea))
-    local nI = com.getClamp(com.getRound(nV*nTot, 1), 1, nTot)
-    local r, g, b = col.getColorMap("interp", nI)
-    scOpe:drawPointXY(i, j, colr(r, g, b))
-  end; updt()
+  if(not bStop) then
+    for i = 0, 1, gnDrwStep do  
+      local nV = cZ:getNew(i,j):getInterpolation(unpack(tArea))
+      if(not nV) then com.logStatus("Did you extend the complex module with `.extend()` ?")
+        bStop = true; break
+      else
+        local nI = com.getClamp(com.getRound(nV*nTot, 1), 1, nTot)
+        local r, g, b = col.getColorMap("interp", nI)
+        scOpe:drawPointXY(i, j, colr(r, g, b))
+      end
+    end; updt()
+  end
 end
 
 com.logStatus("Elapsed: "..com.getToc())
