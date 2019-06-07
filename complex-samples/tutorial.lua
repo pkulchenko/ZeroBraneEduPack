@@ -181,7 +181,9 @@ makeTastCase(a.getFormat)
 
 logStatus("\nConverting to polar coordinates and back "..tostring(a))
 local r, p = a:getPolar(); logStatus("1: "..r.."e^"..p.."i")
-complex.getEuler(r, p):Print(nil,"2: {","}\n")
+local b = complex.getNew():Euler(r, p):Print(nil,"2: {","}\n")
+local sa, sb = tostring(a), tostring(b)
+if(sa ~= sb) then error("Euler conversion error <"..sa.."> = <"..sb..">!") end
 
 logStatus("\nAngle handling radian to degree and back "..tostring(a))
 local r, d = a:getAngRad(), a:getAngDeg()

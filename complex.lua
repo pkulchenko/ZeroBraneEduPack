@@ -580,6 +580,15 @@ function metaComplex:Print(sF,sS,sE)
   return logString(sS..(fB:format(sF,sF):format(nR,nI))..sE, self)
 end
 
+function metaComplex:Euler(vRm, vPh)
+  local nRm, nPh = (tonumber(vRm) or 0), (tonumber(vPh) or 0)
+  return self:Set(math.cos(nPh),math.sin(nPh)):Rsz(nRm)
+end
+
+function metaComplex:getEuler(...)
+  return self:Euler(...)
+end
+
 function metaComplex:Round(nF)
   local R, I = self:getParts()
   return self:setReal(getRound(R, nF)):setImag(getRound(I, nF))
@@ -1022,11 +1031,6 @@ function complex.getRefractRayCircle(cO, cD, cC, nR, vI, vO, bV, xU)
   local cX = xX:getSub(cC):Right()
   local cR, cN = complex.getRefractRayRay(cO, cD, xX, cX, vI, vO, bV)
   return cR, cN, cX:Set(xX)
-end
-
-function complex.getEuler(vRm, vPh)
-  local nRm, nPh = (tonumber(vRm) or 0), (tonumber(vPh) or 0)
-  return self:getNew(math.cos(nPh),math.sin(nPh)):Rsz(nRm)
 end
 
 function complex.getAngRadFull()
