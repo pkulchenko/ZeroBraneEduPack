@@ -388,7 +388,8 @@ local tCall = {
   {"ArgCosineH      : ","getArcCosH ","{2.6443267863946,0.14331753305457}    "},
   {"ArgTangentH     : ","getArcTangH","{0.14086733931285,1.550399485361}     "},
   {"ArgCotangentH   : ","getArcCotgH","{0.14086733931285,-0.020396841433933} "},
-  {"PythagorSelfAdd : ","getAddPyth ","{9.8994949366117,1.4142135623731}     "}
+  {"PythagorSelfAdd : ","getAddPyth ","{9.8994949366117,1.4142135623731}     "},
+  {"EulerConversion : ","getEuler   ","{3.782116141077,5.8902968936553}      "}
 }
 
 local b = complex.getNew(7,1)
