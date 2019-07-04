@@ -187,8 +187,8 @@ if(sa ~= sb) then error("Euler conversion error <"..sa.."> = <"..sb..">!") end
 
 logStatus("\nAngle handling radian to degree and back "..tostring(a))
 local r, d = a:getAngRad(), a:getAngDeg()
-logStatus("1: Angle in radian "..r.." is "..complex.toDegree(r).." in degrees")
-logStatus("2: Angle in degree "..d.." is "..complex.toRadian(d).." in radians")
+logStatus("1: Angle in radian "..r.." is "..complex.toDeg(r).." in degrees")
+logStatus("2: Angle in degree "..d.." is "..complex.toRad(d).." in radians")
 
 --------------------------------------------------------
 logStatus("\nClass methods test"..tostring(a)); tPar= {}

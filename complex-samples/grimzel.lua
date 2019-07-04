@@ -65,7 +65,7 @@ local dAng, nAng = (eAng / nRayCast), 0
 com.logSkipAdd("complex.getRefractRayRay: Angle mismatch")
 com.logSkipAdd("complex.getRefractRayRay: Normal mismatch")
 
-logStatus("Critical refraction angle is: "..cmp.toDegree(cmp.getRefractRayAngle(nN1, nN2)).." degrees.")
+logStatus("Critical refraction angle is: "..cmp.toDeg(cmp.getRefractRayAngle(nN1, nN2)).." degrees.")
 
 while(nAng < eAng) do
   local rD, lD = cOrg:getNeg():RotRad(-nAng), cOrg:getNeg():RotRad(nAng)

@@ -20,8 +20,7 @@ local intX  = crt.New("interval","WinX", minX, maxX, 0, W)
 local intY  = crt.New("interval","WinY", minY, maxY, H, 0)
 local scOpe = crt.New("scope"):setInterval(intX, intY)
       scOpe:setSize(W, H):setColor(clBlk, clGry):setBorder():setDelta(dX, dY)
-local trWav = crt.New("tracer","Wave"):setInterval(intX,intY):setCache(500, true)
-local vRgh = cmp.getNew(1,0)
+local trWav = crt.New("tracer","Wave"):setInterval(intX,intY):setCache(450, true)
 local vDwn = cmp.getNew(0,(minY-maxY))
 local oDwn = cmp.getNew(0,maxY)
 
@@ -42,10 +41,10 @@ end
 cmp.setAction("xy", drawComplex)
 cmp.setAction("ab", drawComplexLine)
 
-local w = sig.New("wiper",20, 0, 0.1):setOrigin(-60,0)
-local n, c, d, f = 15, w:getFreq(), w:getFreq(), w
-for i = 1, n do
-  local k = (2 * i + 1)
+local w = sig.New("wiper",20, 0, 0.1):setOrigin(-55,0)
+local n, c, d, f = 20, w:getFreq(), w:getFreq(), w
+
+for i = 1, n do local k = (2 * i + 1)
   f = f:addNext(w:getAbs()*(1/k), w:getPhase(), w:getFreq()*k)
 end
 
@@ -65,7 +64,7 @@ while(true) do
     oE:Action("ab", oS, clMgn)
   end;
   scrShot = snap() -- Below that point items are deleted from the frame
-  local xX = cmp.getIntersectRayRay(vTip, vRgh, oDwn, vDwn)
+  local xX = vTip:getProjectRay(oDwn, vDwn)
   if(xX) then
     xX:Action("xy", clBlu)
     xX:Action("ab", vTip, clBlu)

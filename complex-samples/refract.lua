@@ -50,7 +50,7 @@ logStatus("The distance between every grey line on X is: "..tostring(dX))
 logStatus("The distance between every grey line on Y is: "..tostring(dY))
 logStatus("Press escape to clear all rays and refresh the coordinate system")
 logStatus("Refraction indexes: http://hyperphysics.phy-astr.gsu.edu/hbase/Tables/indrf.html")
-logStatus("The interface reflection angle is: "..tostring(cmp.toDegree(cmp.getRefractRayAngle(nN1, nN2))))
+logStatus("The interface reflection angle is: "..tostring(cmp.toDeg(cmp.getRefractRayAngle(nN1, nN2))))
 
 open("Complex ray refraction demo")
 size(W, H); zero(0, 0)

@@ -42,9 +42,9 @@ updt(false) -- disable auto updates
 scOpe:Draw(true, true, true); updt()
 
 while(aAng < 360) do
-  C:getRotRad(cmp.toRadian(aAng)):Action("ang",aAng,true)
-  D:Set(C):RotRad(cmp.toRadian(aAng)):Action("ang",aAng)
-  D:Set(C):setAngRad(cmp.toRadian(aAng)):Action("ang",aAng)
+  C:getRotRad(cmp.toRad(aAng)):Action("ang",aAng,true)
+  D:Set(C):RotRad(cmp.toRad(aAng)):Action("ang",aAng)
+  D:Set(C):setAngRad(cmp.toRad(aAng)):Action("ang",aAng)
   C:getRotDeg(aAng):Action("ang",aAng)
   D:Set(C):RotDeg(aAng):Action("ang",aAng)
   D:Set(C):setAngDeg(aAng):Action("ang",aAng)
