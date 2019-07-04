@@ -758,11 +758,88 @@ local function newPlant(nTo, tNum, tDen, sName)
   return self
 end
 
+local metaWiper = {}
+      metaWiper.__index     = metaWiper
+      metaWiper.__type      = "signals.wiper"
+      metaWiper.__metatable = metaWiper.__type
+      metaWiper.__tostring  = function(oWiper) return oWiper:getString() end
+local function newWiper(nR, nP, nF)
+  local mD = os.clock() -- Old time
+  local mT = os.clock() -- New time
+  local mP = (tonumber(nP) or 0)
+  local mR = math.abs(tonumber(nR) or 0)
+  local mF = math.abs(tonumber(nF) or 0)
+  local mW = (2 * math.pi * mF)
+  local mV = complex.getNew():Euler(mR, complex.toRad(mP))
+  local mO = complex.getNew()
+  local mN -- Next wiper attached to the tip of the prevoious
+  local self = {}
+  function self:getAbs() return mR end
+  function self:getFreq() return mF end
+  function self:getPhase() return mP end
+  function self:getOrigin() return (mO and mO:getNew() or nil) end
+  function self:setOrigin(...) mO:Set(...); return self end
+  function self:getVector() return mV:getNew() end
+  function self:Update()
+    mD, mT = mT, os.clock()
+    mV:RotRad(mW * (mT - mD))
+    if(mN) then
+      mN:Update()
+    end; return self
+  end
+  function self:Draw(clDrw)
+    local vT = mO:getAdd(mV)
+    mO:Action("ab", vT, clDrw);
+    if(mN) then
+      mN:setOrigin(vT)
+      mN:Draw()
+    end
+    return self
+  end
+  function self:getVertex(wV)
+    local nV = math.floor(tonumber(wV) or 0)
+          nV = (nV > 0 and nV or 0)
+    local wC, vT, ID = self, mO:getNew(), 1
+    while(ID <= nV and wC) do
+      vT:Add(wC:getVector())
+      wC, ID = wC:getNext(), (ID + 1)
+    end; return vT
+  end
+  function self:getTip()
+    local wC, vT = self, mO:getNew()
+    while(wC) do -- Iterate as a list of pointers
+      vT:Add(wC:getVector())
+      wC = wC:getNext()
+    end; return vT
+  end
+  function self:setNext(...)
+    mN = newWiper(...); return self
+  end
+  function self:addNext(...)
+    self:setNext(...); return mN
+  end
+  function self:cpyNext()
+    local wR, wP = mV:getPolar()
+    self:setNext(mR, mP, mF); return mN
+  end
+  function self:frqNext(wF)
+    self:setNext(mR, mP, wF); return mN
+  end
+  function self:getNext()
+    return mN
+  end
+  function self:getString()
+    local sInfo = "["..metaWiper.__type.."] {"..mR..","..mP..","..mF.."}\n"
+  end
+  return self
+end
+
 function signals.New(sType, ...)
   local sType = "signals."..tostring(sType or "")
   if(sType == metaControl.__type) then return newControl(...) end
   if(sType == metaPlant.__type) then return newPlant(...) end
   if(sType == metaNeuralNet.__type) then return newNeuralNet(...) end
+  if(sType == metaWiper.__type) then return newWiper(...) end
 end
 
 return signals

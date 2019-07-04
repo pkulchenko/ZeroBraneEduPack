@@ -2,22 +2,28 @@ require("turtle")
 local cmp = require("complex")
 local col = require("colormap")
 local crt = require("chartmap")
+local sig = require("signals")
 
 local xySize = 3
 local dX, dY = 1,1
 local greyLevel  = 200
-local  W,  H = 800, 800
-local minX, maxX = -50, 50
+local  W,  H = 1800, 800
+local minX, maxX = -110, 110
 local minY, maxY = -50, 50
 local clBlu = colr(col.getColorBlueRGB())
 local clRed = colr(col.getColorRedRGB())
 local clBlk = colr(col.getColorBlackRGB())
 local clGry = colr(greyLevel,greyLevel,greyLevel)
+local clGrn = colr(col.getColorGreenRGB())
 local clMgn = colr(col.getColorMagenRGB())
 local intX  = crt.New("interval","WinX", minX, maxX, 0, W)
 local intY  = crt.New("interval","WinY", minY, maxY, H, 0)
 local scOpe = crt.New("scope"):setInterval(intX, intY)
       scOpe:setSize(W, H):setColor(clBlk, clGry):setBorder():setDelta(dX, dY)
+local trWav = crt.New("tracer","Wave"):setInterval(intX,intY):setCache(500, true)
+local vRgh = cmp.getNew(1,0)
+local vDwn = cmp.getNew(0,(minY-maxY))
+local oDwn = cmp.getNew(0,maxY)
 
 local function drawComplexLine(S, E, Cl)
   local x1 = intX:Convert(S:getReal()):getValue()
@@ -36,79 +42,12 @@ end
 cmp.setAction("xy", drawComplex)
 cmp.setAction("ab", drawComplexLine)
 
-local function makeWiper(nR, nP, nF)
-  local mD = os.clock() -- Old time
-  local mT = os.clock() -- New time
-  local mP = (tonumber(nP) or 0)
-  local mR = math.abs(tonumber(nR) or 0)
-  local mF = math.abs(tonumber(nF) or 0)
-  local mW = (2 * math.pi * mF)
-  local mV = cmp.getNew():Euler(mR, cmp.toRad(mP))
-  local mO = cmp.getNew()
-  local mN -- Next wiper attached to the tip of the prevoious
-  local self = {}
-  function self:getOrigin()
-    return (mO and mO:getNew() or nil)
-  end
-  function self:setOrigin(...)
-    mO:Set(...); return self
-  end
-  function self:getVector()
-    return mV:getNew()
-  end
-  function self:Update()
-    mD, mT = mT, os.clock()
-    mV:RotRad(mW * (mT - mD))
-    if(mN) then
-      mN:Update()
-    end; return self
-  end
-  function self:Draw()
-    local vT = mO:getAdd(mV)
-    mO:Action("ab", vT, clRed);
-    if(mN) then
-      mN:setOrigin(vT)
-      mN:Draw()
-    end
-    return self
-  end
-  function self:getVertex(wV)
-    local nV = math.floor(tonumber(wV) or 0)
-          nV = (nV > 0 and nV or 0)
-    local wC, vT, ID = self, mO:getNew(), 1
-    while(ID <= nV and wC) do
-      vT:Add(wC:getVector())
-      wC, ID = wC:getNext(), (ID + 1)
-    end; return vT
-  end
-  function self:getTip()
-    local wC, vT = self, mO:getNew()
-    while(wC) do -- Iterate as a list of pointers
-      vT:Add(wC:getVector())
-      wC = wC:getNext()
-    end; return vT
-  end
-  function self:setNext(...)
-    mN = makeWiper(...); return self
-  end
-  function self:addNext(...)
-    self:setNext(...); return mN
-  end
-  function self:cpyNext()
-    local wR, wP = mV:getPolar()
-    self:setNext(mR, mP, mF); return mN
-  end
-  function self:frqNext(wF)
-    self:setNext(mR, mP, wF); return mN
-  end
-  function self:getNext()
-    return mN
-  end
-  return self
+local w = sig.New("wiper",20, 0, 0.1):setOrigin(-60,0)
+local n, c, d, f = 15, w:getFreq(), w:getFreq(), w
+for i = 1, n do
+  local k = (2 * i + 1)
+  f = f:addNext(w:getAbs()*(1/k), w:getPhase(), w:getFreq()*k)
 end
-
-local w = makeWiper(10, 0, 0.2)
-      w:frqNext(0.4):frqNext(0.6):frqNext(0.8)
 
 open("FFT vector wiper graphing")
 size(W, H); zero(0, 0)
@@ -120,12 +59,21 @@ local oS, oE, bD = cmp.getNew(), cmp.getNew(), false
 
 while(true) do
   undo(scrShot); w:Update()
-  oS:Set(oE); oE:Set(w:getTip())
+  local vTip = w:getTip()
+  oS:Set(oE); oE:Set(vTip)
   if(not bD) then bD = true else
     oE:Action("ab", oS, clMgn)
-  end; scrShot = snap()
-  oE:Action("xy", clBlu)
-  w:Draw(); updt(); wait(0.001)
+  end;
+  scrShot = snap() -- Below that point items are deleted from the frame
+  local xX = cmp.getIntersectRayRay(vTip, vRgh, oDwn, vDwn)
+  if(xX) then
+    xX:Action("xy", clBlu)
+    xX:Action("ab", vTip, clBlu)
+    oE:Action("xy", clBlu)
+    w:Draw(clRed)
+    trWav:movCache(2):putValue(0, xX:getImag()):Draw(clBlu)
+  end
+  updt(); wait(0.001)
 end
 
 wait()

@@ -13,6 +13,7 @@ local tostring     = tostring
 local setmetatable = setmetatable
 local math         = math
 local isNil        = common.isNil
+local toBool       = common.toBool
 local getPick      = common.getPick
 local isTable      = common.isTable
 local getClamp     = common.getClamp
@@ -75,8 +76,34 @@ local function newTracer(sName)
   local mTimO, mTimN = 0, 0
   local mPntN = {x=0,y=0}
   local mPntO = {x=0,y=0}
+  local mCach = {Size = 0, Draw = 0, On = false}
   local mMatX, mMatY
   local enDraw = false
+  function self:setCache(nN, bE)
+    mCach.Size = (tonumber(nN) or 0)
+    mCach.On   = toBool(bE or false)
+    if(mCach.On and mCach.Size > 0) then
+      for ID = 1, mCach.Size do
+        if(not mCach[ID]) then
+          mCach[ID] = {x=0, y=0} end
+      end
+    else
+      mCach.Size, mCach.On = 0, false
+    end; return self
+  end
+  function self:movCache(dX, dY)
+    if(mCach.On) then
+     local dX = (tonumber(dX) or 0)
+     local dY = (tonumber(dY) or 0)
+     for ID = 1, mCach.Size do
+        if(mCach[ID]) then
+          mCach[ID].x = mCach[ID].x + dX
+          mCach[ID].y = mCach[ID].y + dY
+        end
+      end
+    end; return self
+  end
+  function self:getCache() return mCach end
   function self:getString() return "["..metaTracer.__type.."] "..mName end
   function self:getValue() return mTimN, mValN end
   function self:getChart() return mPntN.x, mPntN.y end
@@ -85,8 +112,9 @@ local function newTracer(sName)
     return self
   end
   function self:Reset()
-    mPntN.x, mPntN.y, mPntO.x, mPntO.y = 0,0,0,0
     enDraw, mValO, mValN = false,0,0
+    mPntN.x, mPntN.y, mPntO.x, mPntO.y = 0,0,0,0
+    mCach.Size, mCach.Draw, mCach.On = 0, 0, false
     return self
   end
   function self:putValue(nTime, nVal)
@@ -96,15 +124,34 @@ local function newTracer(sName)
     if(mMatX) then mPntN.x = mMatX:Convert(nTime):getValue()
     else mPntN.x = nTime end;
     if(mMatY) then mPntN.y = mMatY:Convert(mValN):getValue()
-    else mPntN.y = mValN end; return self
+    else mPntN.y = mValN end
+    if(mCach.On) then
+      for ID = mCach.Size, 2, -1  do
+        mCach[ID].x, mCach[ID].y = mCach[ID-1].x, mCach[ID-1].y
+      end
+      mCach[1].x, mCach[1].y = mPntN.x, mPntN.y
+      if(mCach.Draw < mCach.Size) then
+        mCach.Draw = mCach.Draw + 1 end
+    end
+    return self
   end
 
   function self:Draw(cCol, vSz)
     if(enDraw) then pncl(cCol)
       local nSz = math.floor(tonumber(vSz) or 2)
-      line(mPntO.x,mPntO.y,mPntN.x,mPntN.y)
-      if(nSz > 0) then local nsE = ((2 * nSz) + 1)
-        rect(mPntO.x-nSz,mPntO.y-nSz,nsE,nsE) end
+      local nsE = ((nSz > 0) and ((2 * nSz) + 1) or nil)
+      if(not mCach.On) then
+        line(mPntO.x,mPntO.y,mPntN.x,mPntN.y)
+        if(nsE) then rect(mPntO.x-nSz,mPntO.y-nSz,nsE,nsE) end
+      else local xyE = mCach[mCach.Draw]
+        for ID = 2, mCach.Draw do
+          local vS, vE = mCach[ID-1], mCach[ID]
+          line(vS.x,vS.y,vE.x,vE.y)
+       --   print(vS.x,vS.y,vE.x,vE.y)
+          if(nsE) then rect(vS.x-nSz,vS.y-nSz,nsE,nsE) end
+        end
+        if(nsE) then rect(xyE.x-nSz,xyE.y-nSz,nsE,nsE) end
+      end
     else enDraw = true end; return self
   end
 
