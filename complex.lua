@@ -237,7 +237,7 @@ function metaComplex:getMid(...)
 end
 
 function metaComplex:Mean(...)
-  local tV = {...} -- Read parameters 
+  local tV = {...} -- Read parameters
   local fV, cV = tV[1], self:getNew()
   if(isType(type(fV), 5)) then tV = tV[1] end
   local nV = #tV; if(nV <= 0) then return self end
@@ -1051,24 +1051,24 @@ function complex.getAngRadHalfFrac(nF)
   return (metaData.__getpi / nF)
 end
 
-function complex.toDegree(nRad)
+function complex.toDeg(nRad)
   if(math.deg) then return math.deg(nRad) end
   return (tonumber(nRad) or 0) * metaData.__radeg
 end
 
-function complex.toRadian(nDeg)
+function complex.toRad(nDeg)
   if(math.rad) then return math.rad(nDeg) end
   return (tonumber(nDeg) or 0) / metaData.__radeg
 end
 
-function metaComplex:getAngDeg() return complex.toDegree(self:getAngRad()) end
+function metaComplex:getAngDeg() return complex.toDeg(self:getAngRad()) end
 
 function metaComplex:setAngDeg(nA)
-  return self:setAngRad(complex.toRadian(tonumber(nA) or 0))
+  return self:setAngRad(complex.toRad(tonumber(nA) or 0))
 end
 
 function metaComplex:RotDeg(nA)
-  return self:RotRad(complex.toRadian(tonumber(nA) or 0))
+  return self:RotRad(complex.toRad(tonumber(nA) or 0))
 end
 
 function metaComplex:getRotDeg(...)
@@ -1080,7 +1080,7 @@ function metaComplex:setPolarDeg(nN, nA)
 end
 
 function metaComplex:getAngDegVec(cV)
-  return complex.toDegree(self:getAngRadVec(cV))
+  return complex.toDeg(self:getAngRadVec(cV))
 end
 
 function metaComplex:getMatrix()
