@@ -781,7 +781,14 @@ local function newWiper(nR, nF, nP, nD)
     mP = mP + (bD and -180 or 180)
     mV:Euler(mR, complex.toRad(mP)); return self
   end
-  function self:Dump() return logStatus(self:getString(), self) end
+  function self:Dump(bC)
+    logStatus(self:getString())
+    local oF, sC = self:getNext(), "  "
+    if(bC) then while(oF) do
+      logStatus(sC..oF:getString())
+      oF = oF:getNext()
+    end; end; return self
+  end
   function self:setDelta(nD) mD = (tonumber(nD) or 0); return self end
   function self:setAbs(nR)
     mR = math.abs(tonumber(nR) or 0)
@@ -835,7 +842,7 @@ local function newWiper(nR, nF, nP, nD)
   end
   function self:getString()
     local sT = table.concat({self:getAbs(), self:getFreq(), self:getPhase(), self:getDelta()}, ",")
-    return ("["..metaWiper.__type.."]{"..sT.."}\n")
+    return ("["..metaWiper.__type.."]{"..sT.."}")
   end
   function self:toSquare(nN)
     local nN, oF = math.floor(tonumber(nN) or 0), self
