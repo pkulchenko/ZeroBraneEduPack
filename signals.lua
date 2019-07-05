@@ -762,7 +762,7 @@ local metaWiper = {}
       metaWiper.__type      = "signals.wiper"
       metaWiper.__metatable = metaWiper.__type
       metaWiper.__tostring  = function(oWiper) return oWiper:getString() end
-local function newWiper(nR, nP, nF, nD)
+local function newWiper(nR, nF, nP, nD)
   local mT = 0 -- Holds the time value
   local mP = (tonumber(nP) or 0)
   local mD = (tonumber(nD) or 0)
@@ -777,6 +777,11 @@ local function newWiper(nR, nP, nF, nD)
   function self:getFreq() return mF end
   function self:getPhase() return mP end
   function self:getDelta() return mD end
+  function self:Reverse(bD)
+    mP = mP + (bD and -180 or 180)
+    mV:Euler(mR, complex.toRad(mP)); return self
+  end
+  function self:Dump() return logStatus(self:getString(), self) end
   function self:setDelta(nD) mD = (tonumber(nD) or 0); return self end
   function self:setAbs(nR)
     mR = math.abs(tonumber(nR) or 0)
@@ -823,31 +828,42 @@ local function newWiper(nR, nP, nF, nD)
   end
   function self:cpyNext()
     local wR, wP = mV:getPolar()
-    self:setNext(oF:getAbs(), oF:getPhase(), oF:getFreq(), oF:getDelta()); return mN
+    self:setNext(oF:getAbs(), oF:getFreq(), oF:getPhase(), oF:getDelta()); return mN
   end
   function self:frqNext(wF)
     self:setNext(); return mN
   end
   function self:getString()
-    local sT = table.concat({self:getAbs(), self:getPhase(), self:getFreq(), self:getDelta()}, ",")
+    local sT = table.concat({self:getAbs(), self:getFreq(), self:getPhase(), self:getDelta()}, ",")
     return ("["..metaWiper.__type.."]{"..sT.."}\n")
   end
   function self:toSquare(nN)
     local nN, oF = math.floor(tonumber(nN) or 0), self
           nN = ((nN <= 0) and 0 or nN)
     self:setAbs(self:getAbs() * (4 / math.pi))
-    for k = 1, nN do local n = (2 * k + 1)
-      local m = (1/n)
-      oF = oF:addNext(m*self:getAbs(), self:getPhase(), n*self:getFreq(), self:getDelta())
+    local sR, sF, sP, sD = self:getAbs(), self:getFreq(), self:getPhase(), self:getDelta()
+    for k = 2, nN do local n = (2 * k - 1)
+      local a = (1 / n)
+      oF = oF:addNext(a*sR, n*sF, sP, sD)
     end; return self
   end
   function self:toTriangle(nN)
     local nN, oF = math.floor(tonumber(nN) or 0), self
           nN = ((nN <= 0) and 0 or nN)
-    self:setAbs(self:getAbs() * (8 / math.pi^2))   
-    for k = 1, nN do local n = (2 * k + 1)
-      local m = ((-1)^(0.5 * (n-1))) / (n^2)
-      oF = oF:addNext(m*self:getAbs(), self:getPhase(), n*self:getFreq(), self:getDelta())
+    self:setAbs(self:getAbs() * (8 / math.pi^2))
+    local sR, sF, sP, sD = self:getAbs(), self:getFreq(), self:getPhase(), self:getDelta()
+    for k = 2, nN do local n = (2 * k + 1)
+      local a = ((-1)^k / n^2)
+      oF = oF:addNext(a*sR, n*sF, sP, sD)
+    end; return self
+  end
+  function self:toSaw(nN)
+    local nN, oF = math.floor(tonumber(nN) or 0), self
+          nN = ((nN <= 0) and 0 or nN)
+    self:setAbs(self:getAbs() * (2 / math.pi))
+    local sR, sF, sP, sD = self:getAbs(), self:getFreq(), self:getPhase(), self:getDelta()
+    for k = 2, nN do local a = ((-1)^(k + 1))/k
+      oF = oF:addNext(a*sR, k*sF, sP, sD)
     end; return self
   end
   return self

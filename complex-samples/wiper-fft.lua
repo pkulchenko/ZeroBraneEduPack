@@ -41,7 +41,9 @@ end
 cmp.setAction("xy", drawComplex)
 cmp.setAction("ab", drawComplexLine)
 
-local w = sig.New("wiper",12, 0, .1, 0.02):setOrigin(-55,0):toSquare(25)
+local w = sig.New("wiper",35, 0.05, 0, 0.1):setOrigin(-90,0):toSaw(20):Dump()
+--local w = sig.New("wiper",15, 0.05, 0, 0.1):setOrigin(-55,0):toSquare(20):Dump()
+--local w = sig.New("wiper",45, 0.05, 0, 0.1):setOrigin(-55,0):toTriangle(20):Dump()
 
 open("FFT vector wiper graphing")
 size(W, H); zero(0, 0)
@@ -61,11 +63,11 @@ while(true) do
   scrShot = snap() -- Below that point items are deleted from the frame
   local xX = vTip:getProjectRay(oDwn, vDwn)
   if(xX) then
+    w:Draw("ab", clRed)
+    trWav:movCache(2):putValue(0, xX:getImag()):Draw(clGrn)
     xX:Action("xy", clBlu)
     xX:Action("ab", vTip, clBlu)
     oE:Action("xy", clBlu)
-    w:Draw("ab", clRed)
-    trWav:movCache(2):putValue(0, xX:getImag()):Draw(clBlu)
   end
   updt(); wait(0.001)
 end
