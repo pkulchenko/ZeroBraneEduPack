@@ -873,6 +873,18 @@ local function newWiper(nR, nF, nP, nD)
       oF = oF:addNext(a*sR, k*sF, sP, sD)
     end; return self
   end
+  function self:toRand(nN)
+    local nA = math.abs(tonumber(nA) or 0)
+    local nN, oF = math.floor(tonumber(nN) or 0), self
+          nN = ((nN <= 0) and 0 or nN)
+    local sR, sF, sP, sD = self:getAbs(), self:getFreq(), self:getPhase(), self:getDelta()
+    for k = 2, nN do
+      local a, b = common.randomGetNumber(), common.randomGetNumber()
+      local c, d = common.randomGetNumber(), common.randomGetNumber()
+      local r = math.exp((-0.618)*k*a)
+      oF = oF:addNext(r*sR, k*sF*b, sP*c, sD*d)
+    end; return self
+  end
   return self
 end
 

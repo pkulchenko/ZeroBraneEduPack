@@ -41,8 +41,9 @@ end
 cmp.setAction("xy", drawComplex)
 cmp.setAction("ab", drawComplexLine)
 
-local w = sig.New("wiper",35, 0.05, 0, 0.1):setOrigin(-90,0):toSaw(20):Dump()
---local w = sig.New("wiper",15, 0.05, 0, 0.1):setOrigin(-55,0):toSquare(20):Dump()
+--local w = sig.New("wiper",5, 0.03, 0, 0.1):setOrigin(-55,0):toRand(50):Dump()
+--local w = sig.New("wiper",35, 0.05, 0, 0.1):setOrigin(-90,0):toSaw(20):Dump()
+local w = sig.New("wiper",15, 0.02, 0, 0.1):setOrigin(-55,0):toSquare(20):Dump()
 --local w = sig.New("wiper",45, 0.05, 0, 0.1):setOrigin(-55,0):toTriangle(20):Dump()
 
 open("FFT vector wiper graphing")
