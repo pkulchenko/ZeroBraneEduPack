@@ -47,7 +47,7 @@ pncl(clBlu); line(0, scEst, W, scEst)
 
 for I = minX, maxX do
   suc, out = common.getCall("Custom user functional", I)
-  trEst:putValue(I, out):Draw(clRed)
+  trEst:Write(I, out):Draw(clRed)
   local xc, yc = trEst:getChart()
   local xv, yv = trEst:getValue()
   local ang  = ((I==0 or I==1) and 0  or 90)

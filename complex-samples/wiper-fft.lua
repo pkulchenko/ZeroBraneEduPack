@@ -20,7 +20,7 @@ local intX  = crt.New("interval","WinX", minX, maxX, 0, W)
 local intY  = crt.New("interval","WinY", minY, maxY, H, 0)
 local scOpe = crt.New("scope"):setInterval(intX, intY)
       scOpe:setSize(W, H):setColor(clBlk, clGry):setBorder():setDelta(dX, dY)
-local trWav = crt.New("tracer","Wave"):setInterval(intX,intY):setCache(450, true)
+local trWav = crt.New("tracer","Wave"):setInterval(intX,intY):Cache(450)
 local vDwn = cmp.getNew(0,(minY-maxY))
 local oDwn = cmp.getNew(0,maxY)
 
@@ -52,7 +52,8 @@ size(W, H); zero(0, 0)
 updt(false) -- disable auto updates
 scOpe:Draw(true, true, true)
 local scrShot = snap() -- store snapshot
-local oS, oE, bD = cmp.getNew(), cmp.getNew(), false
+local oS, oE = cmp.getNew(), cmp.getNew()
+local oT, bD = cmp.getNew(), false
 
 while(true) do
   undo(scrShot); w:Update()
@@ -60,16 +61,14 @@ while(true) do
   oS:Set(oE); oE:Set(vTip)
   if(not bD) then bD = true else
     oE:Action("ab", oS, clMgn)
-  end;
-  scrShot = snap() -- Below that point items are deleted from the frame
-  local xX = vTip:getProjectRay(oDwn, vDwn)
-  if(xX) then
-    w:Draw("ab", clRed)
-    trWav:movCache(2):putValue(0, xX:getImag()):Draw(clGrn)
-    xX:Action("xy", clBlu)
-    xX:Action("ab", vTip, clBlu)
-    oE:Action("xy", clBlu)
   end
+  scrShot = snap() -- Below that point items are deleted from the frame
+  oT:Set(vTip):ProjectRay(oDwn, vDwn)
+  w:Draw("ab", clRed)
+  trWav:Move(2):Write(0, oT:getImag()):Draw(clGrn)
+  oT:Action("xy", clBlu)
+  oT:Action("ab", vTip, clBlu)
+  oE:Action("xy", clBlu)
   updt(); wait(0.001)
 end
 

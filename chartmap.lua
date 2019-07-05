@@ -38,9 +38,9 @@ local function newInterval(sName, nL1, nH1, nL2, nH2)
   local mL1, mH1 = (tonumber(nL1) or 0), (tonumber(nH1) or 0)
   local mL2, mH2 = (tonumber(nL2) or 0), (tonumber(nH2) or 0)
   if(mL1 == mH1) then
-    return logStatus("newInterval("..mNm.."): Bad input bounds", self) end
+    return logStatus(metaInterval.__type.."("..mNm.."): Bad input bounds", self) end
   if(mL2 == mH2) then
-    return logStatus("newInterval("..mNm.."): Bad output bounds", self) end
+    return logStatus(metaInterval.__type.."("..mNm.."): Bad output bounds", self) end
   setmetatable(self, metaInterval)
   function self:getName() return mNm end
   function self:setName(sName) mNm = tostring(sName or "N/A") end
@@ -52,7 +52,7 @@ local function newInterval(sName, nL1, nH1, nL2, nH2)
   function self:getString() return "["..metaInterval.__type.."] "..mNm.." {"..mL1..","..mH1.."} >> {"..mL2..","..mH2.."}" end
   function self:Convert(nVal, bRev)
     local val = tonumber(nVal); if(not val) then
-      return logStatus("newInterval.Convert("..mNm.."): Source <"..tostring(nVal).."> NaN", self) end
+      return logStatus(metaInterval.__type..".Convert("..mNm.."): Source <"..tostring(nVal).."> NaN", self) end
     if(bRev) then local kf = ((val - mL2) / (mH2 - mL2)); mVal = (kf * (mH1 - mL1) + mL1)
     else          local kf = ((val - mL1) / (mH1 - mL1)); mVal = (kf * (mH2 - mL2) + mL2) end
     return self
@@ -76,23 +76,19 @@ local function newTracer(sName)
   local mTimO, mTimN = 0, 0
   local mPntN = {x=0,y=0}
   local mPntO = {x=0,y=0}
-  local mCach = {Size = 0, Draw = 0, On = false}
+  local mCach = {Size = 0, Draw = 0}
   local mMatX, mMatY
   local enDraw = false
-  function self:setCache(nN, bE)
+  function self:Cache(nN)
     mCach.Size = (tonumber(nN) or 0)
-    mCach.On   = toBool(bE or false)
-    if(mCach.On and mCach.Size > 0) then
+    if(mCach.Size > 0) then
       for ID = 1, mCach.Size do
-        if(not mCach[ID]) then
-          mCach[ID] = {x=0, y=0} end
+        if(not mCach[ID]) then mCach[ID] = {x=0, y=0} end
       end
-    else
-      mCach.Size, mCach.On = 0, false
-    end; return self
+    else mCach.Size = 0 end; return self
   end
-  function self:movCache(dX, dY)
-    if(mCach.On) then
+  function self:Move(dX, dY)
+    if(mCach.Size > 0) then
      local dX = (tonumber(dX) or 0)
      local dY = (tonumber(dY) or 0)
      for ID = 1, mCach.Size do
@@ -104,20 +100,24 @@ local function newTracer(sName)
     end; return self
   end
   function self:getCache() return mCach end
+  function self:getCacheSize() return mCach.Size, mCach.Draw end
   function self:getString() return "["..metaTracer.__type.."] "..mName end
   function self:getValue() return mTimN, mValN end
   function self:getChart() return mPntN.x, mPntN.y end
   function self:setInterval(oIntX, oIntY)
-    mMatX, mMatY = oIntX, oIntY
+    mMatX = oIntX; if(getmetatable(mMatX) ~= metaInterval) then mMatX = nil
+      logStatus(metaTracer.__type..".setInterval: X object invalid", nil) end
+    mMatY = oIntY; if(getmetatable(mMatY) ~= metaInterval) then mMatY = nil
+      logStatus(metaTracer.__type..".setInterval: Y object invalid", nil) end
     return self
   end
   function self:Reset()
+    mCach.Size, mCach.Draw = 0, 0
     enDraw, mValO, mValN = false,0,0
     mPntN.x, mPntN.y, mPntO.x, mPntO.y = 0,0,0,0
-    mCach.Size, mCach.Draw, mCach.On = 0, 0, false
     return self
   end
-  function self:putValue(nTime, nVal)
+  function self:Write(nTime, nVal)
     mValO, mValN = mValN, nVal
     mTimO, mTimN = mTimN, nTime
     mPntO.x, mPntO.y = mPntN.x, mPntN.y
@@ -125,7 +125,7 @@ local function newTracer(sName)
     else mPntN.x = nTime end;
     if(mMatY) then mPntN.y = mMatY:Convert(mValN):getValue()
     else mPntN.y = mValN end
-    if(mCach.On) then
+    if(mCach.Size > 0) then
       for ID = mCach.Size, 2, -1  do
         mCach[ID].x, mCach[ID].y = mCach[ID-1].x, mCach[ID-1].y
       end
@@ -140,14 +140,13 @@ local function newTracer(sName)
     if(enDraw) then pncl(cCol)
       local nSz = math.floor(tonumber(vSz) or 2)
       local nsE = ((nSz > 0) and ((2 * nSz) + 1) or nil)
-      if(not mCach.On) then
+      if(mCach.Size == 0) then
         line(mPntO.x,mPntO.y,mPntN.x,mPntN.y)
         if(nsE) then rect(mPntO.x-nSz,mPntO.y-nSz,nsE,nsE) end
       else local xyE = mCach[mCach.Draw]
         for ID = 2, mCach.Draw do
           local vS, vE = mCach[ID-1], mCach[ID]
           line(vS.x,vS.y,vE.x,vE.y)
-       --   print(vS.x,vS.y,vE.x,vE.y)
           if(nsE) then rect(vS.x-nSz,vS.y-nSz,nsE,nsE) end
         end
         if(nsE) then rect(xyE.x-nSz,xyE.y-nSz,nsE,nsE) end
@@ -179,60 +178,60 @@ local function newScope(sName)
   function self:setDelta(nX, nY)
     mdX, mdY = (tonumber(nX) or 0), (tonumber(nY) or 0)
     if(isNil(minX) and isNil(maxX) and isNil(minY) and isNil(maxY)) then
-      return logStatus("newCoordSys.setDelta: Call /setBorder/ before /setDelta/", nil)
+      return logStatus(metaScope.__type..".setDelta: Call /setBorder/ before /setDelta/", nil)
     else
       if(isNil(mnW) or isNil(mnH)) then
-        return logStatus("newCoordSys.setDelta: Call /setSize/ before /setDelta/", nil)
+        return logStatus(metaScope.__type..".setDelta: Call /setSize/ before /setDelta/", nil)
       else
         pxX = mnW / (math.abs(maxX - minX) / mdX)
         pxY = mnH / (math.abs(maxY - minY) / mdY)
       end
     end
     if(mdX == 0 or mdY == 0) then
-      return logStatus("newCoordSys.setDelta: Delta invalid", nil) end
+      return logStatus(metaScope.__type..".setDelta: Delta invalid", nil) end
     return self
   end
   function self:setBorder(nX, xX, nY, xY)
     minX, maxX = (tonumber(nX) or 0), (tonumber(xX) or 0)
     minY, maxY = (tonumber(nY) or 0), (tonumber(xY) or 0)
     if(isNil(nX) and isNil(xX) and isNil(nY) and isNil(xY)) then
-      logStatus("newCoordSys.setBorder: Using intervals")
+      logStatus(metaScope.__type..".setBorder: Using intervals")
       if(isNil(moiX) or isNil(moiY)) then
-        return logStatus("newCoordSys.setBorder: Call /setInterval/ before /setBorder/", nil)
+        return logStatus(metaScope.__type..".setBorder: Call /setInterval/ before /setBorder/", nil)
       else
         minX, maxX = moiX:getBorderIn()
         minY, maxY = moiY:getBorderIn()
       end
     end
     if(minX == maxX or minY == maxY) then
-      return logStatus("newCoordSys.setBorder: Border invalid", nil) end
+      return logStatus(metaScope.__type..".setBorder: Border invalid", nil) end
     midX, midY = (minX + ((maxX - minX) / 2)), (minY + ((maxY - minY) / 2))
     return self
   end
   function self:setSize(nW, nH)
     mnW, mnH = (tonumber(nW) or 0), (tonumber(nH) or 0)
     if(isNil(nW) and isNil(nH)) then
-      logStatus("newCoordSys.setSize: Using intervals")
+      logStatus(metaScope.__type..".setSize: Using intervals")
       if(isNil(moiX) or isNil(moiY)) then
-        return logStatus("newCoordSys.setSize: Call /setInterval/ before /setSize/", nil)
+        return logStatus(metaScope.__type..".setSize: Call /setInterval/ before /setSize/", nil)
       else
         mnW = math.max(moiX:getBorderOut())
         mnH = math.max(moiY:getBorderOut())
       end
     end
     if(mnW <= 0 or mnH <= 0) then
-      return logStatus("newCoordSys.setSize: Size invalid", nil) end; return self
+      return logStatus(metaScope.__type..".setSize: Size invalid", nil) end; return self
   end
   function self:setUpdate()
     if(isNil(moiX) or isNil(moiY)) then
-      return logStatus("newCoordSys.UpdateInt: Skip", nil) end
+      return logStatus(metaScope.__type..".UpdateInt: Skip", nil) end
     return self:setBorder():setSize()
   end
   function self:setInterval(intX, intY)
     moiX = intX; if(getmetatable(moiX) ~= metaInterval) then
-      return logStatus("newCoordSys.setInterval: X object invalid", nil) end
+      return logStatus(metaScope.__type..".setInterval: X object invalid", nil) end
     moiY = intY; if(getmetatable(moiY) ~= metaInterval) then
-      return logStatus("newCoordSys.setInterval: Y object invalid", nil) end
+      return logStatus(metaScope.__type..".setInterval: Y object invalid", nil) end
     return self
   end
   function self:setColorAxis(clMid) mclMid = (clMid or colr(0,0,0)); return self end
@@ -312,7 +311,7 @@ local function newScope(sName)
   end
   function self:drawComplexPolygon(tV, bTx, clP, clO, nN, bO)
     if(not isTable(tV)) then
-      return logStatus("newCoordSys.drawComplexPolygon: Skip", self) end
+      return logStatus(metaScope.__type..".drawComplexPolygon: Skip", self) end
     local nL = #tV -- Store the length to avoid counting again
     local nE = getClamp(math.floor(tonumber(nN) or nL), 1, nL)
     for iD = 1, nE do local cS, cE = (tV[iD+1] or tV[1]), tV[iD]
@@ -324,7 +323,7 @@ local function newScope(sName)
   end
   function self:drawComplexPointSet(tV, clNew, bTx, nN)
     if(not isTable(tV)) then
-      return logStatus("newCoordSys.drawComplexPointSet: Skip", self) end
+      return logStatus(metaScope.__type..".drawComplexPointSet: Skip", self) end
     local nL = #tV -- Store the length to avoid counting again
     local nE = getClamp(math.floor(tonumber(nN) or nL), 1, nL)
     for iD = 1, nE do
@@ -341,27 +340,27 @@ local function newScope(sName)
   end
   function self:drawGraph(tY, tX)
     if(not isTable(tY)) then
-      return logStatus("newCoordSys.plotGraph: Skip", self) end
+      return logStatus(metaScope.__type..".plotGraph: Skip", self) end
     local ntY, bX, ntX, toP = #tY, false
     if(isTable(tX)) then ntX, bX = #tX, true
       if(ntX ~= ntY) then
-        logStatus("newCoordSys.plotGraph: Shorter <" ..ntX..","..ntY..">")
+        logStatus(metaScope.__type..".plotGraph: Shorter <" ..ntX..","..ntY..">")
         toP = math.min(ntX, ntY) else toP = ntY end
     else toP, bX = ntY, false end
     local trA, vX = newTracer("plotGraph"):setInterval(moiX, moiY)
     for iD = 1, toP do
       vX = getPick(bX, tX and tX[iD], iD)
-      trA:putValue(vX, tY[iD]):Draw(mclDir, mnPs)
+      trA:Write(vX, tY[iD]):Draw(mclDir, mnPs)
     end; self:drawPointXY(vX, tY[toP], mclDir)
     return self
   end
   function self:drawStem(tY, tX)
     if(not isTable(tY)) then
-      return logStatus("newCoordSys.plotGraph: Skip", self) end
+      return logStatus(metaScope.__type..".plotGraph: Skip", self) end
     local ntY, bX, ntX, toP = #tY, false
     if(isTable(tX)) then ntX, bX = #tX, true
       if(ntX ~= ntY) then
-        logStatus("newCoordSys.plotGraph: Shorter <" ..ntX..","..ntY..">")
+        logStatus(metaScope.__type..".plotGraph: Shorter <" ..ntX..","..ntY..">")
         toP = math.min(ntX, ntY) else toP = ntY end
     else toP, bX = ntY, false end; local vX
     local zY = getRound(moiY:Convert(0):getValue(),1)

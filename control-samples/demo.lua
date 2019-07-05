@@ -50,7 +50,7 @@ while(curTm <= endTm) do
   if(curTm > 0.1 * endTm) then con = stVal else con = 0 end
   wait(wAit)
   pvv = APR:Process(con):getOutput()
-  trPV:putValue(curTm, pvv):Draw(clBlk)
+  trPV:Write(curTm, pvv):Draw(clBlk)
   print("("..form(curTm)..") "..form(ref).." > "..form(pvv).." > "..form(con))
   curTm = curTm + To; updt()
 end; APR:Reset(); trPV:Reset(); wait(0.5)
@@ -59,11 +59,11 @@ curTm, pvv = 0, 0
 while(curTm <= endTm) do
   wait(wAit)
   if(curTm > 0.1 * endTm) then ref = stVal else ref = 0 end
-  trRef:putValue(curTm, ref):Draw(clBlu)
+  trRef:Write(curTm, ref):Draw(clBlu)
   con = PID:Process(ref,pvv):getControl()
-  trCon:putValue(curTm,con):Draw(clGrn)
+  trCon:Write(curTm,con):Draw(clGrn)
   pvv = APR:Process(con):getOutput()
-  trPV:putValue(curTm, pvv):Draw(clRed)
+  trPV:Write(curTm, pvv):Draw(clRed)
   print("("..form(curTm)..") "..form(ref).." > "..form(pvv).." > "..
              form(con).." : {"..table.concat({("%5.2f, %5.2f, %5.2f"):format(PID:getTerms())}).."}")
   curTm = curTm + To; updt()

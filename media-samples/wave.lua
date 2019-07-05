@@ -34,7 +34,7 @@ size(W,H); zero(0, 0); updt(false) -- disable auto updates
 scWAV:Draw(true, false, true)
 
 for i = 1, iTop do
-  trWAV:putValue(i, tData[i]):Draw(clBlu); updt()
+  trWAV:Write(i, tData[i]):Draw(clBlu); updt()
 end
 
 wait()
