@@ -41,12 +41,7 @@ end
 cmp.setAction("xy", drawComplex)
 cmp.setAction("ab", drawComplexLine)
 
-local w = sig.New("wiper",20, 0, 0.1):setOrigin(-55,0)
-local n, c, d, f = 20, w:getFreq(), w:getFreq(), w
-
-for i = 1, n do local k = (2 * i + 1)
-  f = f:addNext(w:getAbs()*(1/k), w:getPhase(), w:getFreq()*k)
-end
+local w = sig.New("wiper",12, 0, .1, 0.02):setOrigin(-55,0):toSquare(25)
 
 open("FFT vector wiper graphing")
 size(W, H); zero(0, 0)
@@ -69,7 +64,7 @@ while(true) do
     xX:Action("xy", clBlu)
     xX:Action("ab", vTip, clBlu)
     oE:Action("xy", clBlu)
-    w:Draw(clRed)
+    w:Draw("ab", clRed)
     trWav:movCache(2):putValue(0, xX:getImag()):Draw(clBlu)
   end
   updt(); wait(0.001)

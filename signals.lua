@@ -405,7 +405,8 @@ local metaNeuralNet = {}
       metaNeuralNet.__metatable = metaNeuralNet.__type
       metaNeuralNet.__tostring = function(oNet) return oNet:getString() end
 local function newNeuralNet(sName)
-  local self, mtData, mID, mName = {}, {}, 1, tostring(sName or "NET")
+  local self = {}; setmetatable(self, metaNeuralNet)
+  local mtData, mID, mName = {}, 1, tostring(sName or "NET")
   local mfAct, mfOut, mtSum = nil, nil, {}; randomSetSeed()
   local mfTran = function(nX) return nX end
   function self:upLast(tE)
@@ -582,7 +583,7 @@ local metaControl = {}
 local function newControl(nTo, sName)
   local mTo = (tonumber(nTo) or 0); if(mTo <= 0) then -- Sampling time [s]
     return logStatus(nil, "newControl: Sampling time <"..tostring(nTo).."> invalid") end
-  local self  = {}                 -- Place to store the methods
+  local self  = {}; setmetatable(self, metaControl) -- Place to store the methods
   local mfAbs = math and math.abs  -- Function used for error absolute
   local mfSgn = getSign            -- Function used for error sign
   local mErrO, mErrN  = 0, 0       -- Error state values
@@ -592,8 +593,6 @@ local function newControl(nTo, sName)
   local mpP, mpI, mpD = 1, 1, 1    -- Raise the error to power of that much
   local mbCmb, mbInv, mSatD, mSatU = true, false -- Saturation limits and settings
   local mName, mType, mUser = (sName and tostring(sName) or "N/A"), "", {}
-
-  setmetatable(self, metaControl)
 
   function self:getTerm(kV,eV,pV) return (kV*mfSgn(eV)*mfAbs(eV)^pV) end
   function self:Dump() return logStatus(self:getString(), self) end
@@ -695,7 +694,7 @@ local function newPlant(nTo, tNum, tDen, sName)
     return logStatus("Plant physically impossible") end
   if(tDen[1] == 0) then
     return logStatus("Plant denominator invalid") end
-  local self, mTo  = {}, (tonumber(nTo) or 0)
+  local self, mTo  = {}, (tonumber(nTo) or 0); setmetatable(self, metaPlant)
   if(mTo <= 0) then return logStatus("Plant sampling time <"..tostring(nTo).."> invalid") end
   local mName, mOut = tostring(sName or "Plant plant"), nil
   local mSta, mDen, mNum = {}, {}, {}
@@ -763,37 +762,41 @@ local metaWiper = {}
       metaWiper.__type      = "signals.wiper"
       metaWiper.__metatable = metaWiper.__type
       metaWiper.__tostring  = function(oWiper) return oWiper:getString() end
-local function newWiper(nR, nP, nF)
-  local mD = os.clock() -- Old time
-  local mT = os.clock() -- New time
+local function newWiper(nR, nP, nF, nD)
+  local mT = 0 -- Holds the time value
   local mP = (tonumber(nP) or 0)
+  local mD = (tonumber(nD) or 0)
   local mR = math.abs(tonumber(nR) or 0)
   local mF = math.abs(tonumber(nF) or 0)
-  local mW = (2 * math.pi * mF)
-  local mV = complex.getNew():Euler(mR, complex.toRad(mP))
-  local mO = complex.getNew()
+  local mO, mW = complex.getNew(), (2 * math.pi * mF)
+  local mV = mO:getNew():Euler(mR, complex.toRad(mP))
   local mN -- Next wiper attached to the tip of the prevoious
-  local self = {}
+  local self = {}; setmetatable(self, metaWiper)
   function self:getAbs() return mR end
+  function self:getNext() return mN end
   function self:getFreq() return mF end
   function self:getPhase() return mP end
+  function self:getDelta() return mD end
+  function self:setDelta(nD) mD = (tonumber(nD) or 0); return self end
+  function self:setAbs(nR)
+    mR = math.abs(tonumber(nR) or 0)
+    mV:Euler(mR, complex.toRad(mP)); return self
+  end
+  function self:setPhase(nP) mP = (tonumber(nP) or 0)
+    mV:Euler(mR, complex.toRad(mP)); return self
+  end
+  function self:setFreq(nF) mF = math.abs(tonumber(nF) or 0); return self end
   function self:getOrigin() return (mO and mO:getNew() or nil) end
   function self:setOrigin(...) mO:Set(...); return self end
   function self:getVector() return mV:getNew() end
   function self:Update()
-    mD, mT = mT, os.clock()
-    mV:RotRad(mW * (mT - mD))
-    if(mN) then
-      mN:Update()
-    end; return self
+    mT = mT + mD; mV:RotRad(mW * mD)
+    if(mN) then mN:Update() end; return self
   end
-  function self:Draw(clDrw)
+  function self:Draw(sKey, clDrw)
     local vT = mO:getAdd(mV)
-    mO:Action("ab", vT, clDrw);
-    if(mN) then
-      mN:setOrigin(vT)
-      mN:Draw()
-    end
+    mO:Action(sKey, vT, clDrw);
+    if(mN) then mN:setOrigin(vT):Draw(sKey, clDrw) end
     return self
   end
   function self:getVertex(wV)
@@ -820,16 +823,32 @@ local function newWiper(nR, nP, nF)
   end
   function self:cpyNext()
     local wR, wP = mV:getPolar()
-    self:setNext(mR, mP, mF); return mN
+    self:setNext(oF:getAbs(), oF:getPhase(), oF:getFreq(), oF:getDelta()); return mN
   end
   function self:frqNext(wF)
-    self:setNext(mR, mP, wF); return mN
-  end
-  function self:getNext()
-    return mN
+    self:setNext(); return mN
   end
   function self:getString()
-    local sInfo = "["..metaWiper.__type.."] {"..mR..","..mP..","..mF.."}\n"
+    local sT = table.concat({self:getAbs(), self:getPhase(), self:getFreq(), self:getDelta()}, ",")
+    return ("["..metaWiper.__type.."]{"..sT.."}\n")
+  end
+  function self:toSquare(nN)
+    local nN, oF = math.floor(tonumber(nN) or 0), self
+          nN = ((nN <= 0) and 0 or nN)
+    self:setAbs(self:getAbs() * (4 / math.pi))
+    for k = 1, nN do local n = (2 * k + 1)
+      local m = (1/n)
+      oF = oF:addNext(m*self:getAbs(), self:getPhase(), n*self:getFreq(), self:getDelta())
+    end; return self
+  end
+  function self:toTriangle(nN)
+    local nN, oF = math.floor(tonumber(nN) or 0), self
+          nN = ((nN <= 0) and 0 or nN)
+    self:setAbs(self:getAbs() * (8 / math.pi^2))   
+    for k = 1, nN do local n = (2 * k + 1)
+      local m = ((-1)^(0.5 * (n-1))) / (n^2)
+      oF = oF:addNext(m*self:getAbs(), self:getPhase(), n*self:getFreq(), self:getDelta())
+    end; return self
   end
   return self
 end
