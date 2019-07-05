@@ -777,8 +777,8 @@ local function newWiper(nR, nF, nP, nD)
   function self:getFreq() return mF end
   function self:getPhase() return mP end
   function self:getDelta() return mD end
-  function self:Reverse(bD)
-    mP = mP + (bD and -180 or 180)
+  function self:Reverse(bN)
+    mP = mP + (bN and -180 or 180)
     mV:Euler(mR, complex.toRad(mP)); return self
   end
   function self:Dump(bC)
