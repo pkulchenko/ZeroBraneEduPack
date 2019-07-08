@@ -43,33 +43,37 @@ cmp.setAction("ab", drawComplexLine)
 
 --local w = sig.New("wiper",5, 0.03, 0, 0.1):setOrigin(-55,0):toRand(50):Dump()
 --local w = sig.New("wiper",35, 0.05, 0, 0.1):setOrigin(-90,0):toSaw(20):Dump()
-local w = sig.New("wiper",15, 0.02, 0, 0.1):setOrigin(-55,0):toSquare(20):Dump()
---local w = sig.New("wiper",45, 0.05, 0, 0.1):setOrigin(-55,0):toTriangle(20):Dump()
+--local w = sig.New("wiper",15, 0.02, 0, 0.1):setOrigin(-55,0):toSquare(20):Dump()
+local w = sig.New("wiper",25, 0.05, 0, 0.1):setOrigin(-55,0):toTriangle(10):Dump()
 
-open("FFT vector wiper graphing")
-size(W, H); zero(0, 0)
+if(w) then
+  open("FFT vector wiper graphing")
+  size(W, H); zero(0, 0)
 
-updt(false) -- disable auto updates
-scOpe:Draw(true, true, true)
-local scrShot = snap() -- store snapshot
-local oS, oE = cmp.getNew(), cmp.getNew()
-local oT, bD = cmp.getNew(), false
+  updt(false) -- disable auto updates
+  scOpe:Draw(true, true, true)
+  local scrShot = snap() -- store snapshot
+  local oS, oE = cmp.getNew(), cmp.getNew()
+  local oT, bD = cmp.getNew(), false
 
-while(true) do
-  undo(scrShot); w:Update()
-  local vTip = w:getTip()
-  oS:Set(oE); oE:Set(vTip)
-  if(not bD) then bD = true else
-    oE:Action("ab", oS, clMgn)
+  while(true) do
+    undo(scrShot); w:Update()
+    local vTip = w:getTip()
+    oS:Set(oE); oE:Set(vTip)
+    if(not bD) then bD = true else
+      oE:Action("ab", oS, clMgn)
+    end; scrShot = snap() -- Below that point items are deleted from the frame
+    oT:Set(vTip):ProjectRay(oDwn, vDwn)
+    w:Draw("ab", clRed)
+    trWav:Move(2):Write(0, oT:getImag()):Draw(clGrn)
+    oT:Action("xy", clBlu)
+    oT:Action("ab", vTip, clBlu)
+    oE:Action("xy", clBlu)
+    updt(); wait(0.001)
   end
-  scrShot = snap() -- Below that point items are deleted from the frame
-  oT:Set(vTip):ProjectRay(oDwn, vDwn)
-  w:Draw("ab", clRed)
-  trWav:Move(2):Write(0, oT:getImag()):Draw(clGrn)
-  oT:Action("xy", clBlu)
-  oT:Action("ab", vTip, clBlu)
-  oE:Action("xy", clBlu)
-  updt(); wait(0.001)
+  
+  wait()
+else
+  print("Remove the comment in front of FFT wiper generator")
 end
 
-wait()

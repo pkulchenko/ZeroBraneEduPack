@@ -837,47 +837,48 @@ local function newWiper(nR, nF, nP, nD)
     local wR, wP = mV:getPolar()
     self:setNext(oF:getAbs(), oF:getFreq(), oF:getPhase(), oF:getDelta()); return mN
   end
-  function self:frqNext(wF)
-    self:setNext(); return mN
-  end
   function self:getString()
     local sT = table.concat({self:getAbs(), self:getFreq(), self:getPhase(), self:getDelta()}, ",")
     return ("["..metaWiper.__type.."]{"..sT.."}")
   end
-  function self:toSquare(nN)
-    local nN, oF = math.floor(tonumber(nN) or 0), self
-          nN = ((nN <= 0) and 0 or nN)
-    self:setAbs(self:getAbs() * (4 / math.pi))
-    local sR, sF, sP, sD = self:getAbs(), self:getFreq(), self:getPhase(), self:getDelta()
+  function self:toSquare(nN, nP)
+    local nP = getClamp((tonumber(nP) or 0),-360,360)
+    local nN, oF = getClamp(math.floor(tonumber(nN) or 0),0), self
+    self:setAbs(self:getAbs() * (4 / math.pi)):setPhase(nP)
+    local sR, sF = self:getAbs(), self:getFreq()
+    local sP, sD = self:getPhase(), self:getDelta()
     for k = 2, nN do local n = (2 * k - 1)
       local a = (1 / n)
       oF = oF:addNext(a*sR, n*sF, sP, sD)
     end; return self
   end
-  function self:toTriangle(nN)
-    local nN, oF = math.floor(tonumber(nN) or 0), self
-          nN = ((nN <= 0) and 0 or nN)
-    self:setAbs(self:getAbs() * (8 / math.pi^2))
-    local sR, sF, sP, sD = self:getAbs(), self:getFreq(), self:getPhase(), self:getDelta()
-    for k = 2, nN do local n = (2 * k + 1)
-      local a = ((-1)^k / n^2)
+  function self:toTriangle(nN, nP)
+    local nP = getClamp((tonumber(nP) or 0),-360,360)
+    local nN, oF = getClamp(math.floor(tonumber(nN) or 0),0), self
+    self:setAbs(self:getAbs() * (8 / math.pi^2)):setPhase(nP+90)
+    local sR, sF = self:getAbs(), self:getFreq()
+    local sP, sD = self:getPhase(), self:getDelta()
+    for k = 1, nN do
+      local n = (2 * k + 1)
+      local a = ((-1)^k)*(1/n^2)
       oF = oF:addNext(a*sR, n*sF, sP, sD)
     end; return self
   end
-  function self:toSaw(nN)
-    local nN, oF = math.floor(tonumber(nN) or 0), self
-          nN = ((nN <= 0) and 0 or nN)
-    self:setAbs(self:getAbs() * (2 / math.pi))
-    local sR, sF, sP, sD = self:getAbs(), self:getFreq(), self:getPhase(), self:getDelta()
-    for k = 2, nN do local a = ((-1)^(k + 1))/k
+  function self:toSaw(nN, nP)
+    local nP = getClamp((tonumber(nP) or 0),-360,360)
+    local nN, oF = getClamp(math.floor(tonumber(nN) or 0),0), self
+    self:setAbs(self:getAbs() / math.pi):setPhase(nP)
+    local sR, sF = self:getAbs(), self:getFreq()
+    local sP, sD = self:getPhase(), self:getDelta()
+    for k = 2, nN do local a = (((-1)^k) / k)
       oF = oF:addNext(a*sR, k*sF, sP, sD)
     end; return self
   end
   function self:toRand(nN)
-    local nA = math.abs(tonumber(nA) or 0)
-    local nN, oF = math.floor(tonumber(nN) or 0), self
-          nN = ((nN <= 0) and 0 or nN)
-    local sR, sF, sP, sD = self:getAbs(), self:getFreq(), self:getPhase(), self:getDelta()
+    local nP = getClamp((tonumber(nP) or 0),-360,360)
+    local nN, oF = getClamp(math.floor(tonumber(nN) or 0),0), self
+    local sR, sF = self:getAbs(), self:getFreq()
+    local sP, sD = self:getPhase(), self:getDelta(); self:setPhase(nP)
     for k = 2, nN do
       local a, b = common.randomGetNumber(), common.randomGetNumber()
       local c, d = common.randomGetNumber(), common.randomGetNumber()
