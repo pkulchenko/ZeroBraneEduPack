@@ -410,17 +410,12 @@ end; logStatus("")
 local W, H   = 800, 800 -- Window size
 local dX, dY = 1, 1     -- Coordinate system step
 local gAlp   = 200      -- Coordinate system grey alpha level
-local R      = 5        -- Roots base
+local R      = 2        -- Roots base
 
 open("Graphical complex roots for "..tostring(a))
 size(W, H)
 zero(0, 0)
 updt(false) -- disable auto updates
-
--- Adjust the mapping intervals according to the number rooted
-local nRe, nIm = a:getParts()
-local intX = chartmap.New("interval","WinX", -nRe/3.5, nRe/3.5, 0, W)
-local intY = chartmap.New("interval","WinY", -nIm/3.5, nIm/3.5, H, 0)
 
 -- Allocate colours
 local clGrn = colr(colormap.getColorGreenRGB())
@@ -455,12 +450,17 @@ end
 ]]
 complex.setAction("This your action key !" ,drawComplexFunction) -- This is how you register a drawing method
 
-local scOpe = chartmap.New("scope"):setInterval(intX, intY):setSize():setBorder()
-      scOpe:setColor():setDelta(dX, dY):Draw(true, true, true)
-
 logStatus("Complex roots returns a table of complex numbers being the roots of the base number "..tostring(a))
 local r = a:getRoots(R)
 if(r) then
+  -- Adjust the mapping intervals according to the number rooted
+  local nN = r[1]:getNorm()
+  local intX = chartmap.New("interval","WinX", -nN, nN, 0, W)
+  local intY = chartmap.New("interval","WinY", -nN, nN, H, 0)
+  
+  local scOpe = chartmap.New("scope"):setInterval(intX, intY):setSize():setBorder()
+        scOpe:setColor():setDelta(dX, dY):Draw(true, true, true)
+  
   for id = 1, #r do
     local ppw = (r[id]^R); ppw:Round(0.0000000001)
     logStatus(common.stringPadR(r[id].."^"..R, 38, " ").." = "..ppw)

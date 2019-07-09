@@ -773,6 +773,13 @@ local function newWiper(nR, nF, nP, nD)
   local mV = mO:getNew():Euler(mR, complex.toRad(mP))
   local mN -- Next wiper attached to the tip of the prevoious
   local self = {}; setmetatable(self, metaWiper)
+  function self:getNew(...) return newWiper(...) end
+  function self:getVec() return mV:getNew() end
+  function self:getOrg() return mO:getNew() end
+  function self:setOrg(...) mO:Set(...); return self end
+  function self:getPos() return mO:getAdd(mV) end
+  function self:setNext(...) mN = self:getNew(...); return self end
+  function self:addNext(...) self:setNext(...); return mN end
   function self:getAbs() return mR end
   function self:getNext() return mN end
   function self:getFreq() return mF end
@@ -790,7 +797,9 @@ local function newWiper(nR, nF, nP, nD)
       oF = oF:getNext()
     end; end; return self
   end
-  function self:setDelta(nD) mD = (tonumber(nD) or 0); return self end
+  function self:setDelta(nD)
+    mD = (tonumber(nD) or 0); return self
+  end
   function self:setAbs(nR)
     mR = math.abs(tonumber(nR) or 0)
     mV:Euler(mR, complex.toRad(mP)); return self
@@ -799,10 +808,15 @@ local function newWiper(nR, nF, nP, nD)
     mP = getAngNorm((tonumber(nP) or 0) + (tonumber(nA) or 0))
     mV:Euler(mR, complex.toRad(mP)); return self
   end
-  function self:setFreq(nF) mF = math.abs(tonumber(nF) or 0); return self end
-  function self:getOrigin() return (mO and mO:getNew() or nil) end
-  function self:setOrigin(...) mO:Set(...); return self end
-  function self:getVector() return mV:getNew() end
+  function self:getString()
+    local sR, sF = self:getAbs(), self:getFreq()
+    local sP, sD = self:getPhase(), self:getDelta()
+    local sT = table.concat({sR, sF, sP, sD}, ",")
+    return ("["..metaWiper.__type.."]{"..sT.."}")
+  end
+  function self:setFreq(nF)
+    mF = math.abs(tonumber(nF) or 0); return self
+  end
   function self:Update()
     mT = mT + mD; mV:RotRad(mW * mD)
     if(mN) then mN:Update() end; return self
@@ -810,39 +824,31 @@ local function newWiper(nR, nF, nP, nD)
   function self:Draw(sKey, clDrw)
     local vT = mO:getAdd(mV)
     mO:Action(sKey, vT, clDrw);
-    if(mN) then mN:setOrigin(vT):Draw(sKey, clDrw) end
+    if(mN) then mN:setOrg(vT):Draw(sKey, clDrw) end
     return self
   end
-  function self:getVertex(wV)
-    local nV = math.floor(tonumber(wV) or 0)
-          nV = (nV > 0 and nV or 0)
-    local wC, vT, ID = self, mO:getNew(), 1
-    while(ID <= nV and wC) do
-      vT:Add(wC:getVector())
-      wC, ID = wC:getNext(), (ID + 1)
-    end; return vT
+  function self:getCount()
+    local nC, wC = 0, self
+    while(wC) do nC, wC = (nC + 1), wC:getNext() end
+    return nC
+  end
+  function self:getStage(nS)
+    local nS = getClamp(math.floor(tonumber(nS) or 0), 0)
+    local wC, ID = self, 1 -- Returns the wiper stage
+    while(ID <= nS and wC) do
+      wC, ID = wC:getNext(), (ID + 1) end; return wC
   end
   function self:getTip()
     local wC, vT = self, mO:getNew()
     while(wC) do -- Iterate as a list of pointers
-      vT:Add(wC:getVector())
+      vT:Add(wC:getVec())
       wC = wC:getNext()
     end; return vT
   end
-  function self:setNext(...)
-    mN = newWiper(...); return self
-  end
-  function self:addNext(...)
-    self:setNext(...); return mN
-  end
-  function self:cpyNext()
+  function self:getCopy()
     local sR, sF = self:getAbs(), self:getFreq()
     local sP, sD = self:getPhase(), self:getDelta()
-    self:setNext(sR, sF, sP, sD); return mN
-  end
-  function self:getString()
-    local sT = table.concat({self:getAbs(), self:getFreq(), self:getPhase(), self:getDelta()}, ",")
-    return ("["..metaWiper.__type.."]{"..sT.."}")
+    return self:getNew(sR, sF, sP, sD)
   end
   function self:toSquare(nN, nP)
     local nN, wC = getClamp(math.floor(tonumber(nN) or 0),0), self
@@ -859,7 +865,7 @@ local function newWiper(nR, nF, nP, nD)
     self:setAbs(self:getAbs() * (8 / math.pi^2)):setPhase(nP, 90)
     local sR, sF = self:getAbs(), self:getFreq()
     local sP, sD = self:getPhase(), self:getDelta()
-    for k = 1, nN do
+    for k = 1, nN-1 do
       local n = (2 * k + 1)
       local a = ((-1)^k)*(1/n^2)
       wC = wC:addNext(a*sR, n*sF, sP, sD)
