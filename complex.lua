@@ -947,6 +947,10 @@ function complex.getIntersectRayLine(cO, cD, cS, cE)
   return complex.getIntersectRayRay(cO, cD, cS, cE:getSub(cS))
 end
 
+function complex.getIntersectLineRay(cS, cE, cO, cD)
+  return complex.getIntersectRayRay(cS, cE:getSub(cS), cO, cD)
+end
+
 function complex.getIntersectLineLine(cS1, cE1, cS2, cE2)
   return complex.getIntersectRayRay(cS1, cE1:getSub(cS1), cS2, cE2:getSub(cS2))
 end
