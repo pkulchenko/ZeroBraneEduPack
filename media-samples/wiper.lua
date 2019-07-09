@@ -20,7 +20,7 @@ local intX  = crt.New("interval","WinX", minX, maxX, 0, W)
 local intY  = crt.New("interval","WinY", minY, maxY, H, 0)
 local scOpe = crt.New("scope"):setInterval(intX, intY)
       scOpe:setSize(W, H):setColor(clBlk, clGry):setBorder():setDelta(dX, dY)
-local trWav = crt.New("tracer","Wave"):setInterval(intX,intY):Cache(450)
+local trWav = crt.New("tracer","Wave"):setInterval(intX,intY):Cache(450):setSizeVtx(1)
 local vDwn = cmp.getNew(0,(minY-maxY))
 local oDwn = cmp.getNew(0,maxY)
 

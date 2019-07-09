@@ -72,13 +72,17 @@ local metaTracer = {}
 local function newTracer(sName)
   local self = {}; setmetatable(self, metaTracer)
   local mName = tostring(sName or "")
-  local mValO, mValN = 0, 0
+  local mValO, mValN, mnPs = 0, 0, 2
   local mTimO, mTimN = 0, 0
   local mPntN = {x=0,y=0}
   local mPntO = {x=0,y=0}
   local mCach = {Size = 0, Draw = 0}
   local mMatX, mMatY
   local enDraw = false
+  function self:setSizeVtx(vS)
+    mnPs = math.floor(tonumber(vS) or 0)
+    if(mnPs <= 0) then mnPs = 0 end; return self
+  end
   function self:Cache(nN)
     mCach.Size = (tonumber(nN) or 0)
     if(mCach.Size > 0) then
@@ -139,7 +143,7 @@ local function newTracer(sName)
 
   function self:Draw(cCol, vSz)
     if(enDraw) then pncl(cCol)
-      local nSz = math.floor(tonumber(vSz) or 2)
+      local nSz = math.floor(tonumber(vSz) or mnPs)
       local nsE = ((nSz > 0) and ((2 * nSz) + 1) or nil)
       if(mCach.Size == 0) then
         line(mPntO.x,mPntO.y,mPntN.x,mPntN.y)
