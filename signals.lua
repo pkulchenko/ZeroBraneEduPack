@@ -836,8 +836,9 @@ local function newWiper(nR, nF, nP, nD)
     self:setNext(...); return mN
   end
   function self:cpyNext()
-    local wR, wP = mV:getPolar()
-    self:setNext(oF:getAbs(), oF:getFreq(), oF:getPhase(), oF:getDelta()); return mN
+    local sR, sF = self:getAbs(), self:getFreq()
+    local sP, sD = self:getPhase(), self:getDelta()
+    self:setNext(sR, sF, sP, sD); return mN
   end
   function self:getString()
     local sT = table.concat({self:getAbs(), self:getFreq(), self:getPhase(), self:getDelta()}, ",")
