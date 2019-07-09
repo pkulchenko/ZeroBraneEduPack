@@ -953,6 +953,11 @@ function common.getPermute(...)
   end; return tO
 end
 
+function common.getAngNorm(nA)
+  local nA = (tonumber(nA) or 0)
+  return ((nA + 180) % 360 - 180)
+end
+
 common.randomSetSeed()
 
 return common

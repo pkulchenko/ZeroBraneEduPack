@@ -43,6 +43,7 @@ local getDerivative     = common.getDerivative
 local tableClear        = common.tableClear
 local getClamp          = common.getClamp
 local getMargin         = common.getMargin
+local getAngNorm        = common.getAngNorm
 
 -- This holds header and format definition location
 metaSignals["WAVE_HEADER"] = {
@@ -794,7 +795,8 @@ local function newWiper(nR, nF, nP, nD)
     mR = math.abs(tonumber(nR) or 0)
     mV:Euler(mR, complex.toRad(mP)); return self
   end
-  function self:setPhase(nP) mP = (tonumber(nP) or 0)
+  function self:setPhase(nP, nA)
+    mP = getAngNorm((tonumber(nP) or 0) + (tonumber(nA) or 0))
     mV:Euler(mR, complex.toRad(mP)); return self
   end
   function self:setFreq(nF) mF = math.abs(tonumber(nF) or 0); return self end
@@ -842,30 +844,27 @@ local function newWiper(nR, nF, nP, nD)
     return ("["..metaWiper.__type.."]{"..sT.."}")
   end
   function self:toSquare(nN, nP)
-    local nP = getClamp((tonumber(nP) or 0),-360,360)
-    local nN, oF = getClamp(math.floor(tonumber(nN) or 0),0), self
+    local nN, wC = getClamp(math.floor(tonumber(nN) or 0),0), self
     self:setAbs(self:getAbs() * (4 / math.pi)):setPhase(nP)
     local sR, sF = self:getAbs(), self:getFreq()
     local sP, sD = self:getPhase(), self:getDelta()
     for k = 2, nN do local n = (2 * k - 1)
       local a = (1 / n)
-      oF = oF:addNext(a*sR, n*sF, sP, sD)
+      wC = wC:addNext(a*sR, n*sF, sP, sD)
     end; return self
   end
   function self:toTriangle(nN, nP)
-    local nP = getClamp((tonumber(nP) or 0),-360,360)
-    local nN, oF = getClamp(math.floor(tonumber(nN) or 0),0), self
-    self:setAbs(self:getAbs() * (8 / math.pi^2)):setPhase(nP+90)
+    local nN, wC = getClamp(math.floor(tonumber(nN) or 0),0), self
+    self:setAbs(self:getAbs() * (8 / math.pi^2)):setPhase(nP, 90)
     local sR, sF = self:getAbs(), self:getFreq()
     local sP, sD = self:getPhase(), self:getDelta()
     for k = 1, nN do
       local n = (2 * k + 1)
       local a = ((-1)^k)*(1/n^2)
-      oF = oF:addNext(a*sR, n*sF, sP, sD)
+      wC = wC:addNext(a*sR, n*sF, sP, sD)
     end; return self
   end
   function self:toSaw(nN, nP)
-    local nP = getClamp((tonumber(nP) or 0),-360,360)
     local nN, oF = getClamp(math.floor(tonumber(nN) or 0),0), self
     self:setAbs(self:getAbs() / math.pi):setPhase(nP)
     local sR, sF = self:getAbs(), self:getFreq()
@@ -874,8 +873,7 @@ local function newWiper(nR, nF, nP, nD)
       oF = oF:addNext(a*sR, k*sF, sP, sD)
     end; return self
   end
-  function self:toRand(nN)
-    local nP = getClamp((tonumber(nP) or 0),-360,360)
+  function self:toRand(nN, nP)
     local nN, oF = getClamp(math.floor(tonumber(nN) or 0),0), self
     local sR, sF = self:getAbs(), self:getFreq()
     local sP, sD = self:getPhase(), self:getDelta(); self:setPhase(nP)

@@ -20,27 +20,23 @@ local scOpe = crt.New("scope"):setInterval(intX, intY)
       scOpe:setSize(W, H):setColor(clBlk, clGry):setBorder():setDelta(dX, dY)
 local tF, gnD2R   = {}, (math.pi / 180)
 
-local function getAngNorm(nA)
-  return ((nA + 180) % 360 - 180)
-end
-
 open("Piston internal signals. Sign as (BLUE), sine-wave as (RED) and tiangular as (GREEN)")
 size(W, H); zero(0, 0)
 updt(false) -- disable auto updates
 
 local tT, tR, tO = {0, 45,90,135,180,-180,-135,-90,-45,-0}, {}, {}
 
-tF[1] = {function(R, H) local nA = getAngNorm(R - H)
+tF[1] = {function(R, H) local nA = com.getAngNorm(R - H)
   local nB, aA = ((nA >= 0) and 1 or -1), math.abs(nA)
   return ((aA == 0 or aA == 180) and 0 or nB)
 end, clBlu}
 
 tF[2] = {function(R, H)
-  return math.sin(gnD2R * getAngNorm(R - H))
+  return math.sin(gnD2R * com.getAngNorm(R - H))
 end, clRed}
 
-tF[3] = {function(R, H) local nN = getAngNorm(R - H)
-  local nA, nM = -getAngNorm(nN + 180), math.abs(nN)
+tF[3] = {function(R, H) local nN = com.getAngNorm(R - H)
+  local nA, nM = -com.getAngNorm(nN + 180), math.abs(nN)
   return (((nM > 90) and nA or nN) / 90)
 end, clGrn}
 

@@ -44,6 +44,8 @@ cmp.setAction("ab", drawComplexLine)
 --local w = sig.New("wiper",5, 0.03, 0, 0.1):setOrigin(-55,0):toRand(50):Dump()
 --local w = sig.New("wiper",35, 0.05, 0, 0.1):setOrigin(-90,0):toSaw(20):Dump()
 --local w = sig.New("wiper",15, 0.02, 0, 0.1):setOrigin(-55,0):toSquare(20):Dump()
+--local w = sig.New("wiper",25, 0.05, 0, 0.1):setOrigin(-55,0):toTriangle(10):Dump()
+
 local w = sig.New("wiper",25, 0.05, 0, 0.1):setOrigin(-55,0):toTriangle(10):Dump()
 
 if(w) then
