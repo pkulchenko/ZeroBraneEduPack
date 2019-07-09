@@ -104,6 +104,7 @@ local function newTracer(sName)
   function self:getString() return "["..metaTracer.__type.."] "..mName end
   function self:getValue() return mTimN, mValN end
   function self:getChart() return mPntN.x, mPntN.y end
+  function self:getInterval() return mMatX, mMatY end
   function self:setInterval(oIntX, oIntY)
     mMatX = oIntX; if(getmetatable(mMatX) ~= metaInterval) then mMatX = nil
       logStatus(metaTracer.__type..".setInterval: X object invalid", nil) end
@@ -222,9 +223,9 @@ local function newScope(sName)
     if(mnW <= 0 or mnH <= 0) then
       return logStatus(metaScope.__type..".setSize: Size invalid", nil) end; return self
   end
-  function self:setUpdate()
+  function self:Update()
     if(isNil(moiX) or isNil(moiY)) then
-      return logStatus(metaScope.__type..".UpdateInt: Skip", nil) end
+      return logStatus(metaScope.__type..".Update: Skip", nil) end
     return self:setBorder():setSize()
   end
   function self:setInterval(intX, intY)
@@ -234,16 +235,18 @@ local function newScope(sName)
       return logStatus(metaScope.__type..".setInterval: Y object invalid", nil) end
     return self
   end
+  function self:getInterval() return moiX, moiY end
   function self:setColorAxis(clMid) mclMid = (clMid or colr(0,0,0)); return self end
   function self:setColorDXY(clDXY) mcldXY = (clDXY or colr(200,200,200)); return self end
   function self:setColorPos(clPos) mclPos = (clPos or colr(255,0,0)); return self end
   function self:setColorOrg(clOrg) mclOrg = (clOrg or colr(0,255,0)); return self end
   function self:setColorDir(clDir) mclDir = (clDir or colr(0,0,255)); return self end
   function self:setColor(clMid, clDXY, clPos, clOrg, clDir)
-    mclMid, mcldXY = (clMid or colr(0,0,0)), (clDXY or colr(200,200,200))
+    mclMid = (clMid or colr(0,0,0))
     mclPos = (clPos or colr(255,0,0))
     mclOrg = (clOrg or colr(0,255,0))
     mclDir = (clDir or colr(0,0,255))
+    mcldXY = (clDXY or colr(200,200,200))
     return self
   end
   function self:Draw(bMx, bMy, bGrd)

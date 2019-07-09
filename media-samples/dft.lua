@@ -15,7 +15,7 @@ local W, H = 1000, 600
 local intX  = chartmap.New("interval","WinX", 0, et, 0, W)
 local intY  = chartmap.New("interval","WinY", -1, 1, H, 0)
 local scOpe = chartmap.New("scope"):setInterval(intX, intY)
-      scOpe:setUpdate():setColor():setDelta(et / 10, 0.1)
+      scOpe:Update():setColor():setDelta(et / 10, 0.1)
 
 local t  = signals.getRamp(0, et, pr)
 signals.setWave(s, math.sin, signals.convLineToCircleFrq(ws), t)
@@ -58,7 +58,7 @@ end
 local dhz = (fs/(#xft-1))
 
 intX:setBorderIn(1, #dft); intY:setBorderIn(0, 1)
-scOpe:setInterval(intX, intY):setUpdate():setSizeVtx(2)
+scOpe:setInterval(intX, intY):Update():setSizeVtx(2)
 scOpe:setColorDir(colr(colormap.getColorRedRGB())):drawStem(xft); updt()
 
 common.logStatus("DFT Input signal sample array size is "..#s)

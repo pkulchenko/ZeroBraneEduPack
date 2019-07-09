@@ -11,7 +11,7 @@ local W, H  = 800, 800
 local intX  = chartmap.New("interval","WinX", -dd, dd, 0, W)
 local intY  = chartmap.New("interval","WinY", -dd, dd, H, 0)
 local scOpe = chartmap.New("scope"):setInterval(intX, intY)
-      scOpe:setUpdate():setColor():setDelta(d, d)
+      scOpe:Update():setColor():setDelta(d, d)
 local s, g = {}, {}
 local tm = signals.getRamp(0,0.1,1/fs)
 local w1 = signals.convLineToCircleFrq(ff*2)
