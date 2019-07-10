@@ -41,7 +41,6 @@ clmap.setColorMap("wikipedia",{
 })
 
 -- Changable parameters
-local nGold = 1.618
 local maxCl = 255
 local W     = 400
 local H     = 400
@@ -49,17 +48,16 @@ local szRe  = 2
 local szIm  = 2
 local nStep = 35
 local nZoom = 15
-local iTer  = 100
+local iTer  = 1000
 local sfrac = "mandelbrot"
-local spale = "wikipedia" 
-local brdcl = nil -- colr(0, 250, 100)
+local spale = "wikipedia"
+local brdcl = colr(0, 250, 100)
 local brdup = nil -- true
 local sTitl = "Fractal plot 2D"
 
 --- Dinamic parameters and constants
 local cexp   = compl.getNew(math.exp(1))
 local w2, h2 = W/2, H/2
-local gr     = 1.618
 
 open(sTitl); size(W,H)
 zero(0, 0); updt(false) -- disable auto updates
@@ -88,7 +86,7 @@ local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup):SetControlW
         "greenbl", function (Z, C, i, x, y)
           local it = i / iTer; return 0, getClamp((1 - it) * maxCl), getClamp(it * maxCl) end,
         "wikipedia", function (Z, C, i, x, y, R) return getColorMap("wikipedia",i) end,
-        "region", function (Z, C, i, x, y) return getColorRegion(i,iTer,10) end,
+        "region", function (Z, C, i, x, y) return clmap.getColorRegion(i,iTer,10) end,
         "hsl", function (Z, C, i, x, y) local it = i / iTer; return getColorHSL(it*360,it,it) end,
         "hsv", function (Z, C, i, x, y) local it = i / iTer; return getColorHSV(it*360,1,1) end,
         "hcl", function (Z, C, i, x, y) local it = i / iTer; return getColorHCL(it*360,it,it) end,

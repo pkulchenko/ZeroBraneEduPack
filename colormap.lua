@@ -86,49 +86,61 @@ function colormap.getColorHCL(h,c,l)
          colormap.getClamp(clClamp[2] * (b + m))
 end
 
-function colormap.printColorMap(sKey, ...)
-  if(type(sKey) == "number") then
-    local tArg = {...}; local r, g, b = sKey, tArg[1], tArg[2]
-    return logStatus("colormap.printColorMap: {"..tostring(r)..","..tostring(g)..","..tostring(b).."}")
-  end; local sKey = tostring(sKey)
-  local tRgb = clMapping[sKey]; if(not tRgb) then
-    return logStatus("colormap.printColorMap: No mapping for <"..sKey..">") end
+function colormap.stringColorRGB(r, g, b)
+  return ("{"..tostring(r)..","..tostring(g)..","..tostring(b).."}")
+end
+
+function colormap.printColorRGB(...)
+  logStatus(colormap.stringColorRGB(...))
+end
+
+function colormap.printColorMap(vKey, ...)
+  if(isNil(vKey)) then
+    return logStatus("colormap.printColorMap: Key missing") end
+  local tRgb = clMapping[vKey]; if(not tRgb) then
+    return logStatus("colormap.printColorMap: Mapping missing ["..tostring(vKey).."]") end
   local tyRgb = type(tRgb); if(tyRgb ~= "table") then
     return logStatus("colormap.printColorMap: Internal structure is ["..tyRgb.."]<"..tostring(tRgb)..">") end
-  local nRgb, pRef = #tRgb, "colormap.printColorMap["..sKey.."] "
-  local fRgb = "%"..tostring(nRgb):len().."d"
+  local nRgb = #tRgb; if(nRgb == 0) then
+    return logStatus("colormap.printColorMap: Mapping empty ["..tostring(tRgb).."]") end
+  local fRgb, nSiz, vMis = "%"..tostring(nRgb):len().."d", tRgb.Size, tRgb.Miss
+  vMis = ((vMis and type(vMis) == "table") and colormap.stringColorRGB(unpack(vMis)) or "N/A")
+  logStatus("Colormap ["..tostring(vKey).."]["..tostring(nSiz).."]: "..tostring(vMis))
   for ID = 1, nRgb do local tRow = tRgb[ID]
     local tyRow = type(tRow); if(tyRow == "table") then
-      logStatus(pRef..fRgb:format(ID)..": {"..table.concat(tRow, ",").."}")
-    else logStatus(pRef..fRgb:format(ID)..": ["..tyRow.."]<"..tostring(tRow)..">") end
+      logStatus(fRgb:format(ID)..": "..colormap.stringColorRGB(unpack(tRow)))
+    else logStatus(fRgb:format(ID)..": ["..tyRow.."]<"..tostring(tRow)..">") end
   end
 end
 
-function colormap.setColorMap(sKey,tTable,bReplace)
+function colormap.setColorMap(vKey,tTable,bReplace)
+  if(isNil(vKey)) then
+    return logStatus("colormap.setColorMaps: Key missing") end
   local tyTable = type(tTable); if(tyTable ~= "table") then
     return logStatus("colormap.setColorMap: Missing table argument",nil) end
-  local sKey = tostring(sKey)
-  local tRgb = clMapping[sKey]; if(tRgb and not bReplace) then
-    return logStatus("colormap.setColorMap: Exists mapping for <"..sKey..">",nil) end
-  clMapping[sKey] = tTable; if(not tTable.Size) then tTable.Size = #tTable end
-  return clMapping[sKey]
+  local tRgb = clMapping[vKey]; if(tRgb and not bReplace) then
+    return logStatus("colormap.setColorMap: Exists mapping for <"..tostring(vKey)..">",nil) end
+  clMapping[vKey] = tTable; if(not tTable.Size) then tTable.Size = #tTable end
+  return clMapping[vKey]
 end
 
-function colormap.getColorMap(sKey, iNdex)
-  local sKey = tostring(sKey)
-  if(isNil(iNdex)) then return clMapping[sKey] end
+function colormap.getColorMap(vKey, iNdex)
+  if(isNil(vKey)) then
+    return logStatus("colormap.getColorMap: Key missing") end
+  if(isNil(iNdex)) then return clMapping[vKey] end
   local iNdex, tCl = (tonumber(iNdex) or 0)
-  local tRgb = clMapping[sKey]; if(not tRgb) then
-    return logStatus("colormap.getColorMap: Missing mapping for <"..sKey..">", colormap.getColorBlackRGB()) end
-  local cID = (iNdex % tRgb.Size + 1); tCl = tRgb[cID]
+  local tRgb = clMapping[vKey]; if(not tRgb) then
+    logStatus("colormap.getColorMap: Missing mapping for <"..tostring(vKey)..">")
+    return colormap.getColorBlackRGB() -- Not mapped then return black
+  end; local cID = (iNdex % tRgb.Size + 1); tCl = tRgb[cID]
   if(not tCl) then tCl = tRgb.Miss end
   if(not tCl) then return colormap.getColorBlackRGB() end
   return colormap.getClamp(tCl[1]), colormap.getClamp(tCl[2]), colormap.getClamp(tCl[3])
 end
 
-function colormap.getColorMapInterpolate(tMap, nStp)
+function colormap.getColorMapGradient(tMap, nStp)
   local tPal, nS, iP, nT = {}, (tonumber(nStp) or 0), 0, #tMap; if(nS <= 0) then
-    return logStatus("colormap.getPaleteMap: Mismatch <"..tostring(nStp)..">", nil) end
+    return logStatus("colormap.getColorMapGradient: Mismatch <"..tostring(nStp)..">", nil) end
   for iD = 1, (#tMap-1) do iP = iP + 1; tPal[iP] = {}
     local dr = (tMap[iD+1][1]-tMap[iD][1]) / (nS + 1)
     local dg = (tMap[iD+1][2]-tMap[iD][2]) / (nS + 1)

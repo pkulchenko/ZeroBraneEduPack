@@ -35,8 +35,7 @@ local tMap = {
   {180,  0,  0}
 }
 
-local tPal = col.getColorMapInterpolate(tMap, 20)
-col.setColorMap("interp", tPal)
+col.setColorMap("interp", col.getColorMapGradient(tMap, 20))
 local nTot = col.getColorMap("interp").Size
 
 com.logStatus("https://en.wikipedia.org/wiki/Bilinear_interpolation")

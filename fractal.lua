@@ -93,8 +93,8 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
       local key = tArgs[iNdex]
       local foo = tArgs[iNdex + 1]
       if(key and foo) then
-        if(type(key) ~= "string") then
-          logStatus("PlaneZ.Register: Key not string <"..type(key)..">"); return end
+        if(not key) then
+          logStatus("PlaneZ.Register: Key mismatch <"..tostring(iNdex)..">"); return end
         if(type(foo) ~= "function") then
           logStatus("PlaneZ.Register: Unable to register non-function under <"..key..">"); return end
         if    (sMode == "FUNCT") then frcNames[key] = foo
@@ -107,8 +107,7 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
   function self:Draw(sName,sPalet,maxItr)
     local maxItr = (tonumber(maxItr) or 0); if(maxItr < 1) then
       logStatus("PlaneZ.Draw: Iteration depth #"..tostring(maxItr).." invalid"); return end
-    local r, g, b, iDepth, isInside, nrmZ = 0, 0, 0, 0, true
-    local sName, sPalet = tostring(sName), tostring(sPalet)
+    local sName, r, g, b, iDepth, isInside, nrmZ = tostring(sName), 0, 0, 0, 0, true
     local C, Z, R = complex.getNew(), complex.getNew(), {}
     logStatus("PlaneZ.Zoom: {"..uZoom.."}")
     logStatus("PlaneZ.Cent: {"..uniCr..","..uniCi.."}")
@@ -128,7 +127,7 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
         end; r, g, b = 0, 0, 0
         if(not isInside) then
           if(not frcPalet[sPalet]) then
-            logStatus("PlaneZ.Draw: Invalid pallet <"..sPalet.."> given"); return end
+            logStatus("PlaneZ.Draw: Invalid pallet <"..tostring(sPalet).."> given"); return end
           r, g, b = frcPalet[sPalet](Z, C, iDepth, x, y, R) -- Call the fractal coloring
         end
         pncl(colr(r, g, b)); pixl(x,y)
