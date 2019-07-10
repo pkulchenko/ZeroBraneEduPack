@@ -1399,7 +1399,7 @@ function metaComplex:getInterpolation(...)
     if(math.abs(tV[1]:getImag() - tV[2]:getImag()) > nM) then
       return logStatus("complex.getInterpolation["..nH.."]: Vertex Y2 mismatch",nil) end
   end; nH, extlb = getRound(tonumber(nH or 1), 1), metaData.__extlb
-  if(nH == 1) then local cT = self:getNew() -- Nearest neighbour
+  if(nH == 1) then local cT = self:getNew() -- Nearest neighbor
     local nD, nV = cT:Sub(tV[1]):getNorm2(), (tonumber(tI.F[1]) or 0)
     for iD = 2, 4 do cT:Set(self):Sub(tV[iD])
       local nT = cT:getNorm2(); if(nT < nD) then
