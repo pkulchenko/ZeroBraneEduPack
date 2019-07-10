@@ -407,56 +407,57 @@ for id = 1, #tCall do
   end
 end; logStatus("")
 
+logStatus("Complex roots returns a table of complex numbers being the roots of the base number "..tostring(a))
+
 local W, H   = 800, 800 -- Window size
 local dX, dY = 1, 1     -- Coordinate system step
 local gAlp   = 200      -- Coordinate system grey alpha level
-local R      = 2        -- Roots base
+local R      = 5        -- Roots base
 
-open("Graphical complex roots for "..tostring(a))
-size(W, H)
-zero(0, 0)
-updt(false) -- disable auto updates
-
--- Allocate colours
-local clGrn = colr(colormap.getColorGreenRGB())
-local clRed = colr(colormap.getColorRedRGB())
-local clBlk = colr(colormap.getColorBlackRGB())
-local clGry = colr(colormap.getColorPadRGB(gAlp))
-
---[[
-  Custom function for drawing a number on the complex plane
-  The the first argument must always be the complex number
-  that you are gonna draw a.k.a. SELF. The other parameters are
-  VARARG, which means you can use a bunch of them in the stack.
-  In this example all the arguments are local for this file
-  so there is no point of extending the vararg on the stack
-  Prototype: drawFunction(SELF, ...)
-]]
-local function drawComplexFunction(C)
-  local r = C:getRound(0.001)
-  local x = intX:Convert(r:getReal()):getValue()
-  local y = intY:Convert(r:getImag()):getValue()
-  local ox = intX:Convert(0):getValue()
-  local oy = intY:Convert(0):getValue()
-  pncl(clGrn); line(ox, oy, x, y)
-  pncl(clRed); rect(x-2,y-2,5,5)
-  pncl(clBlk); text(tostring(r),r:getAngDeg()+90,x,y)
-end
-
---[[
-  It is easy for the complex numbers to be drawn using a attached drawing method
-  internally as every object keeps its local data and you can draw stuff using less arguments
-  Prototype: complex.setAction(KEY, FUNCTION)
-]]
-complex.setAction("This your action key !" ,drawComplexFunction) -- This is how you register a drawing method
-
-logStatus("Complex roots returns a table of complex numbers being the roots of the base number "..tostring(a))
 local r = a:getRoots(R)
+
 if(r) then
+  
+  -- Allocate colours
+  local clGrn = colr(colormap.getColorGreenRGB())
+  local clRed = colr(colormap.getColorRedRGB())
+  local clBlk = colr(colormap.getColorBlackRGB())
+  local clGry = colr(colormap.getColorPadRGB(gAlp))
+  
   -- Adjust the mapping intervals according to the number rooted
-  local nN = r[1]:getNorm()
+  local nN = r[1]:getNorm() * 1.25
   local intX = chartmap.New("interval","WinX", -nN, nN, 0, W)
   local intY = chartmap.New("interval","WinY", -nN, nN, H, 0)
+  
+  --[[
+    Custom function for drawing a number on the complex plane
+    The the first argument must always be the complex number
+    that you are gonna draw a.k.a. SELF. The other parameters are
+    VARARG, which means you can use a bunch of them in the stack.
+    In this example all the arguments are local for this file
+    so there is no point of extending the vararg on the stack
+    Prototype: drawFunction(SELF, ...)
+  ]]
+  local function drawComplexFunction(C)
+    local r = C:getRound(0.001)
+    local x = intX:Convert(r:getReal()):getValue()
+    local y = intY:Convert(r:getImag()):getValue()
+    local ox = intX:Convert(0):getValue()
+    local oy = intY:Convert(0):getValue()
+    pncl(clGrn); line(ox, oy, x, y)
+    pncl(clRed); rect(x-2,y-2,5,5)
+    pncl(clBlk); text(tostring(r),r:getAngDeg()+90,x,y)
+  end
+  
+  --[[
+    It is easy for the complex numbers to be drawn using a attached drawing method
+    internally as every object keeps its local data and you can draw stuff using less arguments
+    Prototype: complex.setAction(KEY, FUNCTION)
+  ]]
+  complex.setAction("This your action key !" ,drawComplexFunction) -- This is how you register a drawing method
+    
+  open("Graphical complex roots for "..tostring(a))
+  size(W, H); zero(0, 0); updt(false) -- disable auto updates
   
   local scOpe = chartmap.New("scope"):setInterval(intX, intY):setSize():setBorder()
         scOpe:setColor():setDelta(dX, dY):Draw(true, true, true)
