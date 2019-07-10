@@ -1127,7 +1127,7 @@ end
 
 local function stringToComplexI(sStr, nS, nE, nI)
   if(nI == 0) then
-    return logStatus("stringToComplexI: Complex not in plain format [a+ib] or [a+bi]",nil) end
+    return logStatus("stringToComplexI: Plain format mismatch [a+ib] or [a+bi]",nil) end
   local M = (nI - 1); local C = sStr:sub(M,M) -- There will be no delimiter symbols here
   if(nI == nE) then  -- (-0.7-2.9i) Skip symbols until +/- is reached
     while(C ~= "+" and C ~= "-" and M > 0) do M = M - 1; C = sStr:sub(M,M) end
@@ -1329,8 +1329,8 @@ function metaComplex:CenterInnerCircle(...)
     dN:Set(tV[iD+1] or tV[ 1]):Sub(tV[iD])
     tO[iD] = dC:getBisect(dN) end
   for iD = 1, nV do local iN = (tV[iD+1] and (iD+1) or 1)
-    tI[iD] = complex.getIntersectRayRay(tV[iD], tO[iD], tV[iN], tO[iN]) end
-  return self:Mean(tI)
+    tI[iD] = complex.getIntersectRayRay(tV[iD], tO[iD], tV[iN], tO[iN])
+  end; return self:Mean(tI)
 end
 
 function metaComplex:getCenterInnerCircle(...)

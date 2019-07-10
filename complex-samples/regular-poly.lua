@@ -30,15 +30,18 @@ if(tV) then
   size(W,H); zero(0, 0); updt(false) -- disable auto updates
   
   local nV = cO:getSub(tV[1]):getNorm()
-  local nA = cO:getProjectLine(tV[1], tV[2]):Sub(cO):getNorm()
+  local cP = cO:getProjectLine(tV[1], tV[2])
+  local nA = cP:Sub(cO):getNorm()
   local nE = tV[1]:getSub(tV[2]):getNorm()
   common.logStatus("Edge length is                   : "..tostring(nE))
   common.logStatus("Outer circle radius is           : "..tostring(nV))
-  common.logStatus("Inner circle length ( apotem ) is: "..tostring(nA))
+  common.logStatus("Inner circle radius ( apotem ) is: "..tostring(nA))
   
   scOpe:Draw(true, true, true):drawComplexPolygon(tV)
   scOpe:drawComplexCircle(cO:CenterOuterCircle(tV), nV)
   scOpe:drawComplexCircle(cO:CenterInnerCircle(tV), nA)
+  scOpe:drawComplexLine(cO, cP)
+  
   wait()
 else
   common.logStatus("Your poly parameters are invalid !")
