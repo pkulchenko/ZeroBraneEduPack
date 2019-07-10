@@ -1006,28 +1006,30 @@ function complex.getReflectRayCircle(cO, cD, cC, nR, xU)
   return cR, cN, cX:Set(xX)
 end
 
-function complex.getRefractRayAngle(vI, vO, bV)
-  local nI, nO, nA = (tonumber(vI) or 0), (tonumber(vO) or 0)
-  if(bV) then nA = (nI / nO) else nA = (nO / nI) end
-  if(math.abs(nA) > 1) then nA = (1 / nA) end
-  return math.asin(nA)
+function complex.getRefractRayRatio(vI, vO, bV)
+  local nI, nO, nR = (tonumber(vI) or 0), (tonumber(vO) or 0)
+  if(bV) then nR = (nI / nO) else nR = (nO / nI) end; return nR
 end
 
-function complex.getRefractRayRay(cO1, cD1, cO2, cD2, vI, vO, bV)
+function complex.getRefractRayAngle(...)
+  local nR = complex.getRefractRayRatio(...)
+  if(math.abs(nR) > 1) then nR = (1 / nR) end
+  return math.asin(nR)
+end
+
+function complex.getRefractRayRay(cO1, cD1, cO2, cD2, ...)
   local uD = cD1:getUnit() -- Reference to unit direction
-  local nI, nO = (tonumber(vI) or 0), (tonumber(vO) or 0)
   local cN = cO1:getProjectRay(cO2, cD2):Neg():Add(cO1):Unit()
-  local sI, sO, sB = cN:getCross(uD:Neg())
-  if(bV) then sO, sB = ((sI * nO) / nI), (nI / nO)
-  else sO, sB = ((sI * nI) / nO), (nO / nI) end; if(math.abs(sO) > 1) then
+  local nR, sI = complex.getRefractRayRatio(...), cN:getCross(uD:Neg())
+  local sO = sI / nR; if(math.abs(sO) > 1) then 
     return logStatus("complex.getRefractRayRay: Angle mismatch", nil, cN) end
   if(cN:getDot(uD) < 0) then -- Check negated because of cross product
     return logStatus("complex.getRefractRayRay: Normal mismatch", nil, cN) end
   return cN:getNeg():RotRad(math.asin(sO)), cN
 end
 
-function complex.getRefractRayLine(cO, cD, cS, cE, nI, nO)
-  return complex.getRefractRayRay(cO, cD, cS, cE:getSub(cS), nI, nO)
+function complex.getRefractRayLine(cO, cD, cS, cE, ...)
+  return complex.getRefractRayRay(cO, cD, cS, cE:getSub(cS), ...)
 end
 
 function complex.getRefractRayCircle(cO, cD, cC, nR, vI, vO, bV, xU)
