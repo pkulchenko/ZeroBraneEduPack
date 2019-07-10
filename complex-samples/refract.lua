@@ -11,7 +11,7 @@ local logStatus = com.logStatus
 local  W,  H = 800, 800
 local dX, dY = 1,1
 local xySize = 3
-local nN1, nN2 = 1, 1.6
+local nN1, nN2 = 1, 1.6; -- nN1, nN2 = nN2, nN1
 local greyLevel  = 200
 local minX, maxX = -20, 20
 local minY, maxY = -20, 20

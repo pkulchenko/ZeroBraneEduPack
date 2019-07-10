@@ -86,7 +86,7 @@ local function drawTraceRayCircle(vO, vD, cP, nR)
   local xO, xD, nnC = vO:getNew(), vD:getNew(), 0
   local xX = cmp.getIntersectRayCircle(xO, xD, cP, nR)
   while(xX and nnC < nMaxIter) do nnC = nnC + 1
-    local fR, fN = cmp.getRefractRayCircle(xO, xD, cP, nR, nnS, nnE, false, xX)
+    local fR, fN = cmp.getRefractRayCircle(xO, xD, cP, nR, nnS, nnE, xX)
     if(not fR) then fR, fN = cmp.getReflectRayCircle(xO, xD, cP, nR, xX) end
     if(not fR) then
       logStatus("traceRayCircle: Refract mismatch"); break end

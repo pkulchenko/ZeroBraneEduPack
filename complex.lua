@@ -27,7 +27,6 @@ local isString        = common.isString
 local isType          = common.isType
 local isNumber        = common.isNumber
 local logStatus       = common.logStatus
-local logString       = common.logString
 local getSignNon      = common.getSignNon
 local getValueKeys    = common.getValueKeys
 local randomGetNumber = common.randomGetNumber
@@ -214,12 +213,13 @@ function metaComplex:setNorm(nN)
   return self:Rsz((tonumber(nN) or 0) / self:getNorm())
 end
 
-function metaComplex:Unit()
+function metaComplex:Unit(vR, vI)
+  if(vR or vI) then self:Set(vR, vI) end
   return self:Rsz(1/self:getNorm())
 end
 
-function metaComplex:getUnit()
-  return self:getNew():Unit()
+function metaComplex:getUnit(...)
+  return self:getNew():Unit(...)
 end
 
 function metaComplex:getDot(cV)
@@ -366,6 +366,15 @@ end
 
 function metaComplex:getMargin(...)
   return self:getNew():Margin(...)
+end
+
+function metaComplex:Nudge(vM, vR, vI)
+  local nM = (tonumber(vM) or metaData.__margn)
+  return self:Add(self:getUnit(vR, vI):Mul(nM))
+end
+
+function metaComplex:getNudge(...)
+  return self:getNew():Nudge(...)
 end
 
 function metaComplex:Bisect(cD)
@@ -577,7 +586,7 @@ function metaComplex:Print(sF,sS,sE)
   local nR, nI = self:getParts()
   local fB, sF = metaData.__basef, tostring(sF or "%f")
   local sS, sE = tostring(sS or "{"), tostring(sE or "}")
-  return logString(sS..(fB:format(sF,sF):format(nR,nI))..sE, self)
+  return logStatus(sS..(fB:format(sF,sF):format(nR,nI))..sE, self)
 end
 
 function metaComplex:Euler(vRm, vPh) local nRm, nPh
@@ -1006,9 +1015,8 @@ function complex.getReflectRayCircle(cO, cD, cC, nR, xU)
   return cR, cN, cX:Set(xX)
 end
 
-function complex.getRefractRayRatio(vI, vO, bV)
-  local nI, nO, nR = (tonumber(vI) or 0), (tonumber(vO) or 0)
-  if(bV) then nR = (nI / nO) else nR = (nO / nI) end; return nR
+function complex.getRefractRayRatio(vI, vO)
+  return ((tonumber(vO) or 0) / (tonumber(vI) or 0))
 end
 
 function complex.getRefractRayAngle(...)
@@ -1032,12 +1040,12 @@ function complex.getRefractRayLine(cO, cD, cS, cE, ...)
   return complex.getRefractRayRay(cO, cD, cS, cE:getSub(cS), ...)
 end
 
-function complex.getRefractRayCircle(cO, cD, cC, nR, vI, vO, bV, xU)
+function complex.getRefractRayCircle(cO, cD, cC, nR, vI, vO, xU)
   local xX = (xU and xU or complex.getIntersectRayCircle(cO, cD, cC, nR))
   if(not complex.isValid(xX)) then
     return logStatus("complex.getRefractRayCircle: Intersect mismatch", nil) end
   local cX = xX:getSub(cC):Right()
-  local cR, cN = complex.getRefractRayRay(cO, cD, xX, cX, vI, vO, bV)
+  local cR, cN = complex.getRefractRayRay(cO, cD, xX, cX, vI, vO)
   return cR, cN, cX:Set(xX)
 end
 
