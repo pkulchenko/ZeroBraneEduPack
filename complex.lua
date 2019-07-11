@@ -725,6 +725,10 @@ function metaComplex:isAmongLine(cS, cE, bF)
   end; return false
 end
 
+function metaComplex:isAmongPoint(vR, vI)
+  return (self:getSub(vR, vI):getNorm() < metaData.__margn)
+end
+
 function metaComplex:Zero()
   return self:setReal(0):setImag(0)
 end

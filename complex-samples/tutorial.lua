@@ -371,7 +371,9 @@ end
 local tCall = {
   {"Reverse         : ","getRev     ","{0.14,-0.02}                          "},
   {"Unit            : ","getUnit    ","{0.98994949366117,0.14142135623731}   "},
+  {"PythagorAdd     : ","getAddPyth ","{9.8994949366117,1.4142135623731}     "},
   {"Nudge           : ","getNudge   ","{7.000000000099,1.0000000000141}      "},
+  {"EulerConversion : ","getEuler   ","{3.782116141077,5.8902968936553}      "},
   {"Sine            : ","getSin     ","{1.0137832978161,0.885986829195}      "},
   {"Cosine          : ","getCos     ","{1.1633319692207,-0.7720914350223}    "},
   {"Tangent         : ","getTang    ","{0.25407140331504,0.93021872707887}   "},
@@ -389,9 +391,7 @@ local tCall = {
   {"ArgSineH        : ","getArcSinH ","{2.6539273355384,0.14051690607218}    "},
   {"ArgCosineH      : ","getArcCosH ","{2.6443267863946,0.14331753305457}    "},
   {"ArgTangentH     : ","getArcTangH","{0.14086733931285,1.550399485361}     "},
-  {"ArgCotangentH   : ","getArcCotgH","{0.14086733931285,-0.020396841433933} "},
-  {"PythagorSelfAdd : ","getAddPyth ","{9.8994949366117,1.4142135623731}     "},
-  {"EulerConversion : ","getEuler   ","{3.782116141077,5.8902968936553}      "}
+  {"ArgCotangentH   : ","getArcCotgH","{0.14086733931285,-0.020396841433933} "}
 }
 
 local b = complex.getNew(7,1)
