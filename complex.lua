@@ -591,10 +591,10 @@ function metaComplex:Print(sF,sS,sE)
   return logStatus(sS..(fB:format(sF,sF):format(nR,nI))..sE, self)
 end
 
-function metaComplex:Euler(vR, vP)
-  if(vR or vP) then self:Set(vR, vP) end
-  local nR, nP = self:getParts()
-  return self:Set(math.cos(nP), math.sin(nP)):Rsz(nR)
+function metaComplex:Euler(vR, vA)
+  if(vR or vA) then self:Set(vR, vA) end
+  local nR, vA = self:getParts()
+  return self:Set(math.cos(vA), math.sin(vA)):Rsz(nR)
 end
 
 function metaComplex:getEuler(...)
@@ -1291,10 +1291,10 @@ function complex.getRegularPolygon(nN, cD, cO)
   local bD = (cD and (complex.isValid(cD) or tonumber(cD)) or false)
   local vD = complex.getNew(1, 0); if(bD) then vD:Set(cD) end
   local tV, nD, dD = {vD:getNew()}, (metaData.__fulpi / eN), 0
-  if(bO) then tV[1]:Add(cO) end -- Offser first vertex
+  if(bO) then tV[1]:Add(cO) end -- Offset first vertex
   while(iD <= eN) do dD = (dD + nD) -- Prepare for rotation
     tV[iD] = vD:getNew():RotRad(dD); if(bO) then tV[iD]:Add(cO) end
-    if(iD ~= eN) then -- Do not overwrite the overapped vertex
+    if(iD ~= eN) then -- Do not overwrite the overlapped vertex
       tV[eN] = vD:getNew():RotRad(-dD); if(bO) then tV[eN]:Add(cO) end
     end; iD, eN = (iD + 1), (eN - 1)
   end; return tV
@@ -1374,22 +1374,17 @@ function metaComplex:getCenterMidcircle(...)
 end
 
 function metaComplex:CenterMass(...)
-  local tV, iD = {...}, 1
+  local tV, iD, iS = {...}, 1, 2
   local mT, vT = type(tV[1]), self:getNew(0,0)
   if(not isType(mT, 5)) then tV[1] = self:getNew(tV[1]) end
-  if(complex.isValid(tV[1])) then -- Pair (complex, mass)
-    while(tV[iD]) do
-      local vC = self:getNew(tV[iD])
-      local vM = (tonumber(tV[iD+1]) or 0)
-      vT:Add(vC:Mul(vM)); iD = iD + 2
-    end; iD = (iD - 2)/2
-  else local tV, tM = tV[1], tV[2] or {} -- Pair {complexes}, {masses}
-    while(tV[iD]) do
-      local vC = self:getNew(tV[iD])
-      local vM = (tonumber(tM[iD]) or 0)
-      vT:Add(vC:Mul(vM)); iD = iD + 1
-    end; iD = iD - 1
-  end; return self:Set(vT):Rsz(1/iD)
+  local bC, tM = complex.isValid(tV[1]), {}
+  if(not bC) then tV, tM, iS = tV[1], tV[2], 1 end
+  while(tV[iD]) do
+    local vC = self:getNew(tV[iD])
+    local vM = (tonumber(bC and tV[iD+1] or tM[iD]) or 0)
+    vT:Add(vC:Mul(vM)); iD = iD + iS
+  end; iD = (iD - iS)/iS
+  return self:Set(vT):Rsz(1/iD)
 end
 
 function metaComplex:getCenterMass(...)
@@ -1409,8 +1404,7 @@ end
 ]]
 function metaComplex:getInterpolation(...)
   local tV, nV, tI ,nH, bC = getUnpackSplit(...)
-  if(bC) then
-    local nM = metaData.__margn -- Validate function square borders area
+  if(bC) then local nM = metaData.__margn -- Validate function square borders area
     if(math.abs(tV[1]:getReal() - tV[3]:getReal()) > nM) then
       return logStatus("complex.getInterpolation["..nH.."]: Vertex X1 mismatch",nil) end
     if(math.abs(tV[2]:getReal() - tV[4]:getReal()) > nM) then
