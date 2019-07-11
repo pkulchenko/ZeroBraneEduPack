@@ -591,11 +591,10 @@ function metaComplex:Print(sF,sS,sE)
   return logStatus(sS..(fB:format(sF,sF):format(nR,nI))..sE, self)
 end
 
-function metaComplex:Euler(vRm, vPh) local nRm, nPh
-  if(isNil(vRm)) then nRm, nPh = self:getParts()
-  elseif(complex.isValid(vRm)) then nRm, nPh = vRm:getParts()
-  else nRm, nPh = (tonumber(vRm) or 0), (tonumber(vPh) or 0) end
-  return self:Set(math.cos(nPh),math.sin(nPh)):Rsz(nRm)
+function metaComplex:Euler(vR, vP)
+  if(vR or vP) then self:Set(vR, vP) end
+  local nR, nP = self:getParts()
+  return self:Set(math.cos(nP), math.sin(nP)):Rsz(nR)
 end
 
 function metaComplex:getEuler(...)
