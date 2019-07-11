@@ -338,17 +338,18 @@ function metaComplex:getPow(...)
   return self:getNew():Pow(...)
 end
 
-function metaComplex:Exp(cP)
-  local E = self:getNew(math.exp(1))
-  return self:Set(E:Pow(cP or self))
+function metaComplex:Exp(vR, vI)
+  if(vR or vI) then self:Set(vR, vI) end
+  local cE = self:getNew(math.exp(1))
+  return self:Set(cE:Pow(self))
 end
 
 function metaComplex:getExp(...)
   return self:getNew():Exp(...)
 end
 
-function metaComplex:AddPyth(R, I)
-  local cP = self:getNew(R, I)
+function metaComplex:AddPyth(...)
+  local cP = self:getNew(...)
   return self:Pow(2):Add(cP:Pow(2)):Pow(0.5)
 end
 
@@ -356,9 +357,9 @@ function metaComplex:getAddPyth(...)
   return self:getNew():AddPyth(...)
 end
 
-function metaComplex:Margin(nE)
+function metaComplex:Margin(nM)
   local nR, nI = self:getParts()
-  local nM = math.abs(tonumber(nE) or metaData.__margn)
+  local nM = math.abs(tonumber(nM) or metaData.__margn)
   if(math.abs(nR) < nM) then nR = 0 end
   if(math.abs(nI) < nM) then nI = 0 end
   return self:Set(nR, nI)
@@ -377,7 +378,8 @@ function metaComplex:getNudge(...)
   return self:getNew():Nudge(...)
 end
 
-function metaComplex:Bisect(cD)
+function metaComplex:Bisect(...)
+  local cD = self:getNew():Set(...)
   if(self:getCross(cD) == 0) then
     if(self:getDot(cD) > 0) then return self
     elseif(self:getDot(cD) < 0) then return self:Right()
@@ -439,9 +441,9 @@ function metaComplex:getTang()
 end
 
 function metaComplex:ArcTang()
-  local D = self:getAdd(0, 1)
-  local N = self:getNeg():Add(0, 1)
-  return self:Set(N:Div(D):Log():Mul(0, -0.5))
+  local cD = self:getAdd(0, 1)
+  local cN = self:getNeg():Add(0, 1)
+  return self:Set(cN:Div(cD):Log():Mul(0, -0.5))
 end
 
 function metaComplex:getArcTang()
@@ -465,8 +467,8 @@ function metaComplex:getArcCotg()
 end
 
 function metaComplex:SinH()
-  local E = self:getExp()
-  return self:Set(E):Sub(E:Rev()):Rsz(0.5)
+  local cE = self:getExp()
+  return self:Set(cE):Sub(cE:Rev()):Rsz(0.5)
 end
 
 function metaComplex:getSinH()
@@ -474,8 +476,8 @@ function metaComplex:getSinH()
 end
 
 function metaComplex:ArcSinH()
-  local Z = self:getNew():Pow(2):Add(1):Pow(0.5)
-  return self:Add(Z):Log()
+  local cZ = self:getNew():Pow(2):Add(1):Pow(0.5)
+  return self:Add(cZ):Log()
 end
 
 function metaComplex:getArcSinH()
@@ -483,8 +485,8 @@ function metaComplex:getArcSinH()
 end
 
 function metaComplex:CosH()
-  local E = self:getExp()
-  return self:Set(E):Add(E:Rev()):Rsz(0.5)
+  local cE = self:getExp()
+  return self:Set(cE):Add(cE:Rev()):Rsz(0.5)
 end
 
 function metaComplex:getCosH()
@@ -492,9 +494,9 @@ function metaComplex:getCosH()
 end
 
 function metaComplex:ArcCosH()
-  local P = self:getNew():Add(1):Pow(0.5)
-  local N = self:getNew():Sub(1):Pow(0.5)
-  return self:Add(P:Mul(N)):Log()
+  local cP = self:getNew():Add(1):Pow(0.5)
+  local cN = self:getNew():Sub(1):Pow(0.5)
+  return self:Add(cP:Mul(cN)):Log()
 end
 
 function metaComplex:getArcCosH()
@@ -510,9 +512,9 @@ function metaComplex:getTangH()
 end
 
 function metaComplex:ArcTangH()
-  local P = self:getNew():Add(1):Log()
-  local N = self:getNew():Neg():Add(1):Log()
-  return self:Set(P:Sub(N)):Mul(0.5)
+  local cP = self:getNew():Add(1):Log()
+  local cN = self:getNew():Neg():Add(1):Log()
+  return self:Set(cP:Sub(cN)):Mul(0.5)
 end
 
 function metaComplex:getArcTangH()
@@ -528,9 +530,9 @@ function metaComplex:getCotgH()
 end
 
 function metaComplex:ArcCotgH()
-  local P = self:getNew():Rev():Add(1):Log()
-  local N = self:getNew():Rev():Neg():Add(1):Log()
-  return self:Set(P:Sub(N)):Mul(0.5)
+  local cP = self:getNew():Rev():Add(1):Log()
+  local cN = self:getNew():Rev():Neg():Add(1):Log()
+  return self:Set(cP:Sub(cN)):Mul(0.5)
 end
 
 function metaComplex:getArcCotgH()
@@ -662,6 +664,14 @@ end
 
 function metaComplex:getLayLine(cS, cE)
   return self:getLayRay(cS, cE:getSub(cS))
+end
+
+function metaComplex:MirrorPoint(...)
+  return self:Add(self:getSet(...):Sub(self):Rsz(2))
+end
+
+function metaComplex:getMirrorPoint(...)
+  return self:getNew():MirrorPoint(...)
 end
 
 function metaComplex:MirrorRay(cO, cD)
