@@ -681,12 +681,12 @@ function metaComplex:getMirrorLine(...)
   return self:getNew():MirrorLine(...)
 end
 
-function metaComplex:getAreaParallelogram(cE)
-  return math.abs(self:getCross(cE))
+function metaComplex:getAreaParallelogram(...)
+  return math.abs(self:getCross(...))
 end
 
-function metaComplex:getAreaTriangle(cE)
-  return math.abs(self:getCross(cE) / 2)
+function metaComplex:getAreaTriangle(...)
+  return math.abs(self:getAreaParallelogram(...) / 2)
 end
 
 function complex.getAreaShoelace(...)
