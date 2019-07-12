@@ -343,6 +343,23 @@ tPar[12]={
   {Typ="NanIm    ", Arg={g},Foo=g.isNanImag         , Out="true"}
 }
 
+local z = a:getNew(2,2)
+local n = a:getNew(2,2)
+tPar[13] ={
+  Name = "Exponential "..tostring(a),
+  {Typ="NoArg" , Arg={z,}        ,Foo=z.getExp, Out="{-3.0749323206394,6.7188496974282}"},
+  {Typ="Cmpl"  , Arg={z,n}       ,Foo=z.getExp, Out="{-3.0749323206394,6.7188496974282}"},
+  {Typ="ImRe"  , Arg={z,2,2}     ,Foo=z.getExp, Out="{-3.0749323206394,6.7188496974282}"},
+  {Typ="ImReS" , Arg={z,2,"2"}   ,Foo=z.getExp, Out="{-3.0749323206394,6.7188496974282}"},
+  {Typ="ImSRe" , Arg={z,"2",2}   ,Foo=z.getExp, Out="{-3.0749323206394,6.7188496974282}"},
+  {Typ="ImSReS", Arg={z,"2","2"} ,Foo=z.getExp, Out="{-3.0749323206394,6.7188496974282}"},
+  {Typ="BCmpl"  , Arg={z,n,true}       ,Foo=z.getExp, Out="{7.3890560989306,0}"},
+  {Typ="BImRe"  , Arg={z,2,2,true}     ,Foo=z.getExp, Out="{7.3890560989306,0}"},
+  {Typ="BImReS" , Arg={z,2,"2",true}   ,Foo=z.getExp, Out="{7.3890560989306,0}"},
+  {Typ="BImSRe" , Arg={z,"2",2,true}   ,Foo=z.getExp, Out="{7.3890560989306,0}"},
+  {Typ="BImSReS", Arg={z,"2","2",true} ,Foo=z.getExp, Out="{7.3890560989306,0}"}
+}
+
 makeTastCase()
 --------------------------------------------------------
 

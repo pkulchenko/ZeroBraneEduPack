@@ -44,6 +44,7 @@ metaData.__margn = 1e-10
 metaData.__nanum = (0/0)
 metaData.__basef = "%s,%s"
 metaData.__getpi = math.pi
+metaData.__expvl = math.exp(1)
 metaData.__infum = math.huge
 metaData.__fulpi = (2 * metaData.__getpi)
 metaData.__bords = {"{([<|/","})]>|/"}
@@ -138,7 +139,7 @@ function complex.getNew(nRe, nIm)
     local C, D = getUnpackStack(R, I); self:Div(C,D)
     local rei, ref = math.modf(Re)
     local imi, imf = math.modf(Im)
-    return self:Set(ref,imf):Mul(C,D)
+    return self:setReal(ref):setImag(imf):Mul(C,D)
   end
 
   function self:Rev()
@@ -154,6 +155,12 @@ function complex.getNew(nRe, nIm)
       local eC = (C*G + 0.5*D*math.log(N))
       Re, Im = (eK * math.cos(eC)), (eK * math.sin(eC))
     end; return self
+  end
+
+  function self:Exp(R, I, E)
+    local C, D, U = getUnpackStack(R, I, E)
+    if(not R) then C, D = self:getParts() end
+    return self:setReal(metaData.__expvl):setImag(0):Pow(C, D, U)
   end
 
   return self
@@ -335,12 +342,6 @@ end
 
 function metaComplex:getPow(...)
   return self:getNew():Pow(...)
-end
-
-function metaComplex:Exp(vR, vI)
-  if(vR or vI) then self:Set(vR, vI) end
-  local cE = self:getNew(math.exp(1))
-  return self:Set(cE:Pow(self))
 end
 
 function metaComplex:getExp(...)
