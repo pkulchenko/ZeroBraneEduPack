@@ -236,12 +236,11 @@ function metaComplex:getMid(...)
   return self:getNew():Mid(...)
 end
 
-function metaComplex:Mean(...)
-  local tV = {...} -- Read parameters
-  local fV, cV = tV[1], self:getNew()
+function metaComplex:Mean(...) local tV = {...}
+  local fV, cV = tV[1], self:getNew(0,0)
   if(isType(type(fV), 5)) then tV = tV[1] end
   local nV = #tV; if(nV <= 0) then return self end
-  cV:Set(); for iD = 1, nV do cV:Add(tV[iD]) end
+  for iD = 1, nV do cV:Add(tV[iD]) end
   return self:Set(cV:Rsz(1/nV))
 end
 
@@ -367,6 +366,14 @@ end
 
 function metaComplex:getMargin(...)
   return self:getNew():Margin(...)
+end
+
+function metaComplex:Deviation(sMsg, ...)
+  local tV, nV, cT, nM = {...}, 0, self:getNew(), metaData.__margn
+  local bC = complex.isValid(tV[1]); if(not bC) then tV = tV[1] end; nV = #tV
+  for iD = 1, nV do local nD = cT:Set(self):Sub(tV[iD]):getNorm(); if(nD > nM) then
+    logStatus("complex."..tostring(sMsg)..":"..tV[iD].."["..iD.."]: Displaced by "..nD) end
+  end; return self
 end
 
 function metaComplex:Nudge(vM, vR, vI)
@@ -1300,7 +1307,14 @@ function complex.getRegularPolygon(nN, cD, cO)
   end; return tV
 end
 
-function metaComplex:CenterOuterCircle(...)
+--[[
+  Calculates the outer circle center of a polygon
+  When the resulted vertices are displaced a message is
+  displayed and deviation is displayed how far the margin spreads
+  for the vertex selected. Returns the mean of all intersected vertices
+  https://en.wikipedia.org/wiki/Circumscribed_circle
+]]
+function metaComplex:Circumcenter(...)
   local tV, nV = getUnpackSplit(...)
   local tI, tN, iK, tO = {}, {S = tV[nV], E = tV[1]}, 0
   for iD = 1, nV do local cC, cN = tV[iD], (tV[iD+1] or tV[1])
@@ -1308,41 +1322,67 @@ function metaComplex:CenterOuterCircle(...)
     local nM, nD = tN.E:getMid(tN.S), tN.E:getSub(tN.S):Right()
     local oM, oD = tO.E:getMid(tO.S), tO.E:getSub(tO.S):Right()
     tI[iK] = complex.getIntersectRayRay(nM, nD, oM, oD)
-  end; return self:Mean(tI)
+  end; return self:Mean(tI):Deviation("Circumcenter", tI)
 end
 
-function metaComplex:getCenterOuterCircle(...)
-  return self:getNew():CenterOuterCircle(...)
+function metaComplex:getCircumcenter(...)
+  return self:getNew():Circumcenter(...)
 end
 
-function metaComplex:CenterAltitude(...)
+--[[
+  Calculates the altitudes center of a polygon
+  When the polygon altitude vertices are displaced a message is
+  displayed and deviation is displayed how far the margin spreads
+  for the vertex selected. Returns the mean of all intersected vertices
+  https://en.wikipedia.org/wiki/Altitude_(triangle)
+]]
+function metaComplex:Orthocenter(...)
+  local nM = metaData.__margn
+  local dC, dN = self:getNew(), self:getNew()
   local tO, tI, tV, nV = {}, {}, getUnpackSplit(...)
-  for iD = 1, nV do local cP, cN = (tV[iD+1] or tV[1]), (tV[iD-1] or tV[nV])
-    tO[iD] = tV[iD]:getProjectLine(cP, cN) end
+  for iD = 1, nV do
+    dC:Set(tV[iD+1] or tV[1]); dN:Set(tV[iD-1] or tV[nV])
+    tO[iD] = tV[iD]:getProjectLine(dC, dN)
+  end
   for iD = 1, nV do local nN = (tV[iD+1] and (iD+1) or 1)
-    local dC, dN = tO[iD]:getSub(tV[iD]), tO[nN]:getSub(tV[nN])
-    tI[iD] = complex.getIntersectRayRay(tV[iD], dC, tV[nN], dN) end
-  return self:Mean(tI)
+    dC:Set(tO[iD]):Sub(tV[iD]); dN:Set(tO[nN]):Sub(tV[nN])
+    tI[iD] = complex.getIntersectRayRay(tV[iD], dC, tV[nN], dN)
+  end; return self:Mean(tI):Deviation("Orthocenter", tI)
 end
 
-function metaComplex:getCenterAltitude(...)
-  return self:getNew():CenterAltitude(...)
+function metaComplex:getOrthocenter(...)
+  return self:getNew():Orthocenter(...)
 end
 
-function metaComplex:CenterMedian(...)
+--[[
+  Calculates the median center of a polygon
+  When the polygon median vertices are displaced a message is
+  displayed and deviation is displayed how far the margin spreads
+  for the vertex selected. Returns the mean of all intersected vertices
+  https://en.wikipedia.org/wiki/Centroid
+]]
+function metaComplex:Centroid(...)
   local tO, tI, tV, nV = {}, {}, getUnpackSplit(...)
   for iD = 1, nV do tO[iD] = (tV[iD+1] or tV[1]):getMid(tV[iD-1] or tV[nV]) end
   for iD = 1, nV do local nN = (tV[iD+1] and (iD+1) or 1)
     local dC, dN = tO[iD]:getSub(tV[iD]), tO[nN]:getSub(tV[nN])
     tI[iD] = complex.getIntersectRayRay(tV[iD], dC, tV[nN], dN) end
-  return self:Mean(tI)
+  return self:Mean(tI):Deviation("Centroid", tI)
 end
 
-function metaComplex:getCenterMedian(...)
-  return self:getNew():CenterMedian(...)
+function metaComplex:getCentroid(...)
+  return self:getNew():Centroid(...)
 end
 
-function metaComplex:CenterInnerCircle(...)
+--[[
+  Calculates the inner circle center of a polygon
+  When the polygon cannot contain the circle a message is
+  displayed and deviation is displayed how far the margin spreads
+  for the vertex selected. Returns the mean of all intersected vertices
+  https://en.wikipedia.org/wiki/Incenter#Definition_and_construction
+]]
+function metaComplex:Incenter(...)
+  local nM = metaData.__margn
   local tO, tI, tV, nV = {}, {}, getUnpackSplit(...)
   local dC, dN = self:getNew(), self:getNew()
   for iD = 1, nV do
@@ -1351,26 +1391,33 @@ function metaComplex:CenterInnerCircle(...)
     tO[iD] = dC:getBisect(dN) end
   for iD = 1, nV do local iN = (tV[iD+1] and (iD+1) or 1)
     tI[iD] = complex.getIntersectRayRay(tV[iD], tO[iD], tV[iN], tO[iN])
-  end; return self:Mean(tI)
+  end; return self:Mean(tI):Deviation("Incenter", tI)
 end
 
-function metaComplex:getCenterInnerCircle(...)
-  return self:getNew():CenterInnerCircle(...)
+function metaComplex:getIncenter(...)
+  return self:getNew():Incenter(...)
 end
 
-function metaComplex:CenterMidcircle(...)
-  local cH = self:getCenterAltitude(...)
+--[[
+  Calculates the inner circle center of a polygon
+  When the polygon cannot contain the circle a message is
+  displayed and deviation is displayed how far the margin spreads
+  for the vertex selected. Returns the mean of all intersected vertices
+  https://en.wikipedia.org/wiki/Nine-point_circle
+]]
+function metaComplex:NinePointCenter(...)
+  local cH = self:Orthocenter(...)
   local tI, tV, nV = {}, getUnpackSplit(...)
   for iD = 1, nV do local iG = (3*(iD-1)+1)
     local cP, cN = (tV[iD+1] or tV[1]), (tV[iD-1] or tV[nV])
     tI[iG  ] = tV[iD]:getProjectLine(cP, cN)
     tI[iG+1] = cP:getMid(cN)
     tI[iG+2] = cH:getMid(tV[iD])
-  end; return self:CenterOuterCircle(tI)
+  end; return self:Circumcenter(tI)
 end
 
-function metaComplex:getCenterMidcircle(...)
-  return self:getNew():CenterMidcircle(...)
+function metaComplex:getNinePointCenter(...)
+  return self:getNew():NinePointCenter(...)
 end
 
 function metaComplex:CenterMass(...)

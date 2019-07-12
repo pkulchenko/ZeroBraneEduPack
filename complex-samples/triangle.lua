@@ -22,7 +22,7 @@ local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, min
       scOpe:setSize(W, H):setColor(clBlk, clGry):setDelta(dX, dY)
       
 local cO = complex.getNew()
-local tV = {cO:getNew(3,4), cO:getNew(-5,1), cO:getNew(3,-7)}
+local tV = {cO:getNew(-4,-3), cO:getNew(6,-3), cO:getNew(-1,5)}
 if(tV) then
   common.logStatus("The distance between every grey line on X is: "..tostring(dX))
   common.logStatus("The distance between every grey line on Y is: "..tostring(dY))
@@ -30,16 +30,16 @@ if(tV) then
   open("Complex regular polygon")
   size(W,H); zero(0, 0); updt(false) -- disable auto updates
 
-  local cM = cO:Mean(tV); for i = 1, #tV do tV[i]:Sub(cM) end
+ -- local cM = cO:Mean(tV); for i = 1, #tV do tV[i]:Sub(cM) end
   scOpe:Draw(true, true, true):drawComplexPolygon(tV)
-  scOpe:drawComplex(cO:CenterAltitude(tV))
-  scOpe:setColorPos(clB):drawComplex(cO:CenterMedian(tV))
+  scOpe:drawComplex(cO:Orthocenter(tV))
+  scOpe:setColorPos(clB):drawComplex(cO:Centroid(tV))
   scOpe:setColorPos(clM):setColorDir(clM):setColorOrg(clM)
-  scOpe:drawComplex(cO:CenterInnerCircle(tV)):drawComplexCircle(cO, cO:getProjectLine(tV[1], tV[2]):Sub(cO):getNorm())
+  scOpe:drawComplex(cO:Incenter(tV)):drawComplexCircle(cO, cO:getProjectLine(tV[2], tV[3]):Sub(cO):getNorm())
   scOpe:setColorPos(clC):setColorDir(clC):setColorOrg(clC)
-  scOpe:drawComplex(cO:CenterOuterCircle(tV)):drawComplexCircle(cO, cO:getSub(tV[1]):getNorm())
+  scOpe:drawComplex(cO:Circumcenter(tV)):drawComplexCircle(cO, cO:getSub(tV[1]):getNorm())
   scOpe:setColorPos(clR):setColorDir(clR):setColorOrg(clR)
-  scOpe:drawComplex(cO:CenterMidcircle(tV)):drawComplexCircle(cO, tV[1]:getMid(tV[2]):Sub(cO):getNorm())
+  scOpe:drawComplex(cO:NinePointCenter(tV)):drawComplexCircle(cO, tV[1]:getMid(tV[2]):Sub(cO):getNorm())
   wait()
 else
   common.logStatus("Your poly parameters are invalid !")

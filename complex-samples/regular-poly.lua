@@ -38,8 +38,8 @@ if(tV) then
   common.logStatus("Inner circle radius ( apotem ) is: "..tostring(nA))
   
   scOpe:Draw(true, true, true):drawComplexPolygon(tV)
-  scOpe:drawComplexCircle(cO:CenterOuterCircle(tV), nV)
-  scOpe:drawComplexCircle(cO:CenterInnerCircle(tV), nA)
+  scOpe:drawComplexCircle(cO:Circumcenter(tV), nV)
+  scOpe:drawComplexCircle(cO:Incenter(tV), nA)
   scOpe:drawComplexLine(cO, cP)
   
   wait()
