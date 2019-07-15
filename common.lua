@@ -958,6 +958,53 @@ function common.getAngNorm(nA)
   return ((nA + 180) % 360 - 180)
 end
 
+function common.getApprox(a,b,n)
+  local so, nn = "", (tonumber(n) or 0)
+  local na, nb = tonumber(a), tonumber(b)
+  if(na and nb and nn > 0) then local bt = false
+    local sa, sb = tostring(na), tostring(nb)
+    local id = 0  -- Drop digit index
+    local sd = "" -- The dropped digit
+    local st = "" -- The result dring selected for division
+    local nt = 0  -- Subtraction base number holder
+    local nd = 0  -- Subtraction argument holder
+    local ns = 0  -- Subtraction result
+    local nk = 0  -- Koef for reverse multiplication
+    while(nt < nb) do
+      id = (id + 1)
+      sd = sa:sub(id, id)
+      if(sd == "") then sd = "0"; nn = (nn - 1)
+        if(so == "") then so, bt = "0.", true
+        else so = so..sd end
+      end
+      st = st..sd; nt = tonumber(st)
+    end
+    nk = math.floor(nt/nb)
+    so = so..tostring(nk)
+    if(not bt) then so = so.."." end
+    nd = nk * nb; ns = nt - nd
+    st, nt = tostring(ns), ns
+    if(ns ~= 0) then
+      while(nn >= 0) do
+        while(nt < nb and ns ~= 0) do
+          id, nn = (id + 1), (nn - 1)
+          sd = sa:sub(id, id)
+          if(sd == "") then sd = "0" end
+          st = st..sd
+          nt = tonumber(st)
+        end
+        nk = math.floor(nt/nb)
+        so = so..tostring(nk)
+        nd = nk * nb; ns = nt - nd
+        st, nt = tostring(ns), ns
+      end
+    else
+      if(so:sub(-1,-1)==".") then so = so.."0" end
+    end
+  end
+  return so
+end
+
 common.randomSetSeed()
 
 return common
