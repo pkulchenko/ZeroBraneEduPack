@@ -135,11 +135,32 @@ function complex.getNew(nRe, nIm)
     end; return self
   end
 
-  function self:Mod(R, I)
-    local C, D = getUnpackStack(R, I); self:Div(C,D)
-    local rei, ref = math.modf(Re)
-    local imi, imf = math.modf(Im)
-    return self:setReal(ref):setImag(imf):Mul(C,D)
+  function self:Frac(R, I)
+    local C, D = getUnpackStack(R, I)
+    local rI, rF = math.modf(R and C or Re)
+    local iI, iF = math.modf(R and D or Im)
+    Re, Im = rF, iF; return self
+  end
+
+  function self:Trunc(R, I, E)
+    local C, D, U = getUnpackStack(R, I, E)
+    local P = (U and math.ceil or math.floor)
+    local N = (U and math.floor or math.ceil)
+    C, D = (R and C or Re), (R and D or Im)
+    Re = (C > 0 and P(C) or N(C))
+    Im = (D > 0 and P(D) or N(D))
+    return self
+  end
+  
+  function self:Mod(R, I, E)
+    local C, D, U = getUnpackStack(R, I, E)
+    if(U) then
+      Re = (self:getReal() % C)
+      Im = (self:getImag() % D)
+    else local Z = self:getDiv(C, D)
+      return self:Sub(Z:Floor():Mul(C, D))
+    end
+    return self
   end
 
   function self:Rev()
@@ -330,6 +351,14 @@ end
 
 function metaComplex:getDiv(...)
   return self:getNew():Div(...)
+end
+
+function metaComplex:getFrac(...)
+  return self:getNew():Frac(...)
+end
+
+function metaComplex:getTrunc(...)
+  return self:getNew():Trunc(...)
 end
 
 function metaComplex:getMod(...)
