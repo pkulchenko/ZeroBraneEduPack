@@ -974,17 +974,17 @@ function common.getApprox(a,b,n)
       id = (id + 1)
       sd = sa:sub(id, id)
       if(sd == "") then sd = "0"; nn = (nn - 1)
-        if(so == "") then so, bt = "0.", true
+        if(so == "") then so, bt = sd..".", true
         else so = so..sd end
       end
       st = st..sd; nt = tonumber(st)
     end
     nk = math.floor(nt/nb)
     so = so..tostring(nk)
-    if(not bt) then so = so.."." end
     nd = nk * nb; ns = nt - nd
     st, nt = tostring(ns), ns
     if(ns ~= 0) then
+      if(not bt) then so = so.."." end
       while(nn >= 0) do
         while(nt < nb and ns ~= 0) do
           id, nn = (id + 1), (nn - 1)
@@ -998,8 +998,6 @@ function common.getApprox(a,b,n)
         nd = nk * nb; ns = nt - nd
         st, nt = tostring(ns), ns
       end
-    else
-      if(so:sub(-1,-1)==".") then so = so.."0" end
     end
   end
   return so
