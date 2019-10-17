@@ -80,9 +80,8 @@ metaSignals["DFT_PHASEFCT"] = {__top = 0}
 
 -- Read an audio WAVE file giving the path /sN/
 function signals.readWave(sN)
-  local sNam = tostring(sN)
-  local W = io.open(sNam, "rb")
-  if(not W) then return logStatus("signals.readWave: No file <"..sNam..">") end
+  local fW, sE = io.open(tostring(sN or ""), "rb")
+  if(not fW) then return logStatus("signals.readWave: "..sE) end
   local wData, hWave = {}, metaSignals["WAVE_HEADER"]
   for I = 1, #hWave do local tdtPar = hWave[I]
     wData[tdtPar.Name] = {}
@@ -90,7 +89,7 @@ function signals.readWave(sN)
     for J = 1, #tdtPar do local par = tdtPar[J]
       local nam, arr, foo, typ = par[1], par[2], par[3], par[4]
       curChunk[nam] = {}; local arrChunk = curChunk[nam]
-      for K = 1, arr do arrChunk[K] = W:read(1):byte() end
+      for K = 1, arr do arrChunk[K] = fW:read(1):byte() end
       if(typ == "uint" or typ == "ushort") then  revArr(arrChunk) end
       if(foo) then curChunk[nam] = foo(arrChunk, arr) end
     end
@@ -123,7 +122,7 @@ function signals.readWave(sN)
           arrChan[arrChan.__top] = {}
     local smpTop = arrChan[arrChan.__top]
     for K = 1, smpByte do
-      local smp = W:read(1)
+      local smp = fW:read(1)
       if(not smp) then
         logStatus("signals.readWave: Reached EOF for channel <"..curChan.."> sample <"..arrChan.__top..">")
         isEOF = true; arrChan[arrChan.__top] = nil; break
@@ -143,7 +142,7 @@ function signals.readWave(sN)
       logStatus("signals.readWave: Reached EOF before chunk size <"..smpAll..">")
       smpAll = -1
     end
-  end; W:close()
+  end; fW:close()
   return wData, smpData
 end
 
