@@ -342,6 +342,10 @@ function common.stringToTable(sRc)
   end, {}, 1)
 end
 
+function common.stringToNyan(sR)
+  return sR:gsub("([Nn])(a)", "%1y%2")
+end
+
 function common.fileRead(pF, sM, bT)
   if(not pF) then
     return common.logStatus("common.fileGetLine: No file", "", true) end
@@ -364,6 +368,22 @@ end
 
 function common.isEven(nV)
   return ((nV % 2) == 0)
+end
+
+function common.getClamp(nV, nH, nL)
+  if(nH and nV > nH) then return nH end
+  if(nL and nV < nL) then return nL end
+  return nV
+end
+
+function common.getRemap(nV, iH, iL, oH, oL, bR)
+  if(bR) then
+    local nK = ((nV - oL) / (oH - oL))
+    return (nK * (iH - iL) + iL)
+  else
+    local nK = ((nV - iL) / (iH - iL))
+    return (nK * (oH - oL) + oL)
+  end; return nV
 end
 
 function common.getSign(nV)
@@ -946,7 +966,7 @@ function common.getPermute(...)
   for iD = 1, nV do
     local cP = common.copyItem(tV)
     local vP = table.remove(cP, iD) -- Pop element
-    local tP = common.getPermute(unpack(cP))    
+    local tP = common.getPermute(unpack(cP))
     for iP = 1, #tP do table.insert(tP[iP], vP)
       tO[iO] = tP[iP]; iO = (iO + 1)
     end

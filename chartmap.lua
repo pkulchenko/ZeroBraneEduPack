@@ -53,11 +53,8 @@ local function newInterval(sName, nL1, nH1, nL2, nH2)
   function self:Convert(nVal, bRev)
     local val = tonumber(nVal); if(not val) then
       return logStatus(metaInterval.__type..".Convert("..mNm.."): Source <"..tostring(nVal).."> NaN", self) end
-    if(bRev) then local kf = ((val - mL2) / (mH2 - mL2)); mVal = (kf * (mH1 - mL1) + mL1)
-    else          local kf = ((val - mL1) / (mH1 - mL1)); mVal = (kf * (mH2 - mL2) + mL2) end
-    return self
+    mVal = common.getRemap(val, mH1, mL1, mH2, mL2, bRev); return self
   end
-
   return self
 end
 
