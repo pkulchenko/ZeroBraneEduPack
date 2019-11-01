@@ -144,8 +144,8 @@ function common.logSkipClear(...)
       end
     end
   end; local nTop = tNlg.__top
-  while(not tNlg[nTop]) do nTop = nTop - 1 end
-  tNlg.__top = nTop; collectgarbage(); print(nTop)
+  while(not tNlg[nTop] and nTop > 0) do nTop = nTop - 1 end
+  tNlg.__top = nTop; collectgarbage();
 end
 
 function common.logString(anyMsg, ...)
