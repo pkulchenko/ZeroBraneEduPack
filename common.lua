@@ -226,10 +226,17 @@ function common.randomGetString(vE, vN)
   end; return sR
 end
 
+-- Returns true when string includes atleast one letter
+function common.stringHasLetter(sS)
+  return (sS:find("%a") ~= nil)
+end
+
+-- Returns true when charactters are not affected by upper
 function common.stringIsUpper(sS)
   return (sS:upper() == sS)
 end
 
+-- Returns true when charactters are not affected by lower
 function common.stringIsLower(sS)
   return (sS:lower() == sS)
 end
