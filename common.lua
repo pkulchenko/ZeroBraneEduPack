@@ -24,6 +24,7 @@ metaCommon.__clok = 0
 metaCommon.__func = {}
 metaCommon.__sort = {}
 metaCommon.__marg = 1e-10
+metaCommon.__fmdr = "%s?.lua"
 metaCommon.__fmtb = "[%s]:%d {%s} [%d]<%s>[%s](%d)"
 metaCommon.__type = {"number", "boolean", "string", "function", "table", "nil", "userdata"}
 metaCommon.__syms = "1234567890abcdefghijklmnopqrstuvwxyxABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -584,17 +585,27 @@ function common.logTable(tT, sS, tP, tD)
   logTableRec(tT, lS, lP, tD); return lP
 end
 
-function common.addPathLibrary(sB, sE)
-  local bas = tostring(sB or "")
-  if(common.isDryString(bas)) then
-    common.logStatus("common.addPathLibrary: Missing path") return end
-  bas = common.getPick(bas:sub(-1,-1) == "/", bas, bas.."/")
-  local ext = tostring(sE or ""):gsub("%*",""):gsub("%.","")
-  if(common.isDryString(ext)) then
-    return common.logStatus("common.addPathLibrary: Missing extension") end
-  local pad = (bas.."*."..ext):match("(.-)[^\\/]+$").."?."..ext
-  common.logStatus("common.addPathLibrary <"..pad..">")
-  package.path = package.path..";"..pad
+function common.addLibrary(sB, ...)
+  local bas = tostring(sB or ""); if(common.isDryString(bas)) then
+    common.logStatus("common.addPathLibrary: Missing base path") return end
+  bas = common.normFolder(bas:sub(-1,-1) == "/" and bas or bas.."/")
+  local arg, fmt = {...}, metaCommon.__fmdr; bas = common.stringTrim(bas)
+  if(arg[1] and common.isTable(arg[1])) then arg = arg[1] end
+  for idx, val in ipairs(arg) do
+    local ext = common.stringTrim(val)
+    local dir = ext:gsub("/",""):gsub("%s+", "")
+    if(not common.isDryString(dir)) then
+      ext = common.normFolder(ext)
+      local ok = os.execute("cd "..bas..ext)
+      if(ok) then ext = (bas..fmt:format(ext))
+        package.path = package.path..";"..ext
+      else ext = bas..ext
+        common.logStatus("common.addLibrary["..tostring(idx).."]: Mismatch: "..ext,nil)
+      end
+    else
+      common.logStatus("common.addLibrary["..tostring(idx).."]: Skipped",nil)
+    end
+  end
 end
 
 function common.tableClear(tT)
@@ -900,6 +911,11 @@ function common.sortList()
     local sS = "] "..((iN == tS.__ID) and "@" or ">").." "..inf
     common.logStatus("  ["..common.stringPadL(tostring(iN), iL, " ")..sS)
   end
+end
+
+function common.normFolder(sD)
+  local sS = tostring(sD):gsub("\\","/"):gsub("/+","/")
+  return ((sS:sub(-1,-1) == "/") and sS or (sS.."/"))
 end
 
 function common.sortRem(vN)
