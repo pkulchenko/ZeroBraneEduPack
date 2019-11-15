@@ -35,8 +35,8 @@ logStatus("Methods starting with upper letter make internal changes and return `
 logStatus("Methods starting with lower case return something and do not change internals.")
 
 logStatus("\nCreating complex")
-local a = complex.getNew(7,7):Print("%2d"," Create:           {","}\n")
-complex.getNew(a):Print("%2d"," Copy-constructor: {","}\n")
+local a = complex.getNew(7,7):Println("%2d"," Create:           {","}")
+complex.getNew(a):Println("%2d"," Copy-constructor: {","}")
 
 --------------------------------------------------------------------------
 logStatus("\nCalling the copy-constructor for different arguments "..tostring(a)); tPar = {}

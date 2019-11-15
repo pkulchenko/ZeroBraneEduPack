@@ -27,6 +27,7 @@ local isString        = common.isString
 local isType          = common.isType
 local isNumber        = common.isNumber
 local logStatus       = common.logStatus
+local logString       = common.logString
 local getSignNon      = common.getSignNon
 local getValueKeys    = common.getValueKeys
 local randomGetNumber = common.randomGetNumber
@@ -151,7 +152,7 @@ function complex.getNew(nRe, nIm)
     Im = (D > 0 and P(D) or N(D))
     return self
   end
-  
+
   function self:Mod(R, I, E)
     local C, D, U = getUnpackStack(R, I, E)
     if(U) then
@@ -620,11 +621,18 @@ function metaComplex:getTable(kR, kI)
   local R , I  = self:getParts(); return {[kR] = R, [kI] = I}
 end
 
-function metaComplex:Print(sF,sS,sE)
+function metaComplex:Println(sF,sS,sE)
   local nR, nI = self:getParts()
   local fB, sF = metaData.__basef, tostring(sF or "%f")
   local sS, sE = tostring(sS or "{"), tostring(sE or "}")
   return logStatus(sS..(fB:format(sF,sF):format(nR,nI))..sE, self)
+end
+
+function metaComplex:Print(sF,sS,sE)
+  local nR, nI = self:getParts()
+  local fB, sF = metaData.__basef, tostring(sF or "%f")
+  local sS, sE = tostring(sS or "{"), tostring(sE or "}")
+  return logString(sS..(fB:format(sF,sF):format(nR,nI))..sE, self)
 end
 
 function metaComplex:Euler(vR, vA)
@@ -1078,7 +1086,7 @@ function complex.getRefractRayRay(cO1, cD1, cO2, cD2, ...)
   local uD = cD1:getUnit() -- Reference to unit direction
   local cN = cO1:getProjectRay(cO2, cD2):Neg():Add(cO1):Unit()
   local nR, sI = complex.getRefractRayRatio(...), cN:getCross(uD:Neg())
-  local sO = sI / nR; if(math.abs(sO) > 1) then 
+  local sO = sI / nR; if(math.abs(sO) > 1) then
     return logStatus("complex.getRefractRayRay: Angle mismatch", nil, cN) end
   if(cN:getDot(uD) < 0) then -- Check negated because of cross product
     return logStatus("complex.getRefractRayRay: Normal mismatch", nil, cN) end
