@@ -24,6 +24,7 @@ metaCommon.__clok = 0
 metaCommon.__func = {}
 metaCommon.__sort = {}
 metaCommon.__marg = 1e-10
+metaCommon.__prct = {">","|"}
 metaCommon.__fmdr = "%s?.lua"
 metaCommon.__fmtb = "[%s]:%d {%s} [%d]<%s>[%s](%d)"
 metaCommon.__type = {"number", "boolean", "string", "function", "table", "nil", "userdata"}
@@ -181,12 +182,17 @@ function common.logCallStack(sMsg, ...)
 end
 
 function common.logConcat(anyMsg,aDel, ...)
-  local sDel, tDat = tostring(aDel or ","), {...}
-  io.write(tostring(anyMsg))
+  local tPar, tDat = metaCommon.__prct, {...}
+  local sDel = tostring(aDel or tPar[2])
+  io.write(tostring(anyMsg)..tPar[1])
   for ID = 1, #tDat do
     io.write(tostring(tDat[ID] or ""))
     if(tDat[ID+1]) then io.write(sDel) end
   end; io.write("\n")
+end
+
+function common.logCase(bCond, ...)
+  if(bCond) then common.logConcat(...) end
 end
 
 -- http://lua-users.org/wiki/MathLibraryTutorial
