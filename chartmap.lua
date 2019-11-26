@@ -393,8 +393,11 @@ local function newScope(sName)
   function self:drawComplexOval(xyP, rX, rY)
     return self:drawOval(xyP:getReal(), xyP:getImag(), rX, rY)
   end
+  function self:drawCircle(nX, nY, rR)
+    return self:drawOval(nX, nY, rR, rR)
+  end
   function self:drawComplexCircle(xyP, rR)
-    return self:drawComplexOval(xyP, rR, rR)
+    return self:drawOval(xyP:getReal(), xyP:getImag(), rR, rR)
   end
   function self:getString() return "["..metaScope.__type.."] "..mName end
   return self

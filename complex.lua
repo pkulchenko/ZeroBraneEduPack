@@ -1048,6 +1048,25 @@ function complex.getIntersectCircleCircle(cO1, nR1, cO2, nR2)
   return xB:getAdd(cV), xB:getSub(cV), xB
 end
 
+function complex.getSnapRayRay(cO1, cD1, cO2, cD2, scOpe)
+  local cS, nD = cO1:getProjectRay(cO2, cD2), cD1:getNorm2()
+  local nL = cS:getSub(cO1):getNorm(); if(nL > nD) then
+    return logStatus("complex.getSnapRayRay: Length mismatch", nil) end
+  local cE = cO1:getAdd(cD1):getProjectRay(cO2, cD2)
+  local cM, nM, iK = cS:getMid(cE), metaData.__margn, 0
+  local nH = cE:getSub(cS):getNorm2()
+  while(nH > nM) do
+    local nT = cM:getSub(cO1):getNorm2()
+    if(nT > nD) then cE:Set(cM); cM:Mid(cS)
+    else cS:Set(cM); cM:Mid(cE) end
+    iK, nH = (iK + 1), cE:getSub(cS):getNorm2()
+  end; return cM, iK, nH
+end
+
+function complex.getSnapRayLine(cO, cD, cS, cE)
+  return complex.getSnapRayRay(cO, cD, cS, cE:getSub(cS))
+end
+
 function complex.getReflectRayRay(cO1, cD1, cO2, cD2)
   local cN = cO1:getProjectRay(cO2, cD2):Neg():Add(cO1):Unit()
   if(cN:getDot(cD1) > 0) then -- Ray points away from the reflection wall

@@ -92,13 +92,9 @@ while true do
     ry = intY:Convert(ry,true):getValue()
     local C = cmp.getNew(rx, ry); C:Action("xy", clRed); cRay2[#cRay2+1] = C
     if(#cRay2 == 2) then cRay2[1]:Action("ab", cRay2[2], clRed)
-      rad = (cRay2[2] - cRay2[1]):getNorm()
-      local b1, v1 = cRay2[2]:Action("conv")
-      local b2, v2 = cRay2[1]:Action("conv")
-      local vr = (v2 - v1):getNorm()
-      local cx = intX:Convert(cRay2[1]:getReal()):getValue()
-      local cy = intY:Convert(cRay2[1]:getImag()):getValue()
-      pncl(clRed); crcl(cx, cy, vr)
+      rad = cRay2[2]:getSub(cRay2[1]):getNorm()
+      scOpe:setColorDir(clRed)
+      scOpe:drawComplexCircle(cRay2[1], rad)
     end
   end
   if(drw and #cRay1 == 2 and #cRay2 == 2) then
