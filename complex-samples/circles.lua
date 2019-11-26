@@ -104,6 +104,7 @@ while true do
     end; drw = false
   end
   if(key == 27) then -- The user hits esc
+    scOpe:setColorDir(clBlu)
     wipe(); drw = true
     cRay1[1], cRay1[2] = nil, nil
     cRay2[1], cRay2[2] = nil, nil; collectgarbage()

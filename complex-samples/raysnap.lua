@@ -60,7 +60,9 @@ while true do
     cRay1[#cRay1+1] = C; C:Action("xy", clOrg)
     if(#cRay1 == 2) then cRay1[1]:Action("ab", cRay1[2], clOrg)
       R1 = cRay1[2]:getSub(cRay1[1]):getNorm()
+      scOpe:setColorDir(clRel)
       scOpe:drawComplexCircle(cRay1[1], R1)
+      scOpe:setColorDir(clMgn)
     end
   elseif(rx and ry and #cRay2 < 2) then -- Reverse-convert x, y position to a complex number
     rx = intX:Convert(rx,true):getValue()
@@ -84,6 +86,7 @@ while true do
     drw = false
   end
   if(key == 27) then -- The user hits esc
+    scOpe:setColorDir(clOrg)
     wipe(); drw = true
     cRay1[1], cRay1[2] = nil, nil
     cRay2[1], cRay2[2] = nil, nil; collectgarbage()
