@@ -1050,17 +1050,16 @@ end
 
 function complex.getSnapRayRay(cO1, cD1, cO2, cD2, scOpe)
   local cS, nD = cO1:getProjectRay(cO2, cD2), cD1:getNorm2()
-  local nL = cS:getSub(cO1):getNorm(); if(nL > nD) then
-    return logStatus("complex.getSnapRayRay: Length mismatch", nil) end
-  local cE = cO1:getAdd(cD1):getProjectRay(cO2, cD2)
-  local cM, nM, iK = cS:getMid(cE), metaData.__margn, 0
-  local nH = cE:getSub(cS):getNorm2()
+  local cE = cD2:getUnit():Mul(cD1:getNorm()):Add(cS)
+  if(cS:getSub(cO1):getNorm2() > nD) then
+    return logStatus("complex.getSnapRayRay: Radius mismatch", nil) end
+  local nM, iK = metaData.__margn, 0
+  local nH, cM = cE:getSub(cS):getNorm2(), cS:getMid(cE)
   while(nH > nM) do
-    local nT = cM:getSub(cO1):getNorm2()
-    if(nT > nD) then cE:Set(cM); cM:Mid(cS)
-    else cS:Set(cM); cM:Mid(cE) end
+    if(cM:getSub(cO1):getNorm2() > nD) then
+      cE:Set(cM); cM:Mid(cS) else cS:Set(cM); cM:Mid(cE) end
     iK, nH = (iK + 1), cE:getSub(cS):getNorm2()
-  end; return cM, iK, nH
+  end; return cM, iK
 end
 
 function complex.getSnapRayLine(cO, cD, cS, cE)

@@ -29,10 +29,12 @@ com.logStatus("The distance between every grey line on Y is: "..tostring(dY))
 com.logStatus("Press escape to clear all rays and refresh the coordinate system")
 
 local function drawComplex(C, Cl)
+  scOpe:setColorDir(Cl)
   scOpe:drawComplexPoint(C)
 end
 
 local function drawComplexLine(S, E, Cl)
+  scOpe:setColorDir(Cl)
   scOpe:drawComplex(S, E)
 end
 
@@ -60,7 +62,7 @@ while true do
     cRay1[#cRay1+1] = C; C:Action("xy", clOrg)
     if(#cRay1 == 2) then cRay1[1]:Action("ab", cRay1[2], clOrg)
       R1 = cRay1[2]:getSub(cRay1[1]):getNorm()
-      scOpe:setColorDir(clRel)
+      scOpe:setColorDir(clOrg)
       scOpe:drawComplexCircle(cRay1[1], R1)
       scOpe:setColorDir(clMgn)
     end
@@ -73,13 +75,29 @@ while true do
   end
   if(drw and #cRay1 == 2 and #cRay2 == 2) then
     local cD1, cD2 = (cRay1[2] - cRay1[1]), (cRay2[2] - cRay2[1])
-    local cS , nK, nH = cmp.getSnapRayRay(cRay1[1], cD1, cRay2[1], cD2, scOpe)
-    if(cS) then
+    local cS , nK = cmp.getSnapRayRay(cRay1[1], cD1, cRay2[1], cD2, scOpe)
+    if(cS) then local onOne, onTwo
       cS:Action("ab", cRay1[1], clGrn)
       cS:Action("xy", clGrn)
-      com.logStatus("Ray snappred at   : "..cS)
-      com.logStatus("Iterations used   : "..nK)
-      com.logStatus("Threshold accuracy: "..nH)
+      com.logStatus("Ray snappred at : "..cS)
+      com.logStatus("Iterations used : "..nK)
+      com.logStatus("Vector target   : "..cD1:getNorm())
+      onOne = cS:isAmongLine(cRay1[1], cRay1[2])
+      onTwo = cS:isAmongLine(cRay2[1], cRay2[2])
+      com.logStatus("The point is "..(onOne and "ON" or "OFF").." the first line (BLUE)")
+      com.logStatus("The point is "..(onTwo and "ON" or "OFF").." the second line (RED)")
+      onOne = cS:isAmongLine(cRay1[1], cRay1[2], true)
+      onTwo = cS:isAmongLine(cRay2[1], cRay2[2], true)
+      com.logStatus("The point (full-size) is "..(onOne and "ON" or "OFF").." the first line (BLUE)")
+      com.logStatus("The point (full-size) is "..(onTwo and "ON" or "OFF").." the second line (RED)")
+      onOne = cS:isAmongRay(cRay1[1], cRay1[2]-cRay1[1])
+      onTwo = cS:isAmongRay(cRay2[1], cRay2[2]-cRay2[1])
+      com.logStatus("The point is "..(onOne and "ON" or "OFF").." the first ray (BLUE)")
+      com.logStatus("The point is "..(onTwo and "ON" or "OFF").." the second ray (RED)")
+      onOne = cS:isAmongRay(cRay1[1], cRay1[2]-cRay1[1],true)
+      onTwo = cS:isAmongRay(cRay2[1], cRay2[2]-cRay2[1],true)
+      com.logStatus("The point (full-size) is "..(onOne and "ON" or "OFF").." the first ray (BLUE)")
+      com.logStatus("The point (full-size) is "..(onTwo and "ON" or "OFF").." the second ray (RED)")  
     else
       com.logStatus("Ray being snapped is too short")
     end
