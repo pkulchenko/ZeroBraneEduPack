@@ -41,7 +41,7 @@ end
 cmp.setAction("xy", drawComplex)
 cmp.setAction("ab", drawComplexLine)
 
-open("Complex rays circle intersect demo")
+open("Complex rays direction snap demo")
 size(W, H)
 zero(0, 0)
 updt(false) -- disable auto updates
@@ -82,6 +82,7 @@ while true do
       com.logStatus("Ray snappred at : "..cS)
       com.logStatus("Iterations used : "..nK)
       com.logStatus("Vector target   : "..cD1:getNorm())
+      com.logStatus("Lenght actual   : "..(cS - cRay1[1]):getNorm())
       onOne = cS:isAmongLine(cRay1[1], cRay1[2])
       onTwo = cS:isAmongLine(cRay2[1], cRay2[2])
       com.logStatus("The point is "..(onOne and "ON" or "OFF").." the first line (BLUE)")

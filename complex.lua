@@ -1083,11 +1083,11 @@ end
 
 function complex.getReflectRayCircle(cO, cD, cC, nR, xU)
   local xX = (xU and xU or complex.getIntersectRayCircle(cO, cD, cC, nR))
-  if(not complex.isValid(xX)) then
+  if(not complex.isValid(xX)) then -- Validate interesction point
     return logStatus("complex.getReflectRayCircle: Intersect mismatch", nil) end
-  local cX = xX:getSub(cC):Right()
+  local cX = xX:getSub(cC):Right() -- Fifth argument may reuse intersection
   local cR, cN = complex.getReflectRayRay(cO, cD, xX, cX)
-  return cR, cN, cX:Set(xX)
+  return cR, cN, cX:Set(xX) -- Return a copy of the intersection point
 end
 
 function complex.getRefractRayRatio(vI, vO)
@@ -1494,7 +1494,7 @@ function metaComplex:getCenterMass(...)
 end
 
 --[[ Interpolates a z = f(x,y) scalar over a 2D surface
- y2 c12-c22 The 2D interpolated point us betwen c[xy]
+ y2 c12-c22 The 2D interpolated point is betwen c[xy]
  y1 c11-c21 The point X is between x1 and x2
      x1  x2 The point Y us between y1 and y2
  Storage is done as tI{F=(01),(11),(00),(10)}
