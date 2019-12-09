@@ -470,7 +470,8 @@ function metaComplex:getArcCos()
 end
 
 function metaComplex:Tang()
-  return self:Set(self:getSin():Div(self:getCos()))
+  local cC = self:getCos()
+  return self:Sin():Div(cC)
 end
 
 function metaComplex:getTang()
@@ -541,7 +542,8 @@ function metaComplex:getArcCosH()
 end
 
 function metaComplex:TangH()
-  return self:Set(self:getSinH():Div(self:getCosH()))
+  local cC = self:getCosH()
+  return self:SinH():Div(cC)
 end
 
 function metaComplex:getTangH()
@@ -559,7 +561,7 @@ function metaComplex:getArcTangH()
 end
 
 function metaComplex:CotgH()
-  return self:Set(self:getCosH():Div(self:getSinH()))
+  return self:TangH():Rev()
 end
 
 function metaComplex:getCotgH()
@@ -1291,7 +1293,7 @@ function complex.convNew(vIn, ...)
   elseif(isType(tyIn, 3)) then -- Remove brackets and leave the values
     local Str, S, E = stringValidComplex(vIn:gsub("*","")); if(not Str) then
       return logStatus("complex.convNew: Failed to validate <"..tostring(vIn)..">",nil) end
-    Str = Str:sub(S, E); E = E-S+1; S = 1 -- Refresh string indexes
+    Str = Str:sub(S, E); E = (E - S + 1); S = 1 -- Refresh string indexes
     local Sim, I = metaData.__ssyms    -- Prepare to find imaginary unit
     for ID = 1, #Sim do local val = Sim[ID]
       I = Str:find(val, S, true) or I; if(I) then break end end

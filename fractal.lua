@@ -15,11 +15,13 @@ local tonumber     = tonumber
 local tostring     = tostring
 local setmetatable = setmetatable
 local logStatus    = common.logStatus
+local isFunction   = common.isFunction
 local fractal      = {}
 
 local mtPlaneZ     = {}
 mtPlaneZ.__type    = "fractal.z-plane"
 mtPlaneZ.__index   = mtPlaneZ
+mtPlaneZ.__regkey  = {["FUNCTION"] = 1, ["PALETTE"] = 2}   
 mtPlaneZ.__metatable = mtPlaneZ.__type
 local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
   local imgW , imgH  = w   , h
@@ -31,13 +33,13 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
   local self, frcPalet, frcNames, conKeys, uZoom, brdCl, bbrdP = {}, {}, {}, {}, 1, clbrd, bBrdP
   local uniCr, uniCi = minRe + ((maxRe - minRe) / 2), minIm + ((maxIm - minIm) / 2)
   setmetatable(self,mtPlaneZ)
+  function self:GetKey(sKey) return conKeys[tostring(sKey)] end
   function self:SetControlWX(wx)
     conKeys.dirU, conKeys.dirD = (wx["WXK_UP"]   or -1), (wx["WXK_DOWN"]  or -1)
     conKeys.dirL, conKeys.dirR = (wx["WXK_LEFT"] or -1), (wx["WXK_RIGHT"] or -1)
     conKeys.zooP, conKeys.zooM = (wx["wxEVT_LEFT_DOWN"] or -1), (wx["wxEVT_LEFT_DOWN"] or -1)
     conKeys.resS, conKeys.savE = (wx["WXK_ESCAPE"] or -1), (wx["WXK_TAB"] or -1); return self
   end
-  function self:GetKey(sKey) return conKeys[tostring(sKey)] end
   function self:SetArea(vminRe, vmaxRe, vminIm, vmaxIm)
     minRe, maxRe = (tonumber(vminRe) or 0), (tonumber(vmaxRe) or 0)
     minIm, maxIm = (tonumber(vminIm) or 0), (tonumber(vmaxIm) or 0)
@@ -85,25 +87,19 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
       uZoom = uZoom / math.abs(nZoom)
     end; return self
   end
-
-  function self:Register(...)
-    local tArgs = {...}
-    local sMode = tostring(tArgs[1] or "N/A")
+  function self:Register(...) local tArgs = {...}
+    local sMode = tostring(tArgs[1] or "N/A"):upper()
+    local tRKey = mtPlaneZ.__regkey
     for iNdex = 2, #tArgs, 2 do
-      local key = tArgs[iNdex]
-      local foo = tArgs[iNdex + 1]
-      if(key and foo) then
-        if(not key) then
-          logStatus("PlaneZ.Register: Key mismatch <"..tostring(iNdex)..">"); return end
-        if(type(foo) ~= "function") then
-          logStatus("PlaneZ.Register: Unable to register non-function under <"..key..">"); return end
-        if    (sMode == "FUNCT") then frcNames[key] = foo
-        elseif(sMode == "PALET") then frcPalet[key] = foo
-        else logStatus("PlaneZ.Register: Mode <"..sMode.."> skipped for <"..tostring(tArgs[1]).."> !"); return end
-      end
+      local key = tArgs[iNdex]; if(not key) then
+        logStatus("PlaneZ.Register: Key missing <"..iNdex..">"); return end
+      local foo = tArgs[iNdex + 1]; if(not isFunction(foo)) then
+        logStatus("PlaneZ.Register: Non-function under ["..iNdex.."]<"..key..">"); return end
+      if    (tRKey[sMode] == 1) then frcNames[key] = foo
+      elseif(tRKey[sMode] == 2) then frcPalet[key] = foo
+      else logStatus("PlaneZ.Register: Mode <"..sMode.."> skipped for <"..tostring(tArgs[1]).."> !"); return end
     end; return self
   end
-
   function self:Draw(sName,sPalet,maxItr)
     local maxItr = (tonumber(maxItr) or 0); if(maxItr < 1) then
       logStatus("PlaneZ.Draw: Iteration depth #"..tostring(maxItr).." invalid"); return end
@@ -134,8 +130,7 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
       end
       updt()
     end; return self
-  end
-  return self
+  end; return self
 end
 
 local mtTreeY = {}

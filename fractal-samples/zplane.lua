@@ -70,7 +70,7 @@ S:SetArea(-1.4576971634815,-1.4576968123155,-0.0014340916323731,-0.0014337404663
 ]]
 
 local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup):SetControlWX(wx)
-      S:Register("FUNCT",
+      S:Register("function",
         "mandelbrot", function (Z, C, R) Z:Pow(2); Z:Add(C); R[1] = Z:getAngRad(); end,
         "mandelbar", function (Z, C, R) Z:Pow(2); Z:NegIm(); Z:Add(C) end,
         "julia1", function (Z, C, R) Z:Pow(2); Z:Add(compl.convNew("-0.8+0.156i")) end,
@@ -79,7 +79,7 @@ local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup):SetControlW
         "julia4", function (Z, C, R) Z:Pow(3) Z:Add(0.4)  end,
         "julia5", function (Z, C, R) Z:Set((Z^4) * cexp^Z + 0.41 ) end,
         "julia6", function (Z, C, R) Z:Set((Z^3) * cexp^Z + 0.33 ) end)
-      S:Register("PALET",
+      S:Register("palette",
         "default", function (Z, C, i)
           return (getClamp((64  * i) % maxCl)), (getClamp((128 * i) % maxCl)), (getClamp((192 * i) % maxCl)) end,
         "rediter", function (Z, C, i) return getClamp((1-(i / iTer)) * maxCl), 0, 0 end,
