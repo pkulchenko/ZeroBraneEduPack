@@ -51,8 +51,8 @@ local nZoom = 15
 local iTer  = 1000
 local sfrac = "mandelbrot"
 local spale = "wikipedia"
-local brdcl = colr(0, 250, 100)
-local brdup = nil -- true
+local brdcl = colr(0, 250, 100) -- Dorder color between calc lines
+local brdup = nil -- true -- Update after every pixel calculation
 local sTitl = "Fractal plot 2D"
 
 --- Dinamic parameters and constants
@@ -69,7 +69,7 @@ S:SetArea(-0.75004543209877,-0.74996641975309,0.0031012345679011,0.0031802469135
 S:SetArea(-1.4576971634815,-1.4576968123155,-0.0014340916323731,-0.0014337404663923)
 ]]
 
-local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup):SetControlWX(wx)
+local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm):SetControlWX(wx)
       S:Register("function",
         "mandelbrot", function (Z, C, R) Z:Pow(2); Z:Add(C); R[1] = Z:getAngRad(); end,
         "mandelbar", function (Z, C, R) Z:Pow(2); Z:NegIm(); Z:Add(C) end,
@@ -93,7 +93,7 @@ local S = fract.New("z-plane",W,H,-szRe,szRe,-szIm,szIm,brdcl,brdup):SetControlW
         "wikipedia_r", function (Z, C, i, x, y, R)
           return getColorMap("wikipedia",i * (R[1] and 1+math.floor(math.abs(R[1])) or 1)) end)
 
-S:Draw(sfrac,spale,iTer)
+S:Update(0.1,brdcl,brdup):Draw(sfrac,spale,iTer)
 
 while true do local key = char(); wait(0.1)
   local lx, ly = clck('ld')

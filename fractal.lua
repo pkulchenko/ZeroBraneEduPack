@@ -14,6 +14,7 @@ local string       = string
 local tonumber     = tonumber
 local tostring     = tostring
 local setmetatable = setmetatable
+local isNil        = common.isNil
 local logStatus    = common.logStatus
 local isFunction   = common.isFunction
 local fractal      = {}
@@ -21,23 +22,27 @@ local fractal      = {}
 local mtPlaneZ     = {}
 mtPlaneZ.__type    = "fractal.z-plane"
 mtPlaneZ.__index   = mtPlaneZ
-mtPlaneZ.__regkey  = {["FUNCTION"] = 1, ["PALETTE"] = 2}   
+mtPlaneZ.__regkey  = {
+  ["FUNCTION"] = {ID = 1, Dsc = "Registers a main loop function calculator"},
+  ["PALETTE"]  = {ID = 2, Dsc = "Registers a display color genaration set" }
+}
 mtPlaneZ.__metatable = mtPlaneZ.__type
-local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
+local function newPlaneZ(w,h,minw,maxw,minh,maxh)
   local imgW , imgH  = w   , h
   local minRe, maxRe = minw, maxw
   local minIm, maxIm = minh, maxh
+  local imgSz, miUpdt = imgW * imgH, nil
   local imgCx, imgCy = (imgW / 2), (imgH / 2)
   local reFac = (maxRe-minRe)/(imgW) -- Re units per pixel
   local imFac = (maxIm-minIm)/(imgH) -- Im units per pixel
-  local self, frcPalet, frcNames, conKeys, uZoom, brdCl, bbrdP = {}, {}, {}, {}, 1, clbrd, bBrdP
+  local self, frcPalet, frcNames, conKeys, uZoom = {}, {}, {}, {}, 1
   local uniCr, uniCi = minRe + ((maxRe - minRe) / 2), minIm + ((maxIm - minIm) / 2)
   setmetatable(self,mtPlaneZ)
   function self:GetKey(sKey) return conKeys[tostring(sKey)] end
   function self:SetControlWX(wx)
     conKeys.dirU, conKeys.dirD = (wx["WXK_UP"]   or -1), (wx["WXK_DOWN"]  or -1)
     conKeys.dirL, conKeys.dirR = (wx["WXK_LEFT"] or -1), (wx["WXK_RIGHT"] or -1)
-    conKeys.zooP, conKeys.zooM = (wx["wxEVT_LEFT_DOWN"] or -1), (wx["wxEVT_LEFT_DOWN"] or -1)
+    conKeys.zooP, conKeys.zooM = (wx["wxEVT_LEFT_DOWN"] or -1), (wx["wxEVT_RIGHT_DOWN"] or -1)
     conKeys.resS, conKeys.savE = (wx["WXK_ESCAPE"] or -1), (wx["WXK_TAB"] or -1); return self
   end
   function self:SetArea(vminRe, vmaxRe, vminIm, vmaxIm)
@@ -88,31 +93,50 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
     end; return self
   end
   function self:Register(...) local tArgs = {...}
-    local sMode = tostring(tArgs[1] or "N/A"):upper()
+    local sMode = tostring(tArgs[1] or "N/A")
     local tRKey = mtPlaneZ.__regkey
     for iNdex = 2, #tArgs, 2 do
       local key = tArgs[iNdex]; if(not key) then
         logStatus("PlaneZ.Register: Key missing <"..iNdex..">"); return end
       local foo = tArgs[iNdex + 1]; if(not isFunction(foo)) then
         logStatus("PlaneZ.Register: Non-function under ["..iNdex.."]<"..key..">"); return end
-      if    (tRKey[sMode] == 1) then frcNames[key] = foo
-      elseif(tRKey[sMode] == 2) then frcPalet[key] = foo
-      else logStatus("PlaneZ.Register: Mode <"..sMode.."> skipped for <"..tostring(tArgs[1]).."> !"); return end
+      local tMode = tRKey[sMode:upper()] -- Read given registration mode
+      if(not isNil(tMode)) then local iD = (tonumber(tMode.ID) or 0)
+        if    (iD == 1) then frcNames[key] = foo
+        elseif(iD == 2) then frcPalet[key] = foo
+        else logStatus("PlaneZ.Register: Skip <"..sMode.."> mode under ID ["..iD.."] !") end
+      else logStatus("PlaneZ.Register: Mode mismatch for <"..sMode.."> !")
+        for k, v in pairs(tRKey) do
+          logStatus("PlaneZ.Register: Available: "..("%-10s"):format("["..k.."]")..": "..tostring(v.Dsc or "N/A"))
+        end; return
+      end
     end; return self
   end
+  function self:Update(fUpdt,clbrd,bBrdP)
+    brdCl, bbrdP = clbrd, bBrdP
+    if(fUpdt) then local nUpd = (tonumber(fUpdt) or 0)
+      local nw, nf = math.modf(nUpd) -- Extract fraction
+      if    (nw ~= 0 and nf == 0) then miUpdt = math.abs(nw)
+      elseif(nw == 0 and nf ~= 0) then miUpdt = math.abs(math.ceil(nf * imgSz))
+      elseif(nw ~= 0 and nf ~= 0) then miUpdt = math.abs(math.ceil(fUpdt))
+      elseif(nw == 0 and nf == 0) then miUpdt = nil end
+      logStatus("PlaneZ.Updt: {"..nUpd.."}")
+    end; return self
+  end
+
   function self:Draw(sName,sPalet,maxItr)
     local maxItr = (tonumber(maxItr) or 0); if(maxItr < 1) then
       logStatus("PlaneZ.Draw: Iteration depth #"..tostring(maxItr).." invalid"); return end
     local sName, r, g, b, iDepth, isInside, nrmZ = tostring(sName), 0, 0, 0, 0, true
-    local C, Z, R = complex.getNew(), complex.getNew(), {}
+    local C, Z, R, P = complex.getNew(), complex.getNew(), {}, 0
     logStatus("PlaneZ.Zoom: {"..uZoom.."}")
     logStatus("PlaneZ.Cent: {"..uniCr..","..uniCi.."}")
     logStatus("PlaneZ.Area: {"..minRe..","..maxRe..","..minIm..","..maxIm.."}")
     for y = 0, imgH do -- Row
-      if(brdCl) then pncl(brdCl); line(0,y,imgW,y); updt() end
+      if(brdCl and not miUpdt) then pncl(brdCl); line(0,y,imgW,y); updt() end
       C:setImag(minIm + y*imFac)
       for x = 0, imgW do -- Col
-        if(brdCl and bbrdP) then updt() end
+        if(brdCl and bbrdP and not miUpdt) then updt() end
         C:setReal(minRe + x*reFac); Z:Set(C); isInside = true
         for n = 1, maxItr do
           nrmZ = Z:getNorm2()
@@ -126,10 +150,12 @@ local function newPlaneZ(w,h,minw,maxw,minh,maxh,clbrd,bBrdP)
             logStatus("PlaneZ.Draw: Invalid pallet <"..tostring(sPalet).."> given"); return end
           r, g, b = frcPalet[sPalet](Z, C, iDepth, x, y, R) -- Call the fractal coloring
         end
-        pncl(colr(r, g, b)); pixl(x,y)
+        pncl(colr(r, g, b)); pixl(x,y); P = P + 1
       end
-      updt()
-    end; return self
+      if(miUpdt) then
+        if(P > miUpdt) then updt(); P = 0 end
+      else updt() end
+    end; updt(); return self
   end; return self
 end
 
