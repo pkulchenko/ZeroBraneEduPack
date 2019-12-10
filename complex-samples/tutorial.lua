@@ -141,8 +141,8 @@ logStatus("\nComplex signum "..tostring(a)); tPar = {}
 
 tPar[1] = {
   Name = "Test different flags for chosing the corrct sign function",
-  {Typ="element-wise", Arg={a, true, false, false}, Out="{1,1}"},
-  {Typ="c-sign"      , Arg={a, false, true, false}, Out=  "1"  },
+  {Typ="element-wise", Arg={a, true, false, false}, Out=    "1"},
+  {Typ="c-sign"      , Arg={a, false, true, false}, Out="{1,1}"},
   {Typ="n-sign"      , Arg={a, false, false, true}, Out="{1,1}"},
   {Typ="unit-sign"   , Arg={a}, Out="{0.70710678118655,0.70710678118655}"}
 }
@@ -346,7 +346,7 @@ tPar[12]={
 local z = a:getNew(2,2)
 local n = a:getNew(2,2)
 tPar[13] ={
-  Name = "Exponential "..tostring(a),
+  Name = "Exponential "..tostring(z),
   {Typ="NoArg" , Arg={z,}        ,Foo=z.getExp, Out="{-3.0749323206394,6.7188496974282}"},
   {Typ="Cmpl"  , Arg={z,n}       ,Foo=z.getExp, Out="{-3.0749323206394,6.7188496974282}"},
   {Typ="ImRe"  , Arg={z,2,2}     ,Foo=z.getExp, Out="{-3.0749323206394,6.7188496974282}"},
@@ -358,6 +358,78 @@ tPar[13] ={
   {Typ="BImReS" , Arg={z,2,"2",true}   ,Foo=z.getExp, Out="{7.3890560989306,0}"},
   {Typ="BImSRe" , Arg={z,"2",2,true}   ,Foo=z.getExp, Out="{7.3890560989306,0}"},
   {Typ="BImSReS", Arg={z,"2","2",true} ,Foo=z.getExp, Out="{7.3890560989306,0}"}
+}
+
+tPar[14] ={
+  Name = "Dot product "..tostring(z),
+  {Typ="NoArg" , Arg={z,}        ,Foo=z.getDot, Out="0"},
+  {Typ="Number", Arg={z,2}       ,Foo=z.getDot, Out="4"},
+  {Typ="Cmpl"  , Arg={z,n}       ,Foo=z.getDot, Out="8"},
+  {Typ="ImRe"  , Arg={z,2,2}     ,Foo=z.getDot, Out="8"},
+  {Typ="ImReS" , Arg={z,2,"2"}   ,Foo=z.getDot, Out="8"},
+  {Typ="ImSRe" , Arg={z,"2",2}   ,Foo=z.getDot, Out="8"},
+  {Typ="ImSReS", Arg={z,"2","2"} ,Foo=z.getDot, Out="8"},
+}
+
+tPar[15] ={
+  Name = "Cross product "..tostring(z),
+  {Typ="NoArg" , Arg={z,}        ,Foo=z.getCross, Out="0"},
+  {Typ="Number", Arg={z,2}       ,Foo=z.getCross, Out="-4"},
+  {Typ="Cmpl"  , Arg={z,n}       ,Foo=z.getCross, Out="0"},
+  {Typ="ImRe"  , Arg={z,2,2}     ,Foo=z.getCross, Out="0"},
+  {Typ="ImReS" , Arg={z,2,"2"}   ,Foo=z.getCross, Out="0"},
+  {Typ="ImSRe" , Arg={z,"2",2}   ,Foo=z.getCross, Out="0"},
+  {Typ="ImSReS", Arg={z,"2","2"} ,Foo=z.getCross, Out="0"},
+}
+
+tPar[16] ={
+  Name = "Mid point "..tostring(z),
+  {Typ="NoArg" , Arg={z,}        ,Foo=z.getMid, Out="{1,1}"},
+  {Typ="Number", Arg={z,2}       ,Foo=z.getMid, Out="{2,1}"},
+  {Typ="Cmpl"  , Arg={z,n}       ,Foo=z.getMid, Out="{2,2}"},
+  {Typ="ImRe"  , Arg={z,2,2}     ,Foo=z.getMid, Out="{2,2}"},
+  {Typ="ImReS" , Arg={z,2,"2"}   ,Foo=z.getMid, Out="{2,2}"},
+  {Typ="ImSRe" , Arg={z,"2",2}   ,Foo=z.getMid, Out="{2,2}"},
+  {Typ="ImSReS", Arg={z,"2","2"} ,Foo=z.getMid, Out="{2,2}"},
+}
+
+local z = a:getNew(-2,2)
+tPar[17] ={
+  Name = "Sign "..tostring(z),
+  {Typ="TTT", Arg={z,true ,true ,true },Foo=z.getSign, Out="-1"},
+  {Typ="TTF", Arg={z,true ,true ,false},Foo=z.getSign, Out="-1"},
+  {Typ="TFT", Arg={z,true ,false,true },Foo=z.getSign, Out="-1"},
+  {Typ="TFF", Arg={z,true ,false,false},Foo=z.getSign, Out="-1"},
+  {Typ="FTT", Arg={z,false,true ,true },Foo=z.getSign, Out="{-1,1}"},
+  {Typ="FTF", Arg={z,false,true ,false},Foo=z.getSign, Out="{-1,1}"},
+  {Typ="FFT", Arg={z,false,false,true },Foo=z.getSign, Out="{-1,1}"},
+  {Typ="NNN", Arg={z,}                 ,Foo=z.getSign, Out="{-0.70710678118655,0.70710678118655}"},
+  {Typ="FFF", Arg={z,false,false,false},Foo=z.getSign, Out="{-0.70710678118655,0.70710678118655}"},  
+}
+
+local z = a:getNew(5,math.pi/2)
+tPar[18] ={
+  Name = "Euler presentation "..tostring(z),
+  {Typ="NoArg" , Arg={z,}        ,Foo=z.getEuler, Out="{3.0615158845559e-016,5}"},
+  {Typ="Number", Arg={z,2}       ,Foo=z.getEuler, Out="{2,0}"},
+  {Typ="Cmpl"  , Arg={z,n}       ,Foo=z.getEuler, Out="{-0.83229367309428,1.8185948536514}"},
+  {Typ="ImRe"  , Arg={z,2,2}     ,Foo=z.getEuler, Out="{-0.83229367309428,1.8185948536514}"},
+  {Typ="ImReS" , Arg={z,2,"2"}   ,Foo=z.getEuler, Out="{-0.83229367309428,1.8185948536514}"},
+  {Typ="ImSRe" , Arg={z,"2",2}   ,Foo=z.getEuler, Out="{-0.83229367309428,1.8185948536514}"},
+  {Typ="ImSReS", Arg={z,"2","2"} ,Foo=z.getEuler, Out="{-0.83229367309428,1.8185948536514}"},
+}
+
+local v1 = complex.getNew(5,0)
+local v2 = complex.getNew(-2,0)
+local M = {10, "25"}
+tPar[19] = {
+  Name = "Center of mass ("..table.concat({tostring(v1),M[1],tostring(v2),M[2]},",")..")",
+  {Typ="CMCM", Arg={v1,v1,  M[1] ,  v2, M[2]},Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="NMNM", Arg={v1, 5,  M[1] ,  -2, M[2]},Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="SMSM", Arg={v1,"5", M[1] ,"-2", M[2]},Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="CTT" , Arg={v1,{v1, v2}  ,      M   },Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="NTT" , Arg={v1,{5, -2}   ,      M   },Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="STT" , Arg={v1,{"5","-2"},      M   },Foo=v1.getCenterMass, Out="{0,0}"},
 }
 
 makeTastCase()

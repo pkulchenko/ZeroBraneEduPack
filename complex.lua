@@ -18,14 +18,19 @@ local table           = table
 local complex         = {}
 local metaComplex     = {}
 local metaData        = {}
+
 local isNil           = common.isNil
+local isBool          = common.isBool
+local isType          = common.isType
+local isTable         = common.isTable
+local isNumber        = common.isNumber
+local isString        = common.isString
+local isFunction      = common.isFunction
+
 local getPick         = common.getPick
 local getSign         = common.getSign
 local getRound        = common.getRound
 local getClamp        = common.getClamp
-local isString        = common.isString
-local isType          = common.isType
-local isNumber        = common.isNumber
 local logStatus       = common.logStatus
 local logString       = common.logString
 local getSignNon      = common.getSignNon
@@ -79,7 +84,7 @@ end
 local function getUnpackStack(R, I, E)
   if(complex.isValid(R)) then
     local nR, nI = R:getParts(); return nR, nI, I
-  elseif(isType(type(R), 5)) then
+  elseif(isTable(R)) then
     local nR = (getValueKeys(R, metaData.__kreal) or 0)
     local nI = (getValueKeys(R, metaData.__kimag) or 0); return nR, nI, I
   end; return (tonumber(R) or metaData.__valre), (tonumber(I) or metaData.__valim), E
@@ -179,9 +184,10 @@ function complex.getNew(nRe, nIm)
   end
 
   function self:Exp(R, I, E)
+    local X = metaData.__expvl
     local C, D, U = getUnpackStack(R, I, E)
     if(not R) then C, D = self:getParts() end
-    return self:setReal(metaData.__expvl):setImag(0):Pow(C, D, U)
+    return self:setReal(X):setImag(0):Pow(C, D, U)
   end
 
   return self
@@ -189,8 +195,8 @@ end
 
 function metaComplex:Action(aK,...)
   if(not aK) then return false, self end
-  local fDr = metaData.__cactf[aK]
-  if(not fDr) then return false, self end
+  local fDr = metaData.__cactf[aK]; if(not common.isFunction(fDr)) then
+    return logStatus("complex.Action: No function", false), self end
   return pcall(fDr,self,...)
 end
 
@@ -241,8 +247,8 @@ function metaComplex:setNorm(nN)
   return self:Rsz((tonumber(nN) or 0) / self:getNorm())
 end
 
-function metaComplex:Unit(vR, vI)
-  if(vR or vI) then self:Set(vR, vI) end
+function metaComplex:Unit(R, I)
+  if(R or I) then self:Set(R, I) end
   return self:Rsz(1/self:getNorm())
 end
 
@@ -250,9 +256,9 @@ function metaComplex:getUnit(...)
   return self:getNew():Unit(...)
 end
 
-function metaComplex:getDot(cV)
+function metaComplex:getDot(R, I)
   local sR, sI = self:getParts()
-  local vR, vI = cV:getParts()
+  local vR, vI = getUnpackStack(R, I)
   return (sR*vR + sI*vI)
 end
 
@@ -266,7 +272,7 @@ end
 
 function metaComplex:Mean(...) local tV = {...}
   local fV, cV = tV[1], self:getNew(0,0)
-  if(isType(type(fV), 5)) then tV = tV[1] end
+  if(isTable(fV)) then tV = tV[1] end
   local nV = #tV; if(nV <= 0) then return self end
   for iD = 1, nV do cV:Add(tV[iD]) end
   return self:Set(cV:Rsz(1/nV))
@@ -293,9 +299,9 @@ function metaComplex:getCross(R, I)
 end
 
 function metaComplex:Sign(bE, bC, bN)
-  if(bE) then return self:Apply(getSign) end
-  if(bC) then local R, I = self:getParts()
+  if(bE) then local R, I = self:getParts()
     return ((R ~= 0) and getSign(R) or getSign(I)) end
+  if(bC) then return self:Apply(getSign) end
   if(bN) then return self:Apply(getSignNon) end
   return self:Unit()
 end
@@ -746,7 +752,7 @@ end
 
 function complex.getAreaShoelace(...)
   local tV, nP, nN = {...}, 0, 0
-  if(isType(type(tV[1]), 5)) then tV = tV[1] end
+  if(isTable(tV[1])) then tV = tV[1] end
   local nE = #tV; tV[nE+1] = tV[1]
   for ID = 1, nE do
     local cB, cN = tV[ID], tV[ID+1]
@@ -756,7 +762,7 @@ function complex.getAreaShoelace(...)
 end
 
 function complex.getAreaHeron(...)
-  local tV = {...}; if(isType(type(tV[1]), 5)) then tV = tV[1] end
+  local tV = {...}; if(isTable(tV[1])) then tV = tV[1] end
   local nV = #tV; if(nV < 3) then local sV = tostring(nV or "")
     return logStatus("complex.getAreaHeron: Vertexes lacking <"..sV..">", 0) end
   if(nV > 3) then local sV = tostring(nV or "")
@@ -1216,7 +1222,7 @@ end
 
 function complex.setAction(aK, fD)
   if(not aK) then return logStatus("complex.setAction: Miss-key", false) end
-  if(isType(type(fD), 4)) then metaData.__cactf[aK] = fD; return true end
+  if(isFunction(fD)) then metaData.__cactf[aK] = fD; return true end
   return logStatus("complex.setAction: Non-function", false)
 end
 
@@ -1282,15 +1288,15 @@ end
 
 function complex.convNew(vIn, ...)
   if(complex.isValid(vIn)) then return vIn:getNew() end
-  local tyIn, tArg = type(vIn), {...}
-  if(isType(tyIn, 2)) then return complex.getNew(vIn and 1 or 0,tArg[1] and 1 or 0)
-  elseif(isType(tyIn, 5)) then return tableToComplex(vIn, tArg[1], tArg[2])
-  elseif(isType(tyIn, 1)) then return complex.getNew(vIn,tArg[1])
-  elseif(isType(tyIn, 6)) then return complex.getNew(0,0)
-  elseif(isType(tyIn, 4)) then local bS, vR, vI = pcall(vIn, ...)
+  local tArg = {...}
+  if(isNil(vIn)) then return complex.getNew(0,0)
+  elseif(isNumber(vIn)) then return complex.getNew(vIn,tArg[1])
+  elseif(isTable(vIn)) then return tableToComplex(vIn, tArg[1], tArg[2])
+  elseif(isBool(vIn)) then return complex.getNew(vIn and 1 or 0,tArg[1] and 1 or 0)
+  elseif(isFunction(vIn)) then local bS, vR, vI = pcall(vIn, ...)
     if(not bS) then return logStatus("complex.convNew: Function: "..vR,nil) end
     return complex.convNew(vR, vI) -- Translator function generating converter format
-  elseif(isType(tyIn, 3)) then -- Remove brackets and leave the values
+  elseif(isString(vIn)) then -- Remove brackets and leave the values
     local Str, S, E = stringValidComplex(vIn:gsub("*","")); if(not Str) then
       return logStatus("complex.convNew: Failed to validate <"..tostring(vIn)..">",nil) end
     Str = Str:sub(S, E); E = (E - S + 1); S = 1 -- Refresh string indexes
@@ -1300,7 +1306,7 @@ function complex.convNew(vIn, ...)
     if(I and (I > 0)) then return stringToComplexI(Str, S, E, I)
     else return stringToComplex(Str, S, E, tArg[1]) end
   end
-  return logStatus("complex.convNew: Type <"..tyIn.."> not supported",nil)
+  return logStatus("complex.convNew: Type <"..type(vIn).."> not supported",nil)
 end
 
 local function getUnpackSplit(...)
@@ -1310,7 +1316,7 @@ local function getUnpackSplit(...)
       table.remove(tA, 1); iC = iC + 1
     end; nC = (iC-1)
   else
-    if(isType(type(tA[1]), 5)) then
+    if(isTable(tA[1])) then
       tC = tA[1]; nC = #tA[1]; table.remove(tA, 1); end
   end; return tC, nC, unpack(tA)
 end
@@ -1514,9 +1520,8 @@ function metaComplex:getNinePointCenter(...)
 end
 
 function metaComplex:CenterMass(...)
-  local tV, iD, iS = {...}, 1, 2
-  local mT, vT = type(tV[1]), self:getNew(0,0)
-  if(not isType(mT, 5)) then tV[1] = self:getNew(tV[1]) end
+  local tV, vT, iD, iS = {...}, self:getNew(0,0), 1, 2
+  if(not isTable(tV[1])) then tV[1] = self:getNew(tV[1]) end
   local bC, tM = complex.isValid(tV[1]), {}
   if(not bC) then tV, tM, iS = tV[1], tV[2], 1 end
   while(tV[iD]) do
