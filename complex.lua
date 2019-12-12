@@ -422,7 +422,7 @@ function metaComplex:getNudge(...)
 end
 
 function metaComplex:Bisect(...)
-  local cD = self:getNew():Set(...)
+  local cD = self:getNew(...)
   if(self:getCross(cD) == 0) then
     if(self:getDot(cD) > 0) then return self
     elseif(self:getDot(cD) < 0) then return self:Right()
@@ -447,7 +447,7 @@ function metaComplex:getSin()
 end
 
 function metaComplex:ArcSin()
-  local Z = self:getNew():Pow(2):Neg():Add(1):Pow(0.5)
+  local Z = self:getPow(2):Neg():Add(1):Pow(0.5)
   return self:Mul(0, 1):Add(Z):Log():Mul(0, -1)
 end
 
@@ -467,7 +467,7 @@ function metaComplex:getCos()
 end
 
 function metaComplex:ArcCos()
-  local Z = self:getNew():Pow(2):Neg():Add(1):Pow(0.5)
+  local Z = self:getPow(2):Neg():Add(1):Pow(0.5)
   return self:Add(Z:Mul(0, 1)):Log():Mul(0, -1)
 end
 
@@ -520,7 +520,7 @@ function metaComplex:getSinH()
 end
 
 function metaComplex:ArcSinH()
-  local cZ = self:getNew():Pow(2):Add(1):Pow(0.5)
+  local cZ = self:getPow(2):Add(1):Pow(0.5)
   return self:Add(cZ):Log()
 end
 
@@ -538,8 +538,8 @@ function metaComplex:getCosH()
 end
 
 function metaComplex:ArcCosH()
-  local cP = self:getNew():Add(1):Pow(0.5)
-  local cN = self:getNew():Sub(1):Pow(0.5)
+  local cP = self:getAdd(1):Pow(0.5)
+  local cN = self:getSub(1):Pow(0.5)
   return self:Add(cP:Mul(cN)):Log()
 end
 
@@ -557,9 +557,8 @@ function metaComplex:getTangH()
 end
 
 function metaComplex:ArcTangH()
-  local cP = self:getNew():Add(1):Log()
-  local cN = self:getNew():Neg():Add(1):Log()
-  return self:Set(cP:Sub(cN)):Mul(0.5)
+  local cN = self:getNeg():Add(1):Log()
+  return self:Add(1):Log():Sub(cN):Mul(0.5)
 end
 
 function metaComplex:getArcTangH()
@@ -574,10 +573,9 @@ function metaComplex:getCotgH()
   return self:getNew():CotgH()
 end
 
-function metaComplex:ArcCotgH()
-  local cP = self:getNew():Rev():Add(1):Log()
-  local cN = self:getNew():Rev():Neg():Add(1):Log()
-  return self:Set(cP:Sub(cN)):Mul(0.5)
+function metaComplex:ArcCotgH() self:Rev()
+  local cN = self:getNeg():Add(1):Log()
+  return self:Add(1):Log():Sub(cN):Mul(0.5)
 end
 
 function metaComplex:getArcCotgH()
@@ -684,7 +682,7 @@ function metaComplex:setPolarRad(nN, nA)
 end
 
 function metaComplex:ProjectRay(cO, cD)
-  local cV = self:getNew():Sub(cO)
+  local cV = self:getSub(cO)
   local nK = cV:getCross(cD) / cD:getNorm2()
   return self:Add(cD:getMul(nK, -nK, true):Swap())
 end
@@ -726,7 +724,7 @@ function metaComplex:getMirrorPoint(...)
 end
 
 function metaComplex:MirrorRay(cO, cD)
-  local cP = self:getNew():ProjectRay(cO, cD)
+  local cP = self:getProjectRay(cO, cD)
   return self:Add(cP:Sub(self):Rsz(2))
 end
 
