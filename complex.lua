@@ -423,12 +423,8 @@ end
 
 function metaComplex:Bisect(...)
   local cD = self:getNew(...)
-  if(self:getCross(cD) == 0) then
-    if(self:getDot(cD) > 0) then return self
-    elseif(self:getDot(cD) < 0) then return self:Right()
-    else return logStatus("complex.Bisect: Impossible", self) end
-  end; local nS, nD = self:getNorm(), cD:getNorm()
-  return self:Mul(nD):Add(cD:getMul(nS))
+  local nS, nD = self:getNorm(), cD:getNorm()
+  return self:Mul(nD):Add(cD:Mul(nS))
 end
 
 function metaComplex:getBisect(...)
