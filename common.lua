@@ -360,11 +360,11 @@ function common.stringToNyan(sR)
   return sR:gsub("([Nn])(a)", "%1y%2")
 end
 
-function common.fileRead(pF, sM, bT)
+function common.fileRead(pF, vM, bT)
   if(not pF) then
     return common.logStatus("common.fileGetLine: No file", "", true) end
-  local tMd, nM = metaCommon.__rmod, tonumber(sM)
-  local vMd = common.getPick(nM, nM, tostring(sM or tMd[2][1]))
+  local tMd, nM = metaCommon.__rmod, tonumber(vM)
+  local vMd = common.getPick(nM, nM, tostring(vM or tMd[2][1]))
   if(common.isNil(tMd[vMd]) and not nM) then
     local sEr = "common.fileRead: Mode missed <"..tostring(vMd)..">"; nM = 1
     while(tMd[nM]) do sEr = sEr .."\n"
@@ -382,6 +382,10 @@ end
 
 function common.isEven(nV)
   return ((nV % 2) == 0)
+end
+
+function common.isOdd(nV)
+  return ((nV % 2) ~= 0)
 end
 
 function common.getClamp(nV, nH, nL)
