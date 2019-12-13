@@ -1394,7 +1394,8 @@ function complex.getCatmullRomCurve(...)
     local cA, cB, cC, cD = tV[iD], tV[iD+1], tV[iD+2], tV[iD+3]
     local tS = complex.getCatmullRomCurveSegment(cA, cB, cC, cD, nT, nA)
     for iK = 1, (nT+1) do tC[iC] = tS[iK]; iC = (iC + 1) end
-  end; tC[iC] = tV[nV-1]:getNew(); return tC
+  end; tC[iC] = tV[nV-1]:getNew();
+  table.remove(tV, 1); table.remove(tV); return tC
 end
 
 function complex.getRegularPolygon(nN, cD, cO)

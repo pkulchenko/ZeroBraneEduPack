@@ -36,9 +36,10 @@ local c6 = complex.getNew( 15, 15)
 -- local tC = complex.getCatmullRomCurve({p1, p2, ..., pn}, n-samples, alpha)
 
 local tc = {c1,c2,c3,c4,c5,c6}
-local tC = complex.getCatmullRomCurve(tc,6,0.1)
+local tC = complex.getCatmullRomCurve(tc,10,0.1)
 
--- Uncomment this to actually prin the array contents
+-- Uncomment this to actually print the array contents
+-- common.logTable(tc, "tc", nil, {["complex.complex"]=tostring})
 -- common.logTable(tC, "tC", nil, {["complex.complex"]=tostring})
 
 if(tC) then
