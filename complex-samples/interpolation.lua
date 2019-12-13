@@ -5,8 +5,6 @@ local col = require("colormap")
 local crt = require("chartmap")
 local cmp = require("complex").extend()
 
-local tIntn = {"Neighbour", "Bilinear", "Bicubic"}
-
 -- 1 : Nearest neighbour ( ZoH )
 -- 2 : Bilinear interpolation ( FoH )
 -- 3 : Bicubic interpolation ( SoH )
@@ -25,6 +23,7 @@ local intX  = crt.New("interval","WinX", minX, maxX, 0, W)
 local intY  = crt.New("interval","WinY", minY, maxY, H, 0)
 local scOpe = crt.New("scope"):setBorder(minX, maxX, minY, maxY)
       scOpe:setSize(W, H):setColor(clBlk, clGry):setInterval(intX, intY):setDelta(dX, dY):setSizeVtx(0)
+local tIntn = {"Neighbour", "Bilinear", "Bicubic"}
 
 local tMap = {
   {0  ,  0,180},

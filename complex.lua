@@ -91,11 +91,24 @@ local function getUnpackStack(R, I, E)
 end
 
 function complex.getNew(nRe, nIm)
-  self = {}; setmetatable(self, metaComplex)
-  local Re = tonumber(nRe) or metaData.__valre
-  local Im = tonumber(nIm) or metaData.__valim
+  local Re, Im, self = 0, 0, {}
+  setmetatable(self, metaComplex)
 
-  if(complex.isValid(nRe)) then Re, Im = nRe:getParts() end
+  if(complex.isValid(nRe)) then -- Copy-constructor
+    Re, Im = nRe:getParts()
+  elseif(isBool(nRe)) then -- Boolean to false=0/true=1
+    Re, Im = (nRe and 1 or 0), (nIm and 1 or 0)
+  elseif(isFunction(nRe)) then -- Function with table arguments nIm
+    local bS, nR, nI = pcall(nRe, nIm)
+    if(not bS) then return logStatus("complex.getNew: "..nR, nil) end
+    if(complex.isValid(nR)) then Re, Im = nR:getParts() else
+      Re = tonumber(nR) or metaData.__valre
+      Im = tonumber(nI) or metaData.__valim
+    end -- The function return value is not complex object
+  else -- Number or string conveted to number
+    Re = tonumber(nRe) or metaData.__valre
+    Im = tonumber(nIm) or metaData.__valim
+  end
 
   function self:setReal(R)  Re = (tonumber(R) or metaData.__valre); return self end
   function self:setImag(I)  Im = (tonumber(I) or metaData.__valim); return self end

@@ -30,6 +30,18 @@ local function testTranslate(na, nb)
   return common.convSignString(na)..common.convSignString(nb).."i"
 end
 
+local function testCreateRI(tA)
+  return table.unpack(tA)
+end
+
+local function testCreateCO(tA)
+  return complex.getNew(table.unpack(tA))
+end
+
+local function testCreateNA(tA)
+  return "test"..{}
+end
+
 logStatus("\nThis file is the complex library self test. It will generate error on mismatch.")
 logStatus("Methods starting with upper letter make internal changes and return `self`.")
 logStatus("Methods starting with lower case return something and do not change internals.")
@@ -44,24 +56,49 @@ logStatus("The functionality manages the values internally and converts to numbe
 logStatus("If the conversion to a number cannot be completed a default internal value is used !")
 
 tPar[1] = {
-  Name = "Complex copy-constructor",
+  Name = "Complex copy-constructor method",
   {Typ="nil-value", Arg={a}, Out="{7,7}"},
   {Typ="complex", Arg={complex.getNew(1,-1)}, Out="{1,-1}"},
   {Typ="nil-number1", Arg={a,-7,-7}, Out="{-7,-7}"},
   {Typ="nil-number2", Arg={a,-7,nil}, Out="{-7,0}"},
   {Typ="nil-number3", Arg={a,nil,-7}, Out="{0,-7}"},
-  {Typ="nil-number4", Arg={a,nil,nil}, Out="{7,7}"},
+  {Typ="nil-number4", Arg={a,nil,nil}, Out="{7,7}", Msg="Copy-constructor method is going to return SELF!"},
   {Typ="string1", Arg={a,"7","7"}, Out="{7,7}"},
   {Typ="string2", Arg={a,"","7"}, Out="{0,7}"},
   {Typ="string3", Arg={a,"7",""}, Out="{7,0}"},
   {Typ="string4", Arg={a,"",""}, Out="{0,0}"},
   {Typ="string5", Arg={a,"abc","def"}, Out="{0,0}"},
-  {Typ="bool1", Arg={a,true ,true }, Out="{0,0}", Msg="Copy-constructor is designed for numbers use convNew instead"},
-  {Typ="bool2", Arg={a,false,false}, Out="{7,7}", Msg="Copy-constructor is designed for numbers use convNew instead"},
-  {Typ="bool3", Arg={a,true ,false}, Out="{0,0}", Msg="Copy-constructor is designed for numbers use convNew instead"},
-  {Typ="bool4", Arg={a,false,true }, Out="{0,0}", Msg="Copy-constructor is designed for numbers use convNew instead"}
+  {Typ="bool1", Arg={a,true ,true }, Out="{0,0}", Msg="Copy-constructor method is designed for complex and numbers!"},
+  {Typ="bool2", Arg={a,false,false}, Out="{7,7}", Msg="Copy-constructor method is designed for complex and numbers!"},
+  {Typ="bool3", Arg={a,true ,false}, Out="{0,0}", Msg="Copy-constructor method is designed for complex and numbers!"},
+  {Typ="bool4", Arg={a,false,true }, Out="{0,0}", Msg="Copy-constructor method is designed for complex and numbers!"}
 }
+
 makeTastCase(a.getNew)
+
+tPar[1] = {
+  Name = "Complex copy-constructor",
+  {Typ="nil-value", Arg={a}, Out="{7,7}"},
+  {Typ="complex", Arg={complex.getNew(1,-1)}, Out="{1,-1}"},
+  {Typ="nil-number1", Arg={-7,-7}, Out="{-7,-7}"},
+  {Typ="nil-number2", Arg={-7,nil}, Out="{-7,0}"},
+  {Typ="nil-number3", Arg={nil,-7}, Out="{0,-7}"},
+  {Typ="nil-number4", Arg={nil,nil}, Out="{0,0}", Msg="Copy-constructor converts arguments to numbers!"},
+  {Typ="string1", Arg={"7","7"}, Out="{7,7}"},
+  {Typ="string2", Arg={"","7"}, Out="{0,7}"},
+  {Typ="string3", Arg={"7",""}, Out="{7,0}"},
+  {Typ="string4", Arg={"",""}, Out="{0,0}"},
+  {Typ="string5", Arg={"abc","def"}, Out="{0,0}"},
+  {Typ="function1", Arg={testCreateRI,{7,7}}, Out="{7,7}"},
+  {Typ="function2", Arg={testCreateCO,{7,7}}, Out="{7,7}"},
+  {Typ="functionE", Arg={testCreateNA,{7,7}}, Out="nil"},
+  {Typ="bool1", Arg={true ,true }, Out="{1,1}", Msg="Copy-constructor supports booleans!"},
+  {Typ="bool2", Arg={false,false}, Out="{0,0}", Msg="Copy-constructor supports booleans!"},
+  {Typ="bool3", Arg={true ,false}, Out="{1,0}", Msg="Copy-constructor supports booleans!"},
+  {Typ="bool4", Arg={false,true }, Out="{0,1}", Msg="Copy-constructor supports booleans!"}
+}
+
+makeTastCase(complex.getNew)
 
 --------------------------------------------------------------------------
 logStatus("\nConverting complex from something else "..tostring(a))
@@ -80,24 +117,35 @@ tPar[2] = {
 tPar[3] = {
   Name = "Converting tables to a complex number. Convert form a table with given keys",
   {Typ="table number keys 1,2", Arg={{a:getReal(),a.getImag()}},Out="{7,7}"},
-  {Typ="table predefined keys", Arg={{["r"] = a:getReal(), ["i"]=a.getImag()}},Out="{7,7}"},
+  {Typ="table predefined keys1", Arg={{["Real"] = a:getReal(), ["Imag"]=a.getImag()}},Out="{7,7}"},
+  {Typ="table predefined keys2", Arg={{["real"] = a:getReal(), ["imag"]=a.getImag()}},Out="{7,7}"},
+  {Typ="table predefined keys3", Arg={{["Re"] = a:getReal(), ["Im"]=a.getImag()}},Out="{7,7}"},
+  {Typ="table predefined keys4", Arg={{["re"] = a:getReal(), ["im"]=a.getImag()}},Out="{7,7}"},
+  {Typ="table predefined keys5", Arg={{["R"] = a:getReal(), ["I"]=a.getImag()}},Out="{7,7}"},
+  {Typ="table predefined keys6", Arg={{["r"] = a:getReal(), ["i"]=a.getImag()}},Out="{7,7}"},
+  {Typ="table predefined keys7", Arg={{["X"] = a:getReal(), ["Y"]=a.getImag()}},Out="{7,7}"},
+  {Typ="table predefined keys8", Arg={{["x"] = a:getReal(), ["y"]=a.getImag()}},Out="{7,7}"},
   {Typ="table custom key data", Arg={{["asd"] = a:getReal(), ["fgh"]=a.getImag()},"asd","fgh"},Out="{7,7}"},
 }
 
 tPar[4] = {
   Name = "String with variety of outputs",
   {Typ="string +i", Arg={"7+i7"},Out="{7,7}"},
-  {Typ="string +j", Arg={"7+j7"},Out="{7,7}"},
   {Typ="string i+", Arg={"7+7i"},Out="{7,7}"},
-  {Typ="string j+", Arg={"7+7j"},Out="{7,7}"},
   {Typ="string +I", Arg={"7+I7"},Out="{7,7}"},
-  {Typ="string +J", Arg={"7+J7"},Out="{7,7}"},
   {Typ="string I+", Arg={"7+7I"},Out="{7,7}"},
-  {Typ="string J+", Arg={"7+7J"},Out="{7,7}"}
+  {Typ="string +j", Arg={"7+j7"},Out="{7,7}"},
+  {Typ="string j+", Arg={"7+7j"},Out="{7,7}"},
+  {Typ="string +J", Arg={"7+J7"},Out="{7,7}"},
+  {Typ="string J+", Arg={"7+7J"},Out="{7,7}"},
+  {Typ="string +k", Arg={"7+k7"},Out="{7,7}"},
+  {Typ="string k+", Arg={"7+7k"},Out="{7,7}"},
+  {Typ="string +K", Arg={"7+K7"},Out="{7,7}"},
+  {Typ="string K+", Arg={"7+7K"},Out="{7,7}"}
 }
 
 tPar[5] = {
-  Name = "Table with variety of key storage",
+  Name = "String with variety of key storage",
   {Typ="default format", Arg={"7,7"},Out="{7,7}"},
   {Typ="default format", Arg={"7,-7"},Out="{7,-7}"},
   {Typ="default format", Arg={"-7,7"},Out="{-7,7}"},
@@ -110,9 +158,9 @@ tPar[5] = {
   {Typ="string complex format ||", Arg={"|7,7|"  },Out="{7,7}"},
   {Typ="string complex format <>", Arg={"<7,7>"  },Out="{7,7}"},
   {Typ="string complex format /{}/", Arg={"/{7,7}/"},Out="{7,7}"},
-  {Typ="string", Arg={"+i"},Out="{0,1}"},
-  {Typ="string", Arg={"i" },Out="{0,1}"},
-  {Typ="string", Arg={"-i"},Out="{0,-1}"},
+  {Typ="string direct 1", Arg={"+i"},Out="{0,1}"},
+  {Typ="string direct 2", Arg={"i" },Out="{0,1}"},
+  {Typ="string direct 3", Arg={"-i"},Out="{0,-1}"},
 }
 
 tPar[6] = {
