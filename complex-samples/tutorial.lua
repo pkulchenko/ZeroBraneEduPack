@@ -292,7 +292,7 @@ tPar[5] ={
 local t = a:getNew():Add(complex.convNew("0.5+0.5i"))
 
 tPar[6] ={
-  Name = "Floor "..tostring(a),
+  Name = "Floor "..tostring(t),
   {Typ="Nude"   , Arg={t}              ,Foo=t.getFloor, Out="{7,7}"},
   {Typ="ApplyFF", Arg={t, false, false},Foo=t.getFloor, Out="{7.5,7.5}"},
   {Typ="ApplyFT", Arg={t, false, true },Foo=t.getFloor, Out="{7.5,7}"},
@@ -301,7 +301,7 @@ tPar[6] ={
 }
 
 tPar[7] ={
-  Name = "Ceil "..tostring(a),
+  Name = "Ceil "..tostring(t),
   {Typ="Nude"   , Arg={t}              ,Foo=t.getCeil, Out="{8,8}"},
   {Typ="ApplyFF", Arg={t, false, false},Foo=t.getCeil, Out="{7.5,7.5}"},
   {Typ="ApplyFT", Arg={t, false, true },Foo=t.getCeil, Out="{7.5,8}"},
