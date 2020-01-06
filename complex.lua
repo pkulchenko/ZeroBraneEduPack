@@ -1379,7 +1379,7 @@ end
 function complex.getCatmullRomCurve(...)
   local tV, nV, nT, nA = getUnpackSplit(...)
   nT = math.floor(tonumber(nT) or metaData.__curve); if(nT < 0) then
-    return logStatus("complex.getCatmullRomCurve: Curve samples count invalid <"..tostring(nT)..">",nil) end
+    return logStatus("complex.getCatmullRomCurve: Samples count invalid <"..tostring(nT)..">",nil) end
   if(not (tV[1] and tV[2])) then
     return logStatus("complex.getCatmullRomCurve: Two vertexes are needed",nil) end
   if(not complex.isValid(tV[1])) then
