@@ -380,6 +380,24 @@ function common.fileRead(pF, vM, bT)
   return sLn, bEf
 end
 
+-- https://www.computerhope.com/dirhlp.htm
+function common.fileFind(sN, sA)
+  local tSet, fFoo = metaCommon.__tfil, metaCommon.__ffil
+  local sNam = sN:gsub("/+","/"):gsub("\\+","/")
+  local sExt = common.stringGetExtension(sNam)
+  local sArg = tostring(sA or "")
+  local sTmp, sMch = os.tmpname(), ("%."..sExt.."$")
+  os.execute("dir "..sNam:gsub("/","\\").." "..sArg.." >> "..sTmp)
+  local fT, tO, iD = io.open(sTmp), {}, 0
+  for line in fT:lines() do
+    if(line:find(sMch)) then
+      iD = iD + 1; tO[iD] = {}
+      tO[iD] = line:sub(37, -1)
+  end; end; fT:close()
+  os.execute("del "..sTmp)
+  return tO
+end
+
 function common.isEven(nV)
   return ((nV % 2) == 0)
 end
