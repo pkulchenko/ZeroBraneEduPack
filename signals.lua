@@ -477,7 +477,7 @@ local function newNeuralNet(sName)
   end
   function self:remLayer()
     mtData[mID] = nil; mID = (mID - 1); return self
-  end  
+  end
   function self:Process()
     for iK = 2, (mID-1) do
       local tNL, tPL = mtData[iK], mtData[iK-1]
@@ -504,7 +504,7 @@ local function newNeuralNet(sName)
     return self
   end
   function self:setActive(fA, fD, fO)
-    if(isFunction(fA)) then mfAct = fA 
+    if(isFunction(fA)) then mfAct = fA
       local bS, aR = pcall(mfAct, 0)
       if(not bS) then mfAct = logStatus("newNeuralNet.setActive(dif): Fail "..tostring(aR), self) end
     else mfAct = logStatus("newNeuralNet.setActive(act): Skip", self) end
@@ -632,12 +632,12 @@ local function newControl(nTo, sName)
       else meInt = true end
     end; return self
   end
-  
+
   function self:getString()
     local sInfo = (mType ~= "") and (mType.."-") or mType
     return ("["..sInfo..metaControl.__type.."]["..mName.."]["..tostring(mTo).."]s")
   end
- 
+
   function self:Dump()
     logStatus(self:getString().." Properties:")
     for iD = 1, 5 do logStatus("  User["..iD.."]: "..tostring(mUser[iD])) end
@@ -707,7 +707,7 @@ local function newPlant(nTo, tNum, tDen, sName)
 
   function self:getOutput() return mOut end
   function self:getOrder() return (mDeg - 1) end
-  
+
   function self:Scale()
     local nK = mDen[1]
     for iK = 1, mDeg do
@@ -719,14 +719,14 @@ local function newPlant(nTo, tNum, tDen, sName)
   function self:getString()
     return "["..metaPlant.__type.."]["..mName.."]["..tostring(mTo).."]s^"..self:getOrder()
   end
-  
+
   function self:Dump()
     logStatus(self:getString().." Properties:")
     logStatus("  Numerator  : {"..table.concat(mNum,", ").."}")
     logStatus("  Denominator: {"..table.concat(mDen,", ").."}")
     logStatus("  States     : {"..table.concat(mSta,", ").."}"); return self
   end
-  
+
   function self:getBeta()
     local nOut, iK = 0, mDeg
     while(iK > 0) do
