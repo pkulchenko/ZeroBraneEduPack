@@ -23,10 +23,6 @@ local scOpe = crt.New("scope"):setInterval(intX, intY)
       scOpe:setSize(W, H):setColor(clBlk, clGry):setBorder():setDelta(dX, dY)
 local tF, gnD2R   = {}, (math.pi / 180)
 
-open("Piston internal signals. Sign as (BLUE), sine-wave as (RED) and tiangular as (GREEN)")
-size(W, H); zero(0, 0)
-updt(false) -- disable auto updates
-
 local getAngNorm = com.getAngNorm
 
 local function getSign(nN)
@@ -35,7 +31,7 @@ end
 
 local function getRampNorm(nP)
   local nN = getAngNorm(nP)
-  local nA, nM = -getAngNorm(nN + 180), math.abs(nN)
+  local nA, nM = -getAngNorm(nN + 180), math.abs(nN)  
   return (((nM > 90) and nA or nN) / 90)
 end
 
@@ -66,7 +62,7 @@ tF[5] = {function(R, H)
 end, clMag}
 
 tF[6] = {function(R, H)
-  local nM = 56 -- Change this to control exp slope
+  local nM = 10 -- Change this to control exp slope
   local nR = getRampNorm(R - H)
   local nA = nM * math.abs(nR)
   local nV = 1 - math.exp(-nA)
@@ -75,6 +71,10 @@ tF[6] = {function(R, H)
 end, clYel}
 
 for r = -180, 180 do table.insert(tR, r) end
+
+open("Piston internal signals. Sign (BLUE), sine-wave (RED), tiangular (GREEN), circle (CYAN), root (MAGEN) and exp (YELLOW)")
+size(W, H); zero(0, 0)
+updt(false) -- disable auto updates
 
 for i = 1, #tT do local h = tT[i]; wipe()
   com.tableClear(tO); scOpe:Draw(true, true, true)
