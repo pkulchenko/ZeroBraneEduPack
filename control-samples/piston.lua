@@ -3,7 +3,7 @@ local crt = require("chartmap")
 local col = require("colormap")
 local com = require("common")
 
-local  W,  H = 1800, 400
+local  W,  H = 1200, 400
 local dX, dY = 4, 0.12
 local greyLevel  = 200
 local minX, maxX = -180, 180
@@ -15,6 +15,8 @@ local clRed = colr(col.getColorRedRGB())
 local clBlk = colr(col.getColorBlackRGB())
 local clGrn = colr(col.getColorGreenRGB())
 local clYel = colr(col.getColorYellowRGB())
+local clCya = colr(col.getColorCyanRGB())
+local clMag = colr(col.getColorMagenRGB())
 local clGry = colr(greyLevel,greyLevel,greyLevel)
 local clMgn = colr(col.getColorMagenRGB())
 local scOpe = crt.New("scope"):setInterval(intX, intY)
@@ -56,17 +58,31 @@ tF[4] = {function(R, H)
   local nP = getAngNorm(R - H)
   local nN = getRampNorm(R - H + 90)
   return getSign(nP) * math.sqrt(1 - nN^2)
+end, clCya}
+
+tF[5] = {function(R, H)
+  local nP = getRampNorm(R - H)
+  return (getSign(nP) * math.abs(nP)^0.5)
+end, clMag}
+
+tF[6] = {function(R, H)
+  local nM = 56 -- Change this to control exp slope
+  local nR = getRampNorm(R - H)
+  local nA = nM * math.abs(nR)
+  local nV = 1 - math.exp(-nA)
+  local nK = 1 - math.exp(-nM)
+  return nV * getSign(nR) / nK
 end, clYel}
 
 for r = -180, 180 do table.insert(tR, r) end
 
 for i = 1, #tT do local h = tT[i]; wipe()
-  text("Testing header ID "..("%3d"):format(i).." origin at "..("%3d"):format(h),0,0,0)
   com.tableClear(tO); scOpe:Draw(true, true, true)
   for k = 1, #tF do
     for j = 1, #tR do tO[j] = tF[k][1](tR[j], tT[i]) end
     scOpe:setColorDir(tF[k][2]):drawGraph(tO, tR)
   end
+  text("Testing header ID "..("%3d"):format(i).." origin at "..("%3d"):format(h),0,0,0)
   updt(); wait(0.2)
 end
 
