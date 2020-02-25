@@ -72,7 +72,7 @@ end, clYel}
 
 for r = -180, 180 do table.insert(tR, r) end
 
-open("Piston internal signals. Sign (BLUE), sine-wave (RED), tiangular (GREEN), circle (CYAN), root (MAGEN) and exp (YELLOW)")
+open("Piston internal signals. Sign (BLUE), sine-wave (RED), triangular (GREEN), circle (CYAN), root (MAGEN) and exp (YELLOW)")
 size(W, H); zero(0, 0)
 updt(false) -- disable auto updates
 
