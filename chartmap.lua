@@ -295,14 +295,14 @@ local function newScope(sName)
   function self:drawComplexLine(xyS, xyE, bTx)
     return self:drawComplex(xyS, xyE, bTx, mclOrg, mclOrg)
   end
-  function self:drawComplexText(xyP, sTx, bSp, vA)
+  function self:drawComplexText(xyP, sTx, vA, bSp)
     local sMs, cP = tostring(sTx), xyP:getRound(0.001)
     local px, py = cP:getParts()
     local nA = xyP:getSub(0,0):getAngDeg()
-    nA = getPick(vA, tonumber(vA), nA)
+    nA = (vA and (tonumber(vA) or 0) or nA)
     px = moiX:Convert(px):getValue()
     py = moiY:Convert(py):getValue()
-    sMs = sMs..getPick(bSp, tostring(cP), "")
+    sMs = sMs..tostring(bSp and cP or "")
     text(sMs,nA,px,py); return self
   end
   function self:drawComplexPoint(xyP, clNew, bTx)

@@ -50,7 +50,7 @@ if(tC) then
 
   scOpe:Draw(true, true, true):setSizeVtx(5)
   for i = 1, #tc do
-    scOpe:drawComplexText(tc[i], "   {"..i.."}", true)
+    scOpe:drawComplexText(tc[i], "   {"..i.."}", nil, true)
     scOpe:drawComplexPoint(tc[i], clMgn)
   end
 

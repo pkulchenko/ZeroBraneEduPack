@@ -30,9 +30,8 @@ local function getSign(nN)
 end
 
 local function getRampNorm(nP)
-  local nN = getAngNorm(nP)
-  local nA, nM = -getAngNorm(nN + 180), math.abs(nN)  
-  return (((nM > 90) and nA or nN) / 90)
+  local nF, nB = getAngNorm(nP), -getAngNorm(nP + 180)
+  return (((math.abs(nF) > 90) and nB or nF) / 90)
 end
 
 local tT, tR, tO = {0, 45,90,135,180,-180,-135,-90,-45,-0}, {}, {}
