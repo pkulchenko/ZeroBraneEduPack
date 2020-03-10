@@ -530,7 +530,8 @@ local tCall = {
   {"ArgSineH        : ","getArcSinH    ","{2.6539273355384,0.14051690607218}    "},
   {"ArgCosineH      : ","getArcCosH    ","{2.6443267863946,0.14331753305457}    "},
   {"ArgTangentH     : ","getArcTangH   ","{0.14086733931285,1.550399485361}     "},
-  {"ArgCotangentH   : ","getArcCotgH   ","{0.14086733931285,-0.020396841433933} "}
+  {"ArgCotangentH   : ","getArcCotgH   ","{0.14086733931285,-0.020396841433933} "},
+  {"GammaFunction   : ","getGamma      ","{-199.57131510682,628.3259652977}     "}
 }
 
 local b = complex.getNew(7,1)

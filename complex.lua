@@ -628,6 +628,18 @@ function metaComplex:getCeil(...)
   return self:getNew():Ceil(...)
 end
 
+function metaComplex:Gamma(...)
+  local cS = self:getNew(...)
+  local nQ = math.sqrt(2 * math.pi)
+  local cE = cS:getNeg():Exp():Mul(nQ)
+  local cP = cS:getPow(cS:getAdd(0.5))
+  return self:Set(cE):Mul(cP):Div(cS)
+end
+
+function metaComplex:getGamma(...)
+  return self:getNew():Gamma(...)
+end
+
 function metaComplex:getAngRad()
   local R, I = self:getParts(); return math.atan2(I, R) end
 
@@ -795,6 +807,12 @@ end
 
 function metaComplex:isAmongPoint(vR, vI)
   return (self:getSub(vR, vI):getNorm() < metaData.__margn)
+end
+
+function metaComplex:isAmongHankel()
+  local bP = self:isAmongPoint(0, 0)
+  local nA = math.abs(self:getReal())
+  return (nA < metaData.__margn or bP)
 end
 
 function metaComplex:Zero()
