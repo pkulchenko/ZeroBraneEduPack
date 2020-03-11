@@ -44,7 +44,7 @@ metaData.__valim = 0
 metaData.__cactf = {}
 metaData.__ipmtx = {}
 metaData.__valns = "X"
-metaData.__curve = 100
+metaData.__numsp = 100
 metaData.__fulan = 360
 metaData.__margn = 1e-10
 metaData.__nanum = (0/0)
@@ -628,8 +628,8 @@ function metaComplex:getCeil(...)
   return self:getNew():Ceil(...)
 end
 
-function metaComplex:Gamma(...)
-  local cS = self:getNew(...)
+function metaComplex:Gamma()
+  local cS = self:getNew()
   local nQ = math.sqrt(2 * math.pi)
   local cE = cS:getNeg():Exp():Mul(nQ)
   local cP = cS:getPow(cS:getAdd(0.5))
@@ -638,6 +638,31 @@ end
 
 function metaComplex:getGamma(...)
   return self:getNew():Gamma(...)
+end
+
+function metaComplex:ZetaRiemann()
+  local cS, nS = self:getNew(), metaData.__numsp
+  local cN = self:getNew(); self:Set(1)
+  for ID = 2, nS do cN:Set(ID)
+    self:Add(cN:Pow(cS):Rev())
+  end; return self
+end
+
+function metaComplex:getZetaRiemann(...)
+  return self:getNew():ZetaRiemann(...)
+end
+
+function metaComplex:ZetaHurwitz(nR, nI)
+  local nS = metaData.__numsp + 1
+  local cS, cN = self:getNew(), self:getNew()
+  self:Set(nR, nI):Pow(cS):Rev()
+  for ID = 2, nS do cN:Set(ID-1)
+    self:Add(cN:Add(nR, nI):Pow(cS):Rev())
+  end; return self
+end
+
+function metaComplex:getZetaHurwitz(...)
+  return self:getNew():ZetaHurwitz(...)
 end
 
 function metaComplex:getAngRad()
@@ -1356,7 +1381,7 @@ end
 
 function complex.getBezierCurve(...)
   local tV, nV, nT = getUnpackSplit(...)
-  nT = math.floor(tonumber(nT) or metaData.__curve); if(nT < 2) then
+  nT = math.floor(tonumber(nT) or metaData.__numsp); if(nT < 2) then
     return logStatus("complex.getBezierCurve: Samples <"..nT.."> less than two",nil) end
   if(not (tV[1] and tV[2])) then
     return logStatus("complex.getBezierCurve: Two vertexes are needed",nil) end
@@ -1396,7 +1421,7 @@ end
 
 function complex.getCatmullRomCurve(...)
   local tV, nV, nT, nA = getUnpackSplit(...)
-  nT = math.floor(tonumber(nT) or metaData.__curve); if(nT < 0) then
+  nT = math.floor(tonumber(nT) or metaData.__numsp); if(nT < 0) then
     return logStatus("complex.getCatmullRomCurve: Samples count invalid <"..tostring(nT)..">",nil) end
   if(not (tV[1] and tV[2])) then
     return logStatus("complex.getCatmullRomCurve: Two vertexes are needed",nil) end

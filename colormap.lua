@@ -155,7 +155,8 @@ function colormap.getColorMapGradient(tMap, nStp)
     for iK = 1, nS do iP = iP + 1; tPal[iP] = {}
       tPal[iP][1] = colormap.getClamp(tPal[iP-1][1]+dr)
       tPal[iP][2] = colormap.getClamp(tPal[iP-1][2]+dg)
-      tPal[iP][3] = colormap.getClamp(tPal[iP-1][3]+db) end
+      tPal[iP][3] = colormap.getClamp(tPal[iP-1][3]+db)
+    end
   end; iP = iP + 1; tPal[iP] = {}
   tPal[iP][1] = colormap.getClamp(tMap[nT][1])
   tPal[iP][2] = colormap.getClamp(tMap[nT][2])
@@ -204,6 +205,36 @@ function colormap.getColorRegion(iDepth, maxDepth, iRegions)
     local uppBorder = arRegions[regid].brd
     if(iDepth >= lowBorder and iDepth < uppBorder) then return arRegions[regid].foo(iDepth) end
     lowBorder = arRegions[regid].brd
+  end
+end
+
+function colormap.getColorComplexDomain(fF, vC, nA)
+  local bS, vF = pcall(fF, vC, vC:getNew(0, 1))
+  if(bS) then local mT = getmetatable(vF).__type
+    if(mT == "complex.complex") then -- Actual complex type
+      local nM, nP = vF:getPolar() -- Read norm and phase
+      local hslH = math.deg(nP) -- HSL needs degrees
+      local hslM = ((hslH < 0) and (hslH + 360) or hslH)
+      local hslS, hslL = 1, (1 - nA ^ nM) -- Interpolate SL
+      local r, g, b = colormap.getColorHSL(hslM, hslS, hslL)
+      if(vF:isNan()) then local nX, nY = vC:getParts()
+        local vC1, vC2 = vC:getNew(nX-1, nY), vC:getNew(nX+1, nY)
+        local vC3, vC4 = vC:getNew(nX, nY-1), vC:getNew(nX, nY+1)
+        local r1, g1, b1 = colormap.getColorComplexDomain(fF, vC1, nA)
+        local r2, g2, b2 = colormap.getColorComplexDomain(fF, vC2, nA)
+        local r3, g3, b3 = colormap.getColorComplexDomain(fF, vC3, nA)
+        local r4, g4, b4 = colormap.getColorComplexDomain(fF, vC4, nA)
+        r = (r1 + r2 + r3 + r4) / 4 -- Interpolate red as up-down-left-right
+        g = (g1 + g2 + g3 + g4) / 4 -- Interpolate green as up-down-left-right
+        b = (b1 + b2 + b3 + b4) / 4 -- Interpolate blue as up-down-left-right
+      end; return r, g, b, true
+    else
+      logStatus("colormap.getColorComplexDomain: Complex: "..tostring(vF))
+      return 0, 0, 0, false -- If our complex is crap, return black
+    end
+  else
+    logStatus("colormap.getColorComplexDomain: Error: "..tostring(vF))
+    return 0, 0, 0, false -- If our function fails, return black
   end
 end
 
