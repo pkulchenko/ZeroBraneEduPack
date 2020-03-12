@@ -20,7 +20,6 @@ local clHash    = {
 local logStatus       = common.logStatus
 local getValueKeys    = common.getValueKeys
 local stringExplode   = common.stringExplode
-local getClamp        = common.getClamp
 local getRound        = common.getRound
 local isNil           = common.isNil
 
@@ -58,7 +57,7 @@ function colormap.getColorRotateRigh(r, g, b) return b, r, g end
 function colormap.getClamp(vN)
   local nN = tonumber(vN); if(not nN) then
     return logStatus("colormap.getClamp: NAN {"..type(nN).."}<"..tostring(nN)..">") end
-  return getClamp(getRound(nN, 1), clClamp[1], clClamp[2])
+  return common.getClamp(getRound(nN, 1), clClamp[1], clClamp[2])
 end
 
 -- H [0,360], S [0,1], V [0,1]
@@ -212,21 +211,23 @@ function colormap.getColorComplexDomain(fF, vC, nA)
   local bS, vF = pcall(fF, vC, vC:getNew(0, 1))
   if(bS) then local mT = getmetatable(vF).__type
     if(mT == "complex.complex") then -- Actual complex type
+      local nA = common.getClamp(tonumber(nA) or 0.5, 0, 1)
       local nM, nP = vF:getPolar() -- Read norm and phase
       local hslH = math.deg(nP) -- HSL needs degrees
-      local hslM = ((hslH < 0) and (hslH + 360) or hslH)
+            hslH = ((hslH < 0) and (hslH + 360) or hslH)
       local hslS, hslL = 1, (1 - nA ^ nM) -- Interpolate SL
-      local r, g, b = colormap.getColorHSL(hslM, hslS, hslL)
-      if(vF:isNan()) then local nX, nY = vC:getParts()
-        local vC1, vC2 = vC:getNew(nX-1, nY), vC:getNew(nX+1, nY)
-        local vC3, vC4 = vC:getNew(nX, nY-1), vC:getNew(nX, nY+1)
+      local r, g, b = colormap.getColorHSL(hslH, hslS, hslL)
+      if(vF:isNanAny()) then -- Interpolate RGB as up-down-left-right
+        local nD, nX, nY = ((nA / 1000) ^ 2), vC:getParts()
+        local vC1, vC2 = vC:getNew(nX-nD, nY), vC:getNew(nX+nD, nY)
+        local vC3, vC4 = vC:getNew(nX, nY-nD), vC:getNew(nX, nY+nD)
         local r1, g1, b1 = colormap.getColorComplexDomain(fF, vC1, nA)
         local r2, g2, b2 = colormap.getColorComplexDomain(fF, vC2, nA)
         local r3, g3, b3 = colormap.getColorComplexDomain(fF, vC3, nA)
         local r4, g4, b4 = colormap.getColorComplexDomain(fF, vC4, nA)
-        r = (r1 + r2 + r3 + r4) / 4 -- Interpolate red as up-down-left-right
-        g = (g1 + g2 + g3 + g4) / 4 -- Interpolate green as up-down-left-right
-        b = (b1 + b2 + b3 + b4) / 4 -- Interpolate blue as up-down-left-right
+        r = math.floor((r1 + r2 + r3 + r4) / 4) -- Average red   (R)
+        g = math.floor((g1 + g2 + g3 + g4) / 4) -- Average green (G)
+        b = math.floor((b1 + b2 + b3 + b4) / 4) -- Average blue  (B)
       end; return r, g, b, true
     else
       logStatus("colormap.getColorComplexDomain: Complex: "..tostring(vF))

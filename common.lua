@@ -1024,9 +1024,24 @@ function common.getPermute(...)
   end; return tO
 end
 
+function common.getChoose(nN, nK)
+  if(nN < 0 or nK < 0) then return 0 end
+  if(nN == nK or nK == 0) then return 1 end
+  local nE = common.getChoose(nN - 1, nK - 1)
+  return (nN / nK) * nE
+end
+
 function common.getAngNorm(nA)
   local nA = (tonumber(nA) or 0)
   return ((nA + 180) % 360 - 180)
+end
+
+function common.getCompileString(sS)
+  local fF, sE = compileString(sS); if(not fF) then
+    return common.logStatus("common.getCompile[1]: "..tostring(sE)) end
+  local bS , fC = pcall(fF); if(not bS) then
+    return common.logStatus("common.getCompile[2]: "..tostring(fC)) end
+  return fC -- Return the created function from string
 end
 
 function common.getApprox(a,b,n)

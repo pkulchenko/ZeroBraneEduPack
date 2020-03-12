@@ -33,6 +33,7 @@ local getRound        = common.getRound
 local getClamp        = common.getClamp
 local logStatus       = common.logStatus
 local logString       = common.logString
+local getChoose       = common.getChoose
 local getSignNon      = common.getSignNon
 local getValueKeys    = common.getValueKeys
 local randomGetNumber = common.randomGetNumber
@@ -628,6 +629,7 @@ function metaComplex:getCeil(...)
   return self:getNew():Ceil(...)
 end
 
+-- https://en.wikipedia.org/wiki/Gamma_function
 function metaComplex:Gamma()
   local cS = self:getNew()
   local nQ = math.sqrt(2 * math.pi)
@@ -640,18 +642,28 @@ function metaComplex:getGamma(...)
   return self:getNew():Gamma(...)
 end
 
+-- https://en.wikipedia.org/wiki/Riemann_zeta_function
 function metaComplex:ZetaRiemann()
-  local cS, nS = self:getNew(), metaData.__numsp
-  local cN = self:getNew(); self:Set(1)
-  for ID = 2, nS do cN:Set(ID)
-    self:Add(cN:Pow(cS):Rev())
-  end; return self
+  local cP = self:getNew(1, 0):Sub(self)
+  local cM = self:getNew(2, 0):Pow(cP):Neg():Add(1):Rev()
+  local cS, nS = self:getNeg(), metaData.__numsp
+  local cV = self:getNew(); self:Set(0,0)
+  local cN, cK = self:getNew(), self:getNew()
+  for iN = 0, nS do cN:Set(iN); cV:Set(0,0)
+    for iK = 0, iN do cK:Set(iK)
+      local nK = (-1)^iK * getChoose(iN, iK)
+      cP:Set(iK + 1, 0):Pow(cS):Mul(nK); cV:Add(cP)
+    end
+    cV:Mul(1 / (2 ^ (iN + 1))); self:Add(cV)
+  end
+  return self:Mul(cM)
 end
 
 function metaComplex:getZetaRiemann(...)
   return self:getNew():ZetaRiemann(...)
 end
 
+-- https://en.wikipedia.org/wiki/Hurwitz_zeta_function
 function metaComplex:ZetaHurwitz(nR, nI)
   local nS = metaData.__numsp + 1
   local cS, cN = self:getNew(), self:getNew()
@@ -877,8 +889,12 @@ function metaComplex:isInfImag(bI)
   return (nI == mH)
 end
 
-function metaComplex:isInf(bR, bI)
+function metaComplex:isInfBoth(bR, bI)
   return (self:isInfReal(bR) and self:isInfImag(bI))
+end
+
+function metaComplex:isInfAny(bR, bI)
+  return (self:isInfReal(bR) or self:isInfImag(bI))
 end
 
 function metaComplex:Inf(bR, bI)
@@ -900,8 +916,12 @@ function metaComplex:isNanImag()
   local nI = self:getImag(); return (nI ~= nI)
 end
 
-function metaComplex:isNan()
+function metaComplex:isNanBoth()
   return (self:isNanReal() and self:isNanImag())
+end
+
+function metaComplex:isNanAny()
+  return (self:isNanReal() or self:isNanImag())
 end
 
 function metaComplex:Nan(bR, bI)
