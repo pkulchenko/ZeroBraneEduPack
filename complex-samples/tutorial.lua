@@ -393,7 +393,8 @@ tPar[12]={
   {Typ="InfRe    ", Arg={n,false},Foo=n.isInfReal   , Out="true"},
   {Typ="InfIm    ", Arg={n,true} ,Foo=n.isInfImag   , Out="true"},
   {Typ="InfIm    ", Arg={n,false},Foo=n.isInfImag   , Out="false"},
-  {Typ="Nan      ", Arg={g},Foo=g.isNanBoth         , Out="true"},
+  {Typ="NanBoth  ", Arg={g},Foo=g.isNanBoth         , Out="true"},
+  {Typ="NanAny   ", Arg={g},Foo=g.isNanAny          , Out="true"},
   {Typ="NanRe    ", Arg={g},Foo=g.isNanReal         , Out="true"},
   {Typ="NanIm    ", Arg={g},Foo=g.isNanImag         , Out="true"}
 }
@@ -538,8 +539,7 @@ local tCall = {
   {"ArgCosineH      : ","getArcCosH    ","{2.6443267863946,0.14331753305457}    "},
   {"ArgTangentH     : ","getArcTangH   ","{0.14086733931285,1.550399485361}     "},
   {"ArgCotangentH   : ","getArcCotgH   ","{0.14086733931285,-0.020396841433933} "},
-  {"GammaFunction   : ","getGamma      ","{-200.44191447792,635.44349270069}    "},
-  {"ZetaRiemann     : ","getZeta       ","{1.0062266049583,-0.0054772343696683} "}
+  {"GammaFunction   : ","getGamma      ","{-200.44191447792,635.44349270069}    "}
 }
 
 local b = complex.getNew(7,1)
