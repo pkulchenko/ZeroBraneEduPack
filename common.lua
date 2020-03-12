@@ -1044,6 +1044,11 @@ function common.getCompileString(sS)
   return fC -- Return the created function from string
 end
 
+function common.getEulerGamma(nN) local nO = 0
+  for iN = 1, nN do nO = nO + (1 / iN) end
+  return (nO - math.log(nN))
+end
+
 function common.getApprox(a,b,n)
   local so, nn = "", (tonumber(n) or 0)
   local na, nb = tonumber(a), tonumber(b)

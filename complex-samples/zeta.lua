@@ -6,24 +6,19 @@ local crt = require("chartmap")
 local cmp = require("complex").extend()
 
 local W,  H = 200, 200
-local greyLevel  = 200
-local gnDrwStep = 0.002
-local minX, maxX = -10, 10
+local minX, maxX = -20, 20
 local minY, maxY = -20, 20
-local dX, dY, cT, nAlp = 1, 1, cmp.getNew(), 0.6
-local clRed = colr(col.getColorRedRGB())
-local clBlk = colr(col.getColorBlackRGB())
-local clGry = colr(col.getColorPadRGB(greyLevel))
+local dX, dY, cT, nAlp = 1, 1, cmp.getNew(), 0.5
 local intX  = crt.New("interval","WinX", minX, maxX, 0, W)
 local intY  = crt.New("interval","WinY", minY, maxY, H, 0)
-local scOpe = crt.New("scope"):setBorder(minX, maxX, minY, maxY)
-      scOpe:setSize(W, H):setColor(clBlk, clGry):setInterval(intX, intY):setDelta(dX, dY):setSizeVtx(0)
-      
+
 local fFoo = function(c, i)
-  return c:getZetaRiemann()
+  return c:getZeta()
 end
 
-open("Complex gamma function")
+cmp.setIterations(20)
+
+open("Complex zeta function")
 size(W, H)
 zero(0, 0)
 updt(false) -- disable auto updates
@@ -38,8 +33,6 @@ for j = 0, H do
   end
   updt()
 end
-
--- scOpe:Draw(true, true, true); updt()
 
 com.logStatus("Elapsed: "..com.getToc())
 

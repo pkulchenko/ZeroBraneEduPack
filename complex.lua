@@ -57,11 +57,18 @@ metaData.__fulpi = (2 * metaData.__getpi)
 metaData.__bords = {"{([<|/","})]>|/"}
 metaData.__ssyms = {"i", "I", "j", "J", "k", "K"}
 metaData.__radeg = (180 / metaData.__getpi)
+metaData.__eulgm = 0.5772156649015328606065120900824024310421
 metaData.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
 metaData.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
 
 function complex.extend()
   metaData.__extlb = require("extensions").complex; return complex
+end
+
+function complex.setIterations(vN)
+  local nN = math.floor(tonumber(vN) or 100)
+  if(nN <= 0) then nN = 100 end
+  metaData.__numsp = nN
 end
 
 function complex.isValid(cNum)
@@ -631,11 +638,16 @@ end
 
 -- https://en.wikipedia.org/wiki/Gamma_function
 function metaComplex:Gamma()
-  local cS = self:getNew()
-  local nQ = math.sqrt(2 * math.pi)
-  local cE = cS:getNeg():Exp():Mul(nQ)
-  local cP = cS:getPow(cS:getAdd(0.5))
-  return self:Set(cE):Mul(cP):Div(cS)
+  local nG = metaData.__eulgm
+  local nN = metaData.__numsp
+  local cS = self:getNew(); self:Set(1,0)
+  local cK = self:getMul(nG):Exp():Mul(self)
+  for iN = 1, nN do
+    local cB = cS:getDiv(iN):Add(1)
+    local cN = cS:getNeg():Div(iN):Exp()
+    self:Mul(cB:Mul(cN))
+  end
+  return self:Mul(cK):Rev()
 end
 
 function metaComplex:getGamma(...)
@@ -643,7 +655,7 @@ function metaComplex:getGamma(...)
 end
 
 -- https://en.wikipedia.org/wiki/Riemann_zeta_function
-function metaComplex:ZetaRiemann()
+function metaComplex:Zeta()
   local cP = self:getNew(1, 0):Sub(self)
   local cM = self:getNew(2, 0):Pow(cP):Neg():Add(1):Rev()
   local cS, nS = self:getNeg(), metaData.__numsp
@@ -659,22 +671,8 @@ function metaComplex:ZetaRiemann()
   return self:Mul(cM)
 end
 
-function metaComplex:getZetaRiemann(...)
-  return self:getNew():ZetaRiemann(...)
-end
-
--- https://en.wikipedia.org/wiki/Hurwitz_zeta_function
-function metaComplex:ZetaHurwitz(nR, nI)
-  local nS = metaData.__numsp + 1
-  local cS, cN = self:getNew(), self:getNew()
-  self:Set(nR, nI):Pow(cS):Rev()
-  for ID = 2, nS do cN:Set(ID-1)
-    self:Add(cN:Add(nR, nI):Pow(cS):Rev())
-  end; return self
-end
-
-function metaComplex:getZetaHurwitz(...)
-  return self:getNew():ZetaHurwitz(...)
+function metaComplex:getZeta(...)
+  return self:getNew():Zeta(...)
 end
 
 function metaComplex:getAngRad()
