@@ -1037,7 +1037,7 @@ function common.getAngNorm(nA)
 end
 
 function common.getCompileString(sS)
-  local fF, sE = compileString(sS); if(not fF) then
+  local fF, sE = commonCompileString(sS); if(not fF) then
     return common.logStatus("common.getCompile[1]: "..tostring(sE)) end
   local bS , fC = pcall(fF); if(not bS) then
     return common.logStatus("common.getCompile[2]: "..tostring(fC)) end

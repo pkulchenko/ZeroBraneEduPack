@@ -7,6 +7,8 @@ local logStatus = common.logStatus
 
 io.stdout:setvbuf("no")
 
+complex.setIterations(20000)
+
 local tPar = {}
 local function makeTastCase(fCompl)
   for ID = 1, #tPar do
@@ -376,17 +378,22 @@ tPar[12]={
   {Typ="Zero(f,t)", Arg={z,false,true },Foo=z.isZero, Out="true"},
   {Typ="ZeroRe   ", Arg={z},Foo=z.isZeroReal        , Out="true"},
   {Typ="ZeroIm   ", Arg={z},Foo=z.isZeroImag        , Out="true"},
-  {Typ="Inf(xx)  ", Arg={n}             ,Foo=n.isInf, Out="false"},
-  {Typ="Inf(++)  ", Arg={n,false, false},Foo=n.isInf, Out="false"},
-  {Typ="Inf(--)  ", Arg={n,true , true },Foo=n.isInf, Out="false"},
-  {Typ="Inf(+-)  ", Arg={n,false, true },Foo=n.isInf, Out="true"},
-  {Typ="Inf(-+)  ", Arg={n,true , false},Foo=n.isInf, Out="false"},
+  {Typ="InfB(xx)  ", Arg={n}             ,Foo=n.isInfBoth, Out="false"},
+  {Typ="InfB(++)  ", Arg={n,false, false},Foo=n.isInfBoth, Out="false"},
+  {Typ="InfB(--)  ", Arg={n,true , true },Foo=n.isInfBoth, Out="false"},
+  {Typ="InfB(+-)  ", Arg={n,false, true },Foo=n.isInfBoth, Out="true"},
+  {Typ="InfB(-+)  ", Arg={n,true , false},Foo=n.isInfBoth, Out="false"},
+  {Typ="InfA(xx)  ", Arg={n}             ,Foo=n.isInfAny, Out="true"},
+  {Typ="InfA(++)  ", Arg={n,false, false},Foo=n.isInfAny, Out="true"},
+  {Typ="InfA(--)  ", Arg={n,true , true },Foo=n.isInfAny, Out="true"},
+  {Typ="InfA(+-)  ", Arg={n,false, true },Foo=n.isInfAny, Out="true"},
+  {Typ="InfA(-+)  ", Arg={n,true , false},Foo=n.isInfAny, Out="false"},
   {Typ="InfRe    ", Arg={n},Foo=n.isInfReal         , Out="true"},
   {Typ="InfRe    ", Arg={n,true} ,Foo=n.isInfReal   , Out="false"},
   {Typ="InfRe    ", Arg={n,false},Foo=n.isInfReal   , Out="true"},
   {Typ="InfIm    ", Arg={n,true} ,Foo=n.isInfImag   , Out="true"},
   {Typ="InfIm    ", Arg={n,false},Foo=n.isInfImag   , Out="false"},
-  {Typ="Nan      ", Arg={g},Foo=g.isNan             , Out="true"},
+  {Typ="Nan      ", Arg={g},Foo=g.isNanBoth         , Out="true"},
   {Typ="NanRe    ", Arg={g},Foo=g.isNanReal         , Out="true"},
   {Typ="NanIm    ", Arg={g},Foo=g.isNanImag         , Out="true"}
 }
@@ -531,8 +538,8 @@ local tCall = {
   {"ArgCosineH      : ","getArcCosH    ","{2.6443267863946,0.14331753305457}    "},
   {"ArgTangentH     : ","getArcTangH   ","{0.14086733931285,1.550399485361}     "},
   {"ArgCotangentH   : ","getArcCotgH   ","{0.14086733931285,-0.020396841433933} "},
-  {"GammaFunction   : ","getGamma      ","{-199.57131510682,628.3259652977}     "},
-  {"ZetaRiemann     : ","getZetaRiemann","{1.0062266049583,-0.0054772343696683} "}
+  {"GammaFunction   : ","getGamma      ","{-200.44191447792,635.44349270069}    "},
+  {"ZetaRiemann     : ","getZeta       ","{1.0062266049583,-0.0054772343696683} "}
 }
 
 local b = complex.getNew(7,1)

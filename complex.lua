@@ -638,16 +638,14 @@ end
 
 -- https://en.wikipedia.org/wiki/Gamma_function
 function metaComplex:Gamma()
-  local nG = metaData.__eulgm
   local nN = metaData.__numsp
   local cS = self:getNew(); self:Set(1,0)
-  local cK = self:getMul(nG):Exp():Mul(self)
   for iN = 1, nN do
-    local cB = cS:getDiv(iN):Add(1)
-    local cN = cS:getNeg():Div(iN):Exp()
-    self:Mul(cB:Mul(cN))
+    local cA = cS:getNew(1 + 1/iN, 0):Pow(cS)
+    local cB = cS:getDiv(iN):Add(1):Rev()
+    self:Mul(cA:Mul(cB))
   end
-  return self:Mul(cK):Rev()
+  return self:Div(cS)
 end
 
 function metaComplex:getGamma(...)

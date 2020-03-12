@@ -1,4 +1,4 @@
-compileString = load
+commonCompileString = load -- The loadstring function is replaced by turtle load...
 
 require("wx")
 require("turtle")
@@ -9,7 +9,7 @@ local colormap = require("colormap")
 
 io.stdout:setvbuf("no")
 
-local nFunc = 5
+local nFunc = 7
 
 local tFunc = {
   {"(z^3 - 1)", 1.3},
@@ -34,7 +34,13 @@ local cT = complex.getNew()
 local intX = chartmap.New("interval","WinX", -nRan, nRan, 0, W)
 local intY = chartmap.New("interval","WinY", -nRan, nRan, H, 0)
 
-local fF = common.getCompileString("return function(z, i) return "..tFunc[nFunc][1].." end")
+local fF = common.getCompileString(([[ return
+function(z)
+  local i = z:getNew(0,1)
+  return %s
+end
+]]):format(tFunc[nFunc][1]))
+
 if(not fF) then return end
 
 open("Complex domain coloring")

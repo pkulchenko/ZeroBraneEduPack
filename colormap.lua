@@ -208,7 +208,7 @@ function colormap.getColorRegion(iDepth, maxDepth, iRegions)
 end
 
 function colormap.getColorComplexDomain(fF, vC, nA)
-  local bS, vF = pcall(fF, vC, vC:getNew(0, 1))
+  local bS, vF = pcall(fF, vC) -- Try dedicated call
   if(bS) then local mT = getmetatable(vF).__type
     if(mT == "complex.complex") then -- Actual complex type
       local nA = common.getClamp(tonumber(nA) or 0.5, 0, 1)
@@ -218,7 +218,7 @@ function colormap.getColorComplexDomain(fF, vC, nA)
       local hslS, hslL = 1, (1 - nA ^ nM) -- Interpolate SL
       local r, g, b = colormap.getColorHSL(hslH, hslS, hslL)
       if(vF:isNanAny()) then -- Interpolate RGB as up-down-left-right
-        local nD, nX, nY = ((nA / 1000) ^ 2), vC:getParts()
+        local nD, nX, nY = common.getMargin(), vC:getParts()
         local vC1, vC2 = vC:getNew(nX-nD, nY), vC:getNew(nX+nD, nY)
         local vC3, vC4 = vC:getNew(nX, nY-nD), vC:getNew(nX, nY+nD)
         local r1, g1, b1 = colormap.getColorComplexDomain(fF, vC1, nA)
