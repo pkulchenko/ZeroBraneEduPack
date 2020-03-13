@@ -654,17 +654,13 @@ end
 
 -- https://en.wikipedia.org/wiki/Riemann_zeta_function
 function metaComplex:Zeta()
-  local cP = self:getNew(1, 0):Sub(self)
+  local cP, nN = self:getNeg():Add(1), metaData.__numsp
   local cM = self:getNew(2, 0):Pow(cP):Neg():Add(1):Rev()
-  local cS, nS = self:getNeg(), metaData.__numsp
-  local cV = self:getNew(); self:Set(0,0)
-  local cN, cK = self:getNew(), self:getNew()
-  for iN = 0, nS do cN:Set(iN); cV:Set(0,0)
-    for iK = 0, iN do cK:Set(iK)
-      local nK = (-1)^iK * getChoose(iN, iK)
-      cP:Set(iK + 1, 0):Pow(cS):Mul(nK); cV:Add(cP)
-    end
-    cV:Mul(1 / (2 ^ (iN + 1))); self:Add(cV)
+  local cS = self:getNew(); self:Set(0,0)
+  for iN = 1, nN do
+    local nP = (-1)^(iN - 1)
+    cP:Set(iN):Pow(cS):Rev():Mul(nP)
+    self:Add(cP)
   end
   return self:Mul(cM)
 end

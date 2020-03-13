@@ -217,7 +217,7 @@ function colormap.getColorComplexDomain(fF, vC, nA)
             hslH = ((hslH < 0) and (hslH + 360) or hslH)
       local hslS, hslL = 1, (1 - nA ^ nM) -- Interpolate SL
       local r, g, b = colormap.getColorHSL(hslH, hslS, hslL)
-      if(vF:isNanAny()) then -- Interpolate RGB as up-down-left-right
+      if(vF:isNan()) then -- Interpolate RGB as up-down-left-right
         local nD, nX, nY = common.getMargin(), vC:getParts()
         local vC1, vC2 = vC:getNew(nX-nD, nY), vC:getNew(nX+nD, nY)
         local vC3, vC4 = vC:getNew(nX, nY-nD), vC:getNew(nX, nY+nD)

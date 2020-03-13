@@ -6,8 +6,8 @@ local crt = require("chartmap")
 local cmp = require("complex").extend()
 
 local W,  H = 200, 200
-local minX, maxX = -20, 20
-local minY, maxY = -20, 20
+local minX, maxX = -5, 5
+local minY, maxY = -10, 10
 local dX, dY, cT, nAlp = 1, 1, cmp.getNew(), 0.5
 local intX  = crt.New("interval","WinX", minX, maxX, 0, W)
 local intY  = crt.New("interval","WinY", minY, maxY, H, 0)
