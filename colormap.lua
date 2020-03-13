@@ -11,10 +11,10 @@ local math      = math
 local colormap  = {}
 local clMapping = {}
 local clClamp   = {0, 255}
-local clHash    = {
-  R = {1, "r", "R", "red"  , "Red"  , "RED"  },
-  G = {2, "g", "G", "green", "Green", "GREEN"},
-  B = {3, "b", "B", "blue" , "Blue" , "BLUE" }
+local metaColormap = {
+  __KEYR = {1, "r", "R", "red"  , "Red"  , "RED"  },
+  __KEYG = {2, "g", "G", "green", "Green", "GREEN"},
+  __KEYB = {3, "b", "B", "blue" , "Blue" , "BLUE" }
 }
 
 local logStatus       = common.logStatus
@@ -241,10 +241,12 @@ end
 
 local function tableToColorRGB(tTab, kR, kG, kB)
   if(not tTab) then return nil end
-  local cR = colormap.getClamp(tonumber(getValueKeys(tTab, clHash.R, kR)) or clClamp[1])
-  local cG = colormap.getClamp(tonumber(getValueKeys(tTab, clHash.G, kG)) or clClamp[1])
-  local cB = colormap.getClamp(tonumber(getValueKeys(tTab, clHash.B, kB)) or clClamp[1])
-  return cR, cG, cB
+  local cR = tonumber(getValueKeys(tTab, metaColormap.__KEYR, kR))
+  local cG = tonumber(getValueKeys(tTab, metaColormap.__KEYG, kG))
+  local cB = tonumber(getValueKeys(tTab, metaColormap.__KEYB, kB))
+  return colormap.getClamp(cR or clClamp[1]),
+         colormap.getClamp(cG or clClamp[1]),
+         colormap.getClamp(cB or clClamp[1])
 end
 
 function colormap.convColorRGB(aIn, ...)
