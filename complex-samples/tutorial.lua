@@ -64,16 +64,16 @@ tPar[1] = {
   {Typ="nil-number1", Arg={a,-7,-7}, Out="{-7,-7}"},
   {Typ="nil-number2", Arg={a,-7,nil}, Out="{-7,0}"},
   {Typ="nil-number3", Arg={a,nil,-7}, Out="{0,-7}"},
-  {Typ="nil-number4", Arg={a,nil,nil}, Out="{7,7}", Msg="Copy-constructor method is going to return SELF!"},
+  {Typ="nil-number4", Arg={a,nil,nil}, Out="{7,7}", Msg="Copy-constructor method returns copy of SELF!"},
   {Typ="string1", Arg={a,"7","7"}, Out="{7,7}"},
   {Typ="string2", Arg={a,"","7"}, Out="{0,7}"},
   {Typ="string3", Arg={a,"7",""}, Out="{7,0}"},
   {Typ="string4", Arg={a,"",""}, Out="{0,0}"},
   {Typ="string5", Arg={a,"abc","def"}, Out="{0,0}"},
-  {Typ="bool1", Arg={a,true ,true }, Out="{0,0}", Msg="Copy-constructor method is designed for complex and numbers!"},
-  {Typ="bool2", Arg={a,false,false}, Out="{7,7}", Msg="Copy-constructor method is designed for complex and numbers!"},
-  {Typ="bool3", Arg={a,true ,false}, Out="{0,0}", Msg="Copy-constructor method is designed for complex and numbers!"},
-  {Typ="bool4", Arg={a,false,true }, Out="{0,0}", Msg="Copy-constructor method is designed for complex and numbers!"}
+  {Typ="bool1", Arg={a,true ,true }, Out="{1,1}", Msg="Copy-constructor method supports booleans!"},
+  {Typ="bool2", Arg={a,false,false}, Out="{0,0}", Msg="Copy-constructor method supports booleans!"},
+  {Typ="bool3", Arg={a,true ,false}, Out="{1,0}", Msg="Copy-constructor method supports booleans!"},
+  {Typ="bool4", Arg={a,false,true }, Out="{0,1}", Msg="Copy-constructor method supports booleans!"}
 }
 
 makeTastCase(a.getNew)

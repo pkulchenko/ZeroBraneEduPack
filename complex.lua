@@ -222,9 +222,9 @@ function metaComplex:Action(aK,...)
 end
 
 function metaComplex:getNew(nR, nI)
-  local N = complex.getNew(self); if(nR or nI) then
-    local R, I = getUnpackStack(nR, nI); N:Set(R, I)
-  end; return N
+  local N = complex.getNew(nR, nI)
+  local P = (isNil(nR) and isNil(nI))
+  if(P) then N:Set(self) end; return N
 end
 
 function metaComplex:Random(nL, nU, vC)
