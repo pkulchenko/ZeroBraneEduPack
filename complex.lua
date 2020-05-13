@@ -27,6 +27,7 @@ local isNumber        = common.isNumber
 local isString        = common.isString
 local isFunction      = common.isFunction
 
+local toBool          = common.toBool
 local getPick         = common.getPick
 local getSign         = common.getSign
 local getRound        = common.getRound
@@ -859,29 +860,32 @@ function metaComplex:isZero(bO) -- Trigger check for any
   return (self:isZeroReal() and self:isZeroImag())
 end
 
-function metaComplex:isInfReal(bR)
+function metaComplex:isInfReal(bN)
   local mH, nR = metaData.__infum, self:getReal()
-  if(bR) then return (nR == -mH) end
+  if(bN) then return (nR == -mH) end
   return (nR == mH)
 end
 
-function metaComplex:isInfImag(bI)
+function metaComplex:isInfImag(bN)
   local mH, nI = metaData.__infum, self:getImag()
-  if(bI) then return (nI == -mH) end
+  if(bN) then return (nI == -mH) end
   return (nI == mH)
 end
 
-function metaComplex:isInf(bR, bI, bB)
-  if(bB) then -- Thrigger check for both
-    return (self:isInfReal(bR) and self:isInfImag(bI)) end
-  return (self:isInfReal(bR) or self:isInfImag(bI))
+function metaComplex:isInf(bR, bI, bO) -- Trigger check for both
+  if(bO) then return (self:isInfReal(bR) or self:isInfImag(bI)) end
+  return (self:isInfReal(bR) and self:isInfImag(bI))
 end
 
-function metaComplex:Inf(bR, bI)
+function metaComplex:Inf(nR, nI)
   local nH, sR, sI = metaData.__infum, self:getParts()
-  local nR = getPick(isNil(bR), sR, getPick(bR, -nH, nH))
-  local nI = getPick(isNil(bI), sI, getPick(bI, -nH, nH))
-  return self:setReal(nR):setImag(nI)
+  if(nR or nI) then -- Convert arguments to numbers
+    sR = tonumber(nR) and nR or (toBool(nR) and -1 or 1)
+    sI = tonumber(nI) and nI or (toBool(nI) and -1 or 1)
+  end -- Convert numbers to infinity
+  sR = getSign(sR) > 0 and nH or -nH
+  sI = getSign(sI) > 0 and nH or -nH
+  return self:setReal(sR):setImag(sI)
 end
 
 function metaComplex:getInf(...)
@@ -896,10 +900,10 @@ function metaComplex:isNanImag()
   local nI = self:getImag(); return (nI ~= nI)
 end
 
-function metaComplex:isNan(bB)
-  if(bB) then -- Thrigger check for both
-    return (self:isNanReal() and self:isNanImag()) end
-  return (self:isNanReal() or self:isNanImag())
+function metaComplex:isNan(bO)
+  if(bO) then -- Trigger check for both
+    return (self:isNanReal() or self:isNanImag()) end
+  return (self:isNanReal() and self:isNanImag())
 end
 
 function metaComplex:Nan(bR, bI)
