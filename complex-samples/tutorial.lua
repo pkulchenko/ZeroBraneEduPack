@@ -366,16 +366,22 @@ tPar[11] ={
   {Typ="Inf(f,t)", Arg={a,false,true },Foo=a.getInf, Out="{inf,-inf}"}
 }
 
-local z = a:getNew(0,0)
+local z1 = a:getNew(0,0)
+local z2 = a:getNew(2,0)
 local n = a:getNew(1/0, -1/0)
 local g = a:getNew(0/0, 0/0)
 tPar[12]={
   Name = "Boolean checks "..tostring(z).." > "..tostring(n).." > "..tostring(g),
-  {Typ="ZeroB    ", Arg={z, true },Foo=z.isZero  , Out="true"},
-  {Typ="ZeroA    ", Arg={z, false},Foo=z.isZero  , Out="true"},
-  {Typ="ZeroA    ", Arg={z},Foo=z.isZero         , Out="true"},
-  {Typ="ZeroRe   ", Arg={z},Foo=z.isZeroReal     , Out="true"},
-  {Typ="ZeroIm   ", Arg={z},Foo=z.isZeroImag     , Out="true"},
+  {Typ="Zero1B   ", Arg={z1, true },Foo=z1.isZero, Out="true"},
+  {Typ="Zero1A   ", Arg={z1, false},Foo=z1.isZero, Out="true"},
+  {Typ="Zero1A   ", Arg={z1},Foo=z1.isZero       , Out="true"},
+  {Typ="Zero1Re  ", Arg={z1},Foo=z1.isZeroReal   , Out="true"},
+  {Typ="Zero1Im  ", Arg={z1},Foo=z1.isZeroImag   , Out="true"},
+  {Typ="Zero2B   ", Arg={z2, true },Foo=z2.isZero, Out="true"},
+  {Typ="Zero2A   ", Arg={z2, false},Foo=z2.isZero, Out="false"},
+  {Typ="Zero2A   ", Arg={z2},Foo=z2.isZero       , Out="false"},
+  {Typ="Zero2Re  ", Arg={z2},Foo=z2.isZeroReal   , Out="false"},
+  {Typ="Zero2Im  ", Arg={z2},Foo=z2.isZeroImag   , Out="true"},
   {Typ="Inf(xx)  ", Arg={n}                      , Foo=n.isInf, Out="true"},
   {Typ="Inf(++)  ", Arg={n,false, false}         , Foo=n.isInf, Out="true"},
   {Typ="Inf(--)  ", Arg={n,true , true }         , Foo=n.isInf, Out="true"},

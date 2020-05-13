@@ -854,10 +854,9 @@ function metaComplex:isZeroImag()
   return (math.abs(self:getImag()) < metaData.__margn)
 end
 
-function metaComplex:isZero(bB)
-  if(bO) then -- Thrigger check for both
-    return (self:isZeroReal() and self:isZeroImag()) end
-  return (self:isZeroReal() or self:isZeroImag())
+function metaComplex:isZero(bO) -- Trigger check for any
+  if(bO) then return (self:isZeroReal() or self:isZeroImag()) end
+  return (self:isZeroReal() and self:isZeroImag())
 end
 
 function metaComplex:isInfReal(bR)
