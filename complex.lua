@@ -1278,6 +1278,21 @@ function complex.setAction(aK, fD)
   return logStatus("complex.setAction: Non-function", false)
 end
 
+function metaComplex:HarmMean(...)
+  local tV, iD, iN = {...}, 1, 1
+  local bC = complex.isValid(tV[1])
+  if(isTable(tV[1]) and not bC) then tV = tV[1] end
+  local cT = self:getNew(); self:Rev()
+  while(tV[iD]) do iN = iN + 1
+    cT:Set(tV[iD]):Rev()
+    self:Add(cT); iD = iD + 1
+  end; return self:Rev():Rsz(iN)
+end
+
+function metaComplex:getHarmMean(...)
+  return self:getNew():HarmMean(...)
+end
+
 local function stringValidComplex(sStr)
   local Str = sStr:gsub("%s","") -- Remove hollows
   local S, E, B = 1, Str:len(), metaData.__bords
