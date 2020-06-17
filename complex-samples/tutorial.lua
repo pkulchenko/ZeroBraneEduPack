@@ -543,6 +543,7 @@ local tCall = {
   {"ArgCosineH      : ","getArcCosH    ","{2.6443267863946,0.14331753305457}    "},
   {"ArgTangentH     : ","getArcTangH   ","{0.14086733931285,1.550399485361}     "},
   {"ArgCotangentH   : ","getArcCotgH   ","{0.14086733931285,-0.020396841433933} "},
+  {"HarmMean        : ","getHarmMean   ","{7,1}                                 "},
   {"GammaFunction   : ","getGamma      ","{-200.44191447792,635.44349270069}    "}
 }
 
