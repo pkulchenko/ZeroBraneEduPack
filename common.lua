@@ -248,19 +248,30 @@ function common.stringIsLower(sS)
   return (sS:lower() == sS)
 end
 
-function common.stringImplode(tLst,sDel)
+function common.stringImplode(tLst, sDel)
   local ID, sStr, sDel = 1, "", tostring(sDel or "")
   while(tLst and tLst[ID]) do sStr = sStr..tLst[ID]; ID = ID + 1
     if(tLst[ID] and not common.isDryString(sDel)) then sStr = sStr..sDel end
   end; return sStr
 end
 
-function common.stringExplode(sStr,sDel)
+function common.stringExplode(sStr, sDel)
+  local sDel = tostring(sDel or " ")
   local tLst, sC, iDx, ID, dL = {""}, "", 1, 1, (sDel:len()-1)
   while(sC) do sC = sStr:sub(iDx,iDx+dL)
     if(common.isDryString(sC)) then return tLst
     elseif(sC == sDel) then ID = ID + 1; tLst[ID], iDx = "", (iDx + dL)
     else tLst[ID] = tLst[ID]..sC:sub(1,1) end; iDx = iDx + 1
+  end; return tLst
+end
+
+function common.stringExplodePattern(sStr, sPat)
+  local sDel, tLst, ID = tostring(sDel or " "), {sStr}, 1
+  local nB, nE = tLst[ID]:find(sPat)
+  while(nB and nE) do
+    tLst[ID + 1] = tLst[ID]:sub(nE + 1, -1)
+    tLst[ID]     = tLst[ID]:sub(1, nB - 1)
+    ID = ID + 1; nB, nE = tLst[ID]:find(sPat)
   end; return tLst
 end
 
