@@ -6,6 +6,7 @@ local math         = math
 local type         = type
 local next         = next
 local pcall        = pcall
+local table        = table
 local pairs        = pairs
 local select       = select
 local tonumber     = tonumber
@@ -267,12 +268,16 @@ end
 
 function common.stringExplodePattern(sStr, sPat)
   local sPat, tLst, ID = tostring(sPat or " "), {sStr}, 1
-  local nB, nE = tLst[ID]:find(sPat)
-  while(nB and nE) do
+  local bM, nB, nE = false, tLst[ID]:find(sPat)
+  if(common.isDryString(sPat)) then -- Modify pattern
+    bM, sPat, nB, nE = true, ".", 1, 1 -- Trigger flag
+  end -- Empty string can be found at every position
+  while(nB and nE and nE >= nB and nB > 0) do
     tLst[ID + 1] = tLst[ID]:sub(nE + 1, -1)
-    tLst[ID]     = tLst[ID]:sub(1, nB - 1)
+    tLst[ID]     = tLst[ID]:sub(1, nB - (bM and 0 or 1))
     ID = ID + 1; nB, nE = tLst[ID]:find(sPat)
-  end; return tLst
+  end; if(bM) then table.remove(tLst) end
+  return tLst
 end
 
 function common.stringCenter(sStr, vN, vC, bS)
