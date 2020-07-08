@@ -266,7 +266,7 @@ function common.stringExplode(sStr, sDel)
 end
 
 function common.stringExplodePattern(sStr, sPat)
-  local sDel, tLst, ID = tostring(sDel or " "), {sStr}, 1
+  local sPat, tLst, ID = tostring(sPat or " "), {sStr}, 1
   local nB, nE = tLst[ID]:find(sPat)
   while(nB and nE) do
     tLst[ID + 1] = tLst[ID]:sub(nE + 1, -1)
