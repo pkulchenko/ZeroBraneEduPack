@@ -520,6 +520,7 @@ end
 local tCall = {
   {"MirrorPoint     : ","getMirrorPoint","{-7,-1}                               "},
   {"Margin          : ","getMargin     ","{7,1}                                 "},
+  {"CenterMass      : ","getCenterMass ","{0,0}                                 ", 5, 10, -2, 25},
   {"Reverse         : ","getRev        ","{0.14,-0.02}                          "},
   {"Unit            : ","getUnit       ","{0.98994949366117,0.14142135623731}   "},
   {"PythagorAdd     : ","getAddPyth    ","{9.8994949366117,1.4142135623731}     "},
@@ -543,22 +544,22 @@ local tCall = {
   {"ArgCosineH      : ","getArcCosH    ","{2.6443267863946,0.14331753305457}    "},
   {"ArgTangentH     : ","getArcTangH   ","{0.14086733931285,1.550399485361}     "},
   {"ArgCotangentH   : ","getArcCotgH   ","{0.14086733931285,-0.020396841433933} "},
-  {"HarmMean        : ","getHarmMean   ","{7,1}                                 "},
+  {"MeanHarm        : ","getMeanHarm   ","{2.3513513513514,9.8918918918919}     ", complex.convNew("3 + 5i"), complex.convNew("-4 + 3i")},
   {"GammaFunction   : ","getGamma      ","{-200.44191447792,635.44349270069}    "}
 }
 
 local b = complex.getNew(7,1)
-for id = 1, #tCall do
-  local mth = common.stringTrim(tCall[id][2])
-  local suc, rez = b(mth)
-  if(suc) then rez = tostring(rez)
-    local nam = tCall[id][1]:gsub(":", ""); nam = common.stringTrim(nam)
-    local com = common.stringTrim(tCall[id][3])
-    local sta = ((rez == com) and "OK" or "FAIL")
-    if(sta == "OK") then logStatus(common.stringPadR(nam,20," ")..sta.." >> "..rez)
-    else error("There was a problem executing method <"..nam.."> at index #"..id.."<"..rez.."="..com..">") end
-  else local nam = tCall[id][1]:gsub(":","")
-    error("There was a problem executing method <"..nam.."> at index #"..id.."<"..rez.."="..com..">")
+for id = 1, #tCall do local tInfo = tCall[id]
+  local nam = table.remove(tInfo, 1); nam = nam:gsub(":", ""); nam = common.stringTrim(nam)
+  local mth = table.remove(tInfo, 1); mth = common.stringTrim(mth)
+  local com = table.remove(tInfo, 1); com = common.stringTrim(com)
+  local suc, rez = b(mth, unpack(tInfo)); rez = tostring(rez or "N/A")
+  local sta = ((rez == com) and "OK" or "FAIL")
+  if(suc) then ; 
+    if(sta == "OK") then logStatus(common.stringPadR(nam, 20, " ")..sta.." >> "..rez)
+    else error("There was a problem in method ouput <"..nam.."> at index #"..id.." <"..rez.."="..com..">") end
+  else
+    error("There was a problem executing method <"..nam.."> at index #"..id.." <"..rez.."="..com..">")
   end
 end; logStatus("")
 
@@ -620,7 +621,7 @@ if(r) then
   for id = 1, #r do
     local ppw = (r[id]^R); ppw:Round(0.0000000001)
     logStatus(common.stringPadR(r[id].."^"..R, 38, " ").." = "..ppw)
-    spw, sa = tostring(ppw), tostring(a); if(spw ~= sa) then
+    local spw, sa = tostring(ppw), tostring(a); if(spw ~= sa) then
       error("Complex power mismatch at #"..id.." <"..spw..">?=<"..sa..">") end
     r[id]:Action("This your action key !")
     -- scOpe:drawComplex(r[id], nil, true) -- This is the same as above

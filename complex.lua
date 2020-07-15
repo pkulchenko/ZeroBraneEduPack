@@ -1278,7 +1278,7 @@ function complex.setAction(aK, fD)
   return logStatus("complex.setAction: Non-function", false)
 end
 
-function metaComplex:HarmMean(...)
+function metaComplex:MeanHarm(...)
   local tV, iD, iN = {...}, 1, 1
   local bC = complex.isValid(tV[1])
   if(isTable(tV[1]) and not bC) then tV = tV[1] end
@@ -1289,8 +1289,8 @@ function metaComplex:HarmMean(...)
   end; return self:Rev():Rsz(iN)
 end
 
-function metaComplex:getHarmMean(...)
-  return self:getNew():HarmMean(...)
+function metaComplex:getMeanHarm(...)
+  return self:getNew():MeanHarm(...)
 end
 
 local function stringValidComplex(sStr)
