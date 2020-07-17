@@ -290,6 +290,16 @@ function common.stringCenter(sStr, vN, vC, bS)
   end; return sStr
 end
 
+function common.stringTrimL(sStr, sC)
+  local sC = tostring(sC or "%s")
+  local sO = sStr:gsub("^"..sC.."*", ""); return sO
+end
+
+function common.stringTrimR(sStr, sC)
+  local sC = tostring(sC or "%s")
+  local sO = sStr:gsub(sC.."*$", ""); return sO
+end
+
 function common.stringTrim(sStr, sC)
   local sC = tostring(sC or "%s")
   return (sStr:match("^"..sC.."*(.-)"..sC.."*$") or sStr)
