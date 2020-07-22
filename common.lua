@@ -234,6 +234,11 @@ function common.randomGetString(vE, vN)
   end; return sR
 end
 
+-- Noramalizes spaces in a CSV 
+function common.stringNormSpaceCSV(sS)
+  return sS:gsub("(,)(%S)", "%1 %2"):gsub("(%s+)(,)", " %2"):gsub("%s+,", ",")
+end
+
 -- Returns true when string includes atleast one letter
 function common.stringHasLetter(sS)
   return (sS:find("%a") ~= nil)
