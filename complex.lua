@@ -1415,7 +1415,8 @@ function complex.getBezierCurve(...)
 end
 
 function complex.getCatmullRomCurveTangent(cS, cE, nT, nA)
-  return ((cE:getNew():Sub(cS):getNorm()^(tonumber(nA) or 0.5))+nT)
+  local nL, nM = cE:getNew():Sub(cS):getNorm(), metaData.__margn
+  return ((((nL == 0) and nM or nL)^(tonumber(nA) or 0.5))+nT)
 end
 
 function complex.getCatmullRomCurveSegment(cP0, cP1, cP2, cP3, nN, nA)
