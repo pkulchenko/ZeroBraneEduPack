@@ -1459,6 +1459,37 @@ function complex.getCatmullRomCurve(...)
   table.remove(tV, 1); table.remove(tV); return tC
 end
 
+function complex.getCatmullRomCurveDupe(...)
+  local tV, nV, nT, nA = getUnpackSplit(...)
+  local tN, nN = {tV[1], ID = {{true, 1}}}, 1
+  local tF, nM = {}, metaData.__margn
+  for iD = 2, nV do
+    if(tV[iD]:getSub(tN[nN]):getNorm2() > nM) then
+      table.insert(tN, tV[iD])
+      tN.ID[iD], nN = {true, nN}, (nN + 1)
+    else tN.ID[iD] = {false} end
+  end
+  if(nN > 1) then
+    local tC = complex.getCatmullRomCurve(tN, nT, nA)
+    for iD = 1, nV-1 do local iC = iD + 1
+      table.insert(tF, tV[iD]:getNew())
+      if(not tN.ID[iC][1]) then
+        for iK = 1, nT do table.insert(tF, tV[iD]:getNew()) end
+      else
+        local iP = (tN.ID[iC][2] - 1) * (nT + 1)
+        for iK = 1, nT do local iI = (iP + iK + 1)
+          table.insert(tF, tC[iI]:getNew()) end
+      end
+    end; table.insert(tF, tV[nV]:getNew())
+  else
+    for iD = 1, nV-1 do
+      table.insert(tF, tV[1]:getNew())
+      for iK = 1, nT do table.insert(tF, tV[1]:getNew()) end
+    end; table.insert(tF, tV[1]:getNew())
+  end
+  return tF, tN
+end
+
 function complex.getRegularPolygon(nN, cD, cO)
   local iD, eN = 2, (tonumber(nN) or 0); if(eN <= 0) then
     return logStatus("complex.getRegularPolygon: Vertexes #"..tostring(nN),nil) end

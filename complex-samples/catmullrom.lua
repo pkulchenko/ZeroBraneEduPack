@@ -32,8 +32,14 @@ local c6 = complex.getNew( 15, 15)
 -- These calls produce the same curve for interpolation length <n-samples> and power <alpha>
 -- The default curve interpolation sample count is 100
 -- The default curve power interpolation coefficient <alpha> is 0.5
+
+-- When the nodes location is unique in the 2D complex plane
 -- local tC = complex.getCatmullRomCurve( p1, p2, ..., pn, n-samples, alpha)
 -- local tC = complex.getCatmullRomCurve({p1, p2, ..., pn}, n-samples, alpha)
+
+-- When there are repeating nodes with close to zero direction margin you must use
+-- local tC = complex.getCatmullRomCurveDupe( p1, p2, ..., pn, n-samples, alpha)
+-- local tC = complex.getCatmullRomCurveDupe({p1, p2, ..., pn}, n-samples, alpha)
 
 local tc = {c1,c2,c3,c4,c5,c6}
 local tC = complex.getCatmullRomCurve(tc,10,0.1)
