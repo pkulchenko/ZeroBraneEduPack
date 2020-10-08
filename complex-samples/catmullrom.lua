@@ -25,7 +25,7 @@ local scOpe = chartmap.New("scope"):setBorder(minX, maxX, minY, maxY)
 local c1 = complex.getNew(-15,-15)
 local c2 = complex.getNew( -5,  5)
 local c3 = complex.getNew( -1,  8)
-local c4 = complex.getNew(  1, -8)
+local c4 = complex.getNew( -5, -8)
 local c5 = complex.getNew(  5, -5)
 local c6 = complex.getNew( 15, 15)
 
@@ -41,7 +41,7 @@ local c6 = complex.getNew( 15, 15)
 -- local tC = complex.getCatmullRomCurveDupe( p1, p2, ..., pn, n-samples, alpha)
 -- local tC = complex.getCatmullRomCurveDupe({p1, p2, ..., pn}, n-samples, alpha)
 
-local tc = {c1,c2,c3,c4,c5,c6}
+local tc = {c1,c2,c3,c4,1,c5,"4.5","10+3i",c6}
 local tC = complex.getCatmullRomCurve(tc,10,0.1)
 
 -- Uncomment this to actually print the array contents

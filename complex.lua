@@ -1390,7 +1390,7 @@ end
 
 local function updateUnpackComplex(...)
   local tA = {...}; if(isTable(tA[1])) then tA = tA[1] end
-  for iD = 1, #tA do tA[iD] = complex.getNew(tA[iD]) end
+  for iD = 1, #tA do tA[iD] = complex.convNew(tA[iD]) end
 end
 
 local function getBezierCurveVertexRec(nS, tV)
