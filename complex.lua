@@ -1388,9 +1388,9 @@ local function getUnpackSplit(...)
   end; return tC, nC, unpack(tA)
 end
 
-local function updateUnpackComplex(...)
-  local tA = {...}; if(isTable(tA[1])) then tA = tA[1] end
-  for iD = 1, #tA do tA[iD] = complex.convNew(tA[iD]) end
+function complex.convArray(...) local tA = {...}
+  if(isTable(tA[1]) and not complex.isValid(tA[1])) then tA = tA[1] end
+  for iD = 1, #tA do tA[iD] = complex.convNew(tA[iD]) end; return tA
 end
 
 local function getBezierCurveVertexRec(nS, tV)
@@ -1405,7 +1405,7 @@ function complex.getBezierCurve(...)
   local tV, nV, nT = getUnpackSplit(...)
   nT = math.floor(tonumber(nT) or metaData.__numsp); if(nT < 2) then
     return logStatus("complex.getBezierCurve: Samples <"..nT.."> less than two",nil) end
-  if(tV[1] and tV[2]) then updateUnpackComplex(tV) else
+  if(not (tV[1] and tV[2])) then
     return logStatus("complex.getBezierCurve: Two vertexes are needed",nil) end
   if(not complex.isValid(tV[1])) then
     return logStatus("complex.getBezierCurve: First vertex invalid <"..type(tV[1])..">",nil) end
@@ -1446,7 +1446,7 @@ function complex.getCatmullRomCurve(...)
   local tV, nV, nT, nA = getUnpackSplit(...)
   nT = math.floor(tonumber(nT) or metaData.__numsp); if(nT < 0) then
     return logStatus("complex.getCatmullRomCurve: Samples count invalid <"..tostring(nT)..">",nil) end
-  if(tV[1] and tV[2]) then updateUnpackComplex(tV) else
+  if(not (tV[1] and tV[2])) then
     return logStatus("complex.getCatmullRomCurve: Two vertexes are needed",nil) end
   if(not complex.isValid(tV[1])) then
     return logStatus("complex.getCatmullRomCurve: First vertex invalid <"..type(tV[1])..">",nil) end
@@ -1468,7 +1468,7 @@ function complex.getCatmullRomCurveDupe(...)
   local tV, nV, nT, nA = getUnpackSplit(...)
   nT = math.floor(tonumber(nT) or metaData.__numsp); if(nT < 0) then
     return logStatus("complex.getCatmullRomCurveDupe: Samples count invalid <"..tostring(nT)..">",nil) end
-  if(tV[1] and tV[2]) then updateUnpackComplex(tV) else
+  if(not (tV[1] and tV[2])) then
     return logStatus("complex.getCatmullRomCurveDupe: Two vertexes are needed",nil) end
   if(not complex.isValid(tV[1])) then
     return logStatus("complex.getCatmullRomCurveDupe: First vertex invalid <"..type(tV[1])..">",nil) end
