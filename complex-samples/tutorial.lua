@@ -544,10 +544,12 @@ local tCall = {
   {"ArgCosineH      : ","getArcCosH    ","{2.6443267863946,0.14331753305457}    "},
   {"ArgTangentH     : ","getArcTangH   ","{0.14086733931285,1.550399485361}     "},
   {"ArgCotangentH   : ","getArcCotgH   ","{0.14086733931285,-0.020396841433933} "},
-  {"Mean            : ","getMean       ","{3,5}                                 ", {complex.convNew("3 + 5i")}},
-  {"Mean            : ","getMean       ","{-0.5,4}                              ", {complex.convNew("3 + 5i"), complex.convNew("-4 + 3i")}},
-  {"MeanHarm        : ","getMeanHarm   ","{3,5}                                 ", {complex.convNew("3 + 5i")}},
-  {"MeanHarm        : ","getMeanHarm   ","{-1.8769230769231,6.9846153846154}    ", {complex.convNew("3 + 5i"), complex.convNew("-4 + 3i")}},
+  {"Mean            : ","getMean       ","{1,3}                                 ", {complex.convNew("1 + 3i")}},
+  {"Mean            : ","getMean       ","{3,1.5}                               ", {complex.convNew("1 + 3i"), "5"}},
+  {"Mean            : ","getMean       ","{2.6666666666667,0.66666666666667}    ", {complex.convNew("1 + 3i"), 5, complex.convNew("2 - i")}},
+  {"MeanHarm        : ","getMeanHarm   ","{1,3}                                 ", {complex.convNew("1 + 3i")}},
+  {"MeanHarm        : ","getMeanHarm   ","{3.3333333333333,3.3333333333333}     ", {complex.convNew("1 + 3i"), "5"}},
+  {"MeanHarm        : ","getMeanHarm   ","{4.2,0.6}                             ", {complex.convNew("1 + 3i"), 5, complex.convNew("2 - i")}},
   {"GammaFunction   : ","getGamma      ","{-200.44191447792,635.44349270069}    "}
 }
 

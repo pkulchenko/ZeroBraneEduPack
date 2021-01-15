@@ -295,10 +295,10 @@ function metaComplex:Mean(...)
   local tV, fV = {...}; fV = tV[1] 
   if(isTable(fV) and not tonumber(fV) and
      not complex.isValid(fV)) then tV = fV end
-  local nV = #tV; if(nV <= 0) then return self end
-  local cV = self:getNew(0,0)
-  for iD = 1, nV do cV:Add(tV[iD]) end
-  return self:Set(cV:Rsz(1/nV))
+  local nV = #tV; if(nV <= 0) then
+    return self end; self:Set(0,0)
+  for iD = 1, nV do self:Add(tV[iD]) end
+  return self:Rsz(1 / nV)
 end
 
 function metaComplex:getMean(...)
