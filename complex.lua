@@ -58,7 +58,6 @@ metaData.__fulpi = (2 * metaData.__getpi)
 metaData.__bords = {"{([<|/","})]>|/"}
 metaData.__ssyms = {"i", "I", "j", "J", "k", "K"}
 metaData.__radeg = (180 / metaData.__getpi)
-metaData.__eulgm = 0.5772156649015328606065120900824024310421
 metaData.__kreal = {1,"Real","real","Re","re","R","r","X","x"}
 metaData.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
 
@@ -292,10 +291,12 @@ function metaComplex:getMid(...)
   return self:getNew():Mid(...)
 end
 
-function metaComplex:Mean(...) local tV = {...}
-  local fV, cV = tV[1], self:getNew(0,0)
-  if(isTable(fV)) then tV = tV[1] end
+function metaComplex:Mean(...)
+  local tV, fV = {...}; fV = tV[1] 
+  if(isTable(fV) and not tonumber(fV) and
+     not complex.isValid(fV)) then tV = fV end
   local nV = #tV; if(nV <= 0) then return self end
+  local cV = self:getNew(0,0)
   for iD = 1, nV do cV:Add(tV[iD]) end
   return self:Set(cV:Rsz(1/nV))
 end
@@ -1279,14 +1280,14 @@ function complex.setAction(aK, fD)
 end
 
 function metaComplex:MeanHarm(...)
-  local tV, iD, iN = {...}, 1, 1
-  local bC = complex.isValid(tV[1])
-  if(isTable(tV[1]) and not bC) then tV = tV[1] end
-  local cT = self:getNew(); self:Rev()
-  while(tV[iD]) do iN = iN + 1
-    cT:Set(tV[iD]):Rev()
-    self:Add(cT); iD = iD + 1
-  end; return self:Rev():Rsz(iN)
+  local tV, fV = {...}; fV = tV[1]
+  if(isTable(fV) and not tonumber(fV) and
+     not complex.isValid(fV)) then tV = fV end
+  local nV = #tV; if(nV <= 0) then return self end
+  local cT = self:getNew(); self:Set(0,0)
+  for iD = 1, nV do
+    cT:Set(tV[iD]):Rev(); self:Add(cT)
+  end; return self:Rev():Rsz(nV)
 end
 
 function metaComplex:getMeanHarm(...)

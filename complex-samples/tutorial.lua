@@ -520,7 +520,7 @@ end
 local tCall = {
   {"MirrorPoint     : ","getMirrorPoint","{-7,-1}                               "},
   {"Margin          : ","getMargin     ","{7,1}                                 "},
-  {"CenterMass      : ","getCenterMass ","{0,0}                                 ", 5, 10, -2, 25},
+  {"CenterMass      : ","getCenterMass ","{0,0}                                 ", {5, 10, -2, 25}},
   {"Reverse         : ","getRev        ","{0.14,-0.02}                          "},
   {"Unit            : ","getUnit       ","{0.98994949366117,0.14142135623731}   "},
   {"PythagorAdd     : ","getAddPyth    ","{9.8994949366117,1.4142135623731}     "},
@@ -544,17 +544,27 @@ local tCall = {
   {"ArgCosineH      : ","getArcCosH    ","{2.6443267863946,0.14331753305457}    "},
   {"ArgTangentH     : ","getArcTangH   ","{0.14086733931285,1.550399485361}     "},
   {"ArgCotangentH   : ","getArcCotgH   ","{0.14086733931285,-0.020396841433933} "},
-  {"MeanHarm        : ","getMeanHarm   ","{2.3513513513514,9.8918918918919}     ", complex.convNew("3 + 5i"), complex.convNew("-4 + 3i")},
+  {"Mean            : ","getMean       ","{3,5}                                 ", {complex.convNew("3 + 5i")}},
+  {"Mean            : ","getMean       ","{-0.5,4}                              ", {complex.convNew("3 + 5i"), complex.convNew("-4 + 3i")}},
+  {"MeanHarm        : ","getMeanHarm   ","{3,5}                                 ", {complex.convNew("3 + 5i")}},
+  {"MeanHarm        : ","getMeanHarm   ","{-1.8769230769231,6.9846153846154}    ", {complex.convNew("3 + 5i"), complex.convNew("-4 + 3i")}},
   {"GammaFunction   : ","getGamma      ","{-200.44191447792,635.44349270069}    "}
 }
 
 local b = complex.getNew(7,1)
-for id = 1, #tCall do local tInfo = tCall[id]
-  local nam = table.remove(tInfo, 1); nam = nam:gsub(":", ""); nam = common.stringTrim(nam)
-  local mth = table.remove(tInfo, 1); mth = common.stringTrim(mth)
-  local com = table.remove(tInfo, 1); com = common.stringTrim(com)
-  local suc, rez = b(mth, unpack(tInfo)); rez = tostring(rez or "N/A")
-  local sta = ((rez == com) and "OK" or "FAIL")
+for id = 1, #tCall do
+  local tInfo, sta, suc, rez = tCall[id]
+  local nam, mth, com, arg = unpack(tInfo)
+  nam = nam:gsub(":", ""); nam = common.stringTrim(nam)
+  mth = common.stringTrim(mth)
+  com = common.stringTrim(com)
+  if(arg) then
+    suc, rez = b(mth, unpack(arg))
+  else
+    suc, rez = b(mth)
+  end
+  rez = tostring(rez or "N/A")
+  sta = ((rez == com) and "OK" or "FAIL")
   if(suc) then ; 
     if(sta == "OK") then logStatus(common.stringPadR(nam, 20, " ")..sta.." >> "..rez)
     else error("There was a problem in method ouput <"..nam.."> at index #"..id.." <"..rez.."="..com..">") end
