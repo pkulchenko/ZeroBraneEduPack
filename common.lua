@@ -342,6 +342,12 @@ function common.stringGetChunkPath()
   return common.stringGetFilePath(sSrc:gsub("@","",1))
 end
 
+function common.stringGetFunction(vS, sD)
+  local iS = math.floor(tonumber(vS) or 0)
+  local tD = debug.getinfo(common.getClamp(iS, 0))
+  return (tD and tostring(tD.name or (sD or "")))
+end
+
 local function stringParseTableRec(sRc, fCnv, tInfo, nStg)
   local sIn = common.stringTrim(tostring(sRc or ""))
   if(sIn:sub(1,1)..sIn:sub(-1,-1) ~= "{}") then
@@ -437,12 +443,6 @@ function common.isOdd(nV)
   return ((nV % 2) ~= 0)
 end
 
-function common.getClamp(nV, nH, nL)
-  if(nH and nV > nH) then return nH end
-  if(nL and nV < nL) then return nL end
-  return nV
-end
-
 function common.getRemap(nV, iH, iL, oH, oL, bR)
   if(bR) then
     local nK = ((nV - oL) / (oH - oL))
@@ -518,7 +518,8 @@ end
 
 function common.getClamp(nN, nL, nH)
   if(nL and nN < nL) then return nL end
-  if(nH and nN > nH) then return nH end; return nN
+  if(nH and nN > nH) then return nH end
+  return nN
 end
 
 function common.getRoll(nN, nL, nH)
