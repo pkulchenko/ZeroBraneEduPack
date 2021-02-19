@@ -500,12 +500,12 @@ function common.getPick(bC, vT, vF)
 end
 
 -- https://docs.oracle.com/cd/B19306_01/server.102/b14200/functions040.htm
-function common.getSwitch(vC, nM, ...)
-  local tV, vO = {...}, nil
-  local nV, nD = (tonumber(nM) or #tV), nil
-  if(nV % 2 ~= 0) then nD = tV[nV]; nV = (nV-1) end
-  for iD = 1, (nV-1), 2 do if(vC == tV[iD]) then
-    return tV[iD + 1] end; end; return nD
+function common.getSwitch(vC, ...)
+  local tV = {...} -- Search and result aruments
+  local nV, vD = #tV, nil -- Count and defaults
+  if(nV % 2 ~= 0) then vD = tV[nV]; nV = (nV-1) end
+  for iD = 1, (nV - 1), 2 do if(vC == tV[iD]) then
+    return tV[iD + 1] end; end; return vD
 end
 
 function common.getValueKeys(tTab, tKeys, aKey)
