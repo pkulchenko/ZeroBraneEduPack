@@ -642,9 +642,10 @@ end
 function metaComplex:Gamma()
   local nN = metaData.__numsp
   local cS = self:getNew(); self:Set(1,0)
+  local cA, cB = self:getNew(), self:getNew()
   for iN = 1, nN do
-    local cA = cS:getNew(1 + 1/iN, 0):Pow(cS)
-    local cB = cS:getDiv(iN):Add(1):Rev()
+    cA:Set(1 + 1/iN, 0):Pow(cS)
+    cB:Set(cS):Div(iN):Add(1):Rev()
     self:Mul(cA:Mul(cB))
   end
   return self:Div(cS)
