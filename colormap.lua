@@ -207,7 +207,7 @@ function colormap.getColorRegion(iDepth, maxDepth, iRegions)
   end
 end
 
-function colormap.getColorComplexDomain(fF, vC, nA)
+function colormap.getColorComplexDomain(fF, vC, nA, bI)
   local bS, vF = pcall(fF, vC) -- Try dedicated call
   if(bS) then local mT = getmetatable(vF).__type
     if(mT == "complex.complex") then -- Actual complex type
@@ -218,24 +218,30 @@ function colormap.getColorComplexDomain(fF, vC, nA)
       local hslS, hslL = 1, (1 - nA ^ nM) -- Interpolate SL
       local r, g, b = colormap.getColorHSL(hslH, hslS, hslL)
       if(vF:isNan()) then -- Interpolate RGB as up-down-left-right
-        local nD, nX, nY = common.getMargin(), vC:getParts()
-        local vC1, vC2 = vC:getNew(nX-nD, nY), vC:getNew(nX+nD, nY)
-        local vC3, vC4 = vC:getNew(nX, nY-nD), vC:getNew(nX, nY+nD)
-        local r1, g1, b1 = colormap.getColorComplexDomain(fF, vC1, nA)
-        local r2, g2, b2 = colormap.getColorComplexDomain(fF, vC2, nA)
-        local r3, g3, b3 = colormap.getColorComplexDomain(fF, vC3, nA)
-        local r4, g4, b4 = colormap.getColorComplexDomain(fF, vC4, nA)
-        r = math.floor((r1 + r2 + r3 + r4) / 4) -- Average red   (R)
-        g = math.floor((g1 + g2 + g3 + g4) / 4) -- Average green (G)
-        b = math.floor((b1 + b2 + b3 + b4) / 4) -- Average blue  (B)
-      end; return r, g, b, true
+        if(bI) then -- Recursive interpolation is enabled
+          local nD, nX, nY = common.getMargin(), vC:getParts()
+          local vC1, vC2 = vC:getNew(nX-nD, nY), vC:getNew(nX+nD, nY)
+          local vC3, vC4 = vC:getNew(nX, nY-nD), vC:getNew(nX, nY+nD)
+          local r1, g1, b1 = colormap.getColorComplexDomain(fF, vC1, nA)
+          local r2, g2, b2 = colormap.getColorComplexDomain(fF, vC2, nA)
+          local r3, g3, b3 = colormap.getColorComplexDomain(fF, vC3, nA)
+          local r4, g4, b4 = colormap.getColorComplexDomain(fF, vC4, nA)
+          r = math.floor((r1 + r2 + r3 + r4) / 4) -- Average red   (R)
+          g = math.floor((g1 + g2 + g3 + g4) / 4) -- Average green (G)
+          b = math.floor((b1 + b2 + b3 + b4) / 4) -- Average blue  (B)
+          return r, g, b, true
+        else -- Return black to prevent stack overflow
+          return clClamp[1], clClamp[1], clClamp[1], true
+        end
+      end
+      return r, g, b, true
     else
       logStatus("colormap.getColorComplexDomain: Complex: "..tostring(vF))
-      return 0, 0, 0, false -- If our complex is crap, return black
+      return clClamp[1], clClamp[1], clClamp[1], false -- If our complex is crap, return black
     end
   else
     logStatus("colormap.getColorComplexDomain: Error: "..tostring(vF))
-    return 0, 0, 0, false -- If our function fails, return black
+    return clClamp[1], clClamp[1], clClamp[1], false -- If our function fails, return black
   end
 end
 

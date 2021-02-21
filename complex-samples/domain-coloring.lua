@@ -11,7 +11,7 @@ complex.setIterations(200)
 
 io.stdout:setvbuf("no")
 
-local nFunc = 9
+local nFunc = 6
 
 local tFunc = {
   {"(z^3 - 1)", 1.3},
@@ -22,7 +22,8 @@ local tFunc = {
   {"(1/(1+z^2))", 5},
   {"(z^2 - 1)*(z - 2 - i)^2/(z^2 + 2 + 2*i)",4},
   {"(1/(1-(z:getReal()+i*z:getImag())^2))", 5},
-  {"z:getGamma()",5}
+  {"z:getGamma()",5},
+  {"z:getZeta()",5}
 } 
 
 -- Tinker stuff
@@ -54,7 +55,7 @@ for j = 0, H do
   for i = 0, W do -- Convert coordinates to complex mapping
     cT:Set(intX:Convert(i, true):getValue(),
            intY:Convert(j, true):getValue())
-    local r, g, b, f = colormap.getColorComplexDomain(fF, cT, nAlp)
+    local r, g, b, f = colormap.getColorComplexDomain(fF, cT, nAlp, true)
     if(not f) then common.logStatus("Cannot plot incorrect patameters"); break end
     pncl(colr(r, g, b)); pixl(i, j)
   end; updt()

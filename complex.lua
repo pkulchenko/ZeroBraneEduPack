@@ -90,14 +90,16 @@ function complex.getMargin()
 end
 
 local function getUnpackStack(R, I, E)
+  local zR, zI = metaData.__valre, metaData.__valim
   if(complex.isValid(R)) then
     local nR, nI = R:getParts(); return nR, nI, I
   elseif(isTable(R)) then
-    local nR = (getValueKeys(R, metaData.__kreal) or 0)
-    local nI = (getValueKeys(R, metaData.__kimag) or 0); return nR, nI, I
-  end; return (tonumber(R) or metaData.__valre), (tonumber(I) or metaData.__valim), E
+    local nR = (getValueKeys(R, metaData.__kreal) or zR)
+    local nI = (getValueKeys(R, metaData.__kimag) or zI)
+    return nR, nI, I -- First table and second element
+  end; return (tonumber(R) or zR), (tonumber(I) or zI), E
 end
-
+  
 function complex.getNew(nRe, nIm)
   local Re, Im, self = 0, 0, {}
   setmetatable(self, metaComplex)
@@ -641,14 +643,13 @@ end
 -- https://en.wikipedia.org/wiki/Gamma_function
 function metaComplex:Gamma()
   local nN = metaData.__numsp
-  local cS = self:getNew(); self:Set(1,0)
+  local cS = self:getNew(); self:Set(1)
   local cA, cB = self:getNew(), self:getNew()
   for iN = 1, nN do
-    cA:Set(1 + 1/iN, 0):Pow(cS)
+    cA:Set(1 + 1 / iN):Pow(cS)
     cB:Set(cS):Div(iN):Add(1):Rev()
     self:Mul(cA:Mul(cB))
-  end
-  return self:Div(cS)
+  end; return self:Div(cS)
 end
 
 function metaComplex:getGamma(...)
@@ -657,15 +658,11 @@ end
 
 -- https://en.wikipedia.org/wiki/Riemann_zeta_function
 function metaComplex:Zeta()
-  local cP, nN = self:getNeg():Add(1), metaData.__numsp
-  local cM = self:getNew(2, 0):Pow(cP):Neg():Add(1):Rev()
-  local cS = self:getNew(); self:Set(0,0)
-  for iN = 1, nN do
-    local nP = (-1)^(iN - 1)
-    cP:Set(iN):Pow(cS):Rev():Mul(nP)
-    self:Add(cP)
-  end
-  return self:Mul(cM)
+  local cS = self:getNew(); self:Zero()
+  local cT, nN = cS:getNew(), metaData.__numsp
+  for iN = 1, nN do -- Convergent for domain Re(Z) > 0
+    self:Add(cT:Set(iN):Pow(cS):Rev():Rsz((-1)^(iN - 1))) end
+  return self:Mul(cT:Set(2):Pow(cS:Neg():Add(1)):Neg():Add(1):Rev())
 end
 
 function metaComplex:getZeta(...)

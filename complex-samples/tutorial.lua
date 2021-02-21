@@ -484,12 +484,38 @@ local v2 = complex.getNew(-2,0)
 local M = {10, "25"}
 tPar[19] = {
   Name = "Center of mass ("..table.concat({tostring(v1),M[1],tostring(v2),M[2]},",")..")",
-  {Typ="CMCM", Arg={v1,v1,  M[1] ,  v2, M[2]},Foo=v1.getCenterMass, Out="{0,0}"},
-  {Typ="NMNM", Arg={v1, 5,  M[1] ,  -2, M[2]},Foo=v1.getCenterMass, Out="{0,0}"},
-  {Typ="SMSM", Arg={v1,"5", M[1] ,"-2", M[2]},Foo=v1.getCenterMass, Out="{0,0}"},
-  {Typ="CTT" , Arg={v1,{v1, v2}  ,      M   },Foo=v1.getCenterMass, Out="{0,0}"},
-  {Typ="NTT" , Arg={v1,{5, -2}   ,      M   },Foo=v1.getCenterMass, Out="{0,0}"},
-  {Typ="STT" , Arg={v1,{"5","-2"},      M   },Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="CMCM", Arg={v1, v1,  M[1] ,  v2, M[2]},Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="NMNM", Arg={v1,  5,  M[1] ,  -2, M[2]},Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="SMSM", Arg={v1, "5", M[1] ,"-2", M[2]},Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="CTT" , Arg={v1, {v1, v2}  ,      M   },Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="NTT" , Arg={v1, {5, -2}   ,      M   },Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="STT" , Arg={v1, {"5","-2"},      M   },Foo=v1.getCenterMass, Out="{0,0}"},
+}
+
+local s = complex.getNew()
+tPar[20] = {
+  Name = "Set vlaue ("..table.concat({tostring(v1),M[1],tostring(v2),M[2]},",")..")",
+  {Typ="BTT", Arg={s,true     , true },Foo=s.Set, Out="{0,0}"},
+  {Typ="BTF", Arg={s,true     , false},Foo=s.Set, Out="{0,0}"},
+  {Typ="BFT", Arg={s,false    , true },Foo=s.Set, Out="{0,0}"},
+  {Typ="BFF", Arg={s,false    , false},Foo=s.Set, Out="{0,0}"},
+  {Typ="BT" , Arg={s,true            },Foo=s.Set, Out="{0,0}"},
+  {Typ="BF" , Arg={s,true            },Foo=s.Set, Out="{0,0}"},
+  {Typ="SNN", Arg={s,  5      ,   5  },Foo=s.Set, Out="{5,5}"},
+  {Typ="SNX", Arg={s,  5             },Foo=s.Set, Out="{5,0}"},
+  {Typ="SSN", Arg={s, "5"     ,   5  },Foo=s.Set, Out="{5,5}"},
+  {Typ="SSN", Arg={s,  5      ,  "5" },Foo=s.Set, Out="{5,5}"},
+  {Typ="SSX", Arg={s, "5"            },Foo=s.Set, Out="{5,0}"},
+  {Typ="TNN", Arg={s,{ 5      ,   5 }},Foo=s.Set, Out="{5,5}"},
+  {Typ="TNX", Arg={s,{ 5            }},Foo=s.Set, Out="{5,0}"},
+  {Typ="TSN", Arg={s,{"5"     ,   5 }},Foo=s.Set, Out="{5,5}"},
+  {Typ="TSN", Arg={s,{ 5      ,  "5"}},Foo=s.Set, Out="{5,5}"},
+  {Typ="TSX", Arg={s,{"5"         }  },Foo=s.Set, Out="{5,0}"},
+  {Typ="HNN", Arg={s, s:getNew(5,5)  },Foo=s.Set, Out="{5,5}"},
+  {Typ="HNX", Arg={s, s:getNew(5,0)  },Foo=s.Set, Out="{5,0}"},
+  {Typ="HSN", Arg={s, s:getNew(5)    },Foo=s.Set, Out="{5,0}"},
+  {Typ="HSN", Arg={s, s:getNew(5,"5")},Foo=s.Set, Out="{5,5}"},
+  {Typ="HSX", Arg={s, s:getNew("5")  },Foo=s.Set, Out="{5,0}"},
 }
 
 makeTastCase()
