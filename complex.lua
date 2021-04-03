@@ -51,6 +51,7 @@ metaData.__fulan = 360
 metaData.__margn = 1e-10
 metaData.__nanum = (0/0)
 metaData.__basef = "%s,%s"
+metaData.__getgr = ((1 + math.sqrt(5)) / 2)
 metaData.__getpi = math.pi
 metaData.__expvl = math.exp(1)
 metaData.__infum = math.huge
@@ -699,6 +700,17 @@ end
 
 function metaComplex:getEuler(...)
   return self:getNew():Euler(...)
+end
+
+function metaComplex:Binet(vR, vI)
+  if(vR or vI) then self:Set(vR, vI) end
+  local cN = self:getNew(metaData.__getgr):Pow(self)
+  local cO, nQ = self:getNew(-1):Pow(self), math.sqrt(5)
+  return self:Set(cO:Div(cN):Neg():Add(cN)):Rsz(1 / nQ)
+end
+
+function metaComplex:getBinet(...)
+  return self:getNew():Binet(...)
 end
 
 function metaComplex:Round(nF)
