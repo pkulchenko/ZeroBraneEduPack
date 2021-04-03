@@ -576,7 +576,8 @@ local tCall = {
   {"MeanHarm        : ","getMeanHarm   ","{1,3}                                 ", {complex.convNew("1 + 3i")}},
   {"MeanHarm        : ","getMeanHarm   ","{3.3333333333333,3.3333333333333}     ", {complex.convNew("1 + 3i"), "5"}},
   {"MeanHarm        : ","getMeanHarm   ","{4.2,0.6}                             ", {complex.convNew("1 + 3i"), 5, complex.convNew("2 - i")}},
-  {"GammaFunction   : ","getGamma      ","{-200.44191447792,635.4434927007}    "}
+  {"GammaFunction   : ","getGamma      ","{-200.44191447792,635.4434927007}     "},
+  {"BinetFibonacci  : ","getBinet      ","{11.510587181858,6.0096609882358}     "}
 }
 
 local b = complex.getNew(7,1)
