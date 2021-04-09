@@ -250,7 +250,7 @@ local function newScope(sName)
     mcldXY = (clDXY or colr(200,200,200))
     return self
   end
-  function self:Draw(bMx, bMy, bGrd)
+  function self:Draw(bMx, bMy, bGrd, bZer)
     local xe = moiX:Convert(midX):getValue()
     local ye = moiY:Convert(midY):getValue()
     if(bGrd) then pncl(mcldXY); local nK
@@ -269,6 +269,15 @@ local function newScope(sName)
     end
     if(xe and bMx) then pncl(mclMid); line(0, ye, mnW, ye) end
     if(ye and bMy) then pncl(mclMid); line(xe, 0, xe, mnH) end
+    if(bZer) then
+      local zx = moiX:Convert(0):getValue()
+      local zy = moiY:Convert(0):getValue()
+      if(zx and zy) then
+        pncl(mclOrg)
+        line(0, zy, mnW, zy)
+        line(zx, 0, zx, mnH)
+      end
+    end
     return self
   end
   function self:drawComplex(xyP, xyO, bTx, clP, clO)
@@ -305,13 +314,17 @@ local function newScope(sName)
     sMs = sMs..tostring(bSp and cP or "")
     text(sMs,nA,px,py); return self
   end
-  function self:drawComplexPoint(xyP, clNew, bTx)
+  function self:drawComplexPoint(xyP, clNew, bTx, nA)
     local px, py = xyP:getParts()
     px = moiX:Convert(px):getValue()
     py = moiY:Convert(py):getValue()
     if(mnPs > 0) then local sz = 2*mnPs+1
       pncl(clNew or mclPos); rect(px-mnPs,py-mnPs,sz,sz)
-    else pncl(clNew or mclPos); pixl(px, py) end; return self
+    else pncl(clNew or mclPos); pixl(px, py) end
+    if(bTx) then pncl(mclDir);
+      local nA = (tonumber(nA) or (xyP:getAngDeg()+90))
+      text(tostring(xyP:getRound(0.001)),nA,px,py)
+    end; return self
   end
   function self:drawComplexPolygon(tV, bTx, clP, clO, nN, bO)
     if(not isTable(tV)) then

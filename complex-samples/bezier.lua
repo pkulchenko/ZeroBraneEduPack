@@ -7,7 +7,7 @@ local crt     = require("chartmap")
 local dX,dY = 1,1
 local W , H = 600, 400
 local minX, maxX = -4, 8
-local minY, maxY = 0, 8
+local minY, maxY = -2, 8
 local greyLevel  = 200
 local intX  = crt.New("interval","WinX", minX, maxX, 0, W)
 local intY  = crt.New("interval","WinY", minY, maxY, H, 0)
@@ -29,7 +29,7 @@ local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, min
 -- local tS = complex.getBezierCurve({p1, p2, ..., pn},n-samples)
 
 local tp = {p1,p2,p3,p4}
-local tS = complex.getBezierCurve(tp,30)
+local tS = complex.getBezierCurve(tp,50)
 
 if(tS) then
   common.logStatus("The distance between every grey line on X is: "..tostring(dX))
@@ -46,17 +46,19 @@ if(tS) then
   open("Complex Bezier curve")
   size(W,H); zero(0, 0); updt(false) -- disable auto updates
 
-  scOpe:Draw(true, true, true)
+  scOpe:Draw(false, false, true, true)
 
-  p1:Action("ab", p2, clB)
-  p2:Action("ab", p3, clB)
-  p3:Action("ab", p4, clB)
+  for iD = 1, (#tp - 1) do
+    tp[iD]:Action("ab", tp[iD + 1], clB)
+    scOpe:drawComplexPoint(tp[iD], nil, true, 65)
+  end; scOpe:drawComplexPoint(tp[#tp], nil, true, 65)
 
   for ID = 1, (#tS-1) do
     tS[ID][1]:Action("ab", tS[ID+1][1], clR)
-    updt(); wait(0.02)
+    scOpe:drawComplexPoint(tS[ID][1])
+    updt(); wait(0.05)
   end 
-
+  
   wait()
 else
   common.logStatus("Your curve parameters are invalid !")
