@@ -43,12 +43,12 @@ local c6 = complex.getNew( 15, 15)
 
 -- When you need complex conversion, let the complex extractor handle the conversion
 -- The complex vararg convertor produces table of complex numbers from non-nil arguments
--- local tc = complex.convArray({c1,"-5",c2,c3,1,c4,c5,"6+10i",c6})
+-- local tc = complex.cnvArray({c1,"-5",c2,c3,1,c4,c5,"6+10i",c6})
 
 -- You can pass table of complex numbers
-local tc = complex.convArray(c1,c2,c3,c4,c5,c6)
+local tc = complex.cnvArray(c1,c2,c3,c4,c5,c6)
 local tC = complex.getCatmullRomCurve(tc,10,0.1)
-
+  
 -- You can also pass vararg complex numbers
 -- local tC = complex.getCatmullRomCurve(c1,c2,c3,c4,c5,c6,10,0.1)
 

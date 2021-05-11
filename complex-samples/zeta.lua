@@ -5,7 +5,7 @@ local col = require("colormap")
 local crt = require("chartmap")
 local cmp = require("complex").extend()
 
-local W,  H = 200, 200
+local W,  H = 400, 400
 local minX, maxX = -5, 5
 local minY, maxY = -10, 10
 local dX, dY, cT, nAlp = 1, 1, cmp.getNew(), 0.5

@@ -49,13 +49,13 @@ if(tS) then
   scOpe:Draw(false, false, true, true)
 
   for iD = 1, (#tp - 1) do
-    tp[iD]:Action("ab", tp[iD + 1], clB)
+    tp[iD]:Action("ab", tp[iD+1], clB)
     scOpe:drawComplexPoint(tp[iD], nil, true, 65)
   end; scOpe:drawComplexPoint(tp[#tp], nil, true, 65)
 
-  for ID = 1, (#tS-1) do
-    tS[ID][1]:Action("ab", tS[ID+1][1], clR)
-    scOpe:drawComplexPoint(tS[ID][1])
+  for iD = 1, (#tS-1) do
+    tS[iD]:Action("ab", tS[iD+1], clR)
+    scOpe:drawComplexPoint(tS[iD])
     updt(); wait(0.05)
   end 
   

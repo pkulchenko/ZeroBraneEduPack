@@ -184,7 +184,7 @@ tPar[7] = {
   {Typ="non-existent", Arg={nil  , nil  },Out="{0,0}"}
 }
 
-makeTastCase(complex.convNew)
+makeTastCase(complex.cnvNew)
 
 -------------------------------------------------------------------------------------------------------
 logStatus("\nComplex signum "..tostring(a)); tPar = {}
@@ -291,7 +291,7 @@ tPar[5] ={
   {Typ="Pow UE", Arg={a, 2, 2, true}  ,Foo=a.getPow, Out="{49,49}"}
 }
 
-local t = a:getNew():Add(complex.convNew("0.5+0.5i"))
+local t = a:getNew():Add(complex.cnvNew("0.5+0.5i"))
 
 tPar[6] ={
   Name = "Floor "..tostring(t),
@@ -319,8 +319,8 @@ tPar[8] ={
   {Typ="Conj" , Arg={a, true, false },Foo=t.getConj , Out="{7,-7}"},
 }
 
-local ru = ( a:getNew() * 10 + complex.convNew(" 0.36+0.36j")):Print("%7.3f","Positive : {","}\n")
-local rd = (-a:getNew() * 10 + complex.convNew("-0.36-0.36j")):Print("%7.3f","Negative : {","}\n")
+local ru = ( a:getNew() * 10 + complex.cnvNew(" 0.36+0.36j")):Print("%7.3f","Positive : {","}\n")
+local rd = (-a:getNew() * 10 + complex.cnvNew("-0.36-0.36j")):Print("%7.3f","Negative : {","}\n")
 
 tPar[9] ={
   Name = "Round positive "..tostring(a),
@@ -570,12 +570,12 @@ local tCall = {
   {"ArgCosineH      : ","getArcCosH    ","{2.6443267863946,0.14331753305457}    "},
   {"ArgTangentH     : ","getArcTangH   ","{0.14086733931285,1.550399485361}     "},
   {"ArgCotangentH   : ","getArcCotgH   ","{0.14086733931285,-0.020396841433933} "},
-  {"Mean            : ","getMean       ","{1,3}                                 ", {complex.convNew("1 + 3i")}},
-  {"Mean            : ","getMean       ","{3,1.5}                               ", {complex.convNew("1 + 3i"), "5"}},
-  {"Mean            : ","getMean       ","{2.6666666666667,0.66666666666667}    ", {complex.convNew("1 + 3i"), 5, complex.convNew("2 - i")}},
-  {"MeanHarm        : ","getMeanHarm   ","{1,3}                                 ", {complex.convNew("1 + 3i")}},
-  {"MeanHarm        : ","getMeanHarm   ","{3.3333333333333,3.3333333333333}     ", {complex.convNew("1 + 3i"), "5"}},
-  {"MeanHarm        : ","getMeanHarm   ","{4.2,0.6}                             ", {complex.convNew("1 + 3i"), 5, complex.convNew("2 - i")}},
+  {"Mean            : ","getMean       ","{1,3}                                 ", {complex.cnvNew("1 + 3i")}},
+  {"Mean            : ","getMean       ","{3,1.5}                               ", {complex.cnvNew("1 + 3i"), "5"}},
+  {"Mean            : ","getMean       ","{2.6666666666667,0.66666666666667}    ", {complex.cnvNew("1 + 3i"), 5, complex.cnvNew("2 - i")}},
+  {"MeanHarm        : ","getMeanHarm   ","{1,3}                                 ", {complex.cnvNew("1 + 3i")}},
+  {"MeanHarm        : ","getMeanHarm   ","{3.3333333333333,3.3333333333333}     ", {complex.cnvNew("1 + 3i"), "5"}},
+  {"MeanHarm        : ","getMeanHarm   ","{4.2,0.6}                             ", {complex.cnvNew("1 + 3i"), 5, complex.cnvNew("2 - i")}},
   {"GammaFunction   : ","getGamma      ","{-200.44191447792,635.4434927007}     "},
   {"BinetFibonacci  : ","getBinet      ","{11.510587181858,6.0096609882358}     "}
 }

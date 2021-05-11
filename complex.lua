@@ -100,7 +100,7 @@ local function getUnpackStack(R, I, E)
     return nR, nI, I -- First table and second element
   end; return (tonumber(R) or zR), (tonumber(I) or zI), E
 end
-  
+
 function complex.getNew(nRe, nIm)
   local Re, Im, self = 0, 0, {}
   setmetatable(self, metaComplex)
@@ -295,7 +295,7 @@ function metaComplex:getMid(...)
 end
 
 function metaComplex:Mean(...)
-  local tV, fV = {...}; fV = tV[1] 
+  local tV, fV = {...}; fV = tV[1]
   if(isTable(fV) and not tonumber(fV) and
      not complex.isValid(fV)) then tV = fV end
   local nV = #tV; if(nV <= 0) then
@@ -1364,7 +1364,7 @@ function complex.getRandom(nL, nU, vC)
   return complex.getNew(R, I)
 end
 
-function complex.convNew(vIn, ...)
+function complex.cnvNew(vIn, ...)
   if(complex.isValid(vIn)) then return vIn:getNew() end
   local tArg = {...}
   if(isNil(vIn)) then return complex.getNew(0,0)
@@ -1372,11 +1372,11 @@ function complex.convNew(vIn, ...)
   elseif(isTable(vIn)) then return tableToComplex(vIn, tArg[1], tArg[2])
   elseif(isBool(vIn)) then return complex.getNew(vIn and 1 or 0,tArg[1] and 1 or 0)
   elseif(isFunction(vIn)) then local bS, vR, vI = pcall(vIn, ...)
-    if(not bS) then return logStatus("complex.convNew: Function: "..vR,nil) end
-    return complex.convNew(vR, vI) -- Translator function generating converter format
+    if(not bS) then return logStatus("complex.cnvNew: Function: "..vR,nil) end
+    return complex.cnvNew(vR, vI) -- Translator function generating converter format
   elseif(isString(vIn)) then -- Remove brackets and leave the values
     local Str, S, E = stringValidComplex(vIn:gsub("*","")); if(not Str) then
-      return logStatus("complex.convNew: Failed to validate <"..tostring(vIn)..">",nil) end
+      return logStatus("complex.cnvNew: Failed to validate <"..tostring(vIn)..">",nil) end
     Str = Str:sub(S, E); E = (E - S + 1); S = 1 -- Refresh string indexes
     local Sim, I = metaData.__ssyms    -- Prepare to find imaginary unit
     for ID = 1, #Sim do local val = Sim[ID]
@@ -1384,7 +1384,7 @@ function complex.convNew(vIn, ...)
     if(I and (I > 0)) then return stringToComplexI(Str, S, E, I)
     else return stringToComplex(Str, S, E, tArg[1]) end
   end
-  return logStatus("complex.convNew: Type <"..type(vIn).."> not supported",nil)
+  return logStatus("complex.cnvNew: Type <"..type(vIn).."> not supported",nil)
 end
 
 local function getUnpackSplit(...)
@@ -1399,9 +1399,9 @@ local function getUnpackSplit(...)
   end; return tC, nC, unpack(tA)
 end
 
-function complex.convArray(...) local tA = {...}
+function complex.cnvArray(...) local tA = {...}
   if(isTable(tA[1]) and not complex.isValid(tA[1])) then tA = tA[1] end
-  for iD = 1, #tA do tA[iD] = complex.convNew(tA[iD]) end; return tA
+  for iD = 1, #tA do tA[iD] = complex.cnvNew(tA[iD]) end; return tA
 end
 
 local function getBezierCurveVertexRec(nS, tV)
@@ -1422,12 +1422,12 @@ function complex.getBezierCurve(...)
     return logStatus("complex.getBezierCurve: First vertex invalid <"..type(tV[1])..">",nil) end
   if(not complex.isValid(tV[2])) then
     return logStatus("complex.getBezierCurve: Second vertex invalid <"..type(tV[2])..">",nil) end
-  local ID, cT, dT, tS = 1, 0, (1/nT), {}
-  tS[ID] = {tV[ID]:getNew(), tV[ID+1]:getSub(tV[ID]), 0}
-  cT, ID = (cT + dT), (ID + 1); while(cT < 1) do
-    local vP, vD = getBezierCurveVertexRec(cT, tV)
-    tS[ID] = {vP, vD, cT}; cT, ID = (cT + dT), (ID + 1)
-  end; tS[ID] = {tV[nV]:getNew(), tV[nV]:getSub(tV[nV-1]), 1}; return tS
+  local iD, cT, dT, tS = 1, 0, (1/nT), {}
+  tS[iD] = tV[iD]:getNew()
+  cT, iD = (cT + dT), (iD + 1)
+  while(cT < 1) do local vP, vD = getBezierCurveVertexRec(cT, tV)
+    tS[iD] = vP; cT, iD = (cT + dT), (iD + 1)
+  end; tS[iD] = tV[nV]:getNew(); return tS
 end
 
 function complex.getCatmullRomCurveTangent(cS, cE, nT, nA)
@@ -1478,15 +1478,14 @@ end
 function complex.getCatmullRomCurveDupe(...)
   local tV, nV, nT, nA = getUnpackSplit(...)
   nT = math.floor(tonumber(nT) or metaData.__numsp); if(nT < 0) then
-    return logStatus("complex.getCatmullRomCurveDupe: Samples count invalid <"..tostring(nT)..">",nil) end
+    return logStatus("complex.getCurveDupe: Samples count invalid <"..tostring(nT)..">",nil) end
   if(not (tV[1] and tV[2])) then
-    return logStatus("complex.getCatmullRomCurveDupe: Two vertexes are needed",nil) end
+    return logStatus("complex.getCurveDupe: Two vertexes are needed",nil) end
   if(not complex.isValid(tV[1])) then
-    return logStatus("complex.getCatmullRomCurveDupe: First vertex invalid <"..type(tV[1])..">",nil) end
+    return logStatus("complex.getCurveDupe: First vertex invalid <"..type(tV[1])..">",nil) end
   if(not complex.isValid(tV[2])) then
-    return logStatus("complex.getCatmullRomCurveDupe: Second vertex invalid <"..type(tV[2])..">",nil) end
-  local tN, nN = {tV[1], ID = {{true, 1}}}, 1
-  local tF, nM = {}, metaData.__margn
+    return logStatus("complex.getCurveDupe: Second vertex invalid <"..type(tV[2])..">",nil) end
+  local tN, nN, tF, nM = {tV[1], ID = {{true, 1}}}, 1, {}, metaData.__margn
   for iD = 2, nV do
     if(tV[iD]:getSub(tN[nN]):getNorm2() > nM) then
       table.insert(tN, tV[iD])
@@ -1494,7 +1493,8 @@ function complex.getCatmullRomCurveDupe(...)
     else tN.ID[iD] = {false} end
   end
   if(nN > 1) then
-    local tC = complex.getCatmullRomCurve(tN, nT, nA)
+    local bS, tC = pcall(complex.getCatmullRomCurve, tN, nT, nA); if(not bS) then
+      return logStatus("complex.getCurveDupe: Error: "..tC,nil) end
     for iD = 1, nV-1 do local iC = iD + 1
       table.insert(tF, tV[iD]:getNew())
       if(not tN.ID[iC][1]) then
