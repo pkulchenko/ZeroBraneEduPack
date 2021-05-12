@@ -1404,18 +1404,18 @@ function complex.cnvArray(...) local tA = {...}
   for iD = 1, #tA do tA[iD] = complex.cnvNew(tA[iD]) end; return tA
 end
 
-local function getBezierCurveVertexRec(nS, tV)
+local function getBezierCurveVertexRec(cT, tV)
   local tD, tP, nD = {}, {}, (#tV-1)
-  for ID = 1, nD do tD[ID] = tV[ID+1]:getNew():Sub(tV[ID]) end
-  for ID = 1, nD do tP[ID] = tV[ID]:getAdd(tD[ID]:getRsz(nS)) end
-  if(nD > 1) then return getBezierCurveVertexRec(nS, tP) end
-  return tP[1], tD[1]
+  for iD = 1, nD do tD[iD] = tV[iD+1]:getSub(tV[iD]) end
+  for iD = 1, nD do tP[iD] = tV[iD]:getAdd(tD[iD]:Rsz(cT)) end
+  if(nD > 1) then return getBezierCurveVertexRec(cT, tP) end
+  return tP[1]
 end
 
 function complex.getBezierCurve(...)
   local tV, nV, nT = getUnpackSplit(...)
-  nT = math.floor(tonumber(nT) or metaData.__numsp); if(nT < 2) then
-    return logStatus("complex.getBezierCurve: Samples <"..nT.."> less than two",nil) end
+  nT = (math.floor(tonumber(nT) or metaData.__numsp) + 1); if(nT < 0) then
+    return logStatus("complex.getBezierCurve: Samples mismatch <"..nT..">",nil) end
   if(not (tV[1] and tV[2])) then
     return logStatus("complex.getBezierCurve: Two vertexes are needed",nil) end
   if(not complex.isValid(tV[1])) then
@@ -1425,9 +1425,11 @@ function complex.getBezierCurve(...)
   local iD, cT, dT, tS = 1, 0, (1/nT), {}
   tS[iD] = tV[iD]:getNew()
   cT, iD = (cT + dT), (iD + 1)
-  while(cT < 1) do local vP, vD = getBezierCurveVertexRec(cT, tV)
-    tS[iD] = vP; cT, iD = (cT + dT), (iD + 1)
-  end; tS[iD] = tV[nV]:getNew(); return tS
+  while(cT < 1) do
+    tS[iD] = getBezierCurveVertexRec(cT, tV)
+    cT, iD = (cT + dT), (iD + 1)
+  end; tS[iD] = tV[nV]:getNew()
+  return tS
 end
 
 function complex.getCatmullRomCurveTangent(cS, cE, nT, nA)
