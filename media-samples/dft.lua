@@ -36,7 +36,7 @@ for i = 1, rt do
 end; common.logString("\n")
 tim = ((os.clock()-tim) * 1000)
 
-open("Discrete Fourier Transform (DFT) graph (red), sampled signal (blue) and weighted (green)")
+open("Discrete Fourier Transform (DFT) graph (red), sampled (blue) and weighted signal (green)")
 size(W, H); zero(0, 0)
 updt(false) -- disable auto updates
 

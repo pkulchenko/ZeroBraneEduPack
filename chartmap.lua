@@ -55,6 +55,7 @@ local function newInterval(sName, nL1, nH1, nL2, nH2)
       return logStatus(metaInterval.__type..".Convert("..mNm.."): Source <"..tostring(nVal).."> NaN", self) end
     mVal = common.getRemap(val, mH1, mL1, mH2, mL2, bRev); return self
   end
+
   return self
 end
 
@@ -101,7 +102,7 @@ local function newTracer(sName)
     end; return self
   end
   function self:getCache() return mCach end
-  function self:getCacheSize() return mCach.Size, mCach.Draw end
+  function self:getCacheSZ() return mCach.Size, mCach.Draw end
   function self:getString() return "["..metaTracer.__type.."] "..mName end
   function self:getValue() return mTimN, mValN end
   function self:getChart() return mPntN.x, mPntN.y end
@@ -413,6 +414,7 @@ local function newScope(sName)
     return self:drawOval(xyP:getReal(), xyP:getImag(), rR, rR)
   end
   function self:getString() return "["..metaScope.__type.."] "..mName end
+
   return self
 end
 
