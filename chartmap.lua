@@ -358,14 +358,14 @@ local function newScope(sName)
   end
   function self:drawGraph(tY, tX)
     if(not isTable(tY)) then
-      return logStatus(metaScope.__type..".plotGraph: Skip", self) end
+      return logStatus(metaScope.__type..".drawGraph: Skip", self) end
     local ntY, bX, ntX, toP = #tY, false
     if(isTable(tX)) then ntX, bX = #tX, true
       if(ntX ~= ntY) then
-        logStatus(metaScope.__type..".plotGraph: Shorter <" ..ntX..","..ntY..">")
+        logStatus(metaScope.__type..".drawGraph: Shorter <" ..ntX..","..ntY..">")
         toP = math.min(ntX, ntY) else toP = ntY end
     else toP, bX = ntY, false end
-    local trA, vX = newTracer("plotGraph"):setInterval(moiX, moiY)
+    local trA, vX = newTracer("drawGraph"):setInterval(moiX, moiY)
     for iD = 1, toP do
       vX = getPick(bX, tX and tX[iD], iD)
       trA:Write(vX, tY[iD]):Draw(mclDir, mnPs)
@@ -374,11 +374,11 @@ local function newScope(sName)
   end
   function self:drawStem(tY, tX)
     if(not isTable(tY)) then
-      return logStatus(metaScope.__type..".plotGraph: Skip", self) end
+      return logStatus(metaScope.__type..".drawStem: Skip", self) end
     local ntY, bX, ntX, toP = #tY, false
     if(isTable(tX)) then ntX, bX = #tX, true
       if(ntX ~= ntY) then
-        logStatus(metaScope.__type..".plotGraph: Shorter <" ..ntX..","..ntY..">")
+        logStatus(metaScope.__type..".drawStem: Shorter <" ..ntX..","..ntY..">")
         toP = math.min(ntX, ntY) else toP = ntY end
     else toP, bX = ntY, false end; local vX
     local zY = moiY:Convert(0):getValue()
