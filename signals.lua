@@ -345,7 +345,7 @@ function signals.getPhaseFactorDFT(nK, nN)
   return cE:getPow(cK:Mul(cI):Div(2^nN, 0))
 end
 
--- Removes the DFT phase factor for realtime
+-- Removes the DFT phase factor for real-time
 function signals.remPhaseFactorDFT(bG)
   local tW = metaSignals["DFT_PHASEFCT"]
   for iK, vV in pairs(tW) do tW[iK] = nil end
@@ -353,7 +353,7 @@ function signals.remPhaseFactorDFT(bG)
     collectgarbage() end; return tW
 end
 
--- Caches the DFT phase factor for realtime
+-- Caches the DFT phase factor for real-time
 function signals.setPhaseFactorDFT(nN)
   local tW = signals.remPhaseFactorDFT()
   local gW = signals.getPhaseFactorDFT
@@ -477,7 +477,7 @@ local function newNeuralNet(sName)
   end
   function self:remLayer()
     mtData[mID] = nil; mID = (mID - 1); return self
-  end  
+  end
   function self:Process()
     for iK = 2, (mID-1) do
       local tNL, tPL = mtData[iK], mtData[iK-1]
@@ -504,7 +504,7 @@ local function newNeuralNet(sName)
     return self
   end
   function self:setActive(fA, fD, fO)
-    if(isFunction(fA)) then mfAct = fA 
+    if(isFunction(fA)) then mfAct = fA
       local bS, aR = pcall(mfAct, 0)
       if(not bS) then mfAct = logStatus("newNeuralNet.setActive(dif): Fail "..tostring(aR), self) end
     else mfAct = logStatus("newNeuralNet.setActive(act): Skip", self) end
@@ -557,7 +557,7 @@ local function newNeuralNet(sName)
     logStatus("  Layers  : "..(mID-1))
     logStatus("  Neurons : "..self:getNeuronsCnt())
     logStatus("  Weights : "..self:getWeightsCnt())
-    logStatus("  Interanal weights and and values status:")
+    logStatus("  Internal weights and and values status:")
     logConcat(stringPadL("V[1]",iL," ")..stringPadR("(1)",dL).." -> ",", ", unpack(mtData[1].V))
     logConcat(stringPadL("A[1]",iL," ")..stringPadR("(1)",dL).." -> ",", ", unpack(mtData[1].A))
     for k = 2, (mID-1) do local mW = mtData[k].W; for i = 1, #mW do
@@ -595,7 +595,6 @@ local function newControl(nTo, sName)
   local mName, mType, mUser = (sName and tostring(sName) or "N/A"), "", {}
 
   function self:getTerm(kV,eV,pV) return (kV*mfSgn(eV)*mfAbs(eV)^pV) end
-  function self:Dump() return logStatus(self:getString(), self) end
   function self:getGains() return mkP, mkI, mkD end
   function self:getTerms() return mvP, mvI, mvD end
   function self:setEnIntegral(bEn) meInt = toBool(bEn); return self end
@@ -636,21 +635,23 @@ local function newControl(nTo, sName)
 
   function self:getString()
     local sInfo = (mType ~= "") and (mType.."-") or mType
-          sInfo = "["..sInfo..metaControl.__type.."] Properties:\n"
-          sInfo = sInfo.."  Name : "..mName.." ["..tostring(mTo).."]s\n"
-          sInfo = sInfo.."  Param: {"..tostring(mUser[1])..", "..tostring(mUser[2])..", "
-          sInfo = sInfo..tostring(mUser[3])..", "..tostring(mUser[4])..", "..tostring(mUser[5]).."}\n"
-          sInfo = sInfo.."  Gains: {P="..tostring(mkP)..", I="..tostring(mkI)..", D="..tostring(mkD).."}\n"
-          sInfo = sInfo.."  Power: {P="..tostring(mpP)..", I="..tostring(mpI)..", D="..tostring(mpD).."}\n"
-          sInfo = sInfo.."  Limit: {D="..tostring(mSatD)..",U="..tostring(mSatU).."}\n"
-          sInfo = sInfo.."  Error: {"..tostring(mErrO)..", "..tostring(mErrN).."}\n"
-          sInfo = sInfo.."  Value: ["..tostring(mvCon).."] {P="..tostring(mvP)
-          sInfo = sInfo..", I="..tostring(mvI)..", D="..tostring(mvD).."}\n"; return sInfo
+    return ("["..sInfo..metaControl.__type.."]["..mName.."]["..tostring(mTo).."]s")
+  end
+
+  function self:Dump()
+    logStatus(self:getString().." Properties:")
+    for iD = 1, 5 do logStatus("  User["..iD.."]: "..tostring(mUser[iD])) end
+    logStatus("  Gains: {P="..tostring(mkP)..", I="..tostring(mkI)..", D="..tostring(mkD).."}")
+    logStatus("  Power: {P="..tostring(mpP)..", I="..tostring(mpI)..", D="..tostring(mpD).."")
+    logStatus("  Limit: {D="..tostring(mSatD)..",U="..tostring(mSatU).."}")
+    logStatus("  Error: {"..tostring(mErrO)..", "..tostring(mErrN).."}")
+    logStatus("  Out  : ["..tostring(mvCon).."]")
+    logStatus("  Value: {P="..tostring(mvP)..", I="..tostring(mvI)..", D="..tostring(mvD).."}"); return self
   end
 
   function self:Setup(arParam)
     if(type(arParam) ~= "table") then
-      return logStatus("newControl.Setup: Params table <"..type(arParam).."> invalid") end
+      return logStatus("newControl.Setup: Parameter table <"..type(arParam).."> invalid") end
 
     if(arParam[1] and (tonumber(arParam[1] or 0) > 0)) then
       mkP = (tonumber(arParam[1] or 0))
@@ -690,7 +691,7 @@ local metaPlant = {}
       metaPlant.__metatable = metaPlant.__type
       metaPlant.__tostring  = function(oPlant) return oPlant:getString() end
 local function newPlant(nTo, tNum, tDen, sName)
-  local mOrd = #tDen; if(mOrd < #tNum) then
+  local mDeg = #tDen; if(mDeg < #tNum) then
     return logStatus("Plant physically impossible") end
   if(tDen[1] == 0) then
     return logStatus("Plant denominator invalid") end
@@ -699,31 +700,35 @@ local function newPlant(nTo, tNum, tDen, sName)
   local mName, mOut = tostring(sName or "Plant plant"), nil
   local mSta, mDen, mNum = {}, {}, {}
 
-  for ik = 1, mOrd, 1 do mSta[ik] = 0 end
-  for iK = 1, mOrd, 1 do mDen[iK] = (tonumber(tDen[iK]) or 0) end
-  for iK = 1, mOrd, 1 do mNum[iK] = (tonumber(tNum[iK]) or 0) end
-  for iK = 1, (mOrd - #tNum), 1 do table.insert(mNum,1,0); mNum[#mNum] = nil end
+  for ik = 1, mDeg, 1 do mSta[ik] = 0 end
+  for iK = 1, mDeg, 1 do mDen[iK] = (tonumber(tDen[iK]) or 0) end
+  for iK = 1, mDeg, 1 do mNum[iK] = (tonumber(tNum[iK]) or 0) end
+  for iK = 1, (mDeg - #tNum), 1 do table.insert(mNum,1,0); mNum[#mNum] = nil end
+
+  function self:getOutput() return mOut end
+  function self:getOrder() return (mDeg - 1) end
 
   function self:Scale()
     local nK = mDen[1]
-    for iK = 1, mOrd do
+    for iK = 1, mDeg do
       mNum[iK] = (mNum[iK] / nK)
       mDen[iK] = (mDen[iK] / nK)
     end; return self
   end
 
   function self:getString()
-    local sInfo = "["..metaPlant.__type.."] Properties:\n"
-    sInfo = sInfo.."  Name       : "..mName.."^"..tostring(mOrd).." ["..tostring(mTo).."]s\n"
-    sInfo = sInfo.."  Numenator  : {"..table.concat(mNum,", ").."}\n"
-    sInfo = sInfo.."  Denumenator: {"..table.concat(mDen,", ").."}\n"
-    sInfo = sInfo.."  States     : {"..table.concat(mSta,", ").."}\n"; return sInfo
+    return "["..metaPlant.__type.."]["..mName.."]["..tostring(mTo).."]s^"..self:getOrder()
   end
-  function self:Dump() return logStatus(self:getString(), self)  end
-  function self:getOutput() return mOut end
+
+  function self:Dump()
+    logStatus(self:getString().." Properties:")
+    logStatus("  Numerator  : {"..table.concat(mNum,", ").."}")
+    logStatus("  Denominator: {"..table.concat(mDen,", ").."}")
+    logStatus("  States     : {"..table.concat(mSta,", ").."}"); return self
+  end
 
   function self:getBeta()
-    local nOut, iK = 0, mOrd
+    local nOut, iK = 0, mDeg
     while(iK > 0) do
       nOut = nOut + (mNum[iK] or 0) * mSta[iK]
       iK = iK - 1 -- Get next state
@@ -731,7 +736,7 @@ local function newPlant(nTo, tNum, tDen, sName)
   end
 
   function self:getAlpha()
-    local nOut, iK = 0, mOrd
+    local nOut, iK = 0, mDeg
     while(iK > 1) do
       nOut = nOut - (mDen[iK] or 0) * mSta[iK]
       iK = iK - 1 -- Get next state
@@ -739,7 +744,7 @@ local function newPlant(nTo, tNum, tDen, sName)
   end
 
   function self:putState(vX)
-    local iK, nX = mOrd, (tonumber(vX) or 0)
+    local iK, nX = mDeg, (tonumber(vX) or 0)
     while(iK > 0 and mSta[iK]) do
       mSta[iK] = (mSta[iK-1] or 0); iK = iK - 1 -- Get next state
     end; mSta[1] = nX; return self

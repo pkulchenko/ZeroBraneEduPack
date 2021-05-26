@@ -55,6 +55,7 @@ local function newInterval(sName, nL1, nH1, nL2, nH2)
       return logStatus(metaInterval.__type..".Convert("..mNm.."): Source <"..tostring(nVal).."> NaN", self) end
     mVal = common.getRemap(val, mH1, mL1, mH2, mL2, bRev); return self
   end
+
   return self
 end
 
@@ -101,7 +102,7 @@ local function newTracer(sName)
     end; return self
   end
   function self:getCache() return mCach end
-  function self:getCacheSize() return mCach.Size, mCach.Draw end
+  function self:getCacheSZ() return mCach.Size, mCach.Draw end
   function self:getString() return "["..metaTracer.__type.."] "..mName end
   function self:getValue() return mTimN, mValN end
   function self:getChart() return mPntN.x, mPntN.y end
@@ -250,7 +251,7 @@ local function newScope(sName)
     mcldXY = (clDXY or colr(200,200,200))
     return self
   end
-  function self:Draw(bMx, bMy, bGrd)
+  function self:Draw(bMx, bMy, bGrd, bZer)
     local xe = moiX:Convert(midX):getValue()
     local ye = moiY:Convert(midY):getValue()
     if(bGrd) then pncl(mcldXY); local nK
@@ -269,6 +270,15 @@ local function newScope(sName)
     end
     if(xe and bMx) then pncl(mclMid); line(0, ye, mnW, ye) end
     if(ye and bMy) then pncl(mclMid); line(xe, 0, xe, mnH) end
+    if(bZer) then
+      local zx = moiX:Convert(0):getValue()
+      local zy = moiY:Convert(0):getValue()
+      if(zx and zy) then
+        pncl(mclOrg)
+        line(0, zy, mnW, zy)
+        line(zx, 0, zx, mnH)
+      end
+    end
     return self
   end
   function self:drawComplex(xyP, xyO, bTx, clP, clO)
@@ -295,23 +305,27 @@ local function newScope(sName)
   function self:drawComplexLine(xyS, xyE, bTx)
     return self:drawComplex(xyS, xyE, bTx, mclOrg, mclOrg)
   end
-  function self:drawComplexText(xyP, sTx, bSp, vA)
+  function self:drawComplexText(xyP, sTx, vA, bSp)
     local sMs, cP = tostring(sTx), xyP:getRound(0.001)
     local px, py = cP:getParts()
-    local nA = xyP:getSub(0,0):getAngDeg()
-    nA = getPick(vA, tonumber(vA), nA)
+    local nA = xyP:getAngDeg()
+    nA = (vA and (tonumber(vA) or 0) or nA)
     px = moiX:Convert(px):getValue()
     py = moiY:Convert(py):getValue()
-    sMs = sMs..getPick(bSp, tostring(cP), "")
+    sMs = sMs..tostring(bSp and cP or "")
     text(sMs,nA,px,py); return self
   end
-  function self:drawComplexPoint(xyP, clNew, bTx)
+  function self:drawComplexPoint(xyP, clNew, bTx, nA)
     local px, py = xyP:getParts()
     px = moiX:Convert(px):getValue()
     py = moiY:Convert(py):getValue()
     if(mnPs > 0) then local sz = 2*mnPs+1
       pncl(clNew or mclPos); rect(px-mnPs,py-mnPs,sz,sz)
-    else pncl(clNew or mclPos); pixl(px, py) end; return self
+    else pncl(clNew or mclPos); pixl(px, py) end
+    if(bTx) then pncl(mclDir);
+      local nA = (tonumber(nA) or (xyP:getAngDeg()+90))
+      text(tostring(xyP:getRound(0.001)),nA,px,py)
+    end; return self
   end
   function self:drawComplexPolygon(tV, bTx, clP, clO, nN, bO)
     if(not isTable(tV)) then
@@ -344,14 +358,14 @@ local function newScope(sName)
   end
   function self:drawGraph(tY, tX)
     if(not isTable(tY)) then
-      return logStatus(metaScope.__type..".plotGraph: Skip", self) end
+      return logStatus(metaScope.__type..".drawGraph: Skip", self) end
     local ntY, bX, ntX, toP = #tY, false
     if(isTable(tX)) then ntX, bX = #tX, true
       if(ntX ~= ntY) then
-        logStatus(metaScope.__type..".plotGraph: Shorter <" ..ntX..","..ntY..">")
+        logStatus(metaScope.__type..".drawGraph: Shorter <" ..ntX..","..ntY..">")
         toP = math.min(ntX, ntY) else toP = ntY end
     else toP, bX = ntY, false end
-    local trA, vX = newTracer("plotGraph"):setInterval(moiX, moiY)
+    local trA, vX = newTracer("drawGraph"):setInterval(moiX, moiY)
     for iD = 1, toP do
       vX = getPick(bX, tX and tX[iD], iD)
       trA:Write(vX, tY[iD]):Draw(mclDir, mnPs)
@@ -360,11 +374,11 @@ local function newScope(sName)
   end
   function self:drawStem(tY, tX)
     if(not isTable(tY)) then
-      return logStatus(metaScope.__type..".plotGraph: Skip", self) end
+      return logStatus(metaScope.__type..".drawStem: Skip", self) end
     local ntY, bX, ntX, toP = #tY, false
     if(isTable(tX)) then ntX, bX = #tX, true
       if(ntX ~= ntY) then
-        logStatus(metaScope.__type..".plotGraph: Shorter <" ..ntX..","..ntY..">")
+        logStatus(metaScope.__type..".drawStem: Shorter <" ..ntX..","..ntY..">")
         toP = math.min(ntX, ntY) else toP = ntY end
     else toP, bX = ntY, false end; local vX
     local zY = moiY:Convert(0):getValue()
@@ -400,6 +414,7 @@ local function newScope(sName)
     return self:drawOval(xyP:getReal(), xyP:getImag(), rR, rR)
   end
   function self:getString() return "["..metaScope.__type.."] "..mName end
+
   return self
 end
 

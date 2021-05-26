@@ -7,6 +7,8 @@ local logStatus = common.logStatus
 
 io.stdout:setvbuf("no")
 
+complex.setIterations(20000)
+
 local tPar = {}
 local function makeTastCase(fCompl)
   for ID = 1, #tPar do
@@ -62,16 +64,16 @@ tPar[1] = {
   {Typ="nil-number1", Arg={a,-7,-7}, Out="{-7,-7}"},
   {Typ="nil-number2", Arg={a,-7,nil}, Out="{-7,0}"},
   {Typ="nil-number3", Arg={a,nil,-7}, Out="{0,-7}"},
-  {Typ="nil-number4", Arg={a,nil,nil}, Out="{7,7}", Msg="Copy-constructor method is going to return SELF!"},
+  {Typ="nil-number4", Arg={a,nil,nil}, Out="{7,7}", Msg="Copy-constructor method returns copy of SELF!"},
   {Typ="string1", Arg={a,"7","7"}, Out="{7,7}"},
   {Typ="string2", Arg={a,"","7"}, Out="{0,7}"},
   {Typ="string3", Arg={a,"7",""}, Out="{7,0}"},
   {Typ="string4", Arg={a,"",""}, Out="{0,0}"},
   {Typ="string5", Arg={a,"abc","def"}, Out="{0,0}"},
-  {Typ="bool1", Arg={a,true ,true }, Out="{0,0}", Msg="Copy-constructor method is designed for complex and numbers!"},
-  {Typ="bool2", Arg={a,false,false}, Out="{7,7}", Msg="Copy-constructor method is designed for complex and numbers!"},
-  {Typ="bool3", Arg={a,true ,false}, Out="{0,0}", Msg="Copy-constructor method is designed for complex and numbers!"},
-  {Typ="bool4", Arg={a,false,true }, Out="{0,0}", Msg="Copy-constructor method is designed for complex and numbers!"}
+  {Typ="bool1", Arg={a,true ,true }, Out="{1,1}", Msg="Copy-constructor method supports booleans!"},
+  {Typ="bool2", Arg={a,false,false}, Out="{0,0}", Msg="Copy-constructor method supports booleans!"},
+  {Typ="bool3", Arg={a,true ,false}, Out="{1,0}", Msg="Copy-constructor method supports booleans!"},
+  {Typ="bool4", Arg={a,false,true }, Out="{0,1}", Msg="Copy-constructor method supports booleans!"}
 }
 
 makeTastCase(a.getNew)
@@ -182,7 +184,7 @@ tPar[7] = {
   {Typ="non-existent", Arg={nil  , nil  },Out="{0,0}"}
 }
 
-makeTastCase(complex.convNew)
+makeTastCase(complex.cnvNew)
 
 -------------------------------------------------------------------------------------------------------
 logStatus("\nComplex signum "..tostring(a)); tPar = {}
@@ -289,10 +291,10 @@ tPar[5] ={
   {Typ="Pow UE", Arg={a, 2, 2, true}  ,Foo=a.getPow, Out="{49,49}"}
 }
 
-local t = a:getNew():Add(complex.convNew("0.5+0.5i"))
+local t = a:getNew():Add(complex.cnvNew("0.5+0.5i"))
 
 tPar[6] ={
-  Name = "Floor "..tostring(a),
+  Name = "Floor "..tostring(t),
   {Typ="Nude"   , Arg={t}              ,Foo=t.getFloor, Out="{7,7}"},
   {Typ="ApplyFF", Arg={t, false, false},Foo=t.getFloor, Out="{7.5,7.5}"},
   {Typ="ApplyFT", Arg={t, false, true },Foo=t.getFloor, Out="{7.5,7}"},
@@ -301,7 +303,7 @@ tPar[6] ={
 }
 
 tPar[7] ={
-  Name = "Ceil "..tostring(a),
+  Name = "Ceil "..tostring(t),
   {Typ="Nude"   , Arg={t}              ,Foo=t.getCeil, Out="{8,8}"},
   {Typ="ApplyFF", Arg={t, false, false},Foo=t.getCeil, Out="{7.5,7.5}"},
   {Typ="ApplyFT", Arg={t, false, true },Foo=t.getCeil, Out="{7.5,8}"},
@@ -317,8 +319,8 @@ tPar[8] ={
   {Typ="Conj" , Arg={a, true, false },Foo=t.getConj , Out="{7,-7}"},
 }
 
-local ru = ( a:getNew() * 10 + complex.convNew(" 0.36+0.36j")):Print("%7.3f","Positive : {","}\n")
-local rd = (-a:getNew() * 10 + complex.convNew("-0.36-0.36j")):Print("%7.3f","Negative : {","}\n")
+local ru = ( a:getNew() * 10 + complex.cnvNew(" 0.36+0.36j")):Print("%7.3f","Positive : {","}\n")
+local rd = (-a:getNew() * 10 + complex.cnvNew("-0.36-0.36j")):Print("%7.3f","Negative : {","}\n")
 
 tPar[9] ={
   Name = "Round positive "..tostring(a),
@@ -357,38 +359,48 @@ tPar[11] ={
   {Typ="Nan(f,f)", Arg={a,false,false},Foo=a.getNan, Out="{7,7}"},
   {Typ="Nan(t,f)", Arg={a,true ,false},Foo=a.getNan, Out="{nan,7}"},
   {Typ="Nan(f,t)", Arg={a,false,true },Foo=a.getNan, Out="{7,nan}"},
-  {Typ="Inf(n,n)", Arg={a}            ,Foo=a.getInf, Out="{7,7}"},
+  {Typ="Inf(n,n)", Arg={a}            ,Foo=a.getInf, Out="{inf,inf}"},
   {Typ="Inf(t,t)", Arg={a,true ,true },Foo=a.getInf, Out="{-inf,-inf}"},
   {Typ="Inf(f,f)", Arg={a,false,false},Foo=a.getInf, Out="{inf,inf}"},
   {Typ="Inf(t,f)", Arg={a,true ,false},Foo=a.getInf, Out="{-inf,inf}"},
   {Typ="Inf(f,t)", Arg={a,false,true },Foo=a.getInf, Out="{inf,-inf}"}
 }
 
-local z = a:getNew(0,0)
+local z1 = a:getNew(0,0)
+local z2 = a:getNew(2,0)
 local n = a:getNew(1/0, -1/0)
 local g = a:getNew(0/0, 0/0)
 tPar[12]={
   Name = "Boolean checks "..tostring(z).." > "..tostring(n).." > "..tostring(g),
-  {Typ="Zero     ", Arg={z},Foo=z.isZero            , Out="true"},
-  {Typ="Zero(f,f)", Arg={z,false,false},Foo=z.isZero, Out="nil"},
-  {Typ="Zero(t,t)", Arg={z,true ,true },Foo=z.isZero, Out="true"},
-  {Typ="Zero(t,f)", Arg={z,true ,false},Foo=z.isZero, Out="true"},
-  {Typ="Zero(f,t)", Arg={z,false,true },Foo=z.isZero, Out="true"},
-  {Typ="ZeroRe   ", Arg={z},Foo=z.isZeroReal        , Out="true"},
-  {Typ="ZeroIm   ", Arg={z},Foo=z.isZeroImag        , Out="true"},
-  {Typ="Inf(xx)  ", Arg={n}             ,Foo=n.isInf, Out="false"},
-  {Typ="Inf(++)  ", Arg={n,false, false},Foo=n.isInf, Out="false"},
-  {Typ="Inf(--)  ", Arg={n,true , true },Foo=n.isInf, Out="false"},
-  {Typ="Inf(+-)  ", Arg={n,false, true },Foo=n.isInf, Out="true"},
-  {Typ="Inf(-+)  ", Arg={n,true , false},Foo=n.isInf, Out="false"},
-  {Typ="InfRe    ", Arg={n},Foo=n.isInfReal         , Out="true"},
-  {Typ="InfRe    ", Arg={n,true} ,Foo=n.isInfReal   , Out="false"},
-  {Typ="InfRe    ", Arg={n,false},Foo=n.isInfReal   , Out="true"},
-  {Typ="InfIm    ", Arg={n,true} ,Foo=n.isInfImag   , Out="true"},
-  {Typ="InfIm    ", Arg={n,false},Foo=n.isInfImag   , Out="false"},
-  {Typ="Nan      ", Arg={g},Foo=g.isNan             , Out="true"},
-  {Typ="NanRe    ", Arg={g},Foo=g.isNanReal         , Out="true"},
-  {Typ="NanIm    ", Arg={g},Foo=g.isNanImag         , Out="true"}
+  {Typ="Zero1B   ", Arg={z1, true },Foo=z1.isZero, Out="true"},
+  {Typ="Zero1A   ", Arg={z1, false},Foo=z1.isZero, Out="true"},
+  {Typ="Zero1A   ", Arg={z1},Foo=z1.isZero       , Out="true"},
+  {Typ="Zero1Re  ", Arg={z1},Foo=z1.isZeroReal   , Out="true"},
+  {Typ="Zero1Im  ", Arg={z1},Foo=z1.isZeroImag   , Out="true"},
+  {Typ="Zero2B   ", Arg={z2, true },Foo=z2.isZero, Out="true"},
+  {Typ="Zero2A   ", Arg={z2, false},Foo=z2.isZero, Out="false"},
+  {Typ="Zero2A   ", Arg={z2},Foo=z2.isZero       , Out="false"},
+  {Typ="Zero2Re  ", Arg={z2},Foo=z2.isZeroReal   , Out="false"},
+  {Typ="Zero2Im  ", Arg={z2},Foo=z2.isZeroImag   , Out="true"},
+  {Typ="Inf(xx)  ", Arg={n}                      , Foo=n.isInf, Out="false"},
+  {Typ="Inf(++)  ", Arg={n,false, false}         , Foo=n.isInf, Out="false"},
+  {Typ="Inf(--)  ", Arg={n,true , true }         , Foo=n.isInf, Out="false"},
+  {Typ="Inf(+-)  ", Arg={n,false, true }         , Foo=n.isInf, Out="true"},
+  {Typ="Inf(-+)  ", Arg={n,true , false}         , Foo=n.isInf, Out="false"},
+  {Typ="Inf(xxB) ", Arg={n, nil, nil, true}      , Foo=n.isInf, Out="true"},
+  {Typ="Inf(++B) ", Arg={n,false, false, true}   , Foo=n.isInf, Out="true"},
+  {Typ="Inf(--B) ", Arg={n,true , true , true}   , Foo=n.isInf, Out="true"},
+  {Typ="Inf(+-B) ", Arg={n,false, true , true}   , Foo=n.isInf, Out="true"},
+  {Typ="Inf(-+B) ", Arg={n,true , false, true}   , Foo=n.isInf, Out="false"},
+  {Typ="InfRe    ", Arg={n},Foo=n.isInfReal      , Out="true"},
+  {Typ="InfRe    ", Arg={n,true} ,Foo=n.isInfReal, Out="false"},
+  {Typ="InfRe    ", Arg={n,false},Foo=n.isInfReal, Out="true"},
+  {Typ="InfIm    ", Arg={n,true} ,Foo=n.isInfImag, Out="true"},
+  {Typ="InfIm    ", Arg={n,false},Foo=n.isInfImag, Out="false"},
+  {Typ="Nan()    ", Arg={g},Foo=g.isNan          , Out="true"},
+  {Typ="Nan(B)   ", Arg={g, true},Foo=g.isNan    , Out="true"},
+  {Typ="NanRe    ", Arg={g},Foo=g.isNanReal      , Out="true"},
+  {Typ="NanIm    ", Arg={g},Foo=g.isNanImag      , Out="true"}
 }
 
 local z = a:getNew(2,2)
@@ -472,12 +484,38 @@ local v2 = complex.getNew(-2,0)
 local M = {10, "25"}
 tPar[19] = {
   Name = "Center of mass ("..table.concat({tostring(v1),M[1],tostring(v2),M[2]},",")..")",
-  {Typ="CMCM", Arg={v1,v1,  M[1] ,  v2, M[2]},Foo=v1.getCenterMass, Out="{0,0}"},
-  {Typ="NMNM", Arg={v1, 5,  M[1] ,  -2, M[2]},Foo=v1.getCenterMass, Out="{0,0}"},
-  {Typ="SMSM", Arg={v1,"5", M[1] ,"-2", M[2]},Foo=v1.getCenterMass, Out="{0,0}"},
-  {Typ="CTT" , Arg={v1,{v1, v2}  ,      M   },Foo=v1.getCenterMass, Out="{0,0}"},
-  {Typ="NTT" , Arg={v1,{5, -2}   ,      M   },Foo=v1.getCenterMass, Out="{0,0}"},
-  {Typ="STT" , Arg={v1,{"5","-2"},      M   },Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="CMCM", Arg={v1, v1,  M[1] ,  v2, M[2]},Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="NMNM", Arg={v1,  5,  M[1] ,  -2, M[2]},Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="SMSM", Arg={v1, "5", M[1] ,"-2", M[2]},Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="CTT" , Arg={v1, {v1, v2}  ,      M   },Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="NTT" , Arg={v1, {5, -2}   ,      M   },Foo=v1.getCenterMass, Out="{0,0}"},
+  {Typ="STT" , Arg={v1, {"5","-2"},      M   },Foo=v1.getCenterMass, Out="{0,0}"},
+}
+
+local s = complex.getNew()
+tPar[20] = {
+  Name = "Set vlaue ("..table.concat({tostring(v1),M[1],tostring(v2),M[2]},",")..")",
+  {Typ="BTT", Arg={s,true     , true },Foo=s.Set, Out="{0,0}"},
+  {Typ="BTF", Arg={s,true     , false},Foo=s.Set, Out="{0,0}"},
+  {Typ="BFT", Arg={s,false    , true },Foo=s.Set, Out="{0,0}"},
+  {Typ="BFF", Arg={s,false    , false},Foo=s.Set, Out="{0,0}"},
+  {Typ="BT" , Arg={s,true            },Foo=s.Set, Out="{0,0}"},
+  {Typ="BF" , Arg={s,true            },Foo=s.Set, Out="{0,0}"},
+  {Typ="SNN", Arg={s,  5      ,   5  },Foo=s.Set, Out="{5,5}"},
+  {Typ="SNX", Arg={s,  5             },Foo=s.Set, Out="{5,0}"},
+  {Typ="SSN", Arg={s, "5"     ,   5  },Foo=s.Set, Out="{5,5}"},
+  {Typ="SSN", Arg={s,  5      ,  "5" },Foo=s.Set, Out="{5,5}"},
+  {Typ="SSX", Arg={s, "5"            },Foo=s.Set, Out="{5,0}"},
+  {Typ="TNN", Arg={s,{ 5      ,   5 }},Foo=s.Set, Out="{5,5}"},
+  {Typ="TNX", Arg={s,{ 5            }},Foo=s.Set, Out="{5,0}"},
+  {Typ="TSN", Arg={s,{"5"     ,   5 }},Foo=s.Set, Out="{5,5}"},
+  {Typ="TSN", Arg={s,{ 5      ,  "5"}},Foo=s.Set, Out="{5,5}"},
+  {Typ="TSX", Arg={s,{"5"         }  },Foo=s.Set, Out="{5,0}"},
+  {Typ="HNN", Arg={s, s:getNew(5,5)  },Foo=s.Set, Out="{5,5}"},
+  {Typ="HNX", Arg={s, s:getNew(5,0)  },Foo=s.Set, Out="{5,0}"},
+  {Typ="HSN", Arg={s, s:getNew(5)    },Foo=s.Set, Out="{5,0}"},
+  {Typ="HSN", Arg={s, s:getNew(5,"5")},Foo=s.Set, Out="{5,5}"},
+  {Typ="HSX", Arg={s, s:getNew("5")  },Foo=s.Set, Out="{5,0}"},
 }
 
 makeTastCase()
@@ -508,6 +546,7 @@ end
 local tCall = {
   {"MirrorPoint     : ","getMirrorPoint","{-7,-1}                               "},
   {"Margin          : ","getMargin     ","{7,1}                                 "},
+  {"CenterMass      : ","getCenterMass ","{0,0}                                 ", {5, 10, -2, 25}},
   {"Reverse         : ","getRev        ","{0.14,-0.02}                          "},
   {"Unit            : ","getUnit       ","{0.98994949366117,0.14142135623731}   "},
   {"PythagorAdd     : ","getAddPyth    ","{9.8994949366117,1.4142135623731}     "},
@@ -530,21 +569,36 @@ local tCall = {
   {"ArgSineH        : ","getArcSinH    ","{2.6539273355384,0.14051690607218}    "},
   {"ArgCosineH      : ","getArcCosH    ","{2.6443267863946,0.14331753305457}    "},
   {"ArgTangentH     : ","getArcTangH   ","{0.14086733931285,1.550399485361}     "},
-  {"ArgCotangentH   : ","getArcCotgH   ","{0.14086733931285,-0.020396841433933} "}
+  {"ArgCotangentH   : ","getArcCotgH   ","{0.14086733931285,-0.020396841433933} "},
+  {"Mean            : ","getMean       ","{1,3}                                 ", {complex.cnvNew("1 + 3i")}},
+  {"Mean            : ","getMean       ","{3,1.5}                               ", {complex.cnvNew("1 + 3i"), "5"}},
+  {"Mean            : ","getMean       ","{2.6666666666667,0.66666666666667}    ", {complex.cnvNew("1 + 3i"), 5, complex.cnvNew("2 - i")}},
+  {"MeanHarm        : ","getMeanHarm   ","{1,3}                                 ", {complex.cnvNew("1 + 3i")}},
+  {"MeanHarm        : ","getMeanHarm   ","{3.3333333333333,3.3333333333333}     ", {complex.cnvNew("1 + 3i"), "5"}},
+  {"MeanHarm        : ","getMeanHarm   ","{4.2,0.6}                             ", {complex.cnvNew("1 + 3i"), 5, complex.cnvNew("2 - i")}},
+  {"GammaFunction   : ","getGamma      ","{-200.44191447792,635.4434927007}     "},
+  {"BinetFibonacci  : ","getBinet      ","{11.510587181858,6.0096609882358}     "}
 }
 
 local b = complex.getNew(7,1)
 for id = 1, #tCall do
-  local mth = common.stringTrim(tCall[id][2])
-  local suc, rez = b(mth)
-  if(suc) then rez = tostring(rez)
-    local nam = tCall[id][1]:gsub(":", ""); nam = common.stringTrim(nam)
-    local com = common.stringTrim(tCall[id][3])
-    local sta = ((rez == com) and "OK" or "FAIL")
-    if(sta == "OK") then logStatus(common.stringPadR(nam,20," ")..sta.." >> "..rez)
-    else error("There was a problem executing method <"..nam.."> at index #"..id.."<"..rez.."="..com..">") end
-  else local nam = tCall[id][1]:gsub(":","")
-    error("There was a problem executing method <"..nam.."> at index #"..id.."<"..rez.."="..com..">")
+  local tInfo, sta, suc, rez = tCall[id]
+  local nam, mth, com, arg = unpack(tInfo)
+  nam = nam:gsub(":", ""); nam = common.stringTrim(nam)
+  mth = common.stringTrim(mth)
+  com = common.stringTrim(com)
+  if(arg) then
+    suc, rez = b(mth, unpack(arg))
+  else
+    suc, rez = b(mth)
+  end
+  rez = tostring(rez or "N/A")
+  sta = ((rez == com) and "OK" or "FAIL")
+  if(suc) then ; 
+    if(sta == "OK") then logStatus(common.stringPadR(nam, 20, " ")..sta.." >> "..rez)
+    else error("There was a problem in method ouput <"..nam.."> at index #"..id.." <"..rez.."="..com..">") end
+  else
+    error("There was a problem executing method <"..nam.."> at index #"..id.." <"..rez.."="..com..">")
   end
 end; logStatus("")
 
@@ -606,7 +660,7 @@ if(r) then
   for id = 1, #r do
     local ppw = (r[id]^R); ppw:Round(0.0000000001)
     logStatus(common.stringPadR(r[id].."^"..R, 38, " ").." = "..ppw)
-    spw, sa = tostring(ppw), tostring(a); if(spw ~= sa) then
+    local spw, sa = tostring(ppw), tostring(a); if(spw ~= sa) then
       error("Complex power mismatch at #"..id.." <"..spw..">?=<"..sa..">") end
     r[id]:Action("This your action key !")
     -- scOpe:drawComplex(r[id], nil, true) -- This is the same as above
