@@ -7,7 +7,7 @@ local cmp = require("complex").extend()
 
 local W,  H = 200, 200
 local minX, maxX = -5, 5
-local minY, maxY = -3, 3
+local minY, maxY, bAvg = -3, 3, true
 local dX, dY, cT, nAlp = 1, 1, cmp.getNew(), 0.5
 local intX  = crt.New("interval","WinX", minX, maxX, 0, W)
 local intY  = crt.New("interval","WinY", minY, maxY, H, 0)
@@ -28,7 +28,7 @@ for j = 0, H do
   for i = 0, W do
     cT:Set(intX:Convert(i, true):getValue(),
            intY:Convert(j, true):getValue())
-    local r, g, b, f = col.getColorComplexDomain(fFoo, cT, nAlp)
+    local r, g, b, f = col.getColorComplexDomain(fFoo, cT, nAlp, bAvg)
     pncl(colr(r, g, b)); pixl(i, j)
   end
   updt()

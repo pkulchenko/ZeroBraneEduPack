@@ -273,7 +273,7 @@ end
 
 function metaComplex:Unit(R, I)
   if(R or I) then self:Set(R, I) end
-  return self:Rsz(1/self:getNorm())
+  return self:Rsz(1 / self:getNorm())
 end
 
 function metaComplex:getUnit(...)
@@ -431,9 +431,10 @@ function metaComplex:getMargin(...)
 end
 
 function metaComplex:Deviation(sMsg, ...)
-  local tV, nV, cT, nM = {...}, 0, self:getNew(), metaData.__margn
-  local bC = complex.isValid(tV[1]); if(not bC) then tV = tV[1] end; nV = #tV
-  for iD = 1, nV do local nD = cT:Set(self):Sub(tV[iD]):getNorm(); if(nD > nM) then
+  local tV, nV, nM = {...}, 0, metaData.__margn
+  local bC = complex.isValid(tV[1])
+  if(not bC) then tV = tV[1] end; nV = #tV
+  for iD = 1, nV do local nD = self:getDist2(tV[iD]); if(nD > nM) then
     logStatus("complex."..tostring(sMsg)..":"..tV[iD].."["..iD.."]: Displaced by "..nD) end
   end; return self
 end
@@ -827,9 +828,9 @@ function complex.getAreaHeron(...)
     return logStatus("complex.getAreaHeron: Vertexes lacking <"..sV..">", 0) end
   if(nV > 3) then local sV = tostring(nV or "")
     logStatus("complex.getAreaHeron: Vertexes extra <"..sV..">") end
-  local nA = tV[1]:getSub(tV[2]):getNorm2()
-  local nB = tV[2]:getSub(tV[3]):getNorm2()
-  local nC = tV[3]:getSub(tV[1]):getNorm2()
+  local nA = tV[1]:getDist2(tV[2])
+  local nB = tV[2]:getDist2(tV[3])
+  local nC = tV[3]:getDist2(tV[1])
   local nD = (4 * (nA*nB + nA*nC + nB*nC))
   local nE = ((nA + nB + nC)^2)
   return math.abs(0.25 * math.sqrt(nD - nE))
@@ -847,7 +848,7 @@ function metaComplex:isAmongLine(cS, cE, bF)
 end
 
 function metaComplex:isAmongPoint(vR, vI)
-  return (self:getSub(vR, vI):getNorm() < metaData.__margn)
+  return (self:getDist(vR, vI) < metaData.__margn)
 end
 
 function metaComplex:Zero()
@@ -951,13 +952,13 @@ end
 function metaComplex:isInCircle(cO, vR)
   local nM = metaData.__margn
   local nR = getClamp(tonumber(vR) or 0, 0)
-  local nN = self:getSub(cO):getNorm()
+  local nN = self:getDist(cO)
   return (nN < (nR+nM))
 end
 
 function metaComplex:isAmongCircle(cO, vR)
   local nM = metaData.__margn
-  local nN = self:getSub(cO):getNorm()
+  local nN = self:getDist(cO)
   local nR = getClamp(tonumber(vR) or 0, 0)
   return ((nN < (nR+nM)) and (nN > (nR-nM)))
 end
@@ -1095,14 +1096,14 @@ end
 function complex.getSnapRayRay(cO1, cD1, cO2, cD2, scOpe)
   local cS, nD = cO1:getProjectRay(cO2, cD2), cD1:getNorm2()
   local cE = cD2:getUnit():Mul(cD1:getNorm()):Add(cS)
-  if(cS:getSub(cO1):getNorm2() > nD) then
+  if(cS:getDist2(cO1) > nD) then
     return logStatus("complex.getSnapRayRay: Radius mismatch", nil) end
   local nM, iK = metaData.__margn, 0
-  local nH, cM = cE:getSub(cS):getNorm2(), cS:getMid(cE)
+  local nH, cM = cE:getDist2(cS), cS:getMid(cE)
   while(nH > nM) do
-    if(cM:getSub(cO1):getNorm2() > nD) then
+    if(cM:getDist2(cO1) > nD) then
       cE:Set(cM); cM:Mid(cS) else cS:Set(cM); cM:Mid(cE) end
-    iK, nH = (iK + 1), cE:getSub(cS):getNorm2()
+    iK, nH = (iK + 1), cE:getDist2(cS)
   end; return cM, iK
 end
 
@@ -1146,7 +1147,7 @@ function complex.getIntersectRayCircle(cO, cD, cC, nR)
     return logStatus("complex.getIntersectRayCircle: Norm less than margin", nil) end
   local cR = cO:getNew():Sub(cC)
   local nB, nC = 2 * cD:getDot(cR), (cR:getNorm2() - nR^2)
-  local nD = (nB^2 - 4*nA*nC); if(nD < 0) then
+  local nD = (nB^2 - 4 * nA * nC); if(nD < 0) then
     return logStatus("complex.getIntersectRayCircle: Imaginary roots", nil) end
   local dA = (1/(2*nA)); nD, nB = dA*math.sqrt(nD), -nB*dA
   local xM = cD:getNew():Mul(nB - nD):Add(cO)
@@ -1433,7 +1434,7 @@ function complex.getBezierCurve(...)
 end
 
 function complex.getCatmullRomCurveTangent(cS, cE, nT, nA)
-  local nL, nM = cE:getNew():Sub(cS):getNorm(), metaData.__margn
+  local nL, nM = cE:getDist(cS), metaData.__margn
   return ((((nL == 0) and nM or nL)^(tonumber(nA) or 0.5))+nT)
 end
 
@@ -1489,7 +1490,7 @@ function complex.getCatmullRomCurveDupe(...)
     return logStatus("complex.getCurveDupe: Second vertex invalid <"..type(tV[2])..">",nil) end
   local tN, nN, tF, nM = {tV[1], ID = {{true, 1}}}, 1, {}, metaData.__margn
   for iD = 2, nV do
-    if(tV[iD]:getSub(tN[nN]):getNorm2() > nM) then
+    if(tV[iD]:getDist2(tN[nN]) > nM) then
       table.insert(tN, tV[iD])
       tN.ID[iD], nN = {true, nN}, (nN + 1)
     else tN.ID[iD] = {false} end
@@ -1669,12 +1670,12 @@ end
  Storage is done as tI{F=(01),(11),(00),(10)}
  The arguments q[xy] are the values the function has in c[xy]
  tV > The complex points of all four corners
- nV > Length od the array ( usually 4 )
+ nV > Length of the array ( usually 4 )
  tI > Values of the function/derivate in tV
  bC > Check for the point being on square
 ]]
 function metaComplex:getInterpolation(...)
-  local tV, nV, tI ,nH, bC = getUnpackSplit(...)
+  local tV, nV, tI, nH, bC = getUnpackSplit(...)
   if(bC) then local nM = metaData.__margn -- Validate function square borders area
     if(math.abs(tV[1]:getReal() - tV[3]:getReal()) > nM) then
       return logStatus("complex.getInterpolation["..nH.."]: Vertex X1 mismatch",nil) end
@@ -1685,11 +1686,11 @@ function metaComplex:getInterpolation(...)
     if(math.abs(tV[1]:getImag() - tV[2]:getImag()) > nM) then
       return logStatus("complex.getInterpolation["..nH.."]: Vertex Y2 mismatch",nil) end
   end; nH, extlb = getRound(tonumber(nH or 1), 1), metaData.__extlb
-  if(nH == 1) then local cT = self:getNew() -- Nearest neighbor
-    local nD, nV = cT:Sub(tV[1]):getNorm2(), (tonumber(tI.F[1]) or 0)
-    for iD = 2, 4 do cT:Set(self):Sub(tV[iD])
-      local nT = cT:getNorm2(); if(nT < nD) then
-        nD, nV = nT, (tonumber(tI.F[iD]) or 0) end; end; return nV
+  if(nH == 1) then -- Nearest neighbor (first-order-hold)
+    local nD, nF = self:getDist2(tV[1]), (tonumber(tI.F[1]) or 0)
+    for iD = 1, 4 do local nT = self:getDist2(tV[iD])
+      if(nT < nD) then nD, nF = nT, (tonumber(tI.F[iD]) or 0) end
+    end; return nF
   elseif(nH == 2) then local x, y = self:getParts()
     local x1 = (tV[1]:getReal() + tV[3]:getReal()) / 2
     local x2 = (tV[2]:getReal() + tV[4]:getReal()) / 2
@@ -1699,8 +1700,8 @@ function metaComplex:getInterpolation(...)
     local ay, by = ((y2 - y)/(y2 - y1)), ((y - y1)/(y2 - y1))
     local f1 = (ax*(tonumber(tI.F[3]) or 0) + bx*(tonumber(tI.F[4]) or 0))
     local f2 = (ax*(tonumber(tI.F[1]) or 0) + bx*(tonumber(tI.F[2]) or 0))
-    return ((ay*f1)+(by*f2))
-  elseif(nH == 3) then
+    return ((ay * f1) + (by * f2))
+  elseif(nH == 3) then -- Bicubic interpolation (third-order-hold)
     if(extlb) then return extlb.getInterpolation(self,nH,tI)
     else return logStatus("complex.getInterpolation["..nH.."]: Extension missing",nil) end
   end; return logStatus("complex.getInterpolation["..nH.."]: Mode mismatch",nil)
