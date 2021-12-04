@@ -89,12 +89,12 @@ function colormap.getColorHCL(h,c,l)
          colormap.getClamp(clClamp[2] * (b + m))
 end
 
-function colormap.stringColorRGB(r, g, b)
+function colormap.getStringRGB(r, g, b)
   return ("{"..tostring(r)..","..tostring(g)..","..tostring(b).."}")
 end
 
 function colormap.printColorRGB(...)
-  logStatus(colormap.stringColorRGB(...))
+  logStatus(colormap.getStringRGB(...))
 end
 
 function colormap.printColorMap(vKey, ...)
@@ -107,11 +107,11 @@ function colormap.printColorMap(vKey, ...)
   local nRgb = #tRgb; if(nRgb == 0) then
     return logStatus("colormap.printColorMap: Mapping empty ["..tostring(tRgb).."]") end
   local fRgb, nSiz, vMis = "%"..tostring(nRgb):len().."d", tRgb.Size, tRgb.Miss
-  vMis = ((vMis and type(vMis) == "table") and colormap.stringColorRGB(unpack(vMis)) or "N/A")
+  vMis = ((vMis and type(vMis) == "table") and colormap.getStringRGB(unpack(vMis)) or "N/A")
   logStatus("Colormap ["..tostring(vKey).."]["..tostring(nSiz).."]: "..tostring(vMis))
   for ID = 1, nRgb do local tRow = tRgb[ID]
     local tyRow = type(tRow); if(tyRow == "table") then
-      logStatus(fRgb:format(ID)..": "..colormap.stringColorRGB(unpack(tRow)))
+      logStatus(fRgb:format(ID)..": "..colormap.getStringRGB(unpack(tRow)))
     else logStatus(fRgb:format(ID)..": ["..tyRow.."]<"..tostring(tRow)..">") end
   end
 end
@@ -255,7 +255,7 @@ local function tableToColorRGB(tTab, kR, kG, kB)
          colormap.getClamp(cB or clClamp[1])
 end
 
-function colormap.convColorRGB(aIn, ...)
+function colormap.cnvColorRGB(aIn, ...)
   local tArg, tyIn, cR, cG, cB = {...}, type(aIn)
   if(tyIn == "boolean") then
     cR = (aIn     and clClamp[2] or clClamp[1])
@@ -272,7 +272,7 @@ function colormap.convColorRGB(aIn, ...)
     cG = colormap.getClamp(tonumber(tArg[1]) or clClamp[1])
     cB = colormap.getClamp(tonumber(tArg[2]) or clClamp[1]); return cR, cG, cB
   elseif(tyIn == "table") then return tableToColorRGB(aIn, tArg[1], tArg[2], tArg[3]) end
-  return logStatus("colormap.convColorRGB: Type <"..tyIn.."> not supported",nil)
+  return logStatus("colormap.cnvColorRGB: Type <"..tyIn.."> not supported",nil)
 end
 
 return colormap
