@@ -3,7 +3,7 @@
 
 if not debug.getinfo(3) then
   print("This is a module to extend other modules with.")
-  print("Please try `local module = require('module').extend()`.")
+  print("Try `local module = require('module').extend()`.")
   os.exit(1)
 end
 
@@ -35,8 +35,8 @@ function extensions.matrix.complexNew(nRe, nIm)
   return complex.getNew(nRe, nIm)
 end
 
-function extensions.matrix.complexConvNew(vIn, ...)
-  return complex.convNew(vIn, ...)
+function extensions.matrix.complexCnvNew(vIn, ...)
+  return complex.cnvNew(vIn, ...)
 end
 
 function extensions.matrix.complexGetRandom(nL, nU, vC)

@@ -40,6 +40,7 @@ if(tV) then
   scOpe:drawComplex(cO:Circumcenter(tV)):drawComplexCircle(cO, cO:getSub(tV[1]):getNorm())
   scOpe:setColorPos(clR):setColorDir(clR):setColorOrg(clR)
   scOpe:drawComplex(cO:NinePointCenter(tV)):drawComplexCircle(cO, tV[1]:getMid(tV[2]):Sub(cO):getNorm())
+  common.logStatus("Heron area is: "..complex.getAreaHeron(tV))
   wait()
 else
   common.logStatus("Your poly parameters are invalid !")

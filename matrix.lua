@@ -124,10 +124,10 @@ function metaMatrix:setSym(bS)
   for iR = 1, nR do for iC = 1, nC do
     if(bS) then
       if(extlb) then tData[iR][iC] = tostring(tData[iR][iC])
-      else tData[iR][iC] = convSignString(tonumber(tData[iR][iC]) or 0) end     
+      else tData[iR][iC] = convSignString(tonumber(tData[iR][iC]) or 0) end
     else -- When toggled convert back to a number
-      if(extlb) then tData[iR][iC] = extlb.complexConvNew(tData[iR][iC])
-      else tData[iR][iC] = (tonumber(tData[iR][iC]) or 0) end      
+      if(extlb) then tData[iR][iC] = extlb.complexCnvNew(tData[iR][iC])
+      else tData[iR][iC] = (tonumber(tData[iR][iC]) or 0) end
     end
   end; end; return self
 end
@@ -231,7 +231,7 @@ function metaMatrix:Fill(nR, nC, vV, bM)
         if(extlb) then
           if(tData) then tData[iR][iC]:Set(vV)
           else tM[iR][iC] = extlb.complexNew():Set(vV) end
-        else 
+        else
           if(tData) then tData[iR][iC] = vV
           else tM[iR][iC] = vV end
         end
@@ -489,7 +489,7 @@ function metaMatrix:Drop()
   local iR, nR, nC = 1, self:getSize()
   while(iR <= nR) do local nZ = 0
     for iC = 1, nC do local vD = tData[iR][iC]
-      if(isZero(vD)) then nZ = (nZ + 1) end end 
+      if(isZero(vD)) then nZ = (nZ + 1) end end
     if(nZ == nC) then nR = (nR - 1)
       table.remove(tData, iR)
     else iR = (iR + 1) end
@@ -545,7 +545,7 @@ end
 function metaMatrix:Snip(nsR, neR, nsC, neC)
   local tD, nR, nC = self:getData(), self:getSize()
   local nsR, neR = (tonumber(nsR) or 0), (tonumber(neR) or 0)
-  local nsC, neC = (tonumber(nsC) or 0), (tonumber(neC) or 0) 
+  local nsC, neC = (tonumber(nsC) or 0), (tonumber(neC) or 0)
   if(nsR > neR) then return logStatus("matrix.Snip: Row mismatch {"..nsR..", "..neR.."}", nil) end
   if(nsC > neC) then return logStatus("matrix.Snip: Col mismatch {"..nsC..", "..neC.."}", nil) end
   for iD = nsR, neR do local tR = tD[iD]; if(not tR) then
@@ -555,9 +555,9 @@ function metaMatrix:Snip(nsR, neR, nsC, neC)
   end
   for iD = (neR+1), nR do table.remove(tD) end
   for iD = 1, (nsR-1) do table.remove(tD, 1) end
-  for iD = 1, (neR-nsR+1) do local tR = tD[iD] 
+  for iD = 1, (neR-nsR+1) do local tR = tD[iD]
     for iK = (neC+1), nR do table.remove(tR) end
-    for iK = 1, (nsC-1) do table.remove(tR, 1) end    
+    for iK = 1, (nsC-1) do table.remove(tR, 1) end
   end; return self:setData()
 end
 
@@ -585,7 +585,7 @@ metaMatrix.__unm = function(oA,oB)
   return oA:getNew():Neg(oB)
 end
 
-metaMatrix.__tostring = function(oM) 
+metaMatrix.__tostring = function(oM)
   local nR, nC = oM:getSize()
   local nZ, tD = oM:getRank(), tostring(oM:getData()):sub(8,-1)
   return "{"..tD.."}Matrix("..nZ..") ["..nR.." x "..nC.."]"
@@ -635,7 +635,7 @@ metaMatrix.__le = function(oA,oB)
   end; return oA:getDet() <= oB:getDet()
 end
 
-function matrix.convNew(vIn,...)
+function matrix.cnvNew(vIn,...)
   if(matrix.isValid(vIn)) then return vIn:getNew(vIn) end
   local tyIn, tArg = type(vIn), {...}
   if(isType(tyIn, 5)) then -- Table

@@ -11,16 +11,15 @@ local math      = math
 local colormap  = {}
 local clMapping = {}
 local clClamp   = {0, 255}
-local clHash    = {
-  R = {1, "r", "R", "red"  , "Red"  , "RED"  },
-  G = {2, "g", "G", "green", "Green", "GREEN"},
-  B = {3, "b", "B", "blue" , "Blue" , "BLUE" }
+local metaColormap = {
+  __KEYR = {1, "r", "R", "red"  , "Red"  , "RED"  },
+  __KEYG = {2, "g", "G", "green", "Green", "GREEN"},
+  __KEYB = {3, "b", "B", "blue" , "Blue" , "BLUE" }
 }
 
 local logStatus       = common.logStatus
 local getValueKeys    = common.getValueKeys
 local stringExplode   = common.stringExplode
-local getClamp        = common.getClamp
 local getRound        = common.getRound
 local isNil           = common.isNil
 
@@ -45,6 +44,10 @@ function colormap.getColorYellowRGB() return 255,255,  0 end
 function colormap.getColorCyanRGB  () return 0  ,255,255 end
 function colormap.getColorMagenRGB () return 255,  0,255 end
 function colormap.getColorWhiteRGB () return 255,255,255 end
+function colormap.getColorBrownRGB () return 150, 75,  0 end
+function colormap.getColorOrangeRGB() return 255,128,  0 end
+function colormap.getColorVioletRGB() return 150,  0,230 end
+function colormap.getColorPinkRGB  () return 255, 80,255 end
 function colormap.getColorPadRGB(pad) return pad,pad,pad end
 function colormap.getColorNewRGB(r,g,b) return r, g, b end
 
@@ -54,7 +57,7 @@ function colormap.getColorRotateRigh(r, g, b) return b, r, g end
 function colormap.getClamp(vN)
   local nN = tonumber(vN); if(not nN) then
     return logStatus("colormap.getClamp: NAN {"..type(nN).."}<"..tostring(nN)..">") end
-  return getClamp(getRound(nN, 1), clClamp[1], clClamp[2])
+  return common.getClamp(getRound(nN, 1), clClamp[1], clClamp[2])
 end
 
 -- H [0,360], S [0,1], V [0,1]
@@ -86,12 +89,12 @@ function colormap.getColorHCL(h,c,l)
          colormap.getClamp(clClamp[2] * (b + m))
 end
 
-function colormap.stringColorRGB(r, g, b)
+function colormap.getStringRGB(r, g, b)
   return ("{"..tostring(r)..","..tostring(g)..","..tostring(b).."}")
 end
 
 function colormap.printColorRGB(...)
-  logStatus(colormap.stringColorRGB(...))
+  logStatus(colormap.getStringRGB(...))
 end
 
 function colormap.printColorMap(vKey, ...)
@@ -104,11 +107,11 @@ function colormap.printColorMap(vKey, ...)
   local nRgb = #tRgb; if(nRgb == 0) then
     return logStatus("colormap.printColorMap: Mapping empty ["..tostring(tRgb).."]") end
   local fRgb, nSiz, vMis = "%"..tostring(nRgb):len().."d", tRgb.Size, tRgb.Miss
-  vMis = ((vMis and type(vMis) == "table") and colormap.stringColorRGB(unpack(vMis)) or "N/A")
+  vMis = ((vMis and type(vMis) == "table") and colormap.getStringRGB(unpack(vMis)) or "N/A")
   logStatus("Colormap ["..tostring(vKey).."]["..tostring(nSiz).."]: "..tostring(vMis))
   for ID = 1, nRgb do local tRow = tRgb[ID]
     local tyRow = type(tRow); if(tyRow == "table") then
-      logStatus(fRgb:format(ID)..": "..colormap.stringColorRGB(unpack(tRow)))
+      logStatus(fRgb:format(ID)..": "..colormap.getStringRGB(unpack(tRow)))
     else logStatus(fRgb:format(ID)..": ["..tyRow.."]<"..tostring(tRow)..">") end
   end
 end
@@ -151,7 +154,8 @@ function colormap.getColorMapGradient(tMap, nStp)
     for iK = 1, nS do iP = iP + 1; tPal[iP] = {}
       tPal[iP][1] = colormap.getClamp(tPal[iP-1][1]+dr)
       tPal[iP][2] = colormap.getClamp(tPal[iP-1][2]+dg)
-      tPal[iP][3] = colormap.getClamp(tPal[iP-1][3]+db) end
+      tPal[iP][3] = colormap.getClamp(tPal[iP-1][3]+db)
+    end
   end; iP = iP + 1; tPal[iP] = {}
   tPal[iP][1] = colormap.getClamp(tMap[nT][1])
   tPal[iP][2] = colormap.getClamp(tMap[nT][2])
@@ -203,15 +207,55 @@ function colormap.getColorRegion(iDepth, maxDepth, iRegions)
   end
 end
 
-local function tableToColorRGB(tTab, kR, kG, kB)
-  if(not tTab) then return nil end
-  local cR = colormap.getClamp(tonumber(getValueKeys(tTab, clHash.R, kR)) or clClamp[1])
-  local cG = colormap.getClamp(tonumber(getValueKeys(tTab, clHash.G, kG)) or clClamp[1])
-  local cB = colormap.getClamp(tonumber(getValueKeys(tTab, clHash.B, kB)) or clClamp[1])
-  return cR, cG, cB
+function colormap.getColorComplexDomain(fF, vC, nA, bI)
+  local bS, vF = pcall(fF, vC) -- Try dedicated call
+  if(bS) then local mT = getmetatable(vF).__type
+    if(mT == "complex.complex") then -- Actual complex type
+      local nA = common.getClamp(tonumber(nA) or 0.5, 0, 1)
+      local nM, nP = vF:getPolar() -- Read norm and phase
+      local hslH = math.deg(nP) -- HSL needs degrees
+            hslH = ((hslH < 0) and (hslH + 360) or hslH)
+      local hslS, hslL = 1, (1 - nA ^ nM) -- Interpolate SL
+      local r, g, b = colormap.getColorHSL(hslH, hslS, hslL)
+      if(vF:isNan()) then -- Interpolate RGB as up-down-left-right
+        if(bI) then -- Recursive interpolation is enabled
+          local nD, nX, nY = common.getMargin(), vC:getParts()
+          local vC1, vC2 = vC:getNew(nX-nD, nY), vC:getNew(nX+nD, nY)
+          local vC3, vC4 = vC:getNew(nX, nY-nD), vC:getNew(nX, nY+nD)
+          local r1, g1, b1 = colormap.getColorComplexDomain(fF, vC1, nA)
+          local r2, g2, b2 = colormap.getColorComplexDomain(fF, vC2, nA)
+          local r3, g3, b3 = colormap.getColorComplexDomain(fF, vC3, nA)
+          local r4, g4, b4 = colormap.getColorComplexDomain(fF, vC4, nA)
+          r = math.floor((r1 + r2 + r3 + r4) / 4) -- Average red   (R)
+          g = math.floor((g1 + g2 + g3 + g4) / 4) -- Average green (G)
+          b = math.floor((b1 + b2 + b3 + b4) / 4) -- Average blue  (B)
+          return r, g, b, true
+        else -- Return black to prevent stack overflow
+          return clClamp[1], clClamp[1], clClamp[1], true
+        end
+      end
+      return r, g, b, true
+    else
+      logStatus("colormap.getColorComplexDomain: Complex: "..tostring(vF))
+      return clClamp[1], clClamp[1], clClamp[1], false -- If our complex is crap, return black
+    end
+  else
+    logStatus("colormap.getColorComplexDomain: Error: "..tostring(vF))
+    return clClamp[1], clClamp[1], clClamp[1], false -- If our function fails, return black
+  end
 end
 
-function colormap.convColorRGB(aIn, ...)
+local function tableToColorRGB(tTab, kR, kG, kB)
+  if(not tTab) then return nil end
+  local cR = tonumber(getValueKeys(tTab, metaColormap.__KEYR, kR))
+  local cG = tonumber(getValueKeys(tTab, metaColormap.__KEYG, kG))
+  local cB = tonumber(getValueKeys(tTab, metaColormap.__KEYB, kB))
+  return colormap.getClamp(cR or clClamp[1]),
+         colormap.getClamp(cG or clClamp[1]),
+         colormap.getClamp(cB or clClamp[1])
+end
+
+function colormap.cnvColorRGB(aIn, ...)
   local tArg, tyIn, cR, cG, cB = {...}, type(aIn)
   if(tyIn == "boolean") then
     cR = (aIn     and clClamp[2] or clClamp[1])
@@ -228,7 +272,7 @@ function colormap.convColorRGB(aIn, ...)
     cG = colormap.getClamp(tonumber(tArg[1]) or clClamp[1])
     cB = colormap.getClamp(tonumber(tArg[2]) or clClamp[1]); return cR, cG, cB
   elseif(tyIn == "table") then return tableToColorRGB(aIn, tArg[1], tArg[2], tArg[3]) end
-  return logStatus("colormap.convColorRGB: Type <"..tyIn.."> not supported",nil)
+  return logStatus("colormap.cnvColorRGB: Type <"..tyIn.."> not supported",nil)
 end
 
 return colormap
