@@ -5,7 +5,7 @@ local col     = require("colormap")
 local crt     = require("chartmap")
 
 local dX,dY = 1,1
-local W , H = 600, 400
+local W , H = 800, 600
 local minX, maxX = -4, 8
 local minY, maxY = -2, 8
 local greyLevel  = 200
