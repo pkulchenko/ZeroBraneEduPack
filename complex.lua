@@ -643,8 +643,8 @@ function metaComplex:getCeil(...)
 end
 
 -- https://en.wikipedia.org/wiki/Gamma_function
-function metaComplex:Gamma()
-  local nN = metaData.__numsp
+function metaComplex:Gamma(nI)
+  local nN = (tonumber(nI) or metaData.__numsp)
   local cS = self:getNew(); self:Set(1)
   local cA, cB = self:getNew(), self:getNew()
   for iN = 1, nN do
@@ -659,9 +659,9 @@ function metaComplex:getGamma(...)
 end
 
 -- https://en.wikipedia.org/wiki/Riemann_zeta_function
-function metaComplex:Zeta()
+function metaComplex:Zeta(nI)
   local cS = self:getNew(); self:Zero()
-  local cT, nN = cS:getNew(), metaData.__numsp
+  local cT, nN = cS:getNew(), (tonumber(nI) or metaData.__numsp)
   for iN = 1, nN do -- Convergent for domain Re(Z) > 0
     self:Add(cT:Set(iN):Pow(cS):Rev():Rsz((-1)^(iN - 1))) end
   return self:Mul(cT:Set(2):Pow(cS:Neg():Add(1)):Neg():Add(1):Rev())
