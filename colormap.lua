@@ -258,20 +258,28 @@ end
 function colormap.cnvColorRGB(aIn, ...)
   local tArg, tyIn, cR, cG, cB = {...}, type(aIn)
   if(tyIn == "boolean") then
-    cR = (aIn     and clClamp[2] or clClamp[1])
-    cG = (tArg[1] and clClamp[2] or clClamp[1])
-    cB = (tArg[2] and clClamp[2] or clClamp[1]); return cR, cG, cB
+    local cR = (aIn     and clClamp[2] or clClamp[1])
+    local cG = (tArg[1] and clClamp[2] or clClamp[1])
+    local cB = (tArg[2] and clClamp[2] or clClamp[1]); return cR, cG, cB
   elseif(tyIn == "string") then
     local sDe = (tArg[1] and tostring(tArg[1]) or ",")
     local tCol = stringExplode(aIn,sDe)
-    cR = colormap.getClamp(tonumber(tCol[1]) or clClamp[1])
-    cG = colormap.getClamp(tonumber(tCol[2]) or clClamp[1])
-    cB = colormap.getClamp(tonumber(tCol[3]) or clClamp[1]); return cR, cG, cB
+    local cR = colormap.getClamp(tonumber(tCol[1]) or clClamp[1])
+    local cG = colormap.getClamp(tonumber(tCol[2]) or clClamp[1])
+    local cB = colormap.getClamp(tonumber(tCol[3]) or clClamp[1]); return cR, cG, cB
   elseif(tyIn == "number") then
-    cR = colormap.getClamp(tonumber(aIn    ) or clClamp[1])
-    cG = colormap.getClamp(tonumber(tArg[1]) or clClamp[1])
-    cB = colormap.getClamp(tonumber(tArg[2]) or clClamp[1]); return cR, cG, cB
-  elseif(tyIn == "table") then return tableToColorRGB(aIn, tArg[1], tArg[2], tArg[3]) end
+    local cR = colormap.getClamp(tonumber(aIn    ) or clClamp[1])
+    local cG = colormap.getClamp(tonumber(tArg[1]) or clClamp[1])
+    local cB = colormap.getClamp(tonumber(tArg[2]) or clClamp[1]); return cR, cG, cB
+  elseif(tyIn == "table") then
+    local mt = getmetatable(aIn).__type
+    if(mt == "complex.complex") then
+      local cR = colormap.getClamp(tonumber(aIn:getReal()) or clClamp[1])
+      local cG = colormap.getClamp(tonumber(aIn:getImag()) or clClamp[1]); return cR, cG, 0
+    else
+      return tableToColorRGB(aIn, tArg[1], tArg[2], tArg[3])
+    end
+  end
   return logStatus("colormap.cnvColorRGB: Type <"..tyIn.."> not supported",nil)
 end
 
