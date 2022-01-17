@@ -54,8 +54,9 @@ print(("%s"):format('string')) --> string
 -- %f placeholder is for real numbers
 print(("%.2f"):format(1.5)) --> 1.50
 -- `.2` in `%.2f` specifies the number of decimal digits to be printed
--- %.0f placeholder truncates real numbers
-print(("%.0f"):format(1.5)) --> 1
+-- %.0f placeholder rounds a real number to the closest integer;
+-- ties are rounded up (in absolute values): 1.5 --> 2, -1.5 --> -2
+print(("%.0f"):format(1.5)) --> 2
 
 -- [Patterns and Captures](http://www.lua.org/manual/5.1/manual.html#5.4.1)
 local text = '21.12,24.16,"-1.1%"'
