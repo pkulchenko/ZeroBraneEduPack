@@ -27,12 +27,14 @@ local isNumber        = common.isNumber
 local isString        = common.isString
 local isFunction      = common.isFunction
 
+local toBool          = common.toBool
 local getPick         = common.getPick
 local getSign         = common.getSign
 local getRound        = common.getRound
 local getClamp        = common.getClamp
 local logStatus       = common.logStatus
 local logString       = common.logString
+local getChoose       = common.getChoose
 local getSignNon      = common.getSignNon
 local getValueKeys    = common.getValueKeys
 local randomGetNumber = common.randomGetNumber
@@ -44,11 +46,12 @@ metaData.__valim = 0
 metaData.__cactf = {}
 metaData.__ipmtx = {}
 metaData.__valns = "X"
-metaData.__curve = 100
+metaData.__numsp = 100
 metaData.__fulan = 360
 metaData.__margn = 1e-10
 metaData.__nanum = (0/0)
 metaData.__basef = "%s,%s"
+metaData.__getgr = ((1 + math.sqrt(5)) / 2)
 metaData.__getpi = math.pi
 metaData.__expvl = math.exp(1)
 metaData.__infum = math.huge
@@ -61,6 +64,12 @@ metaData.__kimag = {2,"Imag","imag","Im","im","I","i","Y","y"}
 
 function complex.extend()
   metaData.__extlb = require("extensions").complex; return complex
+end
+
+function complex.setIterations(vN)
+  local nN = math.floor(tonumber(vN) or 100)
+  if(nN <= 0) then nN = 100 end
+  metaData.__numsp = nN
 end
 
 function complex.isValid(cNum)
@@ -82,12 +91,14 @@ function complex.getMargin()
 end
 
 local function getUnpackStack(R, I, E)
+  local zR, zI = metaData.__valre, metaData.__valim
   if(complex.isValid(R)) then
     local nR, nI = R:getParts(); return nR, nI, I
   elseif(isTable(R)) then
-    local nR = (getValueKeys(R, metaData.__kreal) or 0)
-    local nI = (getValueKeys(R, metaData.__kimag) or 0); return nR, nI, I
-  end; return (tonumber(R) or metaData.__valre), (tonumber(I) or metaData.__valim), E
+    local nR = (getValueKeys(R, metaData.__kreal) or zR)
+    local nI = (getValueKeys(R, metaData.__kimag) or zI)
+    return nR, nI, I -- First table and second element
+  end; return (tonumber(R) or zR), (tonumber(I) or zI), E
 end
 
 function complex.getNew(nRe, nIm)
@@ -214,9 +225,9 @@ function metaComplex:Action(aK,...)
 end
 
 function metaComplex:getNew(nR, nI)
-  local N = complex.getNew(self); if(nR or nI) then
-    local R, I = getUnpackStack(nR, nI); N:Set(R, I)
-  end; return N
+  local N = complex.getNew(nR, nI)
+  local P = (isNil(nR) and isNil(nI))
+  if(P) then N:Set(self) end; return N
 end
 
 function metaComplex:Random(nL, nU, vC)
@@ -262,7 +273,7 @@ end
 
 function metaComplex:Unit(R, I)
   if(R or I) then self:Set(R, I) end
-  return self:Rsz(1/self:getNorm())
+  return self:Rsz(1 / self:getNorm())
 end
 
 function metaComplex:getUnit(...)
@@ -283,12 +294,14 @@ function metaComplex:getMid(...)
   return self:getNew():Mid(...)
 end
 
-function metaComplex:Mean(...) local tV = {...}
-  local fV, cV = tV[1], self:getNew(0,0)
-  if(isTable(fV)) then tV = tV[1] end
-  local nV = #tV; if(nV <= 0) then return self end
-  for iD = 1, nV do cV:Add(tV[iD]) end
-  return self:Set(cV:Rsz(1/nV))
+function metaComplex:Mean(...)
+  local tV, fV = {...}; fV = tV[1]
+  if(isTable(fV) and not tonumber(fV) and
+     not complex.isValid(fV)) then tV = fV end
+  local nV = #tV; if(nV <= 0) then
+    return self end; self:Set(0,0)
+  for iD = 1, nV do self:Add(tV[iD]) end
+  return self:Rsz(1 / nV)
 end
 
 function metaComplex:getMean(...)
@@ -418,9 +431,10 @@ function metaComplex:getMargin(...)
 end
 
 function metaComplex:Deviation(sMsg, ...)
-  local tV, nV, cT, nM = {...}, 0, self:getNew(), metaData.__margn
-  local bC = complex.isValid(tV[1]); if(not bC) then tV = tV[1] end; nV = #tV
-  for iD = 1, nV do local nD = cT:Set(self):Sub(tV[iD]):getNorm(); if(nD > nM) then
+  local tV, nV, nM = {...}, 0, metaData.__margn
+  local bC = complex.isValid(tV[1])
+  if(not bC) then tV = tV[1] end; nV = #tV
+  for iD = 1, nV do local nD = self:getDist2(tV[iD]); if(nD > nM) then
     logStatus("complex."..tostring(sMsg)..":"..tV[iD].."["..iD.."]: Displaced by "..nD) end
   end; return self
 end
@@ -628,6 +642,35 @@ function metaComplex:getCeil(...)
   return self:getNew():Ceil(...)
 end
 
+-- https://en.wikipedia.org/wiki/Gamma_function
+function metaComplex:Gamma()
+  local nN = metaData.__numsp
+  local cS = self:getNew(); self:Set(1)
+  local cA, cB = self:getNew(), self:getNew()
+  for iN = 1, nN do
+    cA:Set(1 + 1 / iN):Pow(cS)
+    cB:Set(cS):Div(iN):Add(1):Rev()
+    self:Mul(cA:Mul(cB))
+  end; return self:Div(cS)
+end
+
+function metaComplex:getGamma(...)
+  return self:getNew():Gamma(...)
+end
+
+-- https://en.wikipedia.org/wiki/Riemann_zeta_function
+function metaComplex:Zeta()
+  local cS = self:getNew(); self:Zero()
+  local cT, nN = cS:getNew(), metaData.__numsp
+  for iN = 1, nN do -- Convergent for domain Re(Z) > 0
+    self:Add(cT:Set(iN):Pow(cS):Rev():Rsz((-1)^(iN - 1))) end
+  return self:Mul(cT:Set(2):Pow(cS:Neg():Add(1)):Neg():Add(1):Rev())
+end
+
+function metaComplex:getZeta(...)
+  return self:getNew():Zeta(...)
+end
+
 function metaComplex:getAngRad()
   local R, I = self:getParts(); return math.atan2(I, R) end
 
@@ -658,6 +701,17 @@ end
 
 function metaComplex:getEuler(...)
   return self:getNew():Euler(...)
+end
+
+function metaComplex:Binet(vR, vI)
+  if(vR or vI) then self:Set(vR, vI) end
+  local cN = self:getNew(metaData.__getgr):Pow(self)
+  local cO, nQ = self:getNew(-1):Pow(self), math.sqrt(5)
+  return self:Set(cO:Div(cN):Neg():Add(cN)):Rsz(1 / nQ)
+end
+
+function metaComplex:getBinet(...)
+  return self:getNew():Binet(...)
 end
 
 function metaComplex:Round(nF)
@@ -774,9 +828,9 @@ function complex.getAreaHeron(...)
     return logStatus("complex.getAreaHeron: Vertexes lacking <"..sV..">", 0) end
   if(nV > 3) then local sV = tostring(nV or "")
     logStatus("complex.getAreaHeron: Vertexes extra <"..sV..">") end
-  local nA = tV[1]:getSub(tV[2]):getNorm2()
-  local nB = tV[2]:getSub(tV[3]):getNorm2()
-  local nC = tV[3]:getSub(tV[1]):getNorm2()
+  local nA = tV[1]:getDist2(tV[2])
+  local nB = tV[2]:getDist2(tV[3])
+  local nC = tV[3]:getDist2(tV[1])
   local nD = (4 * (nA*nB + nA*nC + nB*nC))
   local nE = ((nA + nB + nC)^2)
   return math.abs(0.25 * math.sqrt(nD - nE))
@@ -794,7 +848,7 @@ function metaComplex:isAmongLine(cS, cE, bF)
 end
 
 function metaComplex:isAmongPoint(vR, vI)
-  return (self:getSub(vR, vI):getNorm() < metaData.__margn)
+  return (self:getDist(vR, vI) < metaData.__margn)
 end
 
 function metaComplex:Zero()
@@ -813,36 +867,37 @@ function metaComplex:isZeroImag()
   return (math.abs(self:getImag()) < metaData.__margn)
 end
 
-function metaComplex:isZero(bR, bI)
-  local bR = getPick(isNil(bR), true, bR)
-  local bI = getPick(isNil(bI), true, bI)
-  local zR, zI = self:isZeroReal(), self:isZeroImag()
-  if(bR and bI) then return (zR and zI) end
-  if(bR) then return zR end; if(bI) then return zI end
-  return logStatus("complex.isZero: Not applicable", nil)
+function metaComplex:isZero(bO) -- Trigger check for any
+  if(bO) then return (self:isZeroReal() or self:isZeroImag()) end
+  return (self:isZeroReal() and self:isZeroImag())
 end
 
-function metaComplex:isInfReal(bR)
+function metaComplex:isInfReal(bN)
   local mH, nR = metaData.__infum, self:getReal()
-  if(bR) then return (nR == -mH) end
+  if(bN) then return (nR == -mH) end
   return (nR == mH)
 end
 
-function metaComplex:isInfImag(bI)
+function metaComplex:isInfImag(bN)
   local mH, nI = metaData.__infum, self:getImag()
-  if(bI) then return (nI == -mH) end
+  if(bN) then return (nI == -mH) end
   return (nI == mH)
 end
 
-function metaComplex:isInf(bR, bI)
+function metaComplex:isInf(bR, bI, bO) -- Trigger check for both
+  if(bO) then return (self:isInfReal(bR) or self:isInfImag(bI)) end
   return (self:isInfReal(bR) and self:isInfImag(bI))
 end
 
-function metaComplex:Inf(bR, bI)
+function metaComplex:Inf(nR, nI)
   local nH, sR, sI = metaData.__infum, self:getParts()
-  local nR = getPick(isNil(bR), sR, getPick(bR, -nH, nH))
-  local nI = getPick(isNil(bI), sI, getPick(bI, -nH, nH))
-  return self:setReal(nR):setImag(nI)
+  if(nR or nI) then -- Convert arguments to numbers
+    sR = tonumber(nR) and nR or (toBool(nR) and -1 or 1)
+    sI = tonumber(nI) and nI or (toBool(nI) and -1 or 1)
+  end -- Convert numbers to infinity
+  sR = getSign(sR) > 0 and nH or -nH
+  sI = getSign(sI) > 0 and nH or -nH
+  return self:setReal(sR):setImag(sI)
 end
 
 function metaComplex:getInf(...)
@@ -857,7 +912,9 @@ function metaComplex:isNanImag()
   local nI = self:getImag(); return (nI ~= nI)
 end
 
-function metaComplex:isNan()
+function metaComplex:isNan(bO)
+  if(bO) then -- Trigger check for both
+    return (self:isNanReal() or self:isNanImag()) end
   return (self:isNanReal() and self:isNanImag())
 end
 
@@ -895,13 +952,13 @@ end
 function metaComplex:isInCircle(cO, vR)
   local nM = metaData.__margn
   local nR = getClamp(tonumber(vR) or 0, 0)
-  local nN = self:getSub(cO):getNorm()
+  local nN = self:getDist(cO)
   return (nN < (nR+nM))
 end
 
 function metaComplex:isAmongCircle(cO, vR)
   local nM = metaData.__margn
-  local nN = self:getSub(cO):getNorm()
+  local nN = self:getDist(cO)
   local nR = getClamp(tonumber(vR) or 0, 0)
   return ((nN < (nR+nM)) and (nN > (nR-nM)))
 end
@@ -1039,14 +1096,14 @@ end
 function complex.getSnapRayRay(cO1, cD1, cO2, cD2, scOpe)
   local cS, nD = cO1:getProjectRay(cO2, cD2), cD1:getNorm2()
   local cE = cD2:getUnit():Mul(cD1:getNorm()):Add(cS)
-  if(cS:getSub(cO1):getNorm2() > nD) then
+  if(cS:getDist2(cO1) > nD) then
     return logStatus("complex.getSnapRayRay: Radius mismatch", nil) end
   local nM, iK = metaData.__margn, 0
-  local nH, cM = cE:getSub(cS):getNorm2(), cS:getMid(cE)
+  local nH, cM = cE:getDist2(cS), cS:getMid(cE)
   while(nH > nM) do
-    if(cM:getSub(cO1):getNorm2() > nD) then
+    if(cM:getDist2(cO1) > nD) then
       cE:Set(cM); cM:Mid(cS) else cS:Set(cM); cM:Mid(cE) end
-    iK, nH = (iK + 1), cE:getSub(cS):getNorm2()
+    iK, nH = (iK + 1), cE:getDist2(cS)
   end; return cM, iK
 end
 
@@ -1090,7 +1147,7 @@ function complex.getIntersectRayCircle(cO, cD, cC, nR)
     return logStatus("complex.getIntersectRayCircle: Norm less than margin", nil) end
   local cR = cO:getNew():Sub(cC)
   local nB, nC = 2 * cD:getDot(cR), (cR:getNorm2() - nR^2)
-  local nD = (nB^2 - 4*nA*nC); if(nD < 0) then
+  local nD = (nB^2 - 4 * nA * nC); if(nD < 0) then
     return logStatus("complex.getIntersectRayCircle: Imaginary roots", nil) end
   local dA = (1/(2*nA)); nD, nB = dA*math.sqrt(nD), -nB*dA
   local xM = cD:getNew():Mul(nB - nD):Add(cO)
@@ -1233,6 +1290,21 @@ function complex.setAction(aK, fD)
   return logStatus("complex.setAction: Non-function", false)
 end
 
+function metaComplex:MeanHarm(...)
+  local tV, fV = {...}; fV = tV[1]
+  if(isTable(fV) and not tonumber(fV) and
+     not complex.isValid(fV)) then tV = fV end
+  local nV = #tV; if(nV <= 0) then return self end
+  local cT = self:getNew(); self:Set(0,0)
+  for iD = 1, nV do
+    cT:Set(tV[iD]):Rev(); self:Add(cT)
+  end; return self:Rev():Rsz(nV)
+end
+
+function metaComplex:getMeanHarm(...)
+  return self:getNew():MeanHarm(...)
+end
+
 local function stringValidComplex(sStr)
   local Str = sStr:gsub("%s","") -- Remove hollows
   local S, E, B = 1, Str:len(), metaData.__bords
@@ -1293,7 +1365,7 @@ function complex.getRandom(nL, nU, vC)
   return complex.getNew(R, I)
 end
 
-function complex.convNew(vIn, ...)
+function complex.cnvNew(vIn, ...)
   if(complex.isValid(vIn)) then return vIn:getNew() end
   local tArg = {...}
   if(isNil(vIn)) then return complex.getNew(0,0)
@@ -1301,11 +1373,11 @@ function complex.convNew(vIn, ...)
   elseif(isTable(vIn)) then return tableToComplex(vIn, tArg[1], tArg[2])
   elseif(isBool(vIn)) then return complex.getNew(vIn and 1 or 0,tArg[1] and 1 or 0)
   elseif(isFunction(vIn)) then local bS, vR, vI = pcall(vIn, ...)
-    if(not bS) then return logStatus("complex.convNew: Function: "..vR,nil) end
-    return complex.convNew(vR, vI) -- Translator function generating converter format
+    if(not bS) then return logStatus("complex.cnvNew: Function: "..vR,nil) end
+    return complex.cnvNew(vR, vI) -- Translator function generating converter format
   elseif(isString(vIn)) then -- Remove brackets and leave the values
     local Str, S, E = stringValidComplex(vIn:gsub("*","")); if(not Str) then
-      return logStatus("complex.convNew: Failed to validate <"..tostring(vIn)..">",nil) end
+      return logStatus("complex.cnvNew: Failed to validate <"..tostring(vIn)..">",nil) end
     Str = Str:sub(S, E); E = (E - S + 1); S = 1 -- Refresh string indexes
     local Sim, I = metaData.__ssyms    -- Prepare to find imaginary unit
     for ID = 1, #Sim do local val = Sim[ID]
@@ -1313,7 +1385,7 @@ function complex.convNew(vIn, ...)
     if(I and (I > 0)) then return stringToComplexI(Str, S, E, I)
     else return stringToComplex(Str, S, E, tArg[1]) end
   end
-  return logStatus("complex.convNew: Type <"..type(vIn).."> not supported",nil)
+  return logStatus("complex.cnvNew: Type <"..type(vIn).."> not supported",nil)
 end
 
 local function getUnpackSplit(...)
@@ -1328,34 +1400,42 @@ local function getUnpackSplit(...)
   end; return tC, nC, unpack(tA)
 end
 
-local function getBezierCurveVertexRec(nS, tV)
+function complex.cnvArray(...) local tA = {...}
+  if(isTable(tA[1]) and not complex.isValid(tA[1])) then tA = tA[1] end
+  for iD = 1, #tA do tA[iD] = complex.cnvNew(tA[iD]) end; return tA
+end
+
+local function getBezierCurveVertexRec(cT, tV)
   local tD, tP, nD = {}, {}, (#tV-1)
-  for ID = 1, nD do tD[ID] = tV[ID+1]:getNew():Sub(tV[ID]) end
-  for ID = 1, nD do tP[ID] = tV[ID]:getAdd(tD[ID]:getRsz(nS)) end
-  if(nD > 1) then return getBezierCurveVertexRec(nS, tP) end
-  return tP[1], tD[1]
+  for iD = 1, nD do tD[iD] = tV[iD+1]:getSub(tV[iD]) end
+  for iD = 1, nD do tP[iD] = tV[iD]:getAdd(tD[iD]:Rsz(cT)) end
+  if(nD > 1) then return getBezierCurveVertexRec(cT, tP) end
+  return tP[1]
 end
 
 function complex.getBezierCurve(...)
   local tV, nV, nT = getUnpackSplit(...)
-  nT = math.floor(tonumber(nT) or metaData.__curve); if(nT < 2) then
-    return logStatus("complex.getBezierCurve: Samples <"..nT.."> less than two",nil) end
+  nT = (math.floor(tonumber(nT) or metaData.__numsp) + 1); if(nT < 0) then
+    return logStatus("complex.getBezierCurve: Samples mismatch <"..nT..">",nil) end
   if(not (tV[1] and tV[2])) then
     return logStatus("complex.getBezierCurve: Two vertexes are needed",nil) end
   if(not complex.isValid(tV[1])) then
     return logStatus("complex.getBezierCurve: First vertex invalid <"..type(tV[1])..">",nil) end
   if(not complex.isValid(tV[2])) then
     return logStatus("complex.getBezierCurve: Second vertex invalid <"..type(tV[2])..">",nil) end
-  local ID, cT, dT, tS = 1, 0, (1/nT), {}
-  tS[ID] = {tV[ID]:getNew(), tV[ID+1]:getSub(tV[ID]), 0}
-  cT, ID = (cT + dT), (ID + 1); while(cT < 1) do
-    local vP, vD = getBezierCurveVertexRec(cT, tV)
-    tS[ID] = {vP, vD, cT}; cT, ID = (cT + dT), (ID + 1)
-  end; tS[ID] = {tV[nV]:getNew(), tV[nV]:getSub(tV[nV-1]), 1}; return tS
+  local iD, cT, dT, tS = 1, 0, (1/nT), {}
+  tS[iD] = tV[iD]:getNew()
+  cT, iD = (cT + dT), (iD + 1)
+  while(cT < 1) do
+    tS[iD] = getBezierCurveVertexRec(cT, tV)
+    cT, iD = (cT + dT), (iD + 1)
+  end; tS[iD] = tV[nV]:getNew()
+  return tS
 end
 
 function complex.getCatmullRomCurveTangent(cS, cE, nT, nA)
-  return ((cE:getNew():Sub(cS):getNorm()^(tonumber(nA) or 0.5))+nT)
+  local nL, nM = cE:getDist(cS), metaData.__margn
+  return ((((nL == 0) and nM or nL)^(tonumber(nA) or 0.5))+nT)
 end
 
 function complex.getCatmullRomCurveSegment(cP0, cP1, cP2, cP3, nN, nA)
@@ -1378,7 +1458,7 @@ end
 
 function complex.getCatmullRomCurve(...)
   local tV, nV, nT, nA = getUnpackSplit(...)
-  nT = math.floor(tonumber(nT) or metaData.__curve); if(nT < 0) then
+  nT = math.floor(tonumber(nT) or metaData.__numsp); if(nT < 0) then
     return logStatus("complex.getCatmullRomCurve: Samples count invalid <"..tostring(nT)..">",nil) end
   if(not (tV[1] and tV[2])) then
     return logStatus("complex.getCatmullRomCurve: Two vertexes are needed",nil) end
@@ -1396,6 +1476,45 @@ function complex.getCatmullRomCurve(...)
     for iK = 1, (nT+1) do tC[iC] = tS[iK]; iC = (iC + 1) end
   end; tC[iC] = tV[nV-1]:getNew();
   table.remove(tV, 1); table.remove(tV); return tC
+end
+
+function complex.getCatmullRomCurveDupe(...)
+  local tV, nV, nT, nA = getUnpackSplit(...)
+  nT = math.floor(tonumber(nT) or metaData.__numsp); if(nT < 0) then
+    return logStatus("complex.getCurveDupe: Samples count invalid <"..tostring(nT)..">",nil) end
+  if(not (tV[1] and tV[2])) then
+    return logStatus("complex.getCurveDupe: Two vertexes are needed",nil) end
+  if(not complex.isValid(tV[1])) then
+    return logStatus("complex.getCurveDupe: First vertex invalid <"..type(tV[1])..">",nil) end
+  if(not complex.isValid(tV[2])) then
+    return logStatus("complex.getCurveDupe: Second vertex invalid <"..type(tV[2])..">",nil) end
+  local tN, nN, tF, nM = {tV[1], ID = {{true, 1}}}, 1, {}, metaData.__margn
+  for iD = 2, nV do
+    if(tV[iD]:getDist2(tN[nN]) > nM) then
+      table.insert(tN, tV[iD])
+      tN.ID[iD], nN = {true, nN}, (nN + 1)
+    else tN.ID[iD] = {false} end
+  end
+  if(nN > 1) then
+    local bS, tC = pcall(complex.getCatmullRomCurve, tN, nT, nA); if(not bS) then
+      return logStatus("complex.getCurveDupe: Error: "..tC,nil) end
+    for iD = 1, nV-1 do local iC = iD + 1
+      table.insert(tF, tV[iD]:getNew())
+      if(not tN.ID[iC][1]) then
+        for iK = 1, nT do table.insert(tF, tV[iD]:getNew()) end
+      else
+        local iP = (tN.ID[iC][2] - 1) * (nT + 1)
+        for iK = 1, nT do local iI = (iP + iK + 1)
+          table.insert(tF, tC[iI]:getNew()) end
+      end
+    end; table.insert(tF, tV[nV]:getNew())
+  else
+    for iD = 1, nV-1 do
+      table.insert(tF, tV[1]:getNew())
+      for iK = 1, nT do table.insert(tF, tV[1]:getNew()) end
+    end; table.insert(tF, tV[1]:getNew())
+  end
+  return tF, tN
 end
 
 function complex.getRegularPolygon(nN, cD, cO)
@@ -1551,12 +1670,12 @@ end
  Storage is done as tI{F=(01),(11),(00),(10)}
  The arguments q[xy] are the values the function has in c[xy]
  tV > The complex points of all four corners
- nV > Length od the array ( usually 4 )
+ nV > Length of the array ( usually 4 )
  tI > Values of the function/derivate in tV
  bC > Check for the point being on square
 ]]
 function metaComplex:getInterpolation(...)
-  local tV, nV, tI ,nH, bC = getUnpackSplit(...)
+  local tV, nV, tI, nH, bC = getUnpackSplit(...)
   if(bC) then local nM = metaData.__margn -- Validate function square borders area
     if(math.abs(tV[1]:getReal() - tV[3]:getReal()) > nM) then
       return logStatus("complex.getInterpolation["..nH.."]: Vertex X1 mismatch",nil) end
@@ -1567,11 +1686,11 @@ function metaComplex:getInterpolation(...)
     if(math.abs(tV[1]:getImag() - tV[2]:getImag()) > nM) then
       return logStatus("complex.getInterpolation["..nH.."]: Vertex Y2 mismatch",nil) end
   end; nH, extlb = getRound(tonumber(nH or 1), 1), metaData.__extlb
-  if(nH == 1) then local cT = self:getNew() -- Nearest neighbor
-    local nD, nV = cT:Sub(tV[1]):getNorm2(), (tonumber(tI.F[1]) or 0)
-    for iD = 2, 4 do cT:Set(self):Sub(tV[iD])
-      local nT = cT:getNorm2(); if(nT < nD) then
-        nD, nV = nT, (tonumber(tI.F[iD]) or 0) end; end; return nV
+  if(nH == 1) then -- Nearest neighbor (first-order-hold)
+    local nD, nF = self:getDist2(tV[1]), (tonumber(tI.F[1]) or 0)
+    for iD = 1, 4 do local nT = self:getDist2(tV[iD])
+      if(nT < nD) then nD, nF = nT, (tonumber(tI.F[iD]) or 0) end
+    end; return nF
   elseif(nH == 2) then local x, y = self:getParts()
     local x1 = (tV[1]:getReal() + tV[3]:getReal()) / 2
     local x2 = (tV[2]:getReal() + tV[4]:getReal()) / 2
@@ -1581,8 +1700,8 @@ function metaComplex:getInterpolation(...)
     local ay, by = ((y2 - y)/(y2 - y1)), ((y - y1)/(y2 - y1))
     local f1 = (ax*(tonumber(tI.F[3]) or 0) + bx*(tonumber(tI.F[4]) or 0))
     local f2 = (ax*(tonumber(tI.F[1]) or 0) + bx*(tonumber(tI.F[2]) or 0))
-    return ((ay*f1)+(by*f2))
-  elseif(nH == 3) then
+    return ((ay * f1) + (by * f2))
+  elseif(nH == 3) then -- Bicubic interpolation (third-order-hold)
     if(extlb) then return extlb.getInterpolation(self,nH,tI)
     else return logStatus("complex.getInterpolation["..nH.."]: Extension missing",nil) end
   end; return logStatus("complex.getInterpolation["..nH.."]: Mode mismatch",nil)
