@@ -23,12 +23,12 @@ local t = {
 
 local o = {{7,7}}
 
-local ma = matrix.getNew(a):Print(2, "Start matrix")
-local mb = matrix.getNew(b):Print(2, "Vctor-column matrix")
+local ma = matrix.getNew(a):Print(6, "Start matrix")
+local mb = matrix.getNew(b):Print(5, "Vctor-column matrix")
 local mx = ma:getSolve(mb):Print(25, "Solved linear equation")
-local mt = ma:getNew(t):Print(2, "Rectangle matrix")
-local mo = ma:getOnes():Print(2, "Ones matrix")
-local ca = ma:getUnit():Print(2, "Unit matrix")
+local mt = ma:getNew(t):Print(5, "Rectangle matrix")
+local mo = ma:getOnes():Print(5, "Ones matrix")
+local ca = ma:getUnit():Print(5, "Unit matrix")
 local co = matrix.getNew(o)
 
-ma:getSnip(1,2,1,2):Print(2, "Snipped minor R[1,2] C[1,2]")
+ma:getSnip(1,2,1,2):Print(6, "Snipped minor R[1,2] C[1,2]")
