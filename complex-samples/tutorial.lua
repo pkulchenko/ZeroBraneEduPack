@@ -29,7 +29,7 @@ local function makeTastCase(fCompl)
 end
 
 local function testTranslate(na, nb)
-  return common.convSignString(na)..common.convSignString(nb).."i"
+  return common.cnvSignString(na)..common.cnvSignString(nb).."i"
 end
 
 local function testCreateRI(tA)
