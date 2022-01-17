@@ -7,11 +7,9 @@ local complex = require("complex")
 local chartmap = require("chartmap")
 local colormap = require("colormap")
 
-complex.setIterations(200)
-
 io.stdout:setvbuf("no")
 
-local nFunc = 6
+local nFunc = 9
 
 local tFunc = {
   {"(z^3 - 1)", 1.3},
@@ -22,8 +20,8 @@ local tFunc = {
   {"(1/(1+z^2))", 5},
   {"(z^2 - 1)*(z - 2 - i)^2/(z^2 + 2 + 2*i)",4},
   {"(1/(1-(z:getReal()+i*z:getImag())^2))", 5},
-  {"z:getGamma()",5},
-  {"z:getZeta()",5}
+  {"z:getGamma(10)",5},
+  {"z:getZeta(10)",5}
 } 
 
 -- Tinker stuff
