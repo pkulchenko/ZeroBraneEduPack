@@ -172,19 +172,19 @@ function signals.setWeight(tD, tS, tW, tA, tB)
   end; return tD
 end
 
-function signals.convCircleToLineFrq(nW)
+function signals.cnvCircleToLineFrq(nW)
   return (nW / (2 * math.pi))
 end
 
-function signals.convLineToCircleFrq(nF)
+function signals.cnvLineToCircleFrq(nF)
   return (2 * math.pi * nF)
 end
 
-function signals.convPeriodToLineFrq(nT)
+function signals.cnvPeriodToLineFrq(nT)
   return (1 / nT)
 end
 
-function signals.convLineFrqToPeriod(nF)
+function signals.cnvLineFrqToPeriod(nF)
   return (1 / nF)
 end
 
@@ -363,7 +363,7 @@ function signals.setPhaseFactorDFT(nN)
 end
 
 -- Converts from phase number and butterfly count to index
-local function convIndexDFT(iP, iA, N2)
+local function cnvIndexDFT(iP, iA, N2)
   local nT = (2^(iP - 1))
   local nI = ((iA / nT) * N2)
   return (math.floor(nI % N2) + 1)
@@ -384,7 +384,7 @@ function signals.getForwardDFT(tS)
   end; local cT = cZ:getNew()
   for iP = 1, nR do -- Generation of tF in phase iP
     for iK = 1, nN do -- Write down the cached phase factor
-      cT:Set(tW[convIndexDFT(iP, bit.band(iK-1, iM-1), N2)])
+      cT:Set(tW[cnvIndexDFT(iP, bit.band(iK-1, iM-1), N2)])
       if(bit.band(iM, iK-1) ~= 0) then local iL = iK - iM
         tF[iK]:Set(tA[iL]):Sub(cT:Mul(tA[iK]))
       else local iL = iK + iM

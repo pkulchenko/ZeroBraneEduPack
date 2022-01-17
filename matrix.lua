@@ -22,7 +22,7 @@ local getType         = common.getType
 local getPick         = common.getPick
 local copyItem        = common.copyItem
 local stringPadL      = common.stringPadL
-local convSignString  = common.convSignString
+local cnvSignString  = common.cnvSignString
 local randomGetNumber = common.randomGetNumber
 metaMatrix.__type     = "matrix.matrix"
 metaMatrix.__index    = metaMatrix
@@ -124,7 +124,7 @@ function metaMatrix:setSym(bS)
   for iR = 1, nR do for iC = 1, nC do
     if(bS) then
       if(extlb) then tData[iR][iC] = tostring(tData[iR][iC])
-      else tData[iR][iC] = convSignString(tonumber(tData[iR][iC]) or 0) end
+      else tData[iR][iC] = cnvSignString(tonumber(tData[iR][iC]) or 0) end
     else -- When toggled convert back to a number
       if(extlb) then tData[iR][iC] = extlb.complexCnvNew(tData[iR][iC])
       else tData[iR][iC] = (tonumber(tData[iR][iC]) or 0) end

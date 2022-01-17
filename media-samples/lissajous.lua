@@ -14,8 +14,8 @@ local scOpe = chartmap.New("scope"):setInterval(intX, intY)
       scOpe:Update():setColor():setDelta(d, d)
 local s, g = {}, {}
 local tm = signals.getRamp(0,0.1,1/fs)
-local w1 = signals.convLineToCircleFrq(ff*2)
-local w2 = signals.convLineToCircleFrq(ff*5)
+local w1 = signals.cnvLineToCircleFrq(ff*2)
+local w2 = signals.cnvLineToCircleFrq(ff*5)
 signals.setWave(s, math.sin, w1, tm)
 signals.setWave(g, math.sin, w2, tm, math.pi/2)
 

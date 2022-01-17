@@ -197,7 +197,7 @@ function lifelib.getRleSettings(sStr)
   return Exp
 end
 
-function lifelib.convRule(vRule) local tTmp
+function lifelib.cnvRule(vRule) local tTmp
   if(isString(vRule)) then
     tTmp = lifelib.getRuleBS(vRule)
   elseif(isTable(vRule)) then
@@ -212,7 +212,7 @@ function lifelib.convRule(vRule) local tTmp
     end
   else tTmp = lifelib.getDefaultRule() end
   if(tTmp == nil) then
-    return logStatus("lifelib.convRule: Incorrect life rule <"..tostring(vRule).."> !",nil) end
+    return logStatus("lifelib.cnvRule: Incorrect life rule <"..tostring(vRule).."> !",nil) end
   return tTmp.Name, tTmp.Data;
 end
 ------------------- SHAPE INIT --------------------
@@ -493,7 +493,7 @@ function lifelib.newField(nW,nH,sRule)
    * If no rule can be processed the default one is used
   ]]--
   function self:setRule(vRule)
-    local nam, dat = lifelib.convRule(vRule)
+    local nam, dat = lifelib.cnvRule(vRule)
     if(not (nam and dat)) then return nil end
     mtRule.Name, mtRule.Data = nam, dat; return self
   end
@@ -649,7 +649,7 @@ function lifelib.newStamp(sName, sSrc, sExt, ...)
    * If no rule can be processed the default one is used
   ]]--
   function self:setRule(vRule)
-    local nam, dat = lifelib.convRule(vRule)
+    local nam, dat = lifelib.cnvRule(vRule)
     if(not (nam and dat)) then return nil end
     mtRule.Name, mtRule.Data = nam, dat; return self
   end
