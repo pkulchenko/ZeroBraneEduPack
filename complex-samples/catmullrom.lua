@@ -32,11 +32,25 @@ local c6 = complex.getNew( 15, 15)
 -- These calls produce the same curve for interpolation length <n-samples> and power <alpha>
 -- The default curve interpolation sample count is 100
 -- The default curve power interpolation coefficient <alpha> is 0.5
+
+-- When the nodes location is unique in the 2D complex plane
 -- local tC = complex.getCatmullRomCurve( p1, p2, ..., pn, n-samples, alpha)
 -- local tC = complex.getCatmullRomCurve({p1, p2, ..., pn}, n-samples, alpha)
 
-local tc = {c1,c2,c3,c4,c5,c6}
+-- When there are repeating nodes with close to zero direction margin you must use
+-- local tC = complex.getCatmullRomCurveDupe( p1, p2, ..., pn, n-samples, alpha)
+-- local tC = complex.getCatmullRomCurveDupe({p1, p2, ..., pn}, n-samples, alpha)
+
+-- When you need complex conversion, let the complex extractor handle the conversion
+-- The complex vararg convertor produces table of complex numbers from non-nil arguments
+-- local tc = complex.cnvArray({c1,"-5",c2,c3,1,c4,c5,"6+10i",c6})
+
+-- You can pass table of complex numbers
+local tc = complex.cnvArray(c1,c2,c3,c4,c5,c6)
 local tC = complex.getCatmullRomCurve(tc,10,0.1)
+  
+-- You can also pass vararg complex numbers
+-- local tC = complex.getCatmullRomCurve(c1,c2,c3,c4,c5,c6,10,0.1)
 
 -- Uncomment this to actually print the array contents
 -- common.logTable(tc, "tc", nil, {["complex.complex"]=tostring})
@@ -50,7 +64,7 @@ if(tC) then
 
   scOpe:Draw(true, true, true):setSizeVtx(5)
   for i = 1, #tc do
-    scOpe:drawComplexText(tc[i], "   {"..i.."}", true)
+    scOpe:drawComplexText(tc[i], "   {"..i.."}", nil, true)
     scOpe:drawComplexPoint(tc[i], clMgn)
   end
 

@@ -6,6 +6,7 @@ local math         = math
 local type         = type
 local next         = next
 local pcall        = pcall
+local table        = table
 local pairs        = pairs
 local select       = select
 local tonumber     = tonumber
@@ -233,6 +234,11 @@ function common.randomGetString(vE, vN)
   end; return sR
 end
 
+-- Noramalizes spaces in a CSV 
+function common.stringNormSpaceCSV(sS)
+  return sS:gsub("(,)(%S)", "%1 %2"):gsub("(%s+)(,)", " %2"):gsub("%s+,", ",")
+end
+
 -- Returns true when string includes atleast one letter
 function common.stringHasLetter(sS)
   return (sS:find("%a") ~= nil)
@@ -248,20 +254,35 @@ function common.stringIsLower(sS)
   return (sS:lower() == sS)
 end
 
-function common.stringImplode(tLst,sDel)
+function common.stringImplode(tLst, sDel)
   local ID, sStr, sDel = 1, "", tostring(sDel or "")
   while(tLst and tLst[ID]) do sStr = sStr..tLst[ID]; ID = ID + 1
     if(tLst[ID] and not common.isDryString(sDel)) then sStr = sStr..sDel end
   end; return sStr
 end
 
-function common.stringExplode(sStr,sDel)
+function common.stringExplode(sStr, sDel)
+  local sDel = tostring(sDel or " ")
   local tLst, sC, iDx, ID, dL = {""}, "", 1, 1, (sDel:len()-1)
   while(sC) do sC = sStr:sub(iDx,iDx+dL)
     if(common.isDryString(sC)) then return tLst
     elseif(sC == sDel) then ID = ID + 1; tLst[ID], iDx = "", (iDx + dL)
     else tLst[ID] = tLst[ID]..sC:sub(1,1) end; iDx = iDx + 1
   end; return tLst
+end
+
+function common.stringExplodePattern(sStr, sPat)
+  local sPat, tLst, ID = tostring(sPat or " "), {sStr}, 1
+  local bM, nB, nE = false, tLst[ID]:find(sPat)
+  if(common.isDryString(sPat)) then -- Modify pattern
+    bM, sPat, nB, nE = true, ".", 1, 1 -- Trigger flag
+  end -- Empty string can be found at every position
+  while(nB and nE and nE >= nB and nB > 0) do
+    tLst[ID + 1] = tLst[ID]:sub(nE + 1, -1)
+    tLst[ID]     = tLst[ID]:sub(1, nB - (bM and 0 or 1))
+    ID = ID + 1; nB, nE = tLst[ID]:find(sPat)
+  end; if(bM) then table.remove(tLst) end
+  return tLst
 end
 
 function common.stringCenter(sStr, vN, vC, bS)
@@ -272,6 +293,16 @@ function common.stringCenter(sStr, vN, vC, bS)
     if(bS) then return (sC:rep(nL)..sStr..sC:rep(nH))
     else return (sC:rep(nH)..sStr..sC:rep(nL)) end
   end; return sStr
+end
+
+function common.stringTrimL(sStr, sC)
+  local sC = tostring(sC or "%s")
+  local sO = sStr:gsub("^"..sC.."*", ""); return sO
+end
+
+function common.stringTrimR(sStr, sC)
+  local sC = tostring(sC or "%s")
+  local sO = sStr:gsub(sC.."*$", ""); return sO
 end
 
 function common.stringTrim(sStr, sC)
@@ -309,6 +340,12 @@ end
 function common.stringGetChunkPath()
   local sSrc = debug.getinfo(2).source
   return common.stringGetFilePath(sSrc:gsub("@","",1))
+end
+
+function common.stringGetFunction(vS, sD)
+  local iS = math.floor(tonumber(vS) or 0)
+  local tD = debug.getinfo(common.getClamp(iS, 0))
+  return (tD and tostring(tD.name or (sD or "")))
 end
 
 local function stringParseTableRec(sRc, fCnv, tInfo, nStg)
@@ -406,12 +443,6 @@ function common.isOdd(nV)
   return ((nV % 2) ~= 0)
 end
 
-function common.getClamp(nV, nH, nL)
-  if(nH and nV > nH) then return nH end
-  if(nL and nV < nL) then return nL end
-  return nV
-end
-
 function common.getRemap(nV, iH, iL, oH, oL, bR)
   if(bR) then
     local nK = ((nV - oL) / (oH - oL))
@@ -458,9 +489,9 @@ local __tobool = {
 }
 
 -- http://lua-users.org/lists/lua-l/2005-11/msg00207.html
-function common.toBool(anyVal)
-  if(not anyVal) then return false end
-  if(__tobool[anyVal]) then return false end
+function common.toBool(vAny)
+  if(common.isNil(vAny)) then return false end
+  if(__tobool[vAny]) then return false end
   return true
 end
 
@@ -468,12 +499,13 @@ function common.getPick(bC, vT, vF)
   if(bC) then return vT end; return vF
 end
 
-function common.getDecode(vC, nM, ...)
-  local tV, vO = {...}, nil
-  local nV, nD = (tonumber(nM) or #tV), nil
-  if(nV % 2 ~= 0) then nD = tV[nV]; nV = (nV-1) end
-  for iD = 1, (nV-1), 2 do if(vC == tV[iD]) then
-    return tV[iD+1] end; end; return nD
+-- https://docs.oracle.com/cd/B19306_01/server.102/b14200/functions040.htm
+function common.getSwitch(vC, ...)
+  local tV = {...} -- Search and result aruments
+  local nV, vD = #tV, nil -- Count and defaults
+  if(nV % 2 ~= 0) then vD = tV[nV]; nV = (nV-1) end
+  for iD = 1, (nV - 1), 2 do if(vC == tV[iD]) then
+    return tV[iD + 1] end; end; return vD
 end
 
 function common.getValueKeys(tTab, tKeys, aKey)
@@ -486,7 +518,8 @@ end
 
 function common.getClamp(nN, nL, nH)
   if(nL and nN < nL) then return nL end
-  if(nH and nN > nH) then return nH end; return nN
+  if(nH and nN > nH) then return nH end
+  return nN
 end
 
 function common.getRoll(nN, nL, nH)
@@ -1024,9 +1057,29 @@ function common.getPermute(...)
   end; return tO
 end
 
+function common.getChoose(nN, nK)
+  if(nN < 0 or nK < 0) then return 0 end
+  if(nN == nK or nK == 0) then return 1 end
+  local nE = common.getChoose(nN - 1, nK - 1)
+  return (nN / nK) * nE
+end
+
 function common.getAngNorm(nA)
   local nA = (tonumber(nA) or 0)
   return ((nA + 180) % 360 - 180)
+end
+
+function common.getCompileString(sS)
+  local fF, sE = commonCompileString(sS); if(not fF) then
+    return common.logStatus("common.getCompile[1]: "..tostring(sE)) end
+  local bS , fC = pcall(fF); if(not bS) then
+    return common.logStatus("common.getCompile[2]: "..tostring(fC)) end
+  return fC -- Return the created function from string
+end
+
+function common.getEulerGamma(nN) local nO = 0
+  for iN = 1, nN do nO = nO + (1 / iN) end
+  return (nO - math.log(nN))
 end
 
 function common.getApprox(a,b,n)
