@@ -37,10 +37,10 @@ local intX = chartmap.New("interval","WinX", -nRan, nRan, 0, W)
 local intY = chartmap.New("interval","WinY", -nRan, nRan, H, 0)
 
 local fF = common.getCompileString(([[ return
-function(z)
-  local i = z:getNew(0,1)
-  return %s
-end
+  function(z)
+    local i = z:getNew(0,1)
+    return %s
+  end
 ]]):format(tFunc[nFunc][1]))
 
 if(not fF) then return end

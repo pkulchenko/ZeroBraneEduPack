@@ -209,8 +209,8 @@ end
 
 function colormap.getColorComplexDomain(fF, vC, nA, bI)
   local bS, vF = pcall(fF, vC) -- Try dedicated call
-  if(bS) then local mT = getmetatable(vF).__type
-    if(mT == "complex.complex") then -- Actual complex type
+  if(bS) then local mT = getmetatable(vF)
+    if(mT and mT.__type == "complex.complex") then
       local nA = common.getClamp(tonumber(nA) or 0.5, 0, 1)
       local nM, nP = vF:getPolar() -- Read norm and phase
       local hslH = math.deg(nP) -- HSL needs degrees
