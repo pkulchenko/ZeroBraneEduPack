@@ -90,7 +90,14 @@ local function setBaseID(iBase)
   local sBase = tBase[iBase]
   if(not (type(sBase) == "string" and sBase:len() > 0)) then
     error("Base path missing ["..tostring(sBase).."]") end
-  local bS, sE, nE = os.execute("cd /d "..sBase)
+  local sOS, bS, sE, nE = tostring(jit.os):lower()
+  if(sOS:find("win")) then -- Windows
+    bS, sE, nE = os.execute("cd /d "..sBase)
+  elseif(sOS:find("nux")) then -- Linux
+    bS, sE, nE = os.execute("cd "..sBase)
+  else -- Not supported OS
+    errorOptions(tBase, iBase, "OS")
+  end
   if(not (bS and bS ~= nil and nE == 0)) then
     error("Base path invalid ["..sBase.."]") end
   local iCount = 0 -- Stores the number of paths processed
@@ -113,9 +120,9 @@ local function setBaseID(iBase)
           metaDirectories[iCount] = sD
           package.path = package.path..";"..sD.."/?.lua"
           package.cpath = package.cpath..";"..sD.."/?.dll"
-          print("Provided directory has been added: ["..iD.."]["..sD.."]")
+          print("Directory added: ["..iD.."]["..sD.."]")
         else
-          print("Provided directory has been skipped: ["..iD.."]["..sD.."]")
+          print("Directory skipped: ["..iD.."]["..sD.."]")
         end
       end
     end
