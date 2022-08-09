@@ -83,6 +83,51 @@ end
 
 --------------- BASE ---------------
 
+local function setBaseID(iBase)
+  local tBase = directories.retBase()
+  if(not (tBase and next(tBase))) then
+    error("Base table missing") end
+  local sBase = tBase[iBase]
+  if(not (type(sBase) == "string" and sBase:len() > 0)) then
+    error("Base path missing ["..tostring(sBase).."]") end
+  local bS, sE, nE = os.execute("cd /d "..sBase)
+  if(not (bS and bS ~= nil and nE == 0)) then
+    error("Base path invalid ["..sBase.."]") end
+  local iCount = 0 -- Stores the number of paths processed
+  local tPath = metaDirectories.tPath
+  metaDirectories.iCount = iCount
+  metaDirectories.iBase  = iBase
+  metaDirectories.sBase  = sBase
+  local iS = (iBase or 1)
+  local iE = (iBase or #tBase)
+  for iK = iS, iE do
+    local sBase = tostring(tBase[iK] or "")
+    if(sBase:len() <= 0 and iK > 0) then errorOptions(tBase, iBase, "install") end
+    for iD = 1, #tPath do
+      local sP = tostring(tPath[iD] or "")
+      if(sP:len() > 0) then
+        local sD = (sBase.."/"..sP)
+        local bS, sE, nE = os.execute("cd /d "..sD)
+        if(bS and bS ~= nil and nE == 0) then
+          iCount = iCount + 1
+          metaDirectories[iCount] = sD
+          package.path = package.path..";"..sD.."/?.lua"
+          package.cpath = package.cpath..";"..sD.."/?.dll"
+          print("Provided directory has been added: ["..iD.."]["..sD.."]")
+        else
+          print("Provided directory has been skipped: ["..iD.."]["..sD.."]")
+        end
+      end
+    end
+  end
+  metaDirectories.iCount = iCount
+  return directories
+end
+
+function directories.getBase()
+  return metaDirectories.sBase, metaDirectories.iBase
+end
+
 function directories.retBase()
   return metaDirectories.tBase
 end
@@ -99,9 +144,24 @@ function directories.addBaseID(iD, ...)
   return tableInsert(directories.retBase(), iD, ...)
 end
 
-function directories.setBase(...)
-  tableClear(directories.retBase())
-  return directories.addBase(...)
+function directories.setBase(vD)
+  if(vD) then
+    local iD = tonumber(vD)
+    if(iD) then
+      print("directories.setBase: Process ["..iD.."]")
+      if(iD > 0) then setBaseID(iD) else  
+        errorOptions(directories.retBase(), iD, "base")
+      end
+    else
+      tableClear(directories.retBase()); directories.addBase(vD)
+      print("directories.setBase: Replace ["..tostring(vD).."]")
+      setBaseID(1)
+    end
+  else
+    local iN = #directories.retBase()
+    print("directories.setBase: Using ["..iN.."]")
+    setBaseID(iN)
+  end
 end
 
 --------------- INITIALIATION ---------------
@@ -128,51 +188,6 @@ function directories.getByID(vD)
   local sP = metaDirectories[iD]; if(not sP) then
     error("Missing path under ID ["..iD.."]") end
   return sP
-end
-
-function directories.setBase(vB)
-  local iBase = math.floor(tonumber(vB) or 0)
-  local tBase = metaDirectories.tBase
-  if(not (tBase and next(tBase))) then
-    error("Directory base list missing") end
-  local sBase = tBase[iBase]
-  if(not (type(sBase) == "string" and sBase:len() > 0)) then
-    error("Directory base path missing") end
-  local bS, sE, nE = os.execute("cd /d "..sBase)
-  if(not (bS and bS ~= nil and nE == 0)) then
-    error("Base path invalid ["..sBase.."]") end
-  local iCount = 0 -- Stores the number of paths processed
-  local tPath = metaDirectories.tPath
-  metaDirectories.iCount = iCount
-  metaDirectories.iBase  = iBase
-  metaDirectories.sBase  = sBase
-  local iS = (vB and iBase or 1)
-  local iE = (vB and iBase or #tBase)
-  for iK = iS, iE do
-    local sBase = tostring(tBase[iK] or "")
-    if(sBase:len() <= 0 and iK > 0) then errorOptions(tBase, iBase, "install") end
-    for iD = 1, #tPath do
-      local sP = tostring(tPath[iD] or "")
-      if(sP:len() > 0) then
-        local sD = (sBase.."/"..sP)
-        local bS, sE, nE = os.execute("cd /d "..sD)
-        if(bS and bS ~= nil and nE == 0) then
-          iCount = iCount + 1
-          metaDirectories[iCount] = sD
-          package.path = package.path..";"..sD.."/?.lua"
-          package.cpath = package.cpath..";"..sD.."/?.dll"
-        else
-          print("Provided directory has been skipped: ["..iD.."]["..sD.."]")
-        end
-      end
-    end
-  end
-  metaDirectories.iCount = iCount
-  return directories
-end
-
-function directories.getBase()
-  return metaDirectories.sBase, metaDirectories.iBase
 end
 
 return directories
