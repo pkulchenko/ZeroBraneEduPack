@@ -915,7 +915,7 @@ function common.getDerivative(fF, vX)
     return common.logStatus("common.getDerivative: "..yL ,0) end
   bS, yH = pcall(fF, xH); if(not bS) then
     return common.logStatus("common.getDerivative: "..yH, 0) end
-  return (yH-yL)/(xH-xL)
+  return (yH - yL) / (xH - xL)
 end
 
 local function sortQuick(tD, iL, iH)
@@ -923,7 +923,7 @@ local function sortQuick(tD, iL, iH)
     local iM = common.randomGetNumber(iH-(iL-1))+iL-1
     tD[iL], tD[iM] = tD[iM], tD[iL]
     local vM, iN = tD[iL].__val, (iL + 1); iM = iL
-    while(iN <= iH)do
+    while(iN <= iH) do
       if(tD[iN].__val < vM) then iM = iM + 1
         tD[iM], tD[iN] = tD[iN], tD[iM]
       end; iN = iN + 1
