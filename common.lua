@@ -182,7 +182,7 @@ function common.logCallStack(sMsg, ...)
   end; return ...
 end
 
-function common.logConcat(anyMsg,aDel, ...)
+function common.logConcat(anyMsg, aDel, ...)
   local tPar, tDat = metaCommon.__prct, {...}
   local sDel = tostring(aDel or tPar[2])
   io.write(tostring(anyMsg)..tPar[1])
@@ -264,7 +264,7 @@ end
 function common.stringExplode(sStr, sDel)
   local sDel = tostring(sDel or " ")
   local tLst, sC, iDx, ID, dL = {""}, "", 1, 1, (sDel:len()-1)
-  while(sC) do sC = sStr:sub(iDx,iDx+dL)
+  while(sC) do sC = sStr:sub(iDx, iDx + dL)
     if(common.isDryString(sC)) then return tLst
     elseif(sC == sDel) then ID = ID + 1; tLst[ID], iDx = "", (iDx + dL)
     else tLst[ID] = tLst[ID]..sC:sub(1,1) end; iDx = iDx + 1
@@ -380,7 +380,7 @@ local function stringParseTableRec(sRc, fCnv, tInfo, nStg)
 end
 
 function common.stringToTable(sRc)
-  return stringParseTableRec(sRc,function(tIn, sCh)
+  return stringParseTableRec(sRc, function(tIn, sCh)
     local aAr, aID, aIN = {}, 1, 0
     for ID = 1, #tIn do
       local sVal = common.stringTrim(tIn[ID])
@@ -463,13 +463,13 @@ end
 
 function common.getSignString(nV)
   if(not common.isNumber(nV)) then
-    return common.logStatus("common.getSignString: Not number",nil) end
+    return common.logStatus("common.getSignString: Not number", nil) end
   return (nV < 0 and "-" or "+")
 end
 
 function common.cnvSignString(nV)
   local sS = common.getSignString(nV); if(not sS) then
-    return common.logStatus("common.cnvSignString: Not number",nil) end
+    return common.logStatus("common.cnvSignString: Not number", nil) end
   return (sS..tostring(math.abs(nV)))
 end
 
@@ -593,15 +593,15 @@ function common.copyItem(obj, ccpy, seen)
   return res
 end
 
-local function logTableRec(tT,sS,tP,tD)
+local function logTableRec(tT, sS, tP, tD)
   local tY = metaCommon.__type
   local sS, tP = tostring(sS or "Data"), (tP or {})
   local vS, vT, vK = type(sS), type(tT), ""
   if(vT ~= tY[5]) then
-    return common.logStatus("{"..vT.."}["..tostring(sS or "Data").."] = <"..tostring(tT)..">",nil) end
+    return common.logStatus("{"..vT.."}["..tostring(sS or "Data").."] = <"..tostring(tT)..">", nil) end
   if(next(tT) == nil) then
-    return common.logStatus(sS.." = {}") end; common.logStatus(sS.." = {}",nil)
-  for k,v in pairs(tT) do
+    return common.logStatus(sS.." = {}") end; common.logStatus(sS.." = {}", nil)
+  for k, v in pairs(tT) do
     if(type(k) == tY[3]) then
       vK = sS.."[\""..k.."\"]"
     else sK = tostring(k)
@@ -626,7 +626,7 @@ local function logTableRec(tT,sS,tP,tD)
           common.logStatus(vK.." = "..vF(v))
       else
         if(not tP[v]) then tP[v] = vK end
-        logTableRec(v,vK,tP,tD)
+        logTableRec(v, vK, tP, tD)
       end
     end
   end
@@ -661,10 +661,10 @@ function common.addLibrary(sB, ...)
       if(ok) then ext = (bas..fmt:format(ext))
         package.path = package.path..";"..ext
       else ext = bas..ext
-        common.logStatus("common.addLibrary["..tostring(idx).."]: Mismatch: "..ext,nil)
+        common.logStatus("common.addLibrary["..tostring(idx).."]: Mismatch: "..ext, nil)
       end
     else
-      common.logStatus("common.addLibrary["..tostring(idx).."]: Skipped",nil)
+      common.logStatus("common.addLibrary["..tostring(idx).."]: Skipped", nil)
     end
   end
 end
@@ -672,12 +672,12 @@ end
 function common.tableClear(tT)
   if(not common.isTable(tT)) then
     return common.logStatus("common.tableClear: Missing <"..tostring(tT)..">") end
-  for k,v in pairs(tT) do tT[k] = nil end
+  for k, v in pairs(tT) do tT[k] = nil end
 end
 
 function common.tableArrGetLinearSpace(nBeg, nEnd, nAmt)
   local fAmt = math.floor(tonumber(nAmt) or 0); if(fAmt < 0) then
-    return common.logStatus("common.tableArrGetLinearSpace: Samples count invalid <"..tostring(fAmt)..">",nil) end
+    return common.logStatus("common.tableArrGetLinearSpace: Samples count invalid <"..tostring(fAmt)..">", nil) end
   local iAmt, dAmt = (fAmt + 1), (nEnd - nBeg)
   local fBeg, fEnd, nAdd = 1, (fAmt+2), (dAmt / iAmt)
   local tO = {[fBeg] = nBeg, [fEnd] = nEnd}
@@ -693,7 +693,7 @@ function common.tableArrReverse(tT)
 end
 
 function common.tableArrMallocDim(vV, ...)
-  local vA, tA = common.getPick(vV,common.copyItem(vV),0), {...}
+  local vA, tA = common.getPick(vV, common.copyItem(vV),0), {...}
   local nD, tO = table.remove(tA, 1), {}
   if(common.isNil(nD)) then return vA end
   for iD = 1, nD do
@@ -722,8 +722,8 @@ end
 
 --[[
  * Converts linear array to a 2D array
- * arLin -> Linear array in format {1,2,3,4,w=2,h=2}
- * w,h   -> Custom array size
+ * arLin -> Linear array in format {1, 2, 3, 4, w = 2, h = 2}
+ * w, h  -> Custom array size
 ]]
 function common.tableArrConvert2D(arLin, vW, vH)
   if(not arLin) then return false end
@@ -736,8 +736,8 @@ function common.tableArrConvert2D(arLin, vW, vH)
   end end; return arRez
 end
 
-function common.tableArrRotateR(tArr,sX,sY)
-  local ii, jj, tTmp = 1, 1, common.tableArrMalloc2D(sY,sX)
+function common.tableArrRotateR(tArr, sX, sY)
+  local ii, jj, tTmp = 1, 1, common.tableArrMalloc2D(sY, sX)
   for j = 1, sX, 1 do for i = sY, 1, -1  do
       if(jj > sY) then ii, jj = (ii + 1), 1 end
       tTmp[ii][jj] = tArr[i][j]
@@ -748,8 +748,8 @@ function common.tableArrRotateR(tArr,sX,sY)
   end
 end
 
-function common.tableArrRotateL(tArr,sX,sY)
-  local ii, jj, tTmp = 1, 1, common.tableArrMalloc2D(sY,sX)
+function common.tableArrRotateL(tArr, sX, sY)
+  local ii, jj, tTmp = 1, 1, common.tableArrMalloc2D(sY, sX)
   for j = sX, 1, -1 do for i = 1, sY, 1  do
       if(jj > sY) then ii, jj = (ii + 1), 1 end
       tTmp[ii][jj] = tArr[i][j]
@@ -761,28 +761,28 @@ function common.tableArrRotateL(tArr,sX,sY)
 end
 
 -- Getting a start end and delta used in a for loop
-function common.getValuesSED(nVal,nMin,nMax)
+function common.getValuesSED(nVal, nMin, nMax)
   local s = (nVal > 0) and nMin or nMax
   local e = (nVal > 0) and nMax or nMin
   local d = getSign(e - s)
   return s, e, d
 end
 
-function common.tableArrShift2D(tArr,sX,sY,nX,nY)
+function common.tableArrShift2D(tArr, sX, sY, nX, nY)
   if(not (sX > 0 and sY > 0)) then return end
   local x = math.floor(nX or 0)
   local y = math.floor(nY or 0)
   if(x ~= 0) then local M
-    local sx,ex,dx = common.getValuesSED(x,sX,1)
-    for i = 1,sY do for j = sx,ex,dx do
+    local sx, ex, dx = common.getValuesSED(x, sX, 1)
+    for i = 1, sY do for j = sx, ex, dx do
         M = (j-x); if(M >= 1 and M <= sX) then
           tArr[i][j] = tArr[i][M]
         else tArr[i][j] = 0 end
     end end
   end
   if(y ~= 0) then local M
-    local sy,ey,dy = common.getValuesSED(y,sY,1)
-    for i = sy,ey,dy do for j = 1,sX do
+    local sy, ey, dy = common.getValuesSED(y, sY, 1)
+    for i = sy, ey, dy do for j = 1, sX do
         M = (i-y); if(M >= 1 and M <= sY) then
           tArr[i][j] = tArr[M][j]
         else tArr[i][j] = 0 end
@@ -790,7 +790,7 @@ function common.tableArrShift2D(tArr,sX,sY,nX,nY)
   end
 end
 
-function common.tableArrRoll2D(tArr,sX,sY,nX,nY)
+function common.tableArrRoll2D(tArr, sX, sY, nX, nY)
   if( not( sX > 0 and sY > 0) ) then return end
   local x, y = math.floor(nX or 0), math.floor(nY or 0)
   if(y ~= 0) then
@@ -798,9 +798,9 @@ function common.tableArrRoll2D(tArr,sX,sY,nX,nY)
     local MinY = (y > 0) and 1 or sY
     local siY, y, arTmp  = getSign(y), (y * siY), {}
     while(y > 0) do
-      for i = 1,sX do arTmp[i] = tArr[MaxY][i] end
-      common.tableArrShift2D(tArr,sX,sY,0,siY)
-      for i = 1,sX do tArr[MinY][i] = arTmp[i] end
+      for i = 1, sX do arTmp[i] = tArr[MaxY][i] end
+      common.tableArrShift2D(tArr, sX, sY, 0, siY)
+      for i = 1, sX do tArr[MinY][i] = arTmp[i] end
       y = y - 1
     end
   end
@@ -809,18 +809,18 @@ function common.tableArrRoll2D(tArr,sX,sY,nX,nY)
     local MinX = (x > 0) and 1 or sX
     local siX, x, arTmp  = getSign(x), (x * siX), {}
     while(x > 0) do
-      for i = 1,sY do arTmp[i] = tArr[i][MaxX] end
-      common.tableArrShift2D(tArr,sX,sY,siX)
-      for i = 1,sY do tArr[i][MinX] = arTmp[i] end
+      for i = 1, sY do arTmp[i] = tArr[i][MaxX] end
+      common.tableArrShift2D(tArr, sX, sY, siX)
+      for i = 1, sY do tArr[i][MinX] = arTmp[i] end
       x = x - 1
     end
   end
 end
 
-function common.tableArrMirror2D(tArr,sX,sY,fX,fY)
+function common.tableArrMirror2D(tArr, sX, sY, fX, fY)
   local tTmp, s = 0, 1
   if(fY) then local e = sY
-    while(s < e) do for k = 1,sX do
+    while(s < e) do for k = 1, sX do
       tTmp       = tArr[s][k]
       tArr[s][k] = tArr[e][k]
       tArr[e][k] = tTmp end
@@ -828,7 +828,7 @@ function common.tableArrMirror2D(tArr,sX,sY,fX,fY)
     end
   end
   if(fX) then local e = sX
-    while(s < e) do for k = 1,sY do
+    while(s < e) do for k = 1, sY do
       tTmp       = tArr[k][s]
       tArr[k][s] = tArr[k][e]
       tArr[k][e] = tTmp
@@ -850,7 +850,7 @@ function common.tableArrConcat(...)
   end; return tO
 end
 
-function common.tableArrExtract2D(tA,sX,eX,sY,eY)
+function common.tableArrExtract2D(tA, sX, eX, sY, eY)
   local tO, cX, cY = {}
   for iY = sY, eY  do for iX = sX, eX do
     if(not tO[iY-sY+1]) then tO[iY-sY+1] = {} end
@@ -889,7 +889,7 @@ function common.binaryNextBaseTwo(nN)
 end
 -- Check if the number is a binary power
 function common.binaryIsPower(nN)
-  return (bit.band(nN-1,nN) == 0)
+  return (bit.band(nN - 1, nN) == 0)
 end
 
 function common.bytesGetString(tB)
@@ -929,8 +929,8 @@ local function sortQuick(tD, iL, iH)
       end; iN = iN + 1
     end
     tD[iL], tD[iM] = tD[iM], tD[iL]
-    sortQuick(tD,iL,iM-1)
-    sortQuick(tD,iM+1,iH)
+    sortQuick(tD, iL, iM - 1)
+    sortQuick(tD, iM + 1, iH)
   end
 end
 
@@ -1082,7 +1082,7 @@ function common.getEulerGamma(nN) local nO = 0
   return (nO - math.log(nN))
 end
 
-function common.getApprox(a,b,n)
+function common.getApprox(a, b, n)
   local so, nn = "", (tonumber(n) or 0)
   local na, nb = tonumber(a), tonumber(b)
   if(na and nb and nn > 0) then local bt = false
