@@ -4,12 +4,20 @@ local metaDirectories =
 {
   iBase = 0,  -- The ID of the current IDE installation
   tBase = {}, -- Contains the ZBS install directories on different machines
-  tPath = {}  -- Contains different sub-paths included relative to the install path
+  tPath = {}, -- Contains different sub-paths included relative to the install path
+  sNmOS = tostring(jit.os):lower(),
+  sArch = tostring(jit.arch):lower(),
+  tSupr = {["windows"] = " >nul 2>nul", ["linux"] = " &> /dev/null"}
 }
 
 local directories = {}
 
 --------------- HELPER FUNCTIONS ---------------
+
+function directories.getNorm(sD)
+  local sS = tostring(sD):gsub("\\","/"):gsub("/+","/")
+  return ((sS:sub(-1,-1) == "/") and sS:sub(1,-2) or sS)
+end
 
 local function errorOptions(tT, iT, sS, nT)
   local iT = tostring(iT or "N/A")
@@ -83,6 +91,18 @@ end
 
 --------------- BASE ---------------
 
+function directories.osChange(sBase)
+  local sOS = metaDirectories.sNmOS
+  local sSP = (metaDirectories.tSupr[sOS] or "")
+  if(sOS == "windows") then -- Windows
+    return os.execute("cd /d "..sBase..sSP)
+  elseif(sOS == "linux") then -- Linux
+    return os.execute("cd "..sBase..sSP)
+  else -- Not supported OS
+    error("Invalid["..sOS.."]: "..sBase)
+  end
+end
+
 local function setBaseID(iBase)
   local tBase = directories.retBase()
   if(not (tBase and next(tBase))) then
@@ -90,14 +110,7 @@ local function setBaseID(iBase)
   local sBase = tBase[iBase]
   if(not (type(sBase) == "string" and sBase:len() > 0)) then
     error("Base path missing ["..tostring(sBase).."]") end
-  local sOS, bS, sE, nE = tostring(jit.os):lower()
-  if(sOS:find("win")) then -- Windows
-    bS, sE, nE = os.execute("cd /d "..sBase)
-  elseif(sOS:find("nux")) then -- Linux
-    bS, sE, nE = os.execute("cd "..sBase)
-  else -- Not supported OS
-    errorOptions(tBase, iBase, "OS")
-  end
+  local bS, sE, nE = directories.osChange(sBase)
   if(not (bS and bS ~= nil and nE == 0)) then
     error("Base path invalid ["..sBase.."]") end
   local iCount = 0 -- Stores the number of paths processed
@@ -114,15 +127,15 @@ local function setBaseID(iBase)
       local sP = tostring(tPath[iD] or "")
       if(sP:len() > 0) then
         local sD = (sBase.."/"..sP)
-        local bS, sE, nE = os.execute("cd /d "..sD)
+        local bS, sE, nE = directories.osChange(sD)
         if(bS and bS ~= nil and nE == 0) then
           iCount = iCount + 1
           metaDirectories[iCount] = sD
           package.path = package.path..";"..sD.."/?.lua"
           package.cpath = package.cpath..";"..sD.."/?.dll"
-          print("Directory added: ["..iD.."]["..sD.."]")
+          print("[V]["..iD.."]["..sD.."]")
         else
-          print("Directory skipped: ["..iD.."]["..sD.."]")
+          print("[X]["..iD.."]["..sD.."]")
         end
       end
     end
@@ -156,7 +169,7 @@ function directories.setBase(vD)
     local iD = tonumber(vD)
     if(iD) then
       print("directories.setBase: Process ["..iD.."]")
-      if(iD > 0) then setBaseID(iD) else  
+      if(iD > 0) then setBaseID(iD) else
         errorOptions(directories.retBase(), iD, "base")
       end
     else
