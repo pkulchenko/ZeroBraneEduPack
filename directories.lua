@@ -217,6 +217,8 @@ function directories.getByID(vD)
   return sP
 end
 
+--------------- COMMAND LINE ---------------
+
 local function getExecuteOS(tTY, sBS, sNA, bP, bR)
   local sP = metaDirectories.sInam
   local sN = tostring(sNA or ""); if(sN:find(sP)) then
