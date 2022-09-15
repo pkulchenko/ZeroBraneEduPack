@@ -5,9 +5,16 @@ local metaDirectories =
   iBase = 0,  -- The ID of the current IDE installation
   tBase = {}, -- Contains the ZBS install directories on different machines
   tPath = {}, -- Contains different sub-paths included relative to the install path
+  sInam = "[/\\:*?<>|]+", -- Illegal characters for a file name
   sNmOS = tostring(jit.os):lower(),
   sArch = tostring(jit.arch):lower(),
-  tSupr = {["windows"] = " >nul 2>nul", ["linux"] = " &> /dev/null"}
+  tSupr = {name = "SUPOUT", ["windows"] = " >nul 2>nul" , ["linux"] = " &> /dev/null"},
+  tCdir = {name = "CHNDIR", ["windows"] = "cd "         , ["linux"] = "cd "},
+  tMdir = {name = "NEWDIR", ["windows"] = "mkdir "      , ["linux"] = "mkdir "},
+  tEdir = {name = "ERSDIR", ["windows"] = "rmdir /S /Q ", ["linux"] = "rm -rf "},
+  tNdir = {name = "RENDIR", ["windows"] = "ren "        , ["linux"] = "ren "},
+  tEfiu = {name = "ERSFIU", ["windows"] = "del -f "     , ["linux"] = "rm -f "},
+  tRfiu = {name = "ERSFIU", ["windows"] = "ren "        , ["linux"] = "ren "}
 }
 
 local directories = {}
@@ -15,7 +22,7 @@ local directories = {}
 --------------- HELPER FUNCTIONS ---------------
 
 function directories.getNorm(sD)
-  local sS = tostring(sD):gsub("\\","/"):gsub("/+","/")
+  local sS = tostring(sD or ""):gsub("\\","/"):gsub("/+","/")
   return ((sS:sub(-1,-1) == "/") and sS:sub(1,-2) or sS)
 end
 
@@ -208,6 +215,50 @@ function directories.getByID(vD)
   local sP = metaDirectories[iD]; if(not sP) then
     error("Missing path under ID ["..iD.."]") end
   return sP
+end
+
+local function getExecuteOS(tTY, sBS, sNA, bP, bR)
+  local sP = metaDirectories.sInam
+  local sN = tostring(sNA or ""); if(sN:find(sP)) then
+    error("Invalid name ["..sN.."]: "..tTY.name) end
+  local sB = directories.getNorm(sBS)
+  local sOS = metaDirectories.sNmOS
+  local sSP = metaDirectories.tSupr[sOS]
+  local sCD = metaDirectories.tCdir[sOS]
+  local sMD = tTY[sOS]; if(not sMD) then
+    error("Invalid request ["..sOS.."]: "..tTY.name) end
+  if(sN:find("%s+")) then sN = "\""..sN.."\"" end
+  if(sB:find("%s+")) then sB = "\""..sB.."\"" end
+  local sC  = sMD..sN..((bP or bP == nil) and sSP or "")
+  if(metaDirectories.sNmOS == "windows") then
+    if(sB ~= "") then
+      local bD = sB:find(":", 1, true)
+      sC = sCD..(bD and "/d " or "")..sB.." && "..sC
+    end
+  elseif(metaDirectories.sNmOS == "linux") then
+    if(sB ~= "") then sC = sCD..sB.." && "..sC end
+  else error("Unsupported OS: "..sOS) end
+  return sC -- Return the terminal command
+end
+
+function directories.newDir(sN, sB, bP, bR)
+  return os.execute(getExecuteOS(metaDirectories.tMdir, sB, sN, bP, bR))
+end
+
+function directories.ersDir(sN, sB, bP, bR)
+  return os.execute(getExecuteOS(metaDirectories.tEdir, sB, sN, bP, bR))
+end
+
+function directories.renDir(sO, sN, sB, bP, bR) -- Name will always contain space
+  return os.execute(getExecuteOS(metaDirectories.tNdir, sB, sO.."\" \""..sN, bP, bR))
+end
+
+function directories.ersFiu(sN, sB, bP, bR)
+  return os.execute(getExecuteOS(metaDirectories.tEfiu, sB, sN, bP, bR))
+end
+
+function directories.renFiu(sO, sN, sB, bP, bR) -- Name will always contain space
+  return os.execute(getExecuteOS(metaDirectories.tRfiu, sB, sO.."\" \""..sN, bP, bR))
 end
 
 return directories
