@@ -14,7 +14,7 @@ local metaDirectories =
   tEdir = {name = "ERSDIR", ["windows"] = "rmdir /S /Q ", ["linux"] = "rm -rf "      },
   tNdir = {name = "RENDIR", ["windows"] = "ren "        , ["linux"] = "ren "         },
   tErec = {name = "ERSREC", ["windows"] = "del -f "     , ["linux"] = "rm -f "       },
-  tRrec = {name = "ERSREC", ["windows"] = "ren "        , ["linux"] = "ren "         }
+  tRrec = {name = "RENREC", ["windows"] = "ren "        , ["linux"] = "ren "         }
 }
 
 local directories = {}
