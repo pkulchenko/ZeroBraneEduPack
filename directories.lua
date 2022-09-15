@@ -9,12 +9,12 @@ local metaDirectories =
   sNmOS = tostring(jit.os):lower(),
   sArch = tostring(jit.arch):lower(),
   tSupr = {name = "SUPOUT", ["windows"] = " >nul 2>nul" , ["linux"] = " &> /dev/null"},
-  tCdir = {name = "CHNDIR", ["windows"] = "cd "         , ["linux"] = "cd "},
-  tMdir = {name = "NEWDIR", ["windows"] = "mkdir "      , ["linux"] = "mkdir "},
-  tEdir = {name = "ERSDIR", ["windows"] = "rmdir /S /Q ", ["linux"] = "rm -rf "},
-  tNdir = {name = "RENDIR", ["windows"] = "ren "        , ["linux"] = "ren "},
-  tEfiu = {name = "ERSFIU", ["windows"] = "del -f "     , ["linux"] = "rm -f "},
-  tRfiu = {name = "ERSFIU", ["windows"] = "ren "        , ["linux"] = "ren "}
+  tCdir = {name = "CHNDIR", ["windows"] = "cd "         , ["linux"] = "cd "          },
+  tMdir = {name = "NEWDIR", ["windows"] = "mkdir "      , ["linux"] = "mkdir "       },
+  tEdir = {name = "ERSDIR", ["windows"] = "rmdir /S /Q ", ["linux"] = "rm -rf "      },
+  tNdir = {name = "RENDIR", ["windows"] = "ren "        , ["linux"] = "ren "         },
+  tErec = {name = "ERSREC", ["windows"] = "del -f "     , ["linux"] = "rm -f "       },
+  tRrec = {name = "ERSREC", ["windows"] = "ren "        , ["linux"] = "ren "         }
 }
 
 local directories = {}
@@ -255,12 +255,12 @@ function directories.renDir(sO, sN, sB, bP, bR) -- Name will always contain spac
   return os.execute(getExecuteOS(metaDirectories.tNdir, sB, sO.."\" \""..sN, bP, bR))
 end
 
-function directories.ersFiu(sN, sB, bP, bR)
-  return os.execute(getExecuteOS(metaDirectories.tEfiu, sB, sN, bP, bR))
+function directories.ersRec(sN, sB, bP, bR)
+  return os.execute(getExecuteOS(metaDirectories.tErec, sB, sN, bP, bR))
 end
 
-function directories.renFiu(sO, sN, sB, bP, bR) -- Name will always contain space
-  return os.execute(getExecuteOS(metaDirectories.tRfiu, sB, sO.."\" \""..sN, bP, bR))
+function directories.renRec(sO, sN, sB, bP, bR) -- Name will always contain space
+  return os.execute(getExecuteOS(metaDirectories.tRrec, sB, sO.."\" \""..sN, bP, bR))
 end
 
 return directories
