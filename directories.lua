@@ -98,18 +98,6 @@ end
 
 --------------- BASE ---------------
 
-function directories.osChange(sBase)
-  local sOS = metaDirectories.sNmOS
-  local sSP = (metaDirectories.tSupr[sOS] or "")
-  if(sOS == "windows") then -- Windows
-    return os.execute("cd /d "..sBase..sSP)
-  elseif(sOS == "linux") then -- Linux
-    return os.execute("cd "..sBase..sSP)
-  else -- Not supported OS
-    error("Invalid["..sOS.."]: "..sBase)
-  end
-end
-
 local function setBaseID(iBase)
   local tBase = directories.retBase()
   if(not (tBase and next(tBase))) then
@@ -219,7 +207,7 @@ end
 
 --------------- COMMAND LINE ---------------
 
-local function getExecuteOS(tTY, sBS, sNA, bP, bR)
+local function getExecuteOS(tTY, sBS, sNA, bP)
   local sP = metaDirectories.sInam
   local sN = tostring(sNA or ""); if(sN:find(sP)) then
     error("Invalid name ["..sN.."]: "..tTY.name) end
@@ -237,30 +225,31 @@ local function getExecuteOS(tTY, sBS, sNA, bP, bR)
       local bD = sB:find(":", 1, true)
       sC = sCD..(bD and "/d " or "")..sB.." && "..sC
     end
+    return sC -- Return the terminal command
   elseif(metaDirectories.sNmOS == "linux") then
     if(sB ~= "") then sC = sCD..sB.." && "..sC end
+    return sC -- Return the terminal command
   else error("Unsupported OS: "..sOS) end
-  return sC -- Return the terminal command
 end
 
-function directories.newDir(sN, sB, bP, bR)
-  return os.execute(getExecuteOS(metaDirectories.tMdir, sB, sN, bP, bR))
+function directories.newDir(sN, sB, bP)
+  return os.execute(getExecuteOS(metaDirectories.tMdir, sB, sN, bP))
 end
 
-function directories.ersDir(sN, sB, bP, bR)
-  return os.execute(getExecuteOS(metaDirectories.tEdir, sB, sN, bP, bR))
+function directories.ersDir(sN, sB, bP)
+  return os.execute(getExecuteOS(metaDirectories.tEdir, sB, sN, bP))
 end
 
-function directories.renDir(sO, sN, sB, bP, bR) -- Name will always contain space
-  return os.execute(getExecuteOS(metaDirectories.tNdir, sB, sO.."\" \""..sN, bP, bR))
+function directories.renDir(sO, sN, sB, bP) -- Name will always contain space
+  return os.execute(getExecuteOS(metaDirectories.tNdir, sB, sO.."\" \""..sN, bP))
 end
 
-function directories.ersRec(sN, sB, bP, bR)
-  return os.execute(getExecuteOS(metaDirectories.tErec, sB, sN, bP, bR))
+function directories.ersRec(sN, sB, bP)
+  return os.execute(getExecuteOS(metaDirectories.tErec, sB, sN, bP))
 end
 
-function directories.renRec(sO, sN, sB, bP, bR) -- Name will always contain space
-  return os.execute(getExecuteOS(metaDirectories.tRrec, sB, sO.."\" \""..sN, bP, bR))
+function directories.renRec(sO, sN, sB, bP) -- Name will always contain space
+  return os.execute(getExecuteOS(metaDirectories.tRrec, sB, sO.."\" \""..sN, bP))
 end
 
 return directories
