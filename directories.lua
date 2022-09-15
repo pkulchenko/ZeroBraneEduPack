@@ -82,24 +82,23 @@ local function getExecuteOS(tTY, sBS, sNA, bP)
   local sS  = ((sSP and (bP or bP == nil)) and sSP or "")
   if(sN:find("%s+")) then sN = "\""..sN.."\"" end
   if(sB:find("%s+")) then sB = "\""..sB.."\"" end
-  local sC  = sMD..sN..sS
   if(sOS == "windows") then
     if(sB ~= "") then
       local bD = sB:find(":", 1, true)
-      if(sN ~= "") then
-        sC = sCD..(bD and "/d " or "")..sB.." && "..sC
+      if(sN ~= "") then -- Return the terminal command
+        return sCD..(bD and "/d " or "")..sB..sS.." && "..sMD..sN..sS
       else -- File name is not provided. Change directory
-        sC = sCD..(bD and "/d " or "")..sB..sS
-      end
-    end; return sC -- Return the terminal command
+        return sCD..(bD and "/d " or "")..sB..sS
+      end -- Otherwise execute in current folder
+    else return sMD..sN end
   elseif(sOS == "linux") then
     if(sB ~= "") then
-      if(sN ~= "") then
-        sC = sCD..sB.." && "..sC
+      if(sN ~= "") then -- Return the terminal command
+        return sCD..sB..sS.." && "..sMD..sN..sS
       else -- File name is not provided. Change directory
-        sC = sCD..sB..sS
-      end
-    end; return sC -- Return the terminal command
+        return sCD..sB..sS
+      end -- Otherwise execute in current folder
+    else return sMD..sN end
   else error("Unsupported OS: "..sOS) end
 end
 
