@@ -5,16 +5,19 @@ local metaDirectories =
   iBase = 0,  -- The ID of the current IDE installation
   tBase = {}, -- Contains the ZBS install directories on different machines
   tPath = {}, -- Contains different sub-paths included relative to the install path
+  bSupr = true, -- Global output supression for OS commants for terminal
   sInam = "[/\\:*?<>|]+", -- Illegal characters for a file name
-  sNmOS = tostring(jit.os):lower(),
-  sArch = tostring(jit.arch):lower(),
-  tSupr = {name = "SUPOUT", ["windows"] = " >nul 2>nul" , ["linux"] = " &> /dev/null"},
-  tCdir = {name = "CHNDIR", ["windows"] = "cd "         , ["linux"] = "cd "          },
-  tMdir = {name = "NEWDIR", ["windows"] = "mkdir "      , ["linux"] = "mkdir "       },
-  tEdir = {name = "ERSDIR", ["windows"] = "rmdir /S /Q ", ["linux"] = "rm -rf "      },
-  tNdir = {name = "RENDIR", ["windows"] = "ren "        , ["linux"] = "ren "         },
-  tErec = {name = "ERSREC", ["windows"] = "del -f "     , ["linux"] = "rm -f "       },
-  tRrec = {name = "RENREC", ["windows"] = "ren "        , ["linux"] = "ren "         }
+  sNmOS = tostring(jit.os):lower(), -- Operating system we are running on
+  sArch = tostring(jit.arch):lower(), -- CPU architecture we are running on
+  tSupr = {name = "SUPOUT", ["windows"] = " >nul 2>nul"       , ["linux"] = " &> /dev/null"},
+  tCdir = {name = "CHNDIR", ["windows"] = "cd "               , ["linux"] = "cd "          },
+  tMdir = {name = "NEWDIR", ["windows"] = "mkdir "            , ["linux"] = "mkdir "       },
+  tEdir = {name = "ERSDIR", ["windows"] = "rmdir /S /Q "      , ["linux"] = "rm -rf "      },
+  tNdir = {name = "RENDIR", ["windows"] = "ren "              , ["linux"] = "mv "          },
+  tDcpy = {name = "CPYDIR", ["windows"] = "xcopy /q /s /e /y ", ["linux"] = "cp -r "       },
+  tErec = {name = "ERSREC", ["windows"] = "del -f "           , ["linux"] = "rm -f "       },
+  tRrec = {name = "RENREC", ["windows"] = "ren "              , ["linux"] = "mv "          },
+  tRcpy = {name = "CPYREC", ["windows"] = "xcopy /q /y "      , ["linux"] = "cp "          }
 }
 
 local directories = {}
@@ -69,61 +72,91 @@ end
 
 --------------- COMMAND LINE ---------------
 
-local function getExecuteOS(tTY, sBS, sNA, bP)
-  local sP = metaDirectories.sInam
-  local sN = tostring(sNA or ""); if(sN:find(sP)) then
-    error("Invalid name ["..sN.."]: "..tTY.name) end
+local function getPrepareOS(tTY, sBS, sNS, sBD, sND, bPM)
+  local sPF = metaDirectories.sInam -- File name check
+  local bPM = metaDirectories.bSupr -- Supress messages
+  local sNS = tostring(sNS or ""); if(sNS:find(sPF)) then
+    error("Invalid source ["..sNS.."]: "..tTY.name) end
+  local sND = tostring(sND or ""); if(sND:find(sPF)) then
+    error("Invalid destin ["..sND.."]: "..tTY.name) end
   local sOS = metaDirectories.sNmOS
   local sMD = tTY[sOS]; if(not sMD) then
     error("Invalid request ["..sOS.."]: "..tTY.name) end
   local sSP = metaDirectories.tSupr[sOS]
   local sCD = metaDirectories.tCdir[sOS]
-  local sB = directories.getNorm(sBS)
-  local sS  = ((sSP and (bP or bP == nil)) and sSP or "")
-  if(sN:find("%s+")) then sN = "\""..sN.."\"" end
-  if(sB:find("%s+")) then sB = "\""..sB.."\"" end
+  local sBS = directories.getNorm(sBS)
+  local sBD = tostring(sBD or ""); if(sBD ~= "") then
+    sBD = directories.getNorm(sBD).."/" end; sND = sBD..sND
+  local sSP  = ((sSP and (bP or bP == nil)) and sSP or "")
+  if(sBS:find("%s+")) then sBS = "\""..sBS.."\"" end
+  if(sNS:find("%s+")) then sNS = "\""..sNS.."\"" end
+  if(sND:find("%s+")) then sND = "\""..sND.."\"" end
   if(sOS == "windows") then
-    if(sB ~= "") then
-      local bD = sB:find(":", 1, true)
-      if(sN ~= "") then -- Return the terminal command
-        return sCD..(bD and "/d " or "")..sB..sS.." && "..sMD..sN..sS
+    if(sND ~= "") then sND = " "..sND
+      if    (tTY.name == "CPYDIR") then sND = (sND.."/")
+      elseif(tTY.name == "CPYREC") then sND = (sND.."*") end
+    end
+    sBS = sBS:gsub("/","\\")
+    sNS = sNS:gsub("/","\\")
+    sND = sND:gsub("/","\\")
+    if(sBS ~= "") then
+      local bD = sBS:find(":", 1, true)
+      if(sNS ~= "") then -- Return the terminal command
+        return sCD..(bD and "/d " or "")..sBS..sSP.." && "..sMD..sNS..sND..sSP
       else -- File name is not provided. Change directory
-        return sCD..(bD and "/d " or "")..sB..sS
+        return sCD..(bD and "/d " or "")..sBS..sSP
       end -- Otherwise execute in current folder
-    else return sMD..sN end
+    else return sMD..sNS..sND..sSP end
   elseif(sOS == "linux") then
-    if(sB ~= "") then
-      if(sN ~= "") then -- Return the terminal command
-        return sCD..sB..sS.." && "..sMD..sN..sS
+    if(sBS ~= "") then
+      if(sNS ~= "") then -- Return the terminal command
+        return sCD..sBS..sSP.." && "..sMD..sNS..sND..sSP
       else -- File name is not provided. Change directory
-        return sCD..sB..sS
+        return sCD..sBS..sSP
       end -- Otherwise execute in current folder
-    else return sMD..sN end
+    else return sMD..sNS..sND..sSP end
   else error("Unsupported OS: "..sOS) end
 end
 
-function directories.swcDir(sB, bP) -- Use the current directory
-  return os.execute(getExecuteOS(metaDirectories.tCdir, sB, "", bP))
+local function getExecuteOS(sC)
+  local bS, sE, nE = os.execute(sC)
+  return bS, sE, nE, sC
 end
 
-function directories.newDir(sN, sB, bP)
-  return os.execute(getExecuteOS(metaDirectories.tMdir, sB, sN, bP))
+function directories.supCMD(bP) -- Supress CMD messages globally
+  metaDirectories.bSupr = ((bP or bP == nil) and true or false)
 end
 
-function directories.ersDir(sN, sB, bP)
-  return os.execute(getExecuteOS(metaDirectories.tEdir, sB, sN, bP))
+function directories.swcDir(sB) -- Use the current directory
+  return getExecuteOS(getPrepareOS(metaDirectories.tCdir, sB, "", "", ""))
 end
 
-function directories.renDir(sO, sN, sB, bP) -- Name will always contain space
-  return os.execute(getExecuteOS(metaDirectories.tNdir, sB, sO.."\" \""..sN, bP))
+function directories.newDir(sN, sB)
+  return getExecuteOS(getPrepareOS(metaDirectories.tMdir, sB, sN, "", ""))
 end
 
-function directories.ersRec(sN, sB, bP)
-  return os.execute(getExecuteOS(metaDirectories.tErec, sB, sN, bP))
+function directories.ersDir(sN, sB)
+  return getExecuteOS(getPrepareOS(metaDirectories.tEdir, sB, sN, "", ""))
 end
 
-function directories.renRec(sO, sN, sB, bP) -- Name will always contain space
-  return os.execute(getExecuteOS(metaDirectories.tRrec, sB, sO.."\" \""..sN, bP))
+function directories.renDir(sO, sN, sB) -- Name will always contain space
+  return getExecuteOS(getPrepareOS(metaDirectories.tNdir, sB, sO, "", sN))
+end
+
+function directories.cpyDir(sO, sN, sB, sD) -- Name will always contain space
+  return getExecuteOS(getPrepareOS(metaDirectories.tDcpy, sB, sO, sD, sN))
+end
+
+function directories.ersRec(sN, sB)
+  return getExecuteOS(getPrepareOS(metaDirectories.tErec, sB, sN, "", ""))
+end
+
+function directories.renRec(sO, sN, sB) -- Name will always contain space
+  return getExecuteOS(getPrepareOS(metaDirectories.tRrec, sB, sO.."\" \""..sN, "", ""))
+end
+
+function directories.cpyRec(sO, sN, sB, sD) -- Name will always contain space
+  return getExecuteOS(getPrepareOS(metaDirectories.tRcpy, sB, sO, sD, sN))
 end
 
 --------------- LIBRARY METHODS ---------------
@@ -198,8 +231,27 @@ local function setBaseID(iBase)
   return directories
 end
 
-function directories.getBase()
-  return metaDirectories.sBase, metaDirectories.iBase
+function directories.getBase(vB)
+  if(vB) then
+    local iB = tonumber(vB)
+    if(iB) then
+      local iB = math.floor(iB)
+      local tB = directories.retBase()
+      local sB = tB[iB]
+      if(sB) then return sB, iB end
+    else
+      local iB = tostring(vB or "")
+      local tB = directories.retBase()
+      for iK = 1, #tB do local sB = tB[iK]
+        if(tostring(sB):find(iB)) then
+          return sB, iK
+        end
+      end
+    end
+  else
+    return metaDirectories.sBase,
+           metaDirectories.iBase
+  end
 end
 
 function directories.retBase()
@@ -222,18 +274,15 @@ function directories.setBase(vD)
   if(vD) then
     local iD = tonumber(vD)
     if(iD) then
-      print("directories.setBase: Process ["..iD.."]")
       if(iD > 0) then setBaseID(iD) else
         errorOptions(directories.retBase(), iD, "base")
       end
     else
       tableClear(directories.retBase()); directories.addBase(vD)
-      print("directories.setBase: Replace ["..tostring(vD).."]")
       setBaseID(1)
     end
   else
     local iN = #directories.retBase()
-    print("directories.setBase: Using ["..iN.."]")
     setBaseID(iN)
   end
 end
