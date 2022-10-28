@@ -24,12 +24,20 @@ local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, min
 
 -- These calls produce the same curve for interpolation length <n-samples>
 -- The default curve interpolation sample count is 100
+-- When in need to use recursive version of the curve
 -- local tS = complex.getBezierCurve( p1, p2, ..., pn) < Uses the default interpolation count
 -- local tS = complex.getBezierCurve( p1, p2, ..., pn,n-samples)
 -- local tS = complex.getBezierCurve({p1, p2, ..., pn},n-samples)
+-- If you need to apply weight to a control point you can use 
+-- local tS = complex.getBezierCurveWeight( p1, p2, ..., pn) < Uses the default interpolation count
+-- local tS = complex.getBezierCurveWeight( p1, p2, ..., pn,n-samples)
+-- local tS = complex.getBezierCurveWeight({p1, p2, ..., pn},n-samples)
+-- To find the location among the curve for a given t [0..1] use
+-- complex.getBezierCurvePoint({p1, p2, ..., pn},n-samples,weigths)
 
+local tw = {1,1.5,1,1}
 local tp = {p1,p2,p3,p4}
-local tS = complex.getBezierCurve(tp,50)
+local tS = complex.getBezierCurve(tp, 50, tw)
 
 if(tS) then
   common.logStatus("The distance between every grey line on X is: "..tostring(dX))

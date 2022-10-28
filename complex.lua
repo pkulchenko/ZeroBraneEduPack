@@ -1441,6 +1441,40 @@ function complex.getBezierCurve(...)
   return tS, tD, tT
 end
 
+function complex.getBezierCurvePoint(...)
+  local tV, nV, nT, cT, tW = getUnpackSplit(...)
+  nT = (math.floor(tonumber(nT) or metaData.__numsp) + 1); if(nT < 0) then
+    return logStatus("complex.getBezierCurve: Samples mismatch <"..nT..">",nil) end
+  if(not (tV[1] and tV[2])) then
+    return logStatus("complex.getBezierCurve: Two vertexes are needed",nil) end
+  if(not complex.isValid(tV[1])) then
+    return logStatus("complex.getBezierCurve: First vertex invalid <"..type(tV[1])..">",nil) end
+  if(not complex.isValid(tV[2])) then
+    return logStatus("complex.getBezierCurve: Second vertex invalid <"..type(tV[2])..">",nil) end
+  local cB, iN, iD = complex.getNew(), (nV - 1)
+  for k = 1, nV do
+    local nW, iD = (tW and (tW[k] and tW[k] or 1) or 1), (k - 1)
+    local iM = common.getBinomChoseNK(iN, iD) * (1-cT)^(iN-iD)*cT^iD
+    cB:Add(tV[k]:getReal() * iM * nW, tV[k]:getImag() * iM * nW)
+  end; return cB
+end
+
+function complex.getBezierCurveWeight(...)
+  local tV, nV, nT, tW = getUnpackSplit(...)
+  nT = (math.floor(tonumber(nT) or metaData.__numsp) + 1); if(nT < 0) then
+    return logStatus("complex.getBezierCurve: Samples mismatch <"..nT..">",nil) end
+  if(not (tV[1] and tV[2])) then
+    return logStatus("complex.getBezierCurve: Two vertexes are needed",nil) end
+  if(not complex.isValid(tV[1])) then
+    return logStatus("complex.getBezierCurve: First vertex invalid <"..type(tV[1])..">",nil) end
+  if(not complex.isValid(tV[2])) then
+    return logStatus("complex.getBezierCurve: Second vertex invalid <"..type(tV[2])..">",nil) end
+      print("A", tV, nV, nT, cT, tW)
+  local dT, cT, tS = (1/(nT-1)), 0, {}
+  for iD = 1, nT do tS[iD] = complex.getBezierCurvePoint(tV, nT, cT, tW); cT = cT + dT end
+  return tS
+end
+
 function complex.getCatmullRomCurveTangent(cS, cE, nT, nA)
   local nL, nM = cE:getDist(cS), metaData.__margn
   return ((((nL == 0) and nM or nL)^(tonumber(nA) or 0.5))+nT)
