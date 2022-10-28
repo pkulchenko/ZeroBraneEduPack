@@ -1082,6 +1082,25 @@ function common.getEulerGamma(nN) local nO = 0
   return (nO - math.log(nN))
 end
 
+function common.getBinomPowersPT(iN)
+  local iN = (tonumber(iN) or 0)
+  if(iN < 0) then return nil end
+  if(iN == 0) then return {1} end
+  if(iN == 1) then return {1, 1} end
+  local tO, iK = {1, 1}, 2
+  while(iK <= iN) do for iC = 2, iK do
+    tO[iC - 1] = tO[iC] + tO[iC - 1] end
+  table.insert(tO, 1, 1); iK = iK + 1
+  end; return tO
+end
+
+function common.getBinomChoseNK(iN, iK)
+  iR = 1; if(iK > iN - iK) then iK = iN - iK end
+  for iC = 0, (iK - 1) do
+    iR = iR * (iN - iC); iR = iR / (iC + 1);
+  end; return iR;
+end
+
 function common.getApprox(a, b, n)
   local so, nn = "", (tonumber(n) or 0)
   local na, nb = tonumber(a), tonumber(b)
