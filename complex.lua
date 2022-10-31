@@ -1451,12 +1451,14 @@ function complex.getBezierCurvePoint(...)
     return logStatus("complex.getBezierCurve: First vertex invalid <"..type(tV[1])..">",nil) end
   if(not complex.isValid(tV[2])) then
     return logStatus("complex.getBezierCurve: Second vertex invalid <"..type(tV[2])..">",nil) end
-  local cB, iN, iD = complex.getNew(), (nV - 1)
-  for k = 1, nV do
-    local nW, iD = (tW and (tW[k] and tW[k] or 1) or 1), (k - 1)
-    local iM = common.getBinomChoseNK(iN, iD) * (1-cT)^(iN-iD)*cT^iD
-    cB:Add(tV[k]:getReal() * iM * nW, tV[k]:getImag() * iM * nW)
-  end; return cB
+  local cA, cB, iN = complex.getNew(), complex.getNew(), (nV - 1)
+  for iK = 1, nV do
+    local nW, iD = (tW and (tW[iK] and tW[iK] or 1) or 1), (iK - 1)
+    local vM, cP = (nW * common.getBinomChoseNK(iN, iD)), tV[iK]
+    local vP = (1 - cT)^(iN - iD) * cT^iD
+    local vC = vP * vM; cB:Add(vC, vC)
+    cA:Add(cP:getReal() * vC, cP:getImag() * vC)
+  end; return cA:Div(cB, true)
 end
 
 function complex.getBezierCurveWeight(...)
