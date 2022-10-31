@@ -1469,7 +1469,6 @@ function complex.getBezierCurveWeight(...)
     return logStatus("complex.getBezierCurve: First vertex invalid <"..type(tV[1])..">",nil) end
   if(not complex.isValid(tV[2])) then
     return logStatus("complex.getBezierCurve: Second vertex invalid <"..type(tV[2])..">",nil) end
-      print("A", tV, nV, nT, cT, tW)
   local dT, cT, tS = (1/(nT-1)), 0, {}
   for iD = 1, nT do tS[iD] = complex.getBezierCurvePoint(tV, nT, cT, tW); cT = cT + dT end
   return tS
