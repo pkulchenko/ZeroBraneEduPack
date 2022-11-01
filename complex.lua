@@ -1405,35 +1405,43 @@ function complex.cnvArray(...) local tA = {...}
   for iD = 1, #tA do tA[iD] = complex.cnvNew(tA[iD]) end; return tA
 end
 
-local function getBezierCurveVertexRec(cT, tV)
-  local cD = tV[1]:getNew()
-  local tP, nD = {}, (#tV-1)
+function complex.getBezierCurvePointCasteljau(...)
+  local tV, nV, cT = getUnpackSplit(...)
+  nT = (math.floor(tonumber(nT) or metaData.__numsp) + 1); if(nT < 0) then
+    return logStatus("complex.getBezierCurvePointCasteljau: Samples mismatch <"..nT..">",nil) end
+  if(not (tV[1] and tV[2])) then
+    return logStatus("complex.getBezierCurvePointCasteljau: Two vertexes are needed",nil) end
+  if(not complex.isValid(tV[1])) then
+    return logStatus("complex.getBezierCurvePointCasteljau: First vertex invalid <"..type(tV[1])..">",nil) end
+  if(not complex.isValid(tV[2])) then
+    return logStatus("complex.getBezierCurvePointCasteljau: Second vertex invalid <"..type(tV[2])..">",nil) end
+  local cD, tP, nD = tV[1]:getNew(), {}, (nV - 1)
   for iD = 1, nD do
     cD:Set(tV[iD+1]):Sub(tV[iD])
     tP[iD] = tV[iD]:getAdd(cD:Rsz(cT))
   end
   if(nD > 1) then
-    return getBezierCurveVertexRec(cT, tP)
+    return complex.getBezierCurvePointCasteljau(tP, cT)
   end
   return tP[1], cD
 end
 
-function complex.getBezierCurve(...)
+function complex.getBezierCurveCasteljau(...)
   local tV, nV, nT = getUnpackSplit(...)
   nT = (math.floor(tonumber(nT) or metaData.__numsp) + 1); if(nT < 0) then
-    return logStatus("complex.getBezierCurve: Samples mismatch <"..nT..">",nil) end
+    return logStatus("complex.getBezierCurveCasteljau: Samples mismatch <"..nT..">",nil) end
   if(not (tV[1] and tV[2])) then
-    return logStatus("complex.getBezierCurve: Two vertexes are needed",nil) end
+    return logStatus("complex.getBezierCurveCasteljau: Two vertexes are needed",nil) end
   if(not complex.isValid(tV[1])) then
-    return logStatus("complex.getBezierCurve: First vertex invalid <"..type(tV[1])..">",nil) end
+    return logStatus("complex.getBezierCurveCasteljau: First vertex invalid <"..type(tV[1])..">",nil) end
   if(not complex.isValid(tV[2])) then
-    return logStatus("complex.getBezierCurve: Second vertex invalid <"..type(tV[2])..">",nil) end
+    return logStatus("complex.getBezierCurveCasteljau: Second vertex invalid <"..type(tV[2])..">",nil) end
   local iD, cT, dT, tS, tD, tT = 1, 0, (1/nT), {}, {}, {}
   tD[iD] = tV[iD+1]:getSub(tV[iD])
   tT[iD], tS[iD] = cT, tV[iD]:getNew()
   cT, iD = (cT + dT), (iD + 1)
   while(cT < 1) do
-    tS[iD], tD[iD] = getBezierCurveVertexRec(cT, tV)
+    tS[iD], tD[iD] = complex.getBezierCurvePointCasteljau(tV, cT)
     cT, iD = (cT + dT), (iD + 1); tT[iD] = cT
   end
   tD[iD] = tV[nV]:getSub(tV[nV-1])
@@ -1441,16 +1449,14 @@ function complex.getBezierCurve(...)
   return tS, tD, tT
 end
 
-function complex.getBezierCurvePoint(...)
-  local tV, nV, nT, cT, tW = getUnpackSplit(...)
-  nT = (math.floor(tonumber(nT) or metaData.__numsp) + 1); if(nT < 0) then
-    return logStatus("complex.getBezierCurve: Samples mismatch <"..nT..">",nil) end
+function complex.getBezierCurvePointRational(...)
+  local tV, nV, cT, tW = getUnpackSplit(...)
   if(not (tV[1] and tV[2])) then
-    return logStatus("complex.getBezierCurve: Two vertexes are needed",nil) end
+    return logStatus("complex.getBezierCurvePointRational: Two vertexes are needed",nil) end
   if(not complex.isValid(tV[1])) then
-    return logStatus("complex.getBezierCurve: First vertex invalid <"..type(tV[1])..">",nil) end
+    return logStatus("complex.getBezierCurvePointRational: First vertex invalid <"..type(tV[1])..">",nil) end
   if(not complex.isValid(tV[2])) then
-    return logStatus("complex.getBezierCurve: Second vertex invalid <"..type(tV[2])..">",nil) end
+    return logStatus("complex.getBezierCurvePointRational: Second vertex invalid <"..type(tV[2])..">",nil) end
   local cA, cB, iN = complex.getNew(), complex.getNew(), (nV - 1)
   for iK = 1, nV do
     local nW, iD = (tW and (tW[iK] and tW[iK] or 1) or 1), (iK - 1)
@@ -1461,18 +1467,18 @@ function complex.getBezierCurvePoint(...)
   end; return cA:Div(cB, true)
 end
 
-function complex.getBezierCurveWeight(...)
+function complex.getBezierCurveRational(...)
   local tV, nV, nT, tW = getUnpackSplit(...)
   nT = (math.floor(tonumber(nT) or metaData.__numsp) + 1); if(nT < 0) then
-    return logStatus("complex.getBezierCurve: Samples mismatch <"..nT..">",nil) end
+    return logStatus("complex.getBezierCurveRational: Samples mismatch <"..nT..">",nil) end
   if(not (tV[1] and tV[2])) then
-    return logStatus("complex.getBezierCurve: Two vertexes are needed",nil) end
+    return logStatus("complex.getBezierCurveRational: Two vertexes are needed",nil) end
   if(not complex.isValid(tV[1])) then
-    return logStatus("complex.getBezierCurve: First vertex invalid <"..type(tV[1])..">",nil) end
+    return logStatus("complex.getBezierCurveRational: First vertex invalid <"..type(tV[1])..">",nil) end
   if(not complex.isValid(tV[2])) then
-    return logStatus("complex.getBezierCurve: Second vertex invalid <"..type(tV[2])..">",nil) end
-  local dT, cT, tS = (1/(nT-1)), 0, {}
-  for iD = 1, nT do tS[iD] = complex.getBezierCurvePoint(tV, nT, cT, tW); cT = cT + dT end
+    return logStatus("complex.getBezierCurveRational: Second vertex invalid <"..type(tV[2])..">",nil) end
+  local dT, cT, tS = (1 / nT), 0, {}
+  for iD = 1, (nT + 1) do tS[iD] = complex.getBezierCurvePointRational(tV, cT, tW); cT = cT + dT end
   return tS
 end
 

@@ -25,20 +25,22 @@ local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, min
 -- These calls produce the same curve for interpolation length <n-samples>
 -- The default curve interpolation sample count is 100
 -- When you need the recursive version of the curve with De Casteljau's algorithm
--- local tS = complex.getBezierCurve( p1, p2, ..., pn) < Uses the default interpolation count
--- local tS = complex.getBezierCurve( p1, p2, ..., pn,n-samples)
--- local tS = complex.getBezierCurve({p1, p2, ..., pn},n-samples)
+-- local tS = complex.getBezierCurveCasteljau( p1, p2, ..., pn) < Uses the default interpolation count
+-- local tS = complex.getBezierCurveCasteljau( p1, p2, ..., pn,n-samples)
+-- local tS = complex.getBezierCurveCasteljau({p1, p2, ..., pn},n-samples)
 -- If you need rational curve to apply weight to a control point you can use 
--- local tS = complex.getBezierCurveWeight( p1, p2, ..., pn) < Uses the default interpolation count and ones as weights
--- local tS = complex.getBezierCurveWeight( p1, p2, ..., pn,n-samples) < Uses ones as weights
--- local tS = complex.getBezierCurveWeight({p1, p2, ..., pn},n-samples) < Uses ones as weights
--- local tS = complex.getBezierCurveWeight({p1, p2, ..., pn},n-samples,c-weigths) < Uses ones as weights
+-- local tS = complex.getBezierCurveRational( p1, p2, ..., pn) < Uses the default interpolation count and ones as weights
+-- local tS = complex.getBezierCurveRational( p1, p2, ..., pn,n-samples) < Uses ones as weights
+-- local tS = complex.getBezierCurveRational({p1, p2, ..., pn},n-samples) < Uses ones as weights
+-- local tS = complex.getBezierCurveRational({p1, p2, ..., pn},n-samples,c-weigths) < Uses ones as weights
 -- To find the location among the curve for a given t [0..1] use
--- complex.getBezierCurvePoint({p1, p2, ..., pn},n-samples,c-weigths)
+-- complex.getBezierCurvePointRational({p1, p2, ..., pn},n-samples,c-weigths)
 
+local nt = 0.85
 local tw = {1,1,1,1}
 local tp = {p1,p2,p3,p4}
-local tS = complex.getBezierCurveWeight(tp, 25, tw)
+local tS = complex.getBezierCurveCasteljau(tp, 4, tw)
+local cP = complex.getBezierCurvePointCasteljau(tp, nt)
 
 if(tS) then
   common.logStatus("The distance between every grey line on X is: "..tostring(dX))
@@ -65,8 +67,10 @@ if(tS) then
   for iD = 1, (#tS-1) do
     tS[iD]:Action("ab", tS[iD+1], clR)
     scOpe:drawComplexPoint(tS[iD])
-    updt(); wait(0.05)
-  end 
+    updt(); wait(0.02)
+  end
+  
+  scOpe:drawComplexPoint(cP, colr(0,0,255), tostring(cP), -60);  updt()
   
   wait()
 else
