@@ -34,9 +34,9 @@ local getRound        = common.getRound
 local getClamp        = common.getClamp
 local logStatus       = common.logStatus
 local logString       = common.logString
-local getChoose       = common.getChoose
 local getSignNon      = common.getSignNon
 local getValueKeys    = common.getValueKeys
+local getBinomChoose  = common.getBinomChooseNK
 local randomGetNumber = common.randomGetNumber
 metaComplex.__type    = "complex.complex"
 metaComplex.__index   = metaComplex
@@ -1454,7 +1454,7 @@ function complex.getBezierCurvePoint(...)
   local cA, cB, iN = complex.getNew(), complex.getNew(), (nV - 1)
   for iK = 1, nV do
     local nW, iD = (tW and (tW[iK] and tW[iK] or 1) or 1), (iK - 1)
-    local vM, cP = (nW * common.getBinomChoseNK(iN, iD)), tV[iK]
+    local vM, cP = (nW * getBinomChoose(iN, iD)), tV[iK]
     local vP = (1 - cT)^(iN - iD) * cT^iD
     local vC = vP * vM; cB:Add(vC, vC)
     cA:Add(cP:getReal() * vC, cP:getImag() * vC)

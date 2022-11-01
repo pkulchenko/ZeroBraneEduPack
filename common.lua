@@ -1057,13 +1057,6 @@ function common.getPermute(...)
   end; return tO
 end
 
-function common.getChoose(nN, nK)
-  if(nN < 0 or nK < 0) then return 0 end
-  if(nN == nK or nK == 0) then return 1 end
-  local nE = common.getChoose(nN - 1, nK - 1)
-  return (nN / nK) * nE
-end
-
 function common.getAngNorm(nA)
   local nA = (tonumber(nA) or 0)
   return ((nA + 180) % 360 - 180)
@@ -1086,18 +1079,31 @@ function common.getBinomPowersPT(iN)
   local iN = (tonumber(iN) or 0)
   if(iN < 0) then return nil end
   if(iN == 0) then return {1} end
-  if(iN == 1) then return {1, 1} end
   local tO, iK = {1, 1}, 2
+  if(iN == 1) then return tO end
   while(iK <= iN) do for iC = 2, iK do
     tO[iC - 1] = tO[iC] + tO[iC - 1] end
   table.insert(tO, 1, 1); iK = iK + 1
   end; return tO
 end
 
-function common.getBinomChoseNK(iN, iK)
-  iR = 1; if(iK > iN - iK) then iK = iN - iK end
+function common.getBinomChooseRC(iN, iK)
+  if(iK > iN) then return 0 end
+  if(iN < 0 or iK < 0) then return 0 end
+  if(iN == iK or iK == 0) then return 1 end
+  local nE = common.getChoose(iN - 1, iK - 1)
+  return (iN / iK) * nE
+end
+
+function common.getBinomChooseNK(iN, iK)
+  if(iK > iN) then return 0 end
+  if(iN < 0 or iK < 0) then return 0 end
+  if(iN == iK or iK == 0) then return 1 end
+  if(iK > iN - iK) then iK = iN - iK end
+  local iR = 1 
   for iC = 0, (iK - 1) do
-    iR = iR * (iN - iC); iR = iR / (iC + 1);
+    iR = iR * (iN - iC)
+    iR = iR / (iC + 1)
   end; return iR;
 end
 
