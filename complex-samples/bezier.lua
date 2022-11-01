@@ -36,11 +36,13 @@ local scOpe = crt.New("scope"):setInterval(intX, intY):setBorder(minX, maxX, min
 -- To find the location among the curve for a given t [0..1] use
 -- complex.getBezierCurvePointRational({p1, p2, ..., pn},n-samples,c-weigths)
 
-local nt = 0.85
-local tw = {1,1,1,1}
-local tp = {p1,p2,p3,p4}
-local tS = complex.getBezierCurveCasteljau(tp, 4, tw)
-local cP = complex.getBezierCurvePointCasteljau(tp, nt)
+local ns = 6 -- Amount of mid-samples to calculate the curve for
+local mn = "Rational" -- The name of the algorithm being used
+local nt = 0.35 -- Calculate one sample point for specific T [0..1]
+local tw = {1,1,1,1} -- Control point weights for rational Bezier curves
+local tp = {p1,p2,p3,p4} -- Curve control points array
+local tS = complex["getBezierCurve"..mn](tp, ns, tw)
+local cP = complex["getBezierCurvePoint"..mn](tp, nt)
 
 if(tS) then
   common.logStatus("The distance between every grey line on X is: "..tostring(dX))
