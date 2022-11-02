@@ -23,7 +23,7 @@ function extensions.complex.getInterpolation(cSelf, nH, tI)
   local ftx = matrix.getNew({{tI.F [3], tI.F [1], tI.Fy [3], tI.Fy [1]},
                              {tI.F [4], tI.F [2], tI.Fy [4], tI.Fy [2]},
                              {tI.Fx[3], tI.Fx[1], tI.Fxy[3], tI.Fxy[1]},
-                             {tI.Fx[4], tI.Fx[2], tI.Fxy[4], tI.Fxy[2]}});
+                             {tI.Fx[4], tI.Fx[2], tI.Fxy[4], tI.Fxy[2]}})
   local nV, x, y = 0, cSelf:getParts()
   local mta = mtx:getMul(ftx):Mul(mtx:Trans())
   for iD = 1, 4 do for jD = 1, 4 do

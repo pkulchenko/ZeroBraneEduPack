@@ -1518,12 +1518,12 @@ function complex.getCatmullRomCurve(...)
   local vM, iC, tC = metaData.__margn, 1, {}
   local cS = tV[1]:getNew():Sub(tV[2]):Unit():Mul(vM):Add(tV[1])
   local cE = tV[nV]:getNew():Sub(tV[nV-1]):Unit():Mul(vM):Add(tV[nV])
-  table.insert(tV, 1, cS); table.insert(tV, cE); nV = (nV + 2);
+  table.insert(tV, 1, cS); table.insert(tV, cE); nV = (nV + 2)
   for iD = 1, (nV-3) do
     local cA, cB, cC, cD = tV[iD], tV[iD+1], tV[iD+2], tV[iD+3]
     local tS = complex.getCatmullRomCurveSegment(cA, cB, cC, cD, nT, nA)
     for iK = 1, (nT+1) do tC[iC] = tS[iK]; iC = (iC + 1) end
-  end; tC[iC] = tV[nV-1]:getNew();
+  end; tC[iC] = tV[nV-1]:getNew()
   table.remove(tV, 1); table.remove(tV); return tC
 end
 

@@ -125,7 +125,7 @@ local function newTracer(sName)
     mTimO, mTimN = mTimN, nTime
     mPntO.x, mPntO.y = mPntN.x, mPntN.y
     if(mMatX) then mPntN.x = mMatX:Convert(nTime):getValue()
-    else mPntN.x = nTime end;
+    else mPntN.x = nTime end
     if(mMatY) then mPntN.y = mMatY:Convert(mValN):getValue()
     else mPntN.y = mValN end
     if(mCach.Size > 0) then
@@ -297,7 +297,7 @@ local function newScope(sName)
       pncl(clP or mclPos); pixl(px, py)
     end
     pncl(mclDir); line(px, py, ox, oy)
-    if(bTx) then pncl(mclDir);
+    if(bTx) then pncl(mclDir)
       local nA = xyP:getSub(xyO):getAngDeg()+90
       text(tostring(xyP:getRound(0.001)),nA,px,py)
     end return self
@@ -322,7 +322,7 @@ local function newScope(sName)
     if(mnPs > 0) then local sz = 2*mnPs+1
       pncl(clNew or mclPos); rect(px-mnPs,py-mnPs,sz,sz)
     else pncl(clNew or mclPos); pixl(px, py) end
-    if(bTx) then pncl(mclDir);
+    if(bTx) then pncl(mclDir)
       local nA = (tonumber(nA) or (xyP:getAngDeg()+90))
       text(tostring(xyP:getRound(0.001)),nA,px,py)
     end; return self
@@ -334,7 +334,7 @@ local function newScope(sName)
     local nE = getClamp(math.floor(tonumber(nN) or nL), 1, nL)
     for iD = 1, nE do local cS, cE = (tV[iD+1] or tV[1]), tV[iD]
       self:drawComplex(cS, cE, bTx, clP, clO)
-    end;
+    end
     if(not bO and nE < nL) then
       self:drawComplex(tV[1], tV[nE+1], bTx, clP, clO) end
     return self

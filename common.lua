@@ -148,7 +148,7 @@ function common.logSkipClear(...)
     end
   end; local nTop = tNlg.__top
   while(not tNlg[nTop] and nTop > 0) do nTop = nTop - 1 end
-  tNlg.__top = nTop; collectgarbage();
+  tNlg.__top = nTop; collectgarbage()
 end
 
 function common.logString(anyMsg, ...)
@@ -1105,7 +1105,7 @@ function common.getBinomChooseNK(iN, iK)
   for iC = 0, (iK - 1) do
     iR = iR * (iN - iC)
     iR = iR / (iC + 1)
-  end; return iR;
+  end; return iR
 end
 
 function common.getApprox(a, b, n)

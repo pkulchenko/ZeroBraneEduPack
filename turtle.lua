@@ -513,7 +513,7 @@ local drawing = {
   char = function (char)
     if char then return type(char) == 'string' and char:byte() or char end
     local curr = key
-    -- KEY_DOWN event is not sent to the frame on OSX, so provide a (partial) workaround;
+    -- KEY_DOWN event is not sent to the frame on OSX, so provide a (partial) workaround
     -- partial, because not all keys can be caught this way
     if not curr and osname == 'Macintosh' then
       for k = 32, 127 do

@@ -4,7 +4,7 @@
 
 done = nil
 function onUpdate(event)
-  -- let the first call to onUpdate to return quickly;
+  -- let the first call to onUpdate to return quickly
   -- start the debugging during the second call to trick Corona SDK
   -- and avoid restarting the app.
   if done == nil then done = false return end

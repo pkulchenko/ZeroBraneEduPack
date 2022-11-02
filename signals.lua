@@ -439,7 +439,7 @@ local function newNeuralNet(sName)
           tX.D[iX][iP] = tX.D[iX][iP] + (mtSum[iS] / tC.W[iS][iX] * getDerivative(tX.A[iX], mfAct)) / (tP.A[iP] * #mtSum)
         end end
       end; iD = iD - 1
-      tC, tX, tP = mtData[iD], mtData[iD-1], mtData[iD-2];
+      tC, tX, tP = mtData[iD], mtData[iD-1], mtData[iD-2]
     end; return self
   end
   function self:resDelta()
@@ -459,7 +459,7 @@ local function newNeuralNet(sName)
     end; return self
   end
   function self:addLayer(...)
-    local tArg = {...}; nArg = #tArg;
+    local tArg = {...}; nArg = #tArg
     mtData[mID] = {}; mtData[mID].V = {}; mtData[mID].A = {}
     if(mID > 1) then mtData[mID].W, mtData[mID].D = {}, {} end
     for k = 1, #tArg do
@@ -827,7 +827,7 @@ local function newWiper(nR, nF, nP, nD)
   end
   function self:Draw(sKey, clDrw)
     local vT = mO:getAdd(mV)
-    mO:Action(sKey, vT, clDrw);
+    mO:Action(sKey, vT, clDrw)
     if(mN) then mN:setOrg(vT):Draw(sKey, clDrw) end
     return self
   end

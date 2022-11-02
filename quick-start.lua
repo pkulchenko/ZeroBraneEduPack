@@ -22,7 +22,7 @@ isTheSame =
   math.min(regularRate, overtimeRate) == -math.max(-regularRate, -overtimeRate)
 
 -- [Logical operators](http://www.lua.org/manual/5.1/manual.html#2.5.3): `and`, `or`, and `not`
--- The conjunction operator `and` returns its first argument if this value is `false` or `nil`;
+-- The conjunction operator `and` returns its first argument if this value is `false` or `nil`
 -- otherwise, `and` returns its second argument.
 -- The disjunction operator `or` returns its first argument if this value is different from `nil`
 -- and `false`; otherwise, `or` returns its second argument.
@@ -54,7 +54,7 @@ print(("%s"):format('string')) --> string
 -- %f placeholder is for real numbers
 print(("%.2f"):format(1.5)) --> 1.50
 -- `.2` in `%.2f` specifies the number of decimal digits to be printed
--- %.0f placeholder rounds a real number to the closest integer;
+-- %.0f placeholder rounds a real number to the closest integer
 -- ties are rounded up (in absolute values): 1.5 --> 2, -1.5 --> -2
 print(("%.0f"):format(1.5)) --> 2
 

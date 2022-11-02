@@ -213,7 +213,7 @@ function lifelib.cnvRule(vRule) local tTmp
   else tTmp = lifelib.getDefaultRule() end
   if(tTmp == nil) then
     return logStatus("lifelib.cnvRule: Incorrect life rule <"..tostring(vRule).."> !",nil) end
-  return tTmp.Name, tTmp.Data;
+  return tTmp.Name, tTmp.Data
 end
 ------------------- SHAPE INIT --------------------
 
@@ -270,7 +270,7 @@ local function initStringRle(sStr, sDel, sEnd)
         Shape[Ind] = (((Ch == sAlv) and 1) or 0)
         Ind = Ind + 1
         Num = Num - 1
-      end;
+      end
     elseif(Ch ~= sDel and Ch ~= sEnd and not isNum) then
       if(Lin) then Shape.w = Shape.w + 1 end
       Shape[Ind] = (((Ch == sAlv) and 1) or 0)

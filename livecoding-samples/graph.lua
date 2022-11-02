@@ -1,6 +1,6 @@
 require "turtle"
 
-local side = 225;
+local side = 225
 local maxx, maxy = 10, 20
 pncl(colr(200,200,200))
 line(-side, 0, side, 0) text("x", 0, side-15, 2)

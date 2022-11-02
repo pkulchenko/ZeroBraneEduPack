@@ -378,7 +378,7 @@ function metaMatrix:Trans()
     if(not tData[iC]) then tData[iC] = {} end
     if(not tData[iR]) then tData[iR] = {} end
     tData[iC][iR], tData[iR][iC] = vR, vC
-  end; end; end;
+  end; end; end
   while(not tData[nE][1]) do tData[nE] = nil; nE = nE - 1 end
   return self:setData() -- Reinitialize data size
 end
