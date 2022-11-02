@@ -1091,6 +1091,7 @@ function common.getBinomChooseRC(iN, iK)
   if(iK > iN) then return 0 end
   if(iN < 0 or iK < 0) then return 0 end
   if(iN == iK or iK == 0) then return 1 end
+  if(iK > iN - iK) then iK = iN - iK end
   local nE = common.getBinomChooseRC(iN - 1, iK - 1)
   return (iN / iK) * nE
 end
