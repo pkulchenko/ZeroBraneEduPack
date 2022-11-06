@@ -593,23 +593,24 @@ function common.copyItem(obj, ccpy, seen)
   return res
 end
 
-local function logTableRec(tT, sS, tP, tD)
+local function logTableRec(tT, sN, tP, tD)
   local tY = metaCommon.__type
-  local sS, tP = tostring(sS or "Data"), (tP or {})
-  local vS, vT, vK = type(sS), type(tT), ""
+  local sN, tP = tostring(sN or "Data"), (tP or {})
+  local vS, vT, vK = type(sN), type(tT), ""
   if(vT ~= tY[5]) then
-    return common.logStatus("{"..vT.."}["..tostring(sS or "Data").."] = <"..tostring(tT)..">", nil) end
+    return common.logStatus("{"..vT.."}["..tostring(sN or "Data").."] = <"..tostring(tT)..">", nil) end
   if(next(tT) == nil) then
-    return common.logStatus(sS.." = {}") end; common.logStatus(sS.." = {}", nil)
+    return common.logStatus(sN.." = {}") end; common.logStatus(sN.." = {}", nil)
   for k, v in pairs(tT) do
-    if(type(k) == tY[3]) then
-      vK = sS.."[\""..k.."\"]"
+    local tk, tv = type(k), type(v)
+    if(tk== tY[3]) then
+      vK = sN.."[\""..k.."\"]"
     else sK = tostring(k)
       if(tP[k]) then sK = tostring(tP[k]) end
-      vK = sS.."["..sK.."]"
+      vK = sN.."["..sK.."]"
     end
-    if(type(v) ~= tY[5]) then
-      if(type(v) == tY[3]) then
+    if(tv ~= tY[5]) then
+      if(tv == tY[3]) then
         common.logStatus(vK.." = \""..v.."\"")
       else sK = tostring(v)
         if(tP[v]) then sK = tostring(tP[v]) end
@@ -617,7 +618,7 @@ local function logTableRec(tT, sS, tP, tD)
       end
     else local cT, mT = common.getType(v), getmetatable(v)
       if(v == tT) then
-        common.logStatus(vK.." = "..sS)
+        common.logStatus(vK.." = "..sN)
       elseif(tP[v]) then
         common.logStatus(vK.." = "..tostring(tP[v]))
       elseif(type(tD) == tY[5] and
