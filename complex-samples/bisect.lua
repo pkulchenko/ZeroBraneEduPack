@@ -69,7 +69,7 @@ while true do
     local C = cmp.getNew(lx, ly)
     tDir[#tDir+1] = C; C:Action("xy", clOrg)
     if(#tDir == 2) then drw = true end
-  elseif(drw and rx and ry) then -- Reverse the interval and convert x, y image position to a complex
+  elseif(drw and rx and ry and #tDir == 2) then -- Reverse the interval and convert x, y image position to a complex
     rx = intX:Convert(rx,true):getValue() 
     ry = intY:Convert(ry,true):getValue(); cOrg:Set(rx, ry)
     cOrg:Action("ab", tDir[1], clOrg)
