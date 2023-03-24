@@ -57,7 +57,7 @@ end
 
 local function spawnXY(F, C, x, y, m)
   local px, py = math.floor(x/W*F:getW()), math.floor(y/H*F:getH())
-  C:Reset() F:setShape(C:Reset():mirrorXY(m),px, py)
+  F:setShape(C:Reset():mirrorXY(m),px, py)
 end
 
 -- Create a field where shapes must be stamped inside.
