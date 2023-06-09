@@ -10,7 +10,7 @@ local tHan = {
   B = {},
   C = {},
   Set = {
-    ["nDisk"] = 10, -- The amount of disks to get moved
+    ["nDisk"] = 11, -- The amount of disks to get moved
     ["nWait"] = 0.01, -- The amout of time to wait before a move
     ["clBase"] = colr(139,069,019), -- Base pylon color
     ["clDisk"] = colr(000,255,000), -- Disks color
@@ -42,7 +42,7 @@ local function drawState()
     for iK = 1, #val do local dsk = val[iK]
       local dX, dY = (val.C-dsk.W/2), (val.Y-iK*(dP+dsk.H))
       pncl(clDisk); rect(dX,dY,dsk.W,dsk.H)
-      text(com.getRound(dsk.P,0.001).."%",0,dX+1,dY-1)
+      text("["..dsk.ID.."]: "..com.getRound(dsk.P,0.001).."%",0,dX+1,dY-1)
     end
   end
 end

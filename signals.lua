@@ -642,7 +642,7 @@ local function newControl(nTo, sName)
     logStatus(self:getString().." Properties:")
     for iD = 1, 5 do logStatus("  User["..iD.."]: "..tostring(mUser[iD])) end
     logStatus("  Gains: {P="..tostring(mkP)..", I="..tostring(mkI)..", D="..tostring(mkD).."}")
-    logStatus("  Power: {P="..tostring(mpP)..", I="..tostring(mpI)..", D="..tostring(mpD).."")
+    logStatus("  Power: {P="..tostring(mpP)..", I="..tostring(mpI)..", D="..tostring(mpD).."}")
     logStatus("  Limit: {D="..tostring(mSatD)..",U="..tostring(mSatU).."}")
     logStatus("  Error: {"..tostring(mErrO)..", "..tostring(mErrN).."}")
     logStatus("  Out  : ["..tostring(mvCon).."]")
