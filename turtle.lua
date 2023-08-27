@@ -363,7 +363,8 @@ local function logf(value)
 end
 
 local minwait = 50 -- ms
-local gettime = pcall(require, "socket") and socket.gettime or os.time
+local ok, socket = pcall(require, "socket")
+local gettime = ok and socket.gettime or os.time
 local function wait(seconds)
   local stopat = gettime() + (seconds or 0)
   while true do
