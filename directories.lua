@@ -10,6 +10,7 @@ local metaDirectories =
   sNmOS = tostring(jit.os):lower(), -- Operating system we are running on
   sArch = tostring(jit.arch):lower(), -- CPU architecture we are running on
   tSupr = {name = "SUPOUT", ["windows"] = " >nul 2>nul"       , ["linux"] = " &> /dev/null"},
+  tLdir = {name = "LISTDR", ["windows"] = "dir "              , ["linux"] = "ls -lt "      },
   tCdir = {name = "CHNDIR", ["windows"] = "cd "               , ["linux"] = "cd "          },
   tMdir = {name = "NEWDIR", ["windows"] = "mkdir "            , ["linux"] = "mkdir "       },
   tEdir = {name = "ERSDIR", ["windows"] = "rmdir /S /Q "      , ["linux"] = "rm -rf "      },
@@ -157,6 +158,11 @@ end
 
 function directories.cpyRec(sO, sN, sB, sD) -- Name will always contain space
   return getExecuteOS(getPrepareOS(metaDirectories.tRcpy, sB, sO, sD, sN))
+end
+
+function directories.conDir(sO, sN, sB, sD) -- List direcory contents
+	print(">>",sB, sO, sD, sN)
+  print(getPrepareOS(metaDirectories.tLdir, sB, sO, sD, sN))
 end
 
 --------------- LIBRARY METHODS ---------------
