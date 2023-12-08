@@ -73,7 +73,7 @@ end
 
 --------------- COMMAND LINE ---------------
 
-local function getPrepareOS(tTY, sBS, sNS, sBD, sND, bPM)
+local function getPrepareOS(tTY, sBS, sNS, sBD, sND, sPM)
   local sPF = metaDirectories.sInam -- File name check
   local bPM = metaDirectories.bSupr -- Supress messages
   local sNS = tostring(sNS or ""); if(sNS:find(sPF)) then
@@ -84,11 +84,11 @@ local function getPrepareOS(tTY, sBS, sNS, sBD, sND, bPM)
   local sMD = tTY[sOS]; if(not sMD) then
     error("Invalid request ["..sOS.."]: "..tTY.name) end
   local sSP = metaDirectories.tSupr[sOS]
+        sSP = ((sSP and (bPM or bPM == nil)) and sSP or "")
   local sCD = metaDirectories.tCdir[sOS]
   local sBS = directories.getNorm(sBS)
   local sBD = tostring(sBD or ""); if(sBD ~= "") then
     sBD = directories.getNorm(sBD).."/" end; sND = sBD..sND
-  local sSP  = ((sSP and (bP or bP == nil)) and sSP or "")
   if(sBS:find("%s+")) then sBS = "\""..sBS.."\"" end
   if(sNS:find("%s+")) then sNS = "\""..sNS.."\"" end
   if(sND:find("%s+")) then sND = "\""..sND.."\"" end
@@ -103,7 +103,7 @@ local function getPrepareOS(tTY, sBS, sNS, sBD, sND, bPM)
     if(sBS ~= "") then
       local bD = sBS:find(":", 1, true)
       if(sNS ~= "") then -- Return the terminal command
-        return sCD..(bD and "/d " or "")..sBS..sSP.." && "..sMD..sNS..sND..sSP
+        return sCD..(bD and "/d " or "")..sBS..sSP.." && "..sMD..sNS..sND..(sPM or sSP)
       else -- File name is not provided. Change directory
         return sCD..(bD and "/d " or "")..sBS..sSP
       end -- Otherwise execute in current folder
@@ -111,7 +111,7 @@ local function getPrepareOS(tTY, sBS, sNS, sBD, sND, bPM)
   elseif(sOS == "linux") then
     if(sBS ~= "") then
       if(sNS ~= "") then -- Return the terminal command
-        return sCD..sBS..sSP.." && "..sMD..sNS..sND..sSP
+        return sCD..sBS..sSP.." && "..sMD..sNS..sND..(sPM or sSP)
       else -- File name is not provided. Change directory
         return sCD..sBS..sSP
       end -- Otherwise execute in current folder
@@ -122,6 +122,13 @@ end
 local function getExecuteOS(sC)
   local bS, sE, nE = os.execute(sC)
   return bS, sE, nE, sC
+end
+
+function directories.ripDir(sD) -- Split a fork
+  local tR, sD = {}, tostring(sD or ""):gsub("\\","/")
+  for w in sD:gmatch("([^/]+)") do
+    table.insert(tR, w)
+  end; return tR
 end
 
 function directories.supCMD(bP) -- Supress CMD messages globally
@@ -160,9 +167,64 @@ function directories.cpyRec(sO, sN, sB, sD) -- Name will always contain space
   return getExecuteOS(getPrepareOS(metaDirectories.tRcpy, sB, sO, sD, sN))
 end
 
-function directories.conDir(sO, sN, sB, sD) -- List direcory contents
-	print(">>",sB, sO, sD, sN)
-  print(getPrepareOS(metaDirectories.tLdir, sB, sO, sD, sN))
+function directories.conDir(sN, sB, bR, sT) -- Read direcory contents
+  local sT = tostring(sT or "")
+  if(sT:len() == 0) then
+    sT = tostring(debug.getinfo(2).source or "")
+    sT = sT:gsub("\\","/"):sub(2,-1):match(".+/")
+  end
+  local nam = os.tmpname():gsub("%W+","_")..".txt"
+  local dir = getPrepareOS(metaDirectories.tLdir, sB, sN, nil, nil, ">>"..sT..nam)
+  local rem = getPrepareOS(metaDirectories.tErec, sT, nam, "", "")
+  local bS = getExecuteOS(dir); if(not bS) then error("Read: "..dir) end
+  local fD = io.open(sT..nam, "rb"); if(not fD) then
+    error("Unable to open file: "..sT..nam) end
+  local sD, tD, sOS = fD:read("*line"), {}, metaDirectories.sNmOS  
+  while(sD) do sD = sD:match("^%s*(.-)%s*$")
+    if(sD:len() > 0) then
+      if(sOS == "windows") then
+        if(sD:find("File%(s%)")) then
+          -- Do nothing. Do not register item
+        elseif(sD:find("Dir%(s%)")) then
+          -- Do nothing. Do not register item
+        elseif(sD:find("Volume in drive")) then
+          local rR = sD:match("drive.*$"):gsub("drive%s", "")
+                rR = rR:gsub("is", "/"):gsub("%s", "")
+          local tL = directories.ripDir(rR)
+                tD.Drive, tD.Tag = tL[1], tL[2]
+        elseif(sD:find("Volume Serial Number is")) then
+          tD.SN = sD:match("is.*$"):gsub("is%s", "")
+        elseif(sD:find("Directory of")) then
+          tD.Root = sD:match("of.*$"):gsub("of%s", ""):gsub("\\","/")
+        elseif(sD:find("<DIR>")) then
+          if(not tD.Tree) then tD.Tree = {} end
+          local rR = sD:gsub("%s*<DIR>%s*", "/")
+          local tL = directories.ripDir(rR)
+          local tF = {Time = tL[1], Name = tL[2]}
+          if(bR and tF.Name ~= "." and tF.Name ~= "..") then
+            tF.Fork = directories.conDir(tF.Name, tD.Root, bR, sT)
+          end; table.insert(tD.Tree, tF)
+        elseif(sD:find((" "):rep(5))) then
+          if(not tD.File) then tD.File = {} end
+          local rR = sD:gsub("(%s%s)%s+", "/")
+          local tL = directories.ripDir(rR)
+          local tF = {Time = tL[1], Name = tL[2], Size = ""}
+          for n in tF.Name:gmatch("[0-9]+%s") do
+            tF.Size = tF.Size..n
+            tF.Name = tF.Name:gsub(n, "")
+          end; tF.Size = tF.Size:sub(1,-2)
+          table.insert(tD.File, tF)
+        else
+          error("Unmached line: "..sD)
+        end
+      elseif(sOS == "linux") then
+      else error("Unmached OS: "..sOS) end
+    end
+    sD = fD:read("*line")
+  end; fD:close()
+  local bS = getExecuteOS(rem); if(not bS) then
+    error("Unable to remove temp file: "..rem) end
+  return tD
 end
 
 --------------- LIBRARY METHODS ---------------
