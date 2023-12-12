@@ -848,7 +848,7 @@ function metaComplex:isAmongLine(cS, cE, bF)
 end
 
 function metaComplex:isAmongPoint(vR, vI)
-  return (self:getDist(vR, vI) < metaData.__margn)
+  return (self:getDist2(vR, vI) < metaData.__margn)
 end
 
 function metaComplex:Zero()
@@ -951,15 +951,15 @@ end
 
 function metaComplex:isInCircle(cO, vR)
   local nM = metaData.__margn
-  local nR = getClamp(tonumber(vR) or 0, 0)
-  local nN = self:getDist(cO)
+  local nR = getClamp(tonumber(vR) or 0, 0)^2
+  local nN = self:getDist2(cO)
   return (nN < (nR+nM))
 end
 
 function metaComplex:isAmongCircle(cO, vR)
   local nM = metaData.__margn
-  local nN = self:getDist(cO)
-  local nR = getClamp(tonumber(vR) or 0, 0)
+  local nN = self:getDist2(cO)
+  local nR = getClamp(tonumber(vR) or 0, 0)^2
   return ((nN < (nR+nM)) and (nN > (nR-nM)))
 end
 

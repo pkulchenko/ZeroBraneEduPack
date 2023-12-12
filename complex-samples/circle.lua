@@ -118,6 +118,9 @@ while true do
           vC, vN = cmp.getReflectRayCircle(cRay1[1], cD, cRay2[1], rad) end
         if(vC) then vX:Action("ab", vX:getAdd(vC:Mul(nL)), clGrn) end
         logStatus("Refracted ray from the circle is "..vC)
+        logStatus("Ray origin "..cRay1[1].." is "..(cRay1[1]:isAmongPoint(cRay2[1]) and "ON" or "OFF").." the circle center "..cRay2[1])
+        logStatus("Ray end "..cRay1[2].." is "..(cRay1[2]:isAmongCircle(cRay2[1], rad) and "ON" or "OFF").." the circle arc "..cRay2[1])
+        logStatus("Ray end "..cRay1[2].." is "..(cRay1[2]:isInCircle(cRay2[1], rad) and "IN" or "OUT").." the circle area "..cRay2[1])
       else
         logStatus("The complex reflection cannot happen")
       end
